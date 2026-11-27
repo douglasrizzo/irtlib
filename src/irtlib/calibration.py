@@ -10,6 +10,7 @@ import numpy
 from catsim import ItemBank
 from catsim.estimation import QuadratureGrid
 
+from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED
 from .typing import FloatArray, IntArray
 
 _RESPONSE_NDIM = 2
@@ -116,4 +117,4 @@ def default_grid() -> QuadratureGrid:
   >>> grid.nodes.size, float(grid.nodes[0]), float(grid.nodes[-1])
   (61, -6.0, 6.0)
   """
-  return QuadratureGrid.uniform(_GRID_NODES)
+  return QuadratureGrid.uniform(_GRID_NODES, THETA_MIN_EXTENDED, THETA_MAX_EXTENDED)

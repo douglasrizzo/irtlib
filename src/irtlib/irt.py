@@ -40,6 +40,12 @@ from scipy.special import expit
 
 from .typing import FloatArray
 
+THETA_MIN_EXTENDED = -6.0
+"""The lower end of the extended ability range, which the default quadrature grid spans."""
+
+THETA_MAX_EXTENDED = 6.0
+"""The upper end of the extended ability range, which the default quadrature grid spans."""
+
 
 def _logistic(
   theta: float | FloatArray, items: FloatArray
