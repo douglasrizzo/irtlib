@@ -19,8 +19,8 @@ records the definitions, their sources and how they behave.
 
 ## Evidence
 
-- The research pass (2026-11-27) found no card for model comparison; the starting list of
-  `discovery/research-pass.md` named it.
+- The research pass (2026-11-27) found no card for model comparison, which its starting list
+  named.
 - A measurement on mirt 1.48 (2026-11-27), `LSAT7` at `TOL = 1e-8`: Rasch against 2PL, the
   likelihood-ratio statistic is 12.192 on 4 degrees of freedom, $p = .016$; the 2PL's
   log-likelihood is −2658.805 with 10 parameters, so its AIC is 5337.610 and its BIC 5386.688 for

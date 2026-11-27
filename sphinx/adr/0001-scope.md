@@ -24,8 +24,8 @@ while a CAT administers them. Each is a body of methods of its own.
 - It evaluates the fit of a calibrated model to the responses, item by item.
 - Its estimates use catsim's parameterization, the $a$, $b$, $c$ and $d$ of the four-parameter
   logistic model with no scaling constant, so a calibrated bank is one catsim reads (ADR-0004).
-- Which estimation methods it implements, and in what order, follows from a research pass over
-  their primary sources (`backlog/discovery/research-pass.md`).
+- Which estimation methods it implements, and in what order, follows from a review of their
+  primary sources (`backlog/discovery/literature-review.md`).
 - Outside its scope: polytomous models, multidimensional models, linking and equating, online
   calibration of items seeded into adaptive tests, serving or storing tests, and a graphical or web
   interface.

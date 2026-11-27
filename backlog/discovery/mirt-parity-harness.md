@@ -45,7 +45,9 @@ unless `CATSIM_CATR_LIB` overrides it, and writes one JSON file per family), and
 
 ## Open Questions
 
-1. The tolerances: closed forms (response probabilities, gradients, log-likelihoods at fixed
-   parameters) to a relative $10^{-10}$, as catsim's catR tests do; iterative estimates within the
-   sum of the two packages' convergence tolerances, or a tolerance the research pass justifies.
-2. Which standard-error method the fixtures record, which depends on the research pass.
+1. The tolerances: the requirements card's question 18 recommends fixtures recorded with mirt at
+   `TOL = 1e-8`, estimates compared within `1e-5` and closed forms within a relative $10^{-10}$, as
+   catsim's catR tests do.
+2. The standard-error method the fixtures record: Oakes's identity with central differences, mirt's
+   default, with `SE.type = "Louis"` as a cross-check
+   ([the standard-errors card](../estimation/standard-errors.md)).
