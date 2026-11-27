@@ -78,7 +78,7 @@ relative difference of $2.5 \times 10^{-11}$, at 3% of the time (Chalmers, 2018,
 
 ## Derivatives with respect to item parameters
 
-**Card:** [irt/icc-gradients.md](../irt/icc-gradients.md).
+**Implemented:** `pyitemcal.irt`, whose module docstring holds the design and its sources.
 
 Every M-step and every standard error uses the derivatives of the response probability with respect
 to the item's parameters. Barton and Lord (1981, pp. A1-A3) give them for the four-parameter model with

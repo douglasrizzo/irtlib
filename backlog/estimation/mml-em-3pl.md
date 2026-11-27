@@ -40,8 +40,8 @@ slopes finite (Baker, 1987, pp. 130-131), so the mechanism is the card's and the
 
 - catsim: `catsim.estimation.LogPrior`, `normal_log_prior` and `uniform_log_prior`, priors on ability
   that ADR-0004 lets pyitemcal reuse.
-- pyitemcal: nothing; the 2PL is [the MML-EM card](mml-em.md), the derivatives
-  [the ICC-gradients card](../irt/icc-gradients.md).
+- pyitemcal: the derivatives with respect to the logit of $c$ (`pyitemcal.irt`); the 2PL is
+  [the MML-EM card](mml-em.md).
 
 ## Proposal
 

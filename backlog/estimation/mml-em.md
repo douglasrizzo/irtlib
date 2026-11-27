@@ -1,10 +1,10 @@
 ---
 title: Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm
 kind: technique
-status: blocked
+status: ready
 priority: 1
 effort: M
-blocked_by: [irt/icc-gradients]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -49,8 +49,9 @@ solution. The 1PL and 2PL come first because their M-step is the simplest.
   equally spaced nodes with equal weights, 121 on $[-6, 6]$ by default), `normal_log_prior`, and a
   posterior over a grid for one examinee's responses; `catsim.irt.icc` and
   `log_response_probabilities`.
-- pyitemcal: nothing; the derivatives with respect to item parameters are
-  [the ICC-gradients card](../irt/icc-gradients.md).
+- pyitemcal: the derivatives with respect to item parameters, the gradient of an item's grouped
+  log-likelihood and its expected information, in mirt's parameters (`pyitemcal.irt`); the parity
+  fixtures of this card's cases (`tests/parity/mirt/mml_em.json`).
 
 ## Proposal
 

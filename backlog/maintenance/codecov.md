@@ -1,10 +1,10 @@
 ---
 title: Report coverage to Codecov
 kind: maintenance
-status: blocked
+status: ready
 priority: 4
 effort: XS
-blocked_by: [irt/icc-gradients]
+blocked_by: []
 raised_by: [setup of pyitemcal]
 ---
 

@@ -92,9 +92,9 @@ educational studies" (Robitzsch, 2022, p. 3).
 
 The 4PL is catsim's response function, $P = c + (d - c)F$. Bayes modal estimation is the 3PL card's,
 with $d$ estimated as logit $d$ and a prior on it. Its M-step uses the derivative with respect to
-$d$ from [the ICC-gradients card](../irt/icc-gradients.md) times $d(1 - d)$, the derivative of $d$
-with respect to logit $d$ (the card's chain rule, as Mislevy, 1986, p. 184, Equation 22, does for
-$c$).
+logit $d$, $d(1 - d)F$, which `pyitemcal.irt` computes: the derivative with respect to $d$ times
+$d(1 - d)$, the derivative of $d$ with respect to logit $d$ (the chain rule, as Mislevy, 1986,
+p. 184, Equation 22, applies it to $c$).
 
 Several sources parameterize the model differently: Robitzsch (2022) and Culpepper (2016) estimate
 a slipping probability, one minus the upper asymptote; Culpepper (2016) fits the normal-ogive model in
