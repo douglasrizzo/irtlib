@@ -13,7 +13,7 @@ raised_by: [moved from catsim's backlog]
 ## Problem
 
 Joint maximum likelihood (JML) estimates every examinee's ability alongside the item parameters. It
-is the method of LOGIST and of the Rasch programs BICAL and UCON (Baker, 1987, pp. 112, 115), so
+is the method of LOGIST and of the Rasch programs BICAL and UCON (Baker, 1987, pp. 112, 115, 118), so
 researchers comparing calibration methods, the first audience ADR-0001 names, need it as a
 reference point. Its estimates are not consistent when the test length is fixed, so pyitemcal offers
 it for comparison and preliminary estimates, not as a default.
@@ -24,10 +24,11 @@ The research pass (2026-11-27) checked the card carried over from catsim:
 
 - "difficulty variance is underestimated (difficulties shrunk toward the mean)" is the opposite of
   what the sources find for the Rasch model: JML spreads the difficulties outward, the estimate being
-  the CML value times $1 + c$ with $c > 0$ (Wright & Douglas, 1977, p. 286, Equations 26-27), and with
-  two items it is exactly twice the conditional estimate (p. 288);
-- "the Wright-Douglas correction divides each $b_i$ by $(I-1)/I$" has it backwards: the correction
-  multiplies by $(L - 1)/L$ (p. 287, Equation 35);
+  the CML value times $1 + \kappa$ with a relative bias $\kappa > 0$ (Wright & Douglas, 1977,
+  pp. 286-287, Equations 26-27, Table 1), and with two items it is exactly twice the conditional
+  estimate (p. 288);
+- "the Wright-Douglas correction divides each $b_i$ by $(I-1)/I$" has it backwards: for $M$ items,
+  the correction multiplies by $(M - 1)/M$ (p. 287, Equation 35, where $M$ is their $L$);
 - "fence $\theta$ at $\pm K$ (e.g. $K = 4$)" has no source; LOGIST gives examinees whose ability
   estimate diverges "default boundary values", unnumbered (Mislevy & Stocking, 1989, p. 65);
 - "discrimination $a$ is overestimated" rests only on secondary reports (Baker, 1987, p. 118) and is
@@ -48,11 +49,14 @@ studies.
 
 ## Tests
 
-- **Closed form:** with two Rasch items, the JML difference of difficulties is exactly twice the CML
-  one, $\log \#(1,0) - \log \#(0,1)$ (Wright & Douglas, 1977, p. 288; Andersen, 1970, p. 299).
-- **Bias in the expected direction:** on Rasch data with $L$ items, the uncorrected difficulties' spread
-  exceeds the generating one by about $1/(L - 1)$ (Wright & Douglas, 1977, p. 287, Table 1), and the
-  corrected estimates agree with CML within the residual bias of their Table 2 (p. 288).
+- **Closed form:** with two Rasch items, the JML difference of difficulties $b_2 - b_1$ is exactly
+  twice the CML one, $\log n_{10} - \log n_{01}$, where $n_{10}$ counts examinees with item 1 right
+  and item 2 wrong (Wright & Douglas, 1977, p. 288; Andersen, 1970, p. 299).
+- **Bias in the expected direction:** on Rasch data with $M$ items and roughly uniform scores and
+  difficulties, the uncorrected difficulties exceed the conditional ones by a relative amount close to
+  $1/(M - 1)$, for items with $|b| \geq .5$ (Wright & Douglas, 1977, pp. 286-288, Equations 31-34,
+  Table 1); after the correction, the residual bias for $M = 20$ is within the values of their Table 2
+  (p. 288).
 - **Editing:** examinees with zero or perfect scores, and items answered by all or none, are removed
   before estimation (Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294).
 
@@ -71,7 +75,8 @@ studies.
 **Module:** decided by the requirements card (planned)
 **Reference:** Wright & Douglas (1977); Haberman (2004)
 **Last validated:** 2026-11-27, against Wright & Douglas (1977), Haberman (2004), Andersen (1970),
-Baker (1987), Mislevy & Stocking (1989) and Robitzsch (2021) on the paper shelf.
+Baker (1987), Bock & Aitkin (1981), Mislevy & Stocking (1989) and Robitzsch (2021) on the paper
+shelf.
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -92,10 +97,12 @@ abilities' mean and standard deviation, or for the Rasch model the mean difficul
 Examinees with every item right or wrong have no finite estimate and are removed, as are items
 answered by all or none (Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294).
 
-**Bias and its correction for the Rasch model.** With $q$ items fixed, the JML difficulties converge
-to a limit that differs from the parameters by a term of order $1/q$ (Haberman, 2004, p. 13). Wright
-and Douglas (1977, p. 287, Equations 34-35) find the relative bias close to $1/(L - 1)$ for $L$ items,
-whatever the spread of the difficulties, and multiply the estimates by $(L - 1)/L$. The correction
+**Bias and its correction for the Rasch model.** With the number of items $M$ fixed, the JML
+difficulties converge to a limit that differs from the parameters by a term of order $1/M$ (Haberman,
+2004, p. 13). Wright and Douglas (1977, p. 287, Equations 34-35) find the relative bias close to
+$1/(M - 1)$, whatever the spread of the difficulties, and multiply the difficulties, centred at 0 as
+BICAL centres them (Baker, 1987, p. 115), by $(M - 1)/M$; it is the factor "used in most versions of
+UCON" (Wright & Douglas, 1977, p. 288). The correction
 brings the estimates close to the conditional ones, which "is not the same as" removing the bias
 with respect to the parameters (Baker, 1987, p. 118).
 
@@ -111,7 +118,7 @@ with respect to the parameters (Baker, 1987, p. 118).
      - Description
    * - ``correct``
      - on, Rasch model only
-     - Multiply the difficulties by (L - 1)/L.
+     - Multiply the centred difficulties by (M - 1)/M, as UCON does.
 ```
 
 ## Behavior and Comparison
@@ -120,8 +127,9 @@ For the Rasch model with 2 items, the JML estimates are exactly twice the condit
 Douglas, 1977, p. 288). On two SAT tests of 78 and 60 items, the largest difference between JML and
 CML difficulties was 0.097 and 0.126, against CML standard errors of at most 0.008 (Haberman, 2004,
 pp. 44-45). Haberman (2004, p. 35) finds it "difficult to advocate use of JMLE except for preliminary
-estimation". In Robitzsch's (2021, p. 823, Table 2) simulations, the usual JML had acceptable bias in
-54.2% of the conditions, against 100% for CML.
+estimation". In Robitzsch's (2021, p. 823, Table 2) simulations, JML with the $(M - 1)/M$ correction
+and extreme scores removed (his JMLM, p. 816) had acceptable bias, a mean absolute bias below 0.025
+(p. 821), in 54.2% of the conditions, against 100% for CML.
 
 ## Guarantees
 

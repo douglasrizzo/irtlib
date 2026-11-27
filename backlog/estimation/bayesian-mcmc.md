@@ -15,8 +15,9 @@ raised_by: [moved from catsim's backlog]
 Markov chain Monte Carlo (MCMC) samples the joint posterior of the abilities and the item
 parameters, so it reports the uncertainty of the item estimates as a whole distribution, not a
 standard error at a mode. It is how the 4PL has been fitted (Loken & Rulison, 2010, p. 513;
-Culpepper, 2016). Its point estimates agree closely with marginal maximum likelihood (below), at a
-much larger cost, so its value for pyitemcal is the posterior, and it comes last in the build order.
+Culpepper, 2016, Section 2). Its point estimates agree closely with those of BILOG (below), and the
+run times reported are hours, so its value for pyitemcal is the posterior, and it comes last in the
+build order.
 
 ## Evidence
 
@@ -45,12 +46,17 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
 
 ## Tests
 
-- **Agreement with MML:** on a large simulated sample, posterior means within Monte Carlo error of
-  the MML-EM estimates, as Patz and Junker (1999a, p. 163, Table 2) and Kim and Bolt (2007, p. 46)
-  found against BILOG.
-- **Potential scale reduction:** computed from hand-made chains against the closed form
-  $\hat\sigma^2 = \frac{n-1}{n}W + \frac{1}{n}B$ and $\sqrt{\hat R} = \sqrt{(\hat V/W)\,df/(df - 2)}$
-  (Gelman & Rubin, 1992, p. 461, Equation 3).
+- **Agreement with Bayes modal estimation:** on a large simulated sample, the posterior modes agree
+  with the 3PL card's Bayes modal estimates under the same priors, within a tolerance the test
+  justifies from the chains' Monte Carlo error. Patz and Junker's (1999a, p. 163, Table 2) posterior
+  means differed from BILOG's estimates by up to 0.01, and Kim and Bolt's (2007, p. 46) BILOG run used
+  "the same priors"; the test departs from both by comparing modes.
+- **Potential scale reduction:** for $m$ chains of length $2n$, of which the last $n$ are kept, with
+  $B/n$ the variance between the chain means and $W$ the mean of the within-chain variances
+  (Gelman & Rubin, 1992, p. 460), computed from hand-made chains against the closed forms
+  $\hat\sigma^2 = \frac{n-1}{n}W + \frac{1}{n}B$ (p. 461, Equation 3), $\hat V = \hat\sigma^2 +
+  B/(mn)$, $df = 2\hat V^2/\widehat{\operatorname{var}}(\hat V)$ with the variance of Equation 4, and
+  $\sqrt{\hat R} = \sqrt{(\hat V/W)\,df/(df - 2)}$ (p. 461).
 - **Detailed balance:** each Metropolis step's acceptance ratio, including the correction for its
   asymmetric proposal, checked against a direct computation of the posterior ratio.
 - **Reproducibility** (ADR-0005): the same `rng` gives the same draws.
@@ -62,9 +68,10 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
    (1992, p. 262) posterior standard deviations were 20% to 60% larger than the EM standard errors.
    Assumed: last in the build order, revisited after the 4PL card (YAGNI).
 2. **The sampler.** Albert's (1992, pp. 258-259) data-augmentation Gibbs sampler and Culpepper's
-   (2016) need the normal-ogive model, outside ADR-0001's logistic models; Patz and Junker's (1999a,
-   p. 159) random-walk Metropolis steps work for the logistic models, with acceptance rates "of
-   about 50%" for single parameters, decreasing toward 25% for blocks. Assumed: Patz and Junker's.
+   (2016, Section 2) need the normal-ogive model, outside ADR-0001's logistic models; Patz and
+   Junker's (1999a, p. 159) random-walk Metropolis steps work for the logistic models, tuned to the
+   acceptance rates Gelman and colleagues recommend, as Patz and Junker report them: "of about 50%"
+   for single parameters, decreasing toward 25% for blocks. Assumed: Patz and Junker's.
 3. **Convergence.** Gelman and Rubin (1992, p. 461) monitor until $\hat R$ is "near 1", with no fixed
    threshold. Assumed: several chains, with $\hat R$ reported for every parameter.
 4. **The output.** Draws or summaries: the requirements card's question 3.
@@ -76,8 +83,8 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
 **Module:** decided by the requirements card (planned)
 **Reference:** Patz & Junker (1999a)
 **Last validated:** 2026-11-27, against Albert (1992), Patz & Junker (1999a, 1999b), Kim & Bolt
-(2007), Gelman & Rubin (1992), Loken & Rulison (2010) and Cai (2010a) on the paper shelf, and the
-mirt 1.48 reference manual.
+(2007), Gelman & Rubin (1992), Loken & Rulison (2010), Culpepper (2016), Sheng (2008) and Cai (2010a)
+on the paper shelf, and the mirt 1.48 reference manual.
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -103,18 +110,20 @@ The number of chains, iterations and burn-in, the proposal scales, and the prior
 
 ## Behavior and Comparison
 
-- **Run times reported:** 7,400 iterations took about 5.7 hours in S-Plus at 400 MHz (Patz & Junker,
-  1999a, p. 170). For a four-factor model, MCMC took 1 hour 20 minutes against 47 seconds for MH-RM
+- **Run times reported:** 7,400 iterations took about 5.7 hours in S-Plus at 400 MHz, a time Patz
+  and Junker attribute largely to their unoptimized S-Plus code (Patz & Junker, 1999a, p. 170). For a four-factor model, MCMC took 1 hour 20 minutes against 47 seconds for MH-RM
   (Cai, 2010a, p. 48).
 - **Mixing:** 3PL parameters had significant autocorrelations at lags up to 350 (Patz & Junker,
   1999b, p. 353).
 - **The posterior against the normal approximation:** Albert (1992, p. 262).
 
-**The Metropolis-Hastings Robbins-Monro algorithm** (MH-RM) uses the same sampling steps for
-maximum likelihood rather than posterior summaries, and suits many latent dimensions. For one
-dimension, EM was faster: 5 seconds against MH-RM's 10 (Cai, 2010a, pp. 48-49), and EM "can be more
-efficient" at low dimension (p. 46). mirt recommends EM for one to three factors (manual p. 126).
-The review therefore gives MH-RM no card for pyitemcal's unidimensional models.
+**The Metropolis-Hastings Robbins-Monro algorithm** (MH-RM) imputes the abilities by
+Metropolis-Hastings sampling and updates the item parameters by stochastic approximation, for maximum
+likelihood rather than posterior summaries (Cai, 2010a, p. 40); its computing time grows linearly
+with the number of latent dimensions, against EM's exponential growth (p. 51). For one dimension, EM
+was faster: 5 seconds against MH-RM's 10 (pp. 48-49), and EM "can be more efficient" at low dimension
+(p. 46). The review therefore gives MH-RM no card for pyitemcal's unidimensional models; mirt's
+manual likewise calls EM "generally effective with 1-3 factors" (mirt 1.48 manual, p. 126).
 
 ## Guarantees
 
@@ -160,11 +169,16 @@ method.
 
 Patz, R. J., & Junker, B. W. (1999b). Applications and extensions of MCMC in IRT: Multiple item types,
 missing data, and rated responses. *Journal of Educational and Behavioral Statistics, 24*(4),
-342-366. https://doi.org/10.3102/10769986024004342. Not openly available; Kim and Bolt (2007)
-describe the method.
+342-366. https://doi.org/10.3102/10769986024004342. Not openly available; Kim and Bolt (2007, p. 42)
+describe the Metropolis-within-Gibbs sampling it extends, citing this pair of papers with the a and b
+labels swapped.
 
 Sheng, Y. (2008). Markov chain Monte Carlo estimation of normal ogive IRT models in MATLAB. *Journal of
 Statistical Software, 25*(8), 1-15. https://doi.org/10.18637/jss.v025.i08. Open access.
+
+Zhang, J., Lu, J., Du, H., & Zhang, Z. (2020). Gibbs-slice sampling algorithm for estimating the
+four-parameter logistic model. *Frontiers in Psychology, 11*, 2121.
+https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 

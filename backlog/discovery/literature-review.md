@@ -114,24 +114,27 @@ Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 20
 **Card:** [estimation/cml-rasch.md](../estimation/cml-rasch.md).
 
 For the Rasch model, conditioning on each examinee's number correct, a sufficient statistic, removes
-the abilities from the likelihood (Bock & Aitkin, 1981, p. 443). The conditional estimates are consistent (Andersen, 1970,
-p. 286, Theorem 1), though "not in general ... efficient" (p. 284). The elementary symmetric
-functions they need are computed by Gustafsson's summation algorithm, since the faster difference
-algorithm "breaks down when there are more than 20-50 items" (Gustafsson, 1980, p. 381). With data
-missing at random, ordinary CML "will likely fail" and MML or JML is preferred (Robitzsch, 2021,
-p. 827), and pyitemcal's response matrices may have missing entries (ADR-0001).
+the abilities from the likelihood (Bock & Aitkin, 1981, p. 443). The conditional estimates are
+consistent (Andersen, 1970, p. 286, Theorem 1), though "not in general ... efficient" (p. 284). The
+elementary symmetric functions they need are computed by the summation algorithm, since the faster
+difference algorithm "breaks down when there are more than 20-50 items" (Gustafsson, 1980,
+pp. 381-382). With data missing at random, ordinary CML "will likely fail" and MML or JML is
+preferred (Robitzsch, 2021, p. 827), and pyitemcal's response matrices may have missing entries
+(ADR-0001).
 
 ## Joint maximum likelihood
 
 **Card:** [estimation/jml.md](../estimation/jml.md).
 
-Joint maximum likelihood estimates every ability with the items (Baker, 1987, p. 112). With the
-number of items fixed, its item estimates converge to a limit that differs from the parameters by a
-term of order $1/q$ (Haberman, 2004, p. 13); for the Rasch model it spreads the difficulties outward
-by about $1/(L - 1)$, which Wright and Douglas correct by multiplying by $(L - 1)/L$ (Wright &
-Douglas, 1977, pp. 286-287), bringing the estimates close to the conditional ones (Baker, 1987, p. 118).
-Haberman (2004, p. 35) finds it "difficult to advocate use of JMLE except for preliminary
-estimation"; penalized variants did better in Robitzsch's (2021, p. 827) simulations.
+Joint maximum likelihood estimates every ability with the items (Baker, 1987, p. 112). For the Rasch
+model with the number of items $M$ fixed, its difficulties converge to a limit that differs from the
+parameters by a term of order $1/M$ (Haberman, 2004, p. 13); they are spread outward by about
+$1/(M - 1)$ relative to the conditional estimates, which Wright and Douglas correct by multiplying by
+$(M - 1)/M$ (Wright & Douglas, 1977, pp. 286-287), bringing them close to the conditional ones
+(Baker, 1987, p. 118). Haberman (2004, p. 35) finds it "difficult to advocate use of JMLE except for
+preliminary estimation"; in Robitzsch's (2021, p. 827) simulations, penalized JML and JML with an
+$\varepsilon$ adjustment "outperformed conditional and marginal maximum likelihood as well as LIM in
+many situations in terms of the RMSE".
 
 ## Markov chain Monte Carlo, and MH-RM
 
@@ -140,10 +143,11 @@ estimation"; penalized variants did better in Robitzsch's (2021, p. 827) simulat
 Metropolis-within-Gibbs sampling fits the logistic models (Patz & Junker, 1999a, p. 159); its
 posterior means matched BILOG's estimates (Patz & Junker, 1999a, p. 163, Table 2; Kim & Bolt, 2007,
 p. 46). Its value is the posterior: for highly discriminating items, posterior standard deviations
-were 20% to 60% larger than the EM standard errors (Albert, 1992, p. 262). Its cost is hours of
-computation (Patz & Junker, 1999a, p. 170) and slow mixing for the 3PL (Patz & Junker, 1999b,
-p. 353). The Metropolis-Hastings Robbins-Monro algorithm uses such sampling for maximum likelihood
-in many dimensions, but for one dimension EM was faster (Cai, 2010a, pp. 48-49), so it gets no card.
+were 20% to 60% larger than the EM standard errors (Albert, 1992, p. 262). Reported run times are
+hours, which Patz and Junker (1999a, p. 170) attribute largely to unoptimized code, and the 3PL mixes
+slowly (Patz & Junker, 1999b, p. 353). The Metropolis-Hastings Robbins-Monro algorithm uses such
+sampling for maximum likelihood, with a cost that grows linearly in the number of dimensions (Cai,
+2010a, pp. 40, 51), but for one dimension EM was faster (pp. 48-49), so it gets no card.
 
 ## Build order, so far
 
@@ -282,8 +286,9 @@ method.
 
 Patz, R. J., & Junker, B. W. (1999b). Applications and extensions of MCMC in IRT: Multiple item types,
 missing data, and rated responses. *Journal of Educational and Behavioral Statistics, 24*(4),
-342-366. https://doi.org/10.3102/10769986024004342. Not openly available; Kim and Bolt (2007)
-describe the method.
+342-366. https://doi.org/10.3102/10769986024004342. Not openly available; Kim and Bolt (2007, p. 42)
+describe the Metropolis-within-Gibbs sampling it extends, citing this pair of papers with the a and b
+labels swapped.
 
 Pritikin, J. N. (2016). *A computational note on the application of the supplemented EM algorithm to
 item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open access.
