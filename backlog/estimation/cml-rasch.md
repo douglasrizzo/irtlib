@@ -14,7 +14,7 @@ raised_by: [moved from catsim's backlog]
 > sketch were never checked against the literature. [The research pass](../discovery/research-pass.md)
 > keeps only what the sources verify and deletes what is wrong or misleading, or deletes the card.
 
-> Background: [the literature review §2.3](../discovery/literature-review.md)
+> Background: [the literature review, section 5 (not yet reviewed)](../discovery/literature-review.md#5-not-yet-reviewed)
 
 ## Reference
 

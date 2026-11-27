@@ -223,6 +223,7 @@ min_confidence = 60
 [tool.typos.default.extend-words]
 lik = "lik"  # likelihood, in variable names
 nd = "nd"  # numpy's NDArray, in the sketches of the cards carried over from catsim
+LSAT = "LSAT"  # Law School Admission Test, the data of Bock & Aitkin (1981) and Thissen (1982)
 
 [tool.ty.src]
 include = ["src/pyitemcal", "tests", "backlog"]
