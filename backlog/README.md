@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-25 cards: 1 ready, 4 needs-research, 1 needs-decision, 15 blocked, 4 parked.
+25 cards: 1 ready, 1 needs-research, 1 needs-decision, 18 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -72,8 +72,8 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | blocked | M | [requirements](discovery/requirements.md) | maintainer during setup |
 | [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
-| [Conditional Maximum Likelihood for Rasch/1PL](estimation/cml-rasch.md) | estimation | technique | needs-research | S | [research-pass](discovery/research-pass.md) | moved from catsim's backlog |
-| [Joint Maximum Likelihood (JML) estimator](estimation/jml.md) | estimation | technique | needs-research | S | [research-pass](discovery/research-pass.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
+| [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md) | moved from catsim's backlog |
+| [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
@@ -82,7 +82,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Bayesian MCMC calibration](estimation/bayesian-mcmc.md) | estimation | technique | needs-research | L | [research-pass](discovery/research-pass.md) | moved from catsim's backlog |
+| [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | blocked | L | [requirements](discovery/requirements.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | blocked | S | [mml-em](estimation/mml-em.md) | Python-floor measurement of 2026-11-26 |
 | [Make pyitemcal citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of pyitemcal |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | blocked | XS | [icc-gradients](irt/icc-gradients.md) | setup of pyitemcal |

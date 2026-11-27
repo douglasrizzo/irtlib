@@ -224,6 +224,7 @@ min_confidence = 60
 lik = "lik"  # likelihood, in variable names
 nd = "nd"  # numpy's NDArray, in the sketches of the cards carried over from catsim
 LSAT = "LSAT"  # Law School Admission Test, the data of Bock & Aitkin (1981) and Thissen (1982)
+LOGIST = "LOGIST"  # ETS's joint maximum likelihood program (Mislevy & Stocking, 1989)
 
 [tool.ty.src]
 include = ["src/pyitemcal", "tests", "backlog"]

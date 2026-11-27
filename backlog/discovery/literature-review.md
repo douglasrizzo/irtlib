@@ -109,6 +109,46 @@ $N = 5{,}000$ subjects ... for accurate 4PM item calibration" (Waller & Feuersta
 and Markov chain Monte
 Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 2016, Section 5).
 
+## Conditional maximum likelihood
+
+**Card:** [estimation/cml-rasch.md](../estimation/cml-rasch.md).
+
+For the Rasch model, conditioning on each examinee's number correct, a sufficient statistic, removes
+the abilities from the likelihood (Bock & Aitkin, 1981, p. 443). The conditional estimates are
+consistent (Andersen, 1970, p. 286, Theorem 1), though "not in general ... efficient" (p. 284). The
+elementary symmetric functions they need are computed by the summation algorithm, since the faster
+difference algorithm "breaks down when there are more than 20-50 items" (Gustafsson, 1980,
+pp. 381-382). With data missing at random, ordinary CML "will likely fail" and MML or JML is
+preferred (Robitzsch, 2021, p. 827), and pyitemcal's response matrices may have missing entries
+(ADR-0001).
+
+## Joint maximum likelihood
+
+**Card:** [estimation/jml.md](../estimation/jml.md).
+
+Joint maximum likelihood estimates every ability with the items (Baker, 1987, p. 112). For the Rasch
+model with the number of items $M$ fixed, its difficulties converge to a limit that differs from the
+parameters by a term of order $1/M$ (Haberman, 2004, p. 13); they are spread outward by about
+$1/(M - 1)$ relative to the conditional estimates, which Wright and Douglas correct by multiplying by
+$(M - 1)/M$ (Wright & Douglas, 1977, pp. 286-287), bringing them close to the conditional ones
+(Baker, 1987, p. 118). Haberman (2004, p. 35) finds it "difficult to advocate use of JMLE except for
+preliminary estimation"; in Robitzsch's (2021, p. 827) simulations, penalized JML and JML with an
+$\varepsilon$ adjustment "outperformed conditional and marginal maximum likelihood as well as LIM in
+many situations in terms of the RMSE".
+
+## Markov chain Monte Carlo, and MH-RM
+
+**Card:** [estimation/bayesian-mcmc.md](../estimation/bayesian-mcmc.md).
+
+Metropolis-within-Gibbs sampling fits the logistic models (Patz & Junker, 1999a, p. 159); its
+posterior means matched BILOG's estimates (Patz & Junker, 1999a, p. 163, Table 2; Kim & Bolt, 2007,
+p. 46). Its value is the posterior: for highly discriminating items, posterior standard deviations
+were 20% to 60% larger than the EM standard errors (Albert, 1992, p. 262). Reported run times are
+hours, which Patz and Junker (1999a, p. 170) attribute largely to unoptimized code, and the 3PL mixes
+slowly (Patz & Junker, 1999b, p. 353). The Metropolis-Hastings Robbins-Monro algorithm uses such
+sampling for maximum likelihood, with a cost that grows linearly in the number of dimensions (Cai,
+2010a, pp. 40, 51), but for one dimension EM was faster (pp. 48-49), so it gets no card.
+
 ## Build order, so far
 
 1. The derivatives, which the M-steps and the standard errors share.
@@ -116,6 +156,9 @@ Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 20
 3. Standard errors.
 4. Priors on item parameters and the 3PL, one M-step addition that the 2PL shares.
 5. The 4PL, for banks that need an upper asymptote, with samples of several thousand.
+6. Conditional maximum likelihood, for the Rasch model on complete data.
+7. Joint maximum likelihood, for comparison studies.
+8. Markov chain Monte Carlo, for posterior distributions of the item parameters.
 
 The full order, with the methods below, is set when the pass ends.
 
@@ -124,19 +167,28 @@ The full order, with the methods below, is set when the pass ends.
 These cards still carry material carried over from catsim, unverified; the review sections replace
 it as the pass reaches them:
 
-- joint and conditional maximum likelihood: [jml](../estimation/jml.md),
-  [cml-rasch](../estimation/cml-rasch.md);
-- Markov chain Monte Carlo and the Metropolis-Hastings Robbins-Monro algorithm:
-  [bayesian-mcmc](../estimation/bayesian-mcmc.md);
 - item fit and model comparison: [item-fit](../fit/item-fit.md).
 
 The carried-over review's impact and feasibility ratings are dropped: none of them had a source.
 
 ## References
 
+Albert, J. H. (1992). Bayesian estimation of normal ogive item response curves using Gibbs sampling.
+*Journal of Educational Statistics, 17*(3), 251-269. https://doi.org/10.3102/10769986017003251. Not
+openly available; Sheng (2008) describes the method.
+
+Andersen, E. B. (1970). Asymptotic properties of conditional maximum-likelihood estimators. *Journal
+of the Royal Statistical Society: Series B, 32*(2), 283-301.
+https://doi.org/10.1111/j.2517-6161.1970.tb00842.x. Not openly available; Haberman (2004, §2)
+describes conditional estimation.
+
 Baker, F. B. (1987). Methodology review: Item parameter estimation under the one-, two-, and
 three-parameter logistic models. *Applied Psychological Measurement, 11*(2), 111-141.
 https://doi.org/10.1177/014662168701100201. Open copy: https://hdl.handle.net/11299/103398
+
+Baker, F. B., & Harwell, M. R. (1996). Computing elementary symmetric functions and their
+derivatives: A didactic. *Applied Psychological Measurement, 20*(2), 169-192.
+https://doi.org/10.1177/014662169602000206. Open copy: https://hdl.handle.net/11299/119090
 
 Barton, M. A., & Lord, F. M. (1981). *An upper asymptote for the three-parameter logistic
 item-response model* (Research Report RR-81-20). Educational Testing Service.
@@ -153,6 +205,10 @@ https://doi.org/10.3390/psych2040018. Open access.
 Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters:
 Application of an EM algorithm. *Psychometrika, 46*(4), 443-459. https://doi.org/10.1007/BF02293801.
 Not openly available; Baker (1987, pp. 131-132) describes the method.
+
+Cai, L. (2010a). High-dimensional exploratory item factor analysis by a Metropolis-Hastings
+Robbins-Monro algorithm. *Psychometrika, 75*(1), 33-57. https://doi.org/10.1007/s11336-009-9136-x.
+Open access.
 
 Chalmers, R. P. (2018). Numerical approximation of the observed information matrix with Oakes'
 identity. *British Journal of Mathematical and Statistical Psychology, 71*(3), 415-436.
@@ -180,9 +236,24 @@ https://doi.org/10.18637/jss.v092.i07. Open access.
 Engelen, R. J. H. (1987). *A review of different estimation procedures in the Rasch model* (Research
 Report 87-6). University of Twente. Open copy: https://files.eric.ed.gov/fulltext/ED310126.pdf
 
+Gustafsson, J.-E. (1980). A solution of the conditional estimation problem for long tests in the
+Rasch model for dichotomous items. *Educational and Psychological Measurement, 40*(2), 377-385.
+https://doi.org/10.1177/001316448004000214. Not openly available; Baker and Harwell (1996) describe
+the method.
+
+Haberman, S. J. (2004). *Joint and conditional maximum likelihood estimation for the Rasch model for
+binary responses* (Research Report RR-04-20). Educational Testing Service.
+https://doi.org/10.1002/j.2333-8504.2004.tb01947.x. Open copy:
+https://files.eric.ed.gov/fulltext/EJ1110899.pdf
+
 Harwell, M. R., & Baker, F. B. (1991). The use of prior distributions in marginalized Bayesian item
 parameter estimation: A didactic. *Applied Psychological Measurement, 15*(4), 375-389.
 https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11299/114468
+
+Kim, J.-S., & Bolt, D. M. (2007). Estimating item response theory models using Markov chain Monte
+Carlo methods. *Educational Measurement: Issues and Practice, 26*(4), 38-51.
+https://doi.org/10.1111/j.1745-3992.2007.00107.x. Open copy:
+https://www.ncme.org/wp-content/uploads/2025/10/Module-27-Markov-chain-Monte-Carlo-Estimation-Kim-1.pdf
 
 Loken, E., & Rulison, K. L. (2010). Estimation of a four-parameter item response theory model.
 *British Journal of Mathematical and Statistical Psychology, 63*(3), 509-525.
@@ -208,6 +279,17 @@ Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory
 Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
 Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
 
+Patz, R. J., & Junker, B. W. (1999a). A straightforward approach to Markov chain Monte Carlo methods
+for item response models. *Journal of Educational and Behavioral Statistics, 24*(2), 146-178.
+https://doi.org/10.3102/10769986024002146. Not openly available; Kim and Bolt (2007) describe the
+method.
+
+Patz, R. J., & Junker, B. W. (1999b). Applications and extensions of MCMC in IRT: Multiple item types,
+missing data, and rated responses. *Journal of Educational and Behavioral Statistics, 24*(4),
+342-366. https://doi.org/10.3102/10769986024004342. Not openly available; Kim and Bolt (2007, p. 42)
+describe the Metropolis-within-Gibbs sampling it extends, citing this pair of papers with the a and b
+labels swapped.
+
 Pritikin, J. N. (2016). *A computational note on the application of the supplemented EM algorithm to
 item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open access.
 
@@ -215,8 +297,14 @@ Pritikin, J. N. (2017). A comparison of parameter covariance estimation methods 
 models in an expectation-maximization framework. *Cogent Psychology, 4*(1), 1279435.
 https://doi.org/10.1080/23311908.2017.1279435. Open access.
 
+Robitzsch, A. (2021). A comprehensive simulation study of estimation methods for the Rasch model.
+*Stats, 4*(4), 814-836. https://doi.org/10.3390/stats4040048. Open access.
+
 Robitzsch, A. (2022). Four-parameter guessing model and related item response models. *Mathematical and
 Computational Applications, 27*(6), 95. https://doi.org/10.3390/mca27060095. Open access.
+
+Sheng, Y. (2008). Markov chain Monte Carlo estimation of normal ogive IRT models in MATLAB. *Journal of
+Statistical Software, 25*(8), 1-15. https://doi.org/10.18637/jss.v025.i08. Open access.
 
 Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
 *Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
@@ -230,6 +318,10 @@ the Bayes modal estimation it applies. Cited by the online version's pages, 1-21
 Woodruff, D. J., & Hanson, B. A. (1996). *Estimation of item response models using the EM algorithm
 for finite mixtures* (ACT Research Report 96-6). ACT. Open copy:
 https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf
+
+Wright, B. D., & Douglas, G. A. (1977). Best procedures for sample-free item analysis. *Applied
+Psychological Measurement, 1*(2), 281-295. https://doi.org/10.1177/014662167700100216. Open copy:
+https://hdl.handle.net/11299/98553
 
 Zhang, J., Lu, J., Du, H., & Zhang, Z. (2020). Gibbs-slice sampling algorithm for estimating the
 four-parameter logistic model. *Frontiers in Psychology, 11*, 2121.
