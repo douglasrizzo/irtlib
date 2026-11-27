@@ -1,10 +1,10 @@
 ---
 title: Calibrate the 4PL by Bayes modal estimation
 kind: technique
-status: blocked
+status: ready
 priority: 3
 effort: S
-blocked_by: [estimation/mml-em-3pl]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -36,11 +36,11 @@ gives boundary and diverging estimates.
 ## What pyitemcal and catsim have now
 
 - catsim: the 4PL response function (`catsim.irt.icc`).
-- pyitemcal: nothing; the 3PL and the priors are [the 3PL card](mml-em-3pl.md).
+- pyitemcal: the 3PL and mirt's priors (`pyitemcal.mml`).
 
 ## Proposal
 
-The 4PL by the 3PL card's Bayes modal MML, with $d$ estimated on the logit scale and a prior on it
+The 4PL by `pyitemcal.mml`'s Bayes modal MML, with $d$ estimated on the logit scale and a prior on it
 (ADR-0007, ADR-0008). The open questions record the answers of ADR-0008, accepted 2026-11-27, where
 it gives one.
 
@@ -64,7 +64,7 @@ it gives one.
 2. **A penalty instead of a prior.** Battauz (2020) shrinks each item's parameters toward their common
    mean; the penalty equals a normal log-density (p. 277), and it cut the RMSE of $a$ from 39.30 to
    11.59 at $N = 500$ in the first simulation setting (p. 273, Table 1). Assumed: priors only
-   (YAGNI), since the 3PL card's priors cover the same ground.
+   (YAGNI), since `pyitemcal.mml`'s priors cover the same ground.
 3. **Fixing $d$ on some items.** mirt's `upper` sets only the starting value under `"4PL"` (source
    `R/06-LoadPars.R:85-91`). **Decided** (ADR-0008): a parameter can be fixed at one value for every
    item, which gives $d = 1$; fixing it on some items waits for a need.
@@ -90,7 +90,7 @@ educational studies" (Robitzsch, 2022, p. 3).
 
 ## Definition
 
-The 4PL is catsim's response function, $P = c + (d - c)F$. Bayes modal estimation is the 3PL card's,
+The 4PL is catsim's response function, $P = c + (d - c)F$. Bayes modal estimation is `pyitemcal.mml`'s,
 with $d$ estimated as logit $d$ and a prior on it. Its M-step uses the derivative with respect to
 logit $d$, $d(1 - d)F$, which `pyitemcal.irt` computes: the derivative with respect to $d$ times
 $d(1 - d)$, the derivative of $d$ with respect to logit $d$ (the chain rule, as Mislevy, 1986,
@@ -103,7 +103,7 @@ constant. Their values convert before they compare with catsim's.
 
 ## Parameters
 
-As the 3PL card, with a prior on $d$ (Open Question 1).
+As `pyitemcal.mml`'s 3PL, with a prior on $d$ (Open Question 1).
 
 ## Behavior and Comparison
 
@@ -169,4 +169,4 @@ https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 
-Follows ADR-0007 and ADR-0008, and waits for the 3PL card.
+Follows ADR-0007 and ADR-0008, extending `pyitemcal.mml`'s 3PL.

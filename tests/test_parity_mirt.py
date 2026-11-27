@@ -29,7 +29,13 @@ from pyitemcal.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
   s_x2,
 )
-from pyitemcal.mml import MMLCalibrator, marginal_log_likelihood
+from pyitemcal.mml import (
+  MMLCalibrator,
+  Priors,
+  _prior_terms,  # noqa: PLC2701
+  _PriorTerm,  # noqa: PLC2701 - the prior densities are compared with mirt's log-prior at its estimates
+  marginal_log_likelihood,
+)
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
@@ -48,6 +54,7 @@ _S_X2_RTOL = 1e-4
 
 _MML_EM = load("mml_em")
 _ITEM_FIT = load("item_fit")
+_MML_PRIORS = load("mml_priors")
 
 # The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
 # "1PL", whose slopes are fixed at 1.
@@ -199,3 +206,92 @@ def test_collapse_matches_mirt(table: int) -> None:
   observed, expected = _collapse(np.array(case["observed"]), np.array(case["expected"]), 1.0)
   np.testing.assert_array_equal(observed, case["collapsed_observed"])
   np.testing.assert_allclose(expected, case["collapsed_expected"], rtol=1e-13, atol=1e-13)
+
+
+# mirt's parameter names in its PRIOR syntax, and the Priors field and parameter column of each.
+_PRIOR_ARGUMENTS = {"a1": ("slope", 0), "d": ("intercept", 1), "g": ("guessing", 2)}
+
+_STOPS_SHORT = (
+  "mirt 1.48 reports convergence with these priors where the gradient of the marginal log-posterior is still 6.6e-5 to "
+  "7.4e-4 in size; pyitemcal's estimates bring it below 1e-6, at a higher log-posterior, and differ from mirt's by up "
+  "to 1.7e-4 (measured 2026-11-27)"
+)
+_LOGNORMAL_HESSIAN = (
+  "mirt 1.48's Hessian of the lognormal prior has the opposite sign on its last term (source R/utils.R:1430), which "
+  "its Oakes standard errors take in; pyitemcal differentiates the lognormal log-density itself"
+)
+
+
+def _prior_settings(case: dict[str, Any]) -> dict[str, Any]:
+  """Return the calibrator arguments that give a fixture case's model and priors."""
+  priors = Priors(**{_PRIOR_ARGUMENTS[prior["parameter"]][0]: (prior["mean"], prior["sd"]) for prior in case["priors"]})
+  return {"model": case["model"], "priors": priors, "tolerance": _MML_PRIORS["settings"]["tol"]}
+
+
+def _marked(case: dict[str, Any], *reasons: tuple[str, str]) -> Any:
+  """Return a case as a pytest parameter, a strict expected failure with its reason where one names its id."""
+  for case_id, reason in reasons:
+    if case["id"] == case_id:
+      return pytest.param(case, id=case["id"], marks=pytest.mark.xfail(reason=reason, strict=True))
+  return pytest.param(case, id=case["id"])
+
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_mml_prior_densities(case: dict[str, Any]) -> None:
+  """At mirt's estimates, the summed log-prior equals mirt's log-prior: the priors are mirt's, on mirt's parameters."""
+  n_items = len(case["slope"])
+  values = np.column_stack([
+    case["slope"],
+    case["intercept"],
+    case.get("guessing", np.full(n_items, -np.inf)),
+    np.full(n_items, np.inf),
+  ])
+  priors = tuple(
+    _PriorTerm(_PRIOR_ARGUMENTS[prior["parameter"]][1], prior["mean"], prior["sd"]) for prior in case["priors"]
+  )
+  # one prior per free parameter: the 1PL's shared slope carries it once
+  counted = np.ones(values.shape, dtype=bool)
+  if case["model"] == "1PL":
+    counted[1:, 0] = False
+  np.testing.assert_allclose(_prior_terms(values, priors, counted)[0], case["log_prior"], rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize(
+  "case",
+  [
+    _marked(case, ("simulated_3pl/3pl_priors", _STOPS_SHORT), ("simulated/2pl_priors", _STOPS_SHORT))
+    for case in _MML_PRIORS["cases"]
+  ],
+)
+def test_mml_priors_estimates(case: dict[str, Any]) -> None:
+  """Bayes modal estimates of the 3PL with a prior on the logit of c, and of the 2PL with priors, match mirt's."""
+  calibration = MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  slope = calibration.items.discrimination
+  np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
+  if "guessing" in case:
+    guessing = calibration.items.pseudo_guessing
+    np.testing.assert_allclose(np.log(guessing / (1 - guessing)), case["guessing"], atol=_ESTIMATE_ATOL)
+
+
+@pytest.mark.parametrize(
+  "case",
+  [
+    _marked(
+      case,
+      ("simulated_3pl/3pl_priors", _STOPS_SHORT),
+      ("simulated/2pl_priors", _LOGNORMAL_HESSIAN),
+      ("lsat7/1pl_priors", _LOGNORMAL_HESSIAN),
+    )
+    for case in _MML_PRIORS["cases"]
+  ],
+)
+def test_mml_priors_standard_errors(case: dict[str, Any]) -> None:
+  """The standard errors of a, b and c under priors match mirt's Oakes standard errors."""
+  calibration = MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  standard_errors = calibration.standard_errors
+  assert standard_errors is not None
+  np.testing.assert_allclose(standard_errors[:, 0], case["a_se"], rtol=_STANDARD_ERROR_RTOL)
+  np.testing.assert_allclose(standard_errors[:, 1], case["b_se"], rtol=_STANDARD_ERROR_RTOL)
+  if "c_se" in case:
+    np.testing.assert_allclose(standard_errors[:, 2], case["c_se"], rtol=_STANDARD_ERROR_RTOL)

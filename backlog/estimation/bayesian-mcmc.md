@@ -1,10 +1,10 @@
 ---
 title: Calibrate by Markov chain Monte Carlo
 kind: technique
-status: blocked
+status: ready
 priority: 4
 effort: L
-blocked_by: [estimation/mml-em-3pl]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -41,13 +41,13 @@ Nothing for sampling in either package; ADR-0005 governs how a sampler takes its
 ## Proposal
 
 A Metropolis-Hastings-within-Gibbs sampler for the logistic 1PL to 3PL (Patz & Junker, 1999a,
-1999b), with the 3PL card's priors, several chains from one generator, and the potential scale
+1999b), with `pyitemcal.mml`'s priors, several chains from one generator, and the potential scale
 reduction as its convergence check. It uses NumPy only (ADR-0002).
 
 ## Tests
 
 - **Agreement with Bayes modal estimation:** on a large simulated sample, the posterior modes agree
-  with the 3PL card's Bayes modal estimates under the same priors, within a tolerance the test
+  with `pyitemcal.mml`'s Bayes modal estimates under the same priors, within a tolerance the test
   justifies from the chains' Monte Carlo error. Patz and Junker's (1999a, p. 163, Table 2) posterior
   means differed from BILOG's estimates by up to 0.01, and Kim and Bolt's (2007, p. 46) BILOG run used
   "the same priors"; the test departs from both by comparing modes.
@@ -106,7 +106,7 @@ within-chain variance estimate (Gelman & Rubin, 1992, p. 461).
 
 ## Parameters
 
-The number of chains, iterations and burn-in, the proposal scales, and the priors (the 3PL card).
+The number of chains, iterations and burn-in, the proposal scales, and the priors (`pyitemcal.mml`).
 
 ## Behavior and Comparison
 
@@ -182,5 +182,5 @@ https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 
-Follows ADR-0006 to ADR-0008, with the 3PL card's priors. The likelihood of an item given
+Follows ADR-0006 to ADR-0008, with `pyitemcal.mml`'s priors. The likelihood of an item given
 abilities is the M-step's, so the sampler shares the per-item likelihood code with MML-EM.
