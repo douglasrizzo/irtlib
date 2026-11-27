@@ -9,8 +9,9 @@ adaptive tests on.
 
 irtlib is in its design phase. Marginal maximum likelihood calibration of the 1PL to 4PL, with
 priors, standard errors, S-X² item fit and model comparison, is implemented and checked against the
-R package mirt. The response functions, ability estimation and the item bank come from catsim next,
-then the other calibration methods. Nothing is published on PyPI.
+R package mirt. The response functions, the quadrature grid and priors, the item bank and ability
+estimation have moved from catsim into irtlib; next, irtlib's own modules switch to them and drop
+catsim, then the other calibration methods follow. Nothing is published on PyPI.
 
 ## Install from source
 

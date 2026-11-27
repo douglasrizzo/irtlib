@@ -7,8 +7,8 @@ Accepted 2026-11-27; revised 2026-11-27
 ## Context
 
 Every calibration method needs the same answers first: how a caller passes responses, what a
-calibration returns, and where each part of the code lives. Answered method by method, they would
-give each method a different shape. The maintainer accepted them on 2026-11-27, before any method
+calibration returns, and where each part of the code lives. Answered method by method, each method
+would take a different shape. The maintainer accepted them on 2026-11-27, before any method
 existed.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
@@ -33,26 +33,24 @@ to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
   - the grid abilities were integrated over, which fit and ability estimates reuse.
 - **Non-convergence.** When the cycles run out, the calibrator returns the result flagged as not
   converged, with a warning.
-- **Ability estimates and item fit** are functions of a result and the responses, not part of the
-  result: EAP abilities; S-X² with its degrees of freedom per item; and the weighted and unweighted
-  mean squares for the Rasch model.
+- **Ability estimates and item fit** are functions of the responses and the items, a calibration's
+  for item fit, not part of the result: EAP abilities; S-X² with its degrees of freedom per item;
+  and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional maximum likelihood and S-X².
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; calibration, with the shared E-step and M-step below the
   methods, each method computing its own standard errors from them; then ability estimation and
-  fit.
-  Drawing responses is a module of its own. The import-linter contract that
-  `AGENTS.md` requires enforces the order.
+  fit. Drawing responses is its own module; the import-linter contract enforces the order.
 
 ## Consequences
 
-- A method author writes one class against one contract; the E-step, the M-step, the response
-  checks and the result are shared.
+- A method author writes one class against one contract, sharing the E-step, the M-step, the
+  response checks and the result.
 - A calibration's bank reads and writes in the bank format (ADR-0001), so it goes straight into
   catsim.
 - A calibration that stops short is never mistaken for a converged one.
-- Whether Markov chain Monte Carlo returns draws or summaries is decided with its card.
+- Whether Markov chain Monte Carlo returns draws or summaries is its card's decision.
 
 ## Alternatives Considered
 

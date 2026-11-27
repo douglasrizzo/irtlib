@@ -51,9 +51,9 @@ what a change to the cases or the version moved.
 
 ## Parity tests with catR
 
-`tests/test_parity_catr.py` compares irtlib's response functions with the R package catR, their
-second reference implementation (ADR-0003), on outputs recorded in the JSON files of
-`tests/parity/catr/`. These tests need no R either.
+`tests/test_parity_catr.py` compares irtlib's response functions and ability estimators with the R
+package catR, their second reference implementation (ADR-0003), on outputs recorded in the JSON files
+of `tests/parity/catr/`. These tests need no R either.
 
 The files are regenerated, never edited, when a case script beside them changes or the pinned catR
 version moves:
