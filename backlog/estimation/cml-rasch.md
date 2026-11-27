@@ -1,10 +1,10 @@
 ---
 title: Estimate Rasch difficulties by conditional maximum likelihood
 kind: technique
-status: blocked
+status: ready
 priority: 3
 effort: S
-blocked_by: [discovery/requirements]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -66,18 +66,18 @@ sum-to-zero constraint. It follows MML-EM in the build order of
    situations in which data is missing completely at random (MCAR)" (Robitzsch, 2021, p. 827);
    ADR-0001 commits pyitemcal to response matrices with missing entries. Options: CML for complete
    data only, with an error otherwise; or a CML over the items each examinee answered, for data
-   missing completely at random, which needs a source for its equations. Assumed: complete data
-   only.
+   missing completely at random, which needs a source for its equations. **Decided** (ADR-0006):
+   complete data only, with an error naming MML-EM as the alternative.
 2. **Identification.** One item's easiness set to 1 (Gustafsson, 1980, p. 380) or difficulties summing
-   to zero, as in Bock and Aitkin's (1981, p. 454) comparison. Assumed: sum to zero.
+   to zero, as in Bock and Aitkin's (1981, p. 454) comparison. **Decided** (ADR-0008): sum to zero.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Andersen (1970); Gustafsson (1980)
 **Last validated:** 2026-11-27, against Andersen (1970), Gustafsson (1980), Baker & Harwell (1996),
 Engelen (1987), Bock & Aitkin (1981), Haberman (2004) and Robitzsch (2021) on the paper shelf.
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -169,4 +169,5 @@ Robitzsch, A. (2021). A comprehensive simulation study of estimation methods for
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`).
+Follows ADR-0006 (the calibrator, the result, and the refusal of missing responses) and ADR-0008
+(difficulties summing to zero).

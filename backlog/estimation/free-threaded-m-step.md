@@ -13,8 +13,8 @@ raised_by: [Python-floor measurement of 2026-11-26]
 ## Problem
 
 In marginal maximum likelihood with the EM algorithm, the M-step maximizes each item's expected
-log-likelihood separately, one SciPy optimization per item. On a standard (GIL) build of Python
-those optimizations run one after another, whatever the number of cores.
+log-likelihood separately, by Fisher scoring per item (ADR-0007). On a standard (GIL) build of
+Python, per-item updates written as a loop run one after another, whatever the number of cores.
 
 ## Evidence
 
@@ -32,6 +32,10 @@ A whole iteration (E-step plus M-step) took 12.8 ms on 3.14 and 7.1 ms on 3.14t 
 free-threaded builds pay 8-12% on serial code; 3.13t paid 21-29% and has no wheels for NumPy 2.5 or
 SciPy 1.18. The benchmark script is not in the repository; the measurement is repeated on the
 implemented M-step (Proposal).
+
+The benchmark's L-BFGS-B M-step is not the one ADR-0007 chose. Fisher scoring's updates are closed
+forms that NumPy can compute for every item at once, as the scratch EM of the MML-EM card does, so
+threads may have nothing left to parallelize; the measurement on the implemented M-step decides.
 
 ## Proposal
 

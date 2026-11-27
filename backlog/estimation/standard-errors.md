@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 1
 effort: M
-blocked_by: [discovery/requirements, estimation/mml-em]
+blocked_by: [estimation/mml-em]
 raised_by: [research pass]
 ---
 
@@ -35,8 +35,8 @@ tolerances.
 
 Standard errors from the inverse of the observed information matrix at the MML estimate, computed by
 Oakes's identity with a central difference, as mirt does by default; reported for the parameters
-pyitemcal estimates and for catsim's $a$ and $b$ by the delta method. The open questions are the
-requirements card's to settle; the card assumes the recommendation of each until then.
+pyitemcal estimates and for catsim's $a$ and $b$ by the delta method. The open questions record the
+answers of ADR-0006 and ADR-0007, accepted 2026-11-27, where they give one.
 
 ## Tests
 
@@ -66,32 +66,34 @@ requirements card's to settle; the card assumes the recommendation of each until
    - The expected (Fisher) information: "often becomes too computationally demanding" (p. 2); its
      sum runs over all $2^n$ response patterns (Bock & Aitkin, 1981, p. 446).
 
-   Assumed: Oakes with central differences, mirt's default, matched by the parity tests.
+   **Decided** (ADR-0007): Oakes with central differences, mirt's default, matched by the parity
+   tests.
 2. **Step size and symmetry.** mirt uses $\delta = 10^{-5}$ and symmetrizes the missing-information
    matrix (source `R/utils.R:1769-1770`, `R/EMstep.group.R:575`). Chalmers (2018, p. 17) finds
    symmetrizing improves the central and Richardson estimates. Assumed: as mirt.
 3. **When the information matrix cannot be inverted.** mirt warns "Could not invert information
    matrix; model may not be (empirically) identified." and reports no standard errors when the
    inversion fails or gives a negative or missing variance (source `R/utils.R:1945-1959`). Options:
-   the same, as a flag on the result; or an error. The requirements card's convergence question
-   decides the form.
+   the same, as a flag on the result; or an error. **Decided** (ADR-0006): no standard errors, with a
+   flag on the result.
 4. **The parameterization of the reported errors.** mirt reports the intercept-slope parameters and
    converts to $a$, $b$ by the delta method on request (source `R/SingleGroup-methods.R:1902-1915`).
    With intercept $\zeta$ and $b = -\zeta/a$ the Jacobian is a closed form,
-   $\partial b/\partial\zeta = -1/a$ and $\partial b/\partial a = \zeta/a^2$ (the card's own algebra). Depends on the ICC-gradients card's first
-   open question.
+   $\partial b/\partial\zeta = -1/a$ and $\partial b/\partial a = \zeta/a^2$ (the card's own algebra).
+   **Decided** (ADR-0006, ADR-0007): computed in mirt's parameters and reported in catsim's
+   $(a, b, c, d)$ by the delta method.
 5. **Misspecification.** The sandwich estimator (Zeileis, 2006, p. 2) stays valid under some
    misspecification provided the estimates remain consistent (p. 3); mirt offers it as
    `"sandwich"` (manual p. 125). Assumed: not in the first version.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the layer above estimation in ADR-0006, named by the PR that implements it (planned)
 **Reference:** Louis (1982); Oakes (1999); Chalmers (2018)
 **Last validated:** 2026-11-27, against Bock & Aitkin (1981), Louis (1982), Oakes (1999), Meng &
 Rubin (1991), Chalmers (2018), Pritikin (2017) and Zeileis (2006) on the paper shelf, and mirt 1.48
 (reference manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -242,5 +244,6 @@ Software, 16*(9), 1-16. https://doi.org/10.18637/jss.v016.i09. Open access.
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`). The quantities it needs come from the
-MML-EM E-step and M-step: the posterior weights, the complete-data gradient and Hessian per item.
+Follows ADR-0006 (the result's standard errors and its flag) and ADR-0007 (Oakes's identity, mirt's
+parameters). The quantities it needs come from the MML-EM E-step and M-step: the posterior weights,
+the complete-data gradient and Hessian per item.

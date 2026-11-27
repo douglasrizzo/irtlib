@@ -14,9 +14,10 @@ item fit (ADR-0001). Its estimates use catsim's parameterization and bank format
 catsim's public item response functions (ADR-0004).
 
 The project is in its design phase: its methods are reviewed from their primary sources
-(`backlog/discovery/literature-review.md`) and no calibration method is implemented yet. The order of
-work is the requirements (`backlog/discovery/requirements.md`), then the mirt parity harness, then the
-methods in the review's build order.
+(`backlog/discovery/literature-review.md`), the calibrator contract and settings are decided
+(ADR-0006 to ADR-0008), and no calibration method is implemented yet. The order of work is the mirt
+parity harness (`backlog/discovery/mirt-parity-harness.md`), then the methods in the review's build
+order.
 
 ## Repository Layout
 

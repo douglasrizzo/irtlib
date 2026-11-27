@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 2
 effort: M
-blocked_by: [discovery/requirements, estimation/mml-em]
+blocked_by: [estimation/mml-em]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -64,24 +64,25 @@ the 1PL to 3PL).
    and mirt 1.48 stops with an error when a response is missing (above). Zhang and Wang (pp. 708-709)
    adapt it to missing responses; for the unadapted S-X² they report false-positive rates far above
    the nominal level on 40-item tests with 10% or 20% of responses missing, and near it with 1%
-   missing (p. 714, Table 3). Options: complete data only; or their adaptation. Assumed: complete data only, with an
-   error naming the alternative.
+   missing (p. 714, Table 3). Options: complete data only; or their adaptation. **Decided**
+   (ADR-0006): complete data only, with an error naming the alternative.
 2. **Collapsing.** Orlando and Thissen (2000, p. 56) collapse from both ends of the score range
    toward the middle until every expected count is at least 1; mirt's collapsing differs in its
    details (source `R/utils.R:2410`). Assumed: Orlando and Thissen's rule, with a setting for
    mirt's in the parity tests.
 3. **Which abilities the mean squares use.** Wright and Masters use estimates of the person and item
    parameters from the same data (1982, p. 101, Section 5.4.4); mirt uses EAP ability estimates by
-   default (source `R/itemfit.R:259-268`). Assumed: EAP, as mirt.
+   default (source `R/itemfit.R:259-268`). **Decided** (ADR-0006): EAP on the calibration's grid,
+   as mirt.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the fit layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Orlando & Thissen (2000)
 **Last validated:** 2026-11-27, against Orlando & Thissen (2000), Yen (1981), Wright & Masters (1982),
 Wright & Stone (1979), Kang & Chen (2007) and Zhang & Wang (2022) on the paper shelf, and mirt 1.48
 (reference manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -179,5 +180,6 @@ copy: https://files.eric.ed.gov/fulltext/ED628568.pdf
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`). The summed-score recursion and the
-expected proportions use the MML-EM card's grid and response probabilities.
+Follows ADR-0006: item fit is a function of a calibration result and the responses. The
+summed-score recursion and the expected proportions use the MML-EM card's grid and response
+probabilities.

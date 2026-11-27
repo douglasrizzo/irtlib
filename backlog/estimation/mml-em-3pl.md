@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 2
 effort: M
-blocked_by: [discovery/requirements, estimation/mml-em]
+blocked_by: [estimation/mml-em]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -45,9 +45,12 @@ slopes finite (Baker, 1987, pp. 130-131), so the mechanism is the card's and the
 
 ## Proposal
 
-The 3PL by MML-EM, with optional priors on the item parameters in the M-step, estimated on the
-transformed scale $(\log a, b, \operatorname{logit} c)$ (Mislevy, 1986, p. 183). The open questions
-are the requirements card's to settle; the card assumes the recommendation of each until then.
+The 3PL by MML-EM, with optional priors on the item parameters in the M-step, estimated in mirt's
+parameters, the intercept, the slope and the logit of $c$ (ADR-0007), with mirt's priors on them
+(ADR-0008): lognormal on the slope, normal on the intercept and on the logit of $c$ (mirt 1.48
+manual, p. 155). Mislevy (1986, p. 183) estimates $(\log a, b, \operatorname{logit} c)$; the scale of
+$c$ is the same, those of $a$ and $b$ differ (Definition). The open questions record the answers of
+ADR-0007 and ADR-0008, accepted 2026-11-27, where they give one.
 
 ## Tests
 
@@ -72,27 +75,27 @@ are the requirements card's to settle; the card assumes the recommendation of ea
 1. **The form of the prior on $c$.** A normal prior on logit $c$ (Mislevy, 1986, p. 183), which mirt's
    manual recommends for its logit-scale guessing parameter (p. 132); or a beta prior on $c$ itself,
    which allows $c = 0$ (Mislevy, 1986, p. 183) and is PC-BILOG's (Harwell & Baker, 1991, p. 383).
-   Assumed: normal on logit $c$, as mirt.
+   **Decided** (ADR-0008): normal on logit $c$, mirt's `norm`.
 2. **Default priors.** mirt sets no default prior (source `R/06-LoadPars.R:361-362`); BILOG's defaults are normal
    on $(\log a, b, \operatorname{logit} c)$ with variances .25, 4.00 and .25 (Mislevy, 1986, p. 190);
    PC-BILOG's are $\log a \sim N(0, .5^2)$, $b \sim N(0, 2^2)$ and $c \sim$ Beta(5, 17) (Harwell &
    Baker, 1991, p. 383). The measurement shows the 3PL without a prior putting four of five $c$'s at
-   0. Assumed: no default prior, as mirt, with the 3PL's documentation recommending one; the
-   requirements card decides, with a recovery measurement.
+   0. **Decided** (ADR-0008): no default prior, as mirt, with the 3PL's documentation recommending
+   one, which a recovery measurement chooses when the 3PL is implemented.
 3. **Floating prior means.** BILOG can estimate the priors' means from the items (Mislevy, 1986,
    p. 190); the PC-BILOG manual advises against it for small data sets (Harwell & Baker, 1991,
    p. 386). Assumed: fixed hyperparameters (YAGNI).
-4. **How a caller passes priors**, on which parameters and scales: the requirements card's
-   question 6.
+4. **How a caller passes priors**, on which parameters and scales. **Decided** (ADR-0008): one prior
+   per parameter, applying to every item, with mirt's densities on mirt's parameters.
 5. **Starting value of $c$.** mirt starts at .15 (source `R/04-PrepData.R:70`). Assumed: as mirt.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Mislevy (1986)
 **Last validated:** 2026-11-27, against Mislevy (1986), Harwell & Baker (1991) and Baker (1987) on
 the paper shelf, and mirt 1.48 (reference manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -112,14 +115,17 @@ $\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card, the M-step equation for $c$ 
 $(1 - c)^{-1}\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Harwell & Baker, 1991,
 p. 383, Equation 26), and those for the intercept and slope are Baker's (1987, p. 116) Equations
 14-15 with the expected counts in place of the observed ones; each prior adds its term
-(Harwell & Baker, 1991, p. 383). Estimated on the logit scale $\gamma$ that this card proposes,
+(Harwell & Baker, 1991, p. 383). Estimated on the logit scale $\gamma$ that ADR-0007 sets,
 the equation for $c$ becomes $c\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Mislevy,
 1986, p. 184, Equation 22), the equation above multiplied by $dc/d\gamma = c(1 - c)$.
 
 Mislevy (1986, p. 183) estimates $\alpha = \log a$, $\beta = b$ and $\gamma = \operatorname{logit} c$,
 so that $a = e^\alpha$ and $c = 1/(1 + e^{-\gamma})$ stay in range, with normal priors on the three,
 and notes that a beta prior on untransformed $c$ may be preferable when $c = 0$ should be possible.
-A beta prior Beta($\alpha_\beta$, $\beta_\beta$) is set by a weight $m$ and a location $p$ as
+This card departs from him on $a$ and $b$ (ADR-0007, ADR-0008): it estimates mirt's intercept and
+slope, with mirt's lognormal prior on the slope, whose log-density keeps the $-\log a$ term that a
+normal prior on $\log a$ lacks (mirt 1.48 source `R/utils.R:1422-1433`), so the same hyperparameters
+give different estimates. A beta prior Beta($\alpha_\beta$, $\beta_\beta$) is set by a weight $m$ and a location $p$ as
 $\alpha_\beta = mp + 1$ and $\beta_\beta = m(1 - p) + 1$ (Harwell & Baker, 1991, p. 386); they call
 $p$ the mean, but with these parameters $p$ is the mode (the card's arithmetic: the mode of
 Beta($\alpha_\beta$, $\beta_\beta$) is $(\alpha_\beta - 1)/(\alpha_\beta + \beta_\beta - 2)$).
@@ -138,9 +144,10 @@ the log prior (Mislevy, 1986, p. 182, Equations 15-17), so the standard errors o
    * - Parameter
      - Default
      - Description
-   * - priors on ``a``, ``b``, ``c``
-     - Open Question 2
-     - A prior density per parameter and item, on the scale the parameter is estimated on.
+   * - priors on the slope, the intercept and the logit of ``c``
+     - none (ADR-0008)
+     - One prior per parameter, applying to every item: lognormal on the slope, normal on the
+       intercept and on the logit of ``c``.
 ```
 
 ## Behavior and Comparison
@@ -190,5 +197,6 @@ pp. 377-387) describe the method.
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`). The prior terms enter only the
-M-step's objective, gradient and Hessian, so the 2PL, 3PL and 4PL share one implementation of them.
+Follows ADR-0007 (mirt's parameters, Fisher scoring) and ADR-0008 (mirt's priors, one per
+parameter). The prior terms enter only the M-step's objective, gradient and Hessian, so the 2PL, 3PL
+and 4PL share one implementation of them.

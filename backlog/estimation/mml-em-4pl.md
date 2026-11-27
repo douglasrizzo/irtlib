@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 3
 effort: S
-blocked_by: [discovery/requirements, estimation/mml-em-3pl]
+blocked_by: [estimation/mml-em-3pl]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -40,8 +40,9 @@ gives boundary and diverging estimates.
 
 ## Proposal
 
-The 4PL by the 3PL card's Bayes modal MML, with $d$ estimated on the logit scale and a prior on it.
-The open questions are the requirements card's to settle.
+The 4PL by the 3PL card's Bayes modal MML, with $d$ estimated on the logit scale and a prior on it
+(ADR-0007, ADR-0008). The open questions record the answers of ADR-0008, accepted 2026-11-27, where
+it gives one.
 
 ## Tests
 
@@ -58,22 +59,24 @@ The open questions are the requirements card's to settle.
 1. **The prior on $d$.** The sources use Beta(17, 5) on $d$ (Loken & Rulison, 2010, p. 513), a
    uniform prior between .7 and 1 with "very similar results" (p. 520), uniform priors when the sample
    is adequate (Culpepper, 2016, Section 5), and logit $d \sim N(1.8, 1)$ (Waller & Feuerstahler,
-   2017, p. 4). Assumed: a normal prior on logit $d$, the 3PL card's form.
+   2017, p. 4). **Decided** (ADR-0008): a normal prior on logit $d$, mirt's `norm`, one for every
+   item.
 2. **A penalty instead of a prior.** Battauz (2020) shrinks each item's parameters toward their common
    mean; the penalty equals a normal log-density (p. 277), and it cut the RMSE of $a$ from 39.30 to
    11.59 at $N = 500$ in the first simulation setting (p. 273, Table 1). Assumed: priors only
    (YAGNI), since the 3PL card's priors cover the same ground.
 3. **Fixing $d$ on some items.** mirt's `upper` sets only the starting value under `"4PL"` (source
-   `R/06-LoadPars.R:85-91`); fixing is the requirements card's question 8.
+   `R/06-LoadPars.R:85-91`). **Decided** (ADR-0008): a parameter can be fixed at one value for every
+   item, which gives $d = 1$; fixing it on some items waits for a need.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Waller & Feuerstahler (2017); Loken & Rulison (2010)
 **Last validated:** 2026-11-27, against Barton & Lord (1981), Loken & Rulison (2010), Culpepper
 (2016), Waller & Feuerstahler (2017), Battauz (2020) and Robitzsch (2022) on the paper shelf, and
 mirt 1.48 (reference manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -166,4 +169,4 @@ https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`) and the 3PL card.
+Follows ADR-0007 and ADR-0008, and waits for the 3PL card.

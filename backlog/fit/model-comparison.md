@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 3
 effort: S
-blocked_by: [discovery/requirements, estimation/mml-em]
+blocked_by: [estimation/mml-em]
 raised_by: [research pass]
 ---
 
@@ -67,12 +67,12 @@ complete data.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the fit layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Akaike (1974); Schwarz (1978)
 **Last validated:** 2026-11-27, against Akaike (1974), Schwarz (1978), Vrieze (2012), Bock & Aitkin
 (1981), Thissen (1982), Orlando & Thissen (2000), Baker (1987) and Robitzsch (2022) on the paper
 shelf, and mirt 1.48 (reference manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -161,5 +161,5 @@ manuscript, cited by its page numbers): https://pmc.ncbi.nlm.nih.gov/articles/PM
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`), which decides what a calibration
-result reports.
+Follows ADR-0006: a calibration result reports the maximized log-likelihood and the number of
+estimated parameters, which the likelihood ratio, AIC and BIC need.

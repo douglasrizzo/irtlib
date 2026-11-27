@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 4
 effort: L
-blocked_by: [discovery/requirements, estimation/mml-em-3pl]
+blocked_by: [estimation/mml-em-3pl]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -74,18 +74,18 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
    for single parameters, decreasing toward 25% for blocks. Assumed: Patz and Junker's.
 3. **Convergence.** Gelman and Rubin (1992, p. 461) monitor until $\hat R$ is "near 1", with no fixed
    threshold. Assumed: several chains, with $\hat R$ reported for every parameter.
-4. **The output.** Draws or summaries: the requirements card's question 3.
+4. **The output.** Draws or summaries: decided with this card (ADR-0006).
 5. **Missing responses.** Patz and Junker (1999b, pp. 351-352) impute them as an extra Gibbs step;
    the likelihood can also leave them out, as the MML-EM card does. Assumed: left out.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Patz & Junker (1999a)
 **Last validated:** 2026-11-27, against Albert (1992), Patz & Junker (1999a, 1999b), Kim & Bolt
 (2007), Gelman & Rubin (1992), Loken & Rulison (2010), Culpepper (2016), Sheng (2008) and Cai (2010a)
 on the paper shelf, and the mirt 1.48 reference manual.
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -182,5 +182,5 @@ https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`). The likelihood of an item given
+Follows ADR-0006 to ADR-0008, with the 3PL card's priors. The likelihood of an item given
 abilities is the M-step's, so the sampler shares the per-item likelihood code with MML-EM.
