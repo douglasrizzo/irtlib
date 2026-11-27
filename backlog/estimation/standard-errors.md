@@ -27,7 +27,7 @@ tolerances.
 
 ## What pyitemcal and catsim have now
 
-- catsim: standard errors of ability estimates only (`catsim.irt.see`); nothing for items.
+- catsim: standard errors of ability estimates (`catsim.irt.see`).
 - pyitemcal: nothing; the E-step and the per-item gradients this card builds on are
   [the MML-EM card](mml-em.md) and [the ICC-gradients card](../irt/icc-gradients.md).
 
@@ -40,7 +40,7 @@ requirements card's to settle; the card assumes the recommendation of each until
 
 ## Tests
 
-- **Parity with mirt 1.48:** `SE = TRUE` with `SE.type = "Oakes"` and with `SE.type = "Louis"` on
+- **Parity with mirt 1.48:** `SE = TRUE` with `SE.type = "Oakes"` and with `SE.type = "Louis"` (manual p. 125) on
   `LSAT6` and `LSAT7` and on a simulated matrix with missing entries, for the 2PL and the
   equal-slope 2PL, with fixtures recorded at `TOL = 1e-8` (the MML-EM card's measurement).
 - **Two methods agree:** the central-difference Oakes approximation agrees with Louis's exact form;
@@ -51,19 +51,20 @@ requirements card's to settle; the card assumes the recommendation of each until
   differences.
 - **Coverage** (recovery, ADR-0003): across replications drawn from known parameters, the standard
   deviation of the estimates matches the mean standard error, and about 95% of the intervals
-  $\hat\theta \pm 1.96\,\widehat{SE}$ contain the generating value.
+  $\hat\psi \pm 1.96\,\widehat{SE}$, for an item parameter $\psi$, contain the generating value.
 
 ## Open Questions
 
 1. **Which method.** The candidates and what the sources found:
-   - Oakes with central differences: mirt's default, within $10^{-11}$ of Louis at 3% of its time
-     (Chalmers, 2018, p. 13).
+   - Oakes with central differences: mirt's default; a mean relative difference from Louis of
+     $2.5 \times 10^{-11}$ (maximum $8.3 \times 10^{-10}$) at 3% of its time (Chalmers, 2018, p. 13).
    - Louis's exact form: the reference in Chalmers's comparisons, but the slowest (p. 13).
    - Supplemented EM: needs an unaccelerated, tightly converged EM history and was less accurate
      (Chalmers, 2018, pp. 8-9, 13; Pritikin, 2017, p. 7).
    - The cross-product: cheap, but only asymptotically equivalent and conservative (Chalmers, 2018,
      p. 2).
-   - The expected (Fisher) information: needs every response pattern, often too costly (p. 2).
+   - The expected (Fisher) information: "often becomes too computationally demanding" (p. 2); its
+     sum runs over all $2^n$ response patterns (Bock & Aitkin, 1981, p. 446).
 
    Assumed: Oakes with central differences, mirt's default, matched by the parity tests.
 2. **Step size and symmetry.** mirt uses $\delta = 10^{-5}$ and symmetrizes the missing-information
@@ -81,7 +82,7 @@ requirements card's to settle; the card assumes the recommendation of each until
    open question.
 5. **Misspecification.** The sandwich estimator (Zeileis, 2006, p. 2) stays valid under some
    misspecification provided the estimates remain consistent (p. 3); mirt offers it as
-   `"sandwich"`. Assumed: not in the first version.
+   `"sandwich"` (manual p. 125). Assumed: not in the first version.
 
 ---
 
@@ -115,7 +116,7 @@ complete-data observed information, less the conditional covariance of the compl
 and the conditional expectations are the E-step's posterior weights.
 
 **Oakes's identity.** With $Q(\psi' \mid \psi)$ the expected complete-data log-likelihood of the
-E-step at $\psi$,
+E-step at $\psi$ (here $Q$ is Dempster et al.'s function, not the number of quadrature nodes),
 
 $$
 \frac{\partial^2 L(\psi; y)}{\partial\psi\,\partial\psi^\top}
@@ -134,8 +135,8 @@ successively smaller steps (Chalmers, 2018, pp. 5-6). Central differences cost $
 parameters (p. 7).
 
 **Supplemented EM.** The rate matrix $DM$ of EM's map satisfies $DM = I_{om}I_{oc}^{-1}$, so
-$V = I_{oc}^{-1}(I - DM)^{-1}$, estimated from the EM iteration history (Meng & Rubin, 1991,
-p. 901, Equations 2.2.1, 2.4.5-2.4.6).
+$V = I_{oc}^{-1}(I - DM)^{-1}$ (Meng & Rubin, 1991, p. 901, Equations 2.2.1, 2.4.5-2.4.6), with $DM$
+estimated from the EM iteration history (p. 902, Section 3.3).
 
 **The sandwich.** $S = B\,M\,B$, with $B$ the bread from the Hessian and $M$ the variance of the
 estimating functions (Zeileis, 2006, p. 2, Equations 4-6). In a correctly specified ML model the bread
@@ -194,7 +195,8 @@ Not openly available; Baker (1987, pp. 131-132) describes the method.
 
 Chalmers, R. P. (2018). Numerical approximation of the observed information matrix with Oakes'
 identity. *British Journal of Mathematical and Statistical Psychology, 71*(3), 415-436.
-https://doi.org/10.1111/bmsp.12127. Free to read at the publisher. Pages cited are those of the
+https://doi.org/10.1111/bmsp.12127. Open copy:
+https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bmsp.12127. Pages cited are those of the
 Early View version, 1-22.
 
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
@@ -209,6 +211,10 @@ Meng, X.-L., & Rubin, D. B. (1991). Using EM to obtain asymptotic variance-covar
 SEM algorithm. *Journal of the American Statistical Association, 86*(416), 899-909.
 https://doi.org/10.1080/01621459.1991.10475130. Not openly available; Pritikin (2016, pp. 4-7)
 describes the method.
+
+Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory model by the
+Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
+Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
 
 Pritikin, J. N. (2016). *A computational note on the application of the supplemented EM algorithm to
 item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open access.

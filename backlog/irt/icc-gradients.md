@@ -16,12 +16,11 @@ Every calibration method solves likelihood equations in the item parameters: the
 marginal maximum likelihood ([the MML-EM card](../estimation/mml-em.md)) and the item stage of joint
 maximum likelihood ([the JML card](../estimation/jml.md)) each need the derivatives of the
 probability of a correct response with respect to $a$, $b$, $c$ and $d$, and the information they
-carry. catsim differentiates the item response function only with respect to ability.
+carry. pyitemcal adds these derivatives to the response functions it takes from catsim (ADR-0004).
 
 ## Evidence
 
-- ADR-0004 lists "derivatives with respect to item parameters" among what pyitemcal implements and
-  catsim lacks.
+- ADR-0004 lists the derivatives with respect to item parameters among what pyitemcal implements.
 - The research pass (2026-11-27) checked the card carried over from catsim against its sources. Its
   first derivatives with respect to $a$, $b$ and $c$ match Barton and Lord (1981, p. A3) once their
   scaling constant is set to 1; its derivative with respect to $d$ had no source; two of its tests
@@ -33,7 +32,7 @@ carry. catsim differentiates the item response function only with respect to abi
 
 - catsim: `catsim.irt.icc` (the response function, items as rows `[a, b, c, d]`, broadcasting
   abilities against items), `catsim.irt.log_response_probabilities` and `catsim.irt.information`
-  (Fisher information about ability). No derivative with respect to item parameters.
+  (Fisher information about ability).
 - pyitemcal: nothing.
 
 ## Proposal
@@ -95,22 +94,23 @@ items.
 
 ## Definition
 
-catsim's response function, with $\psi_i(\theta) = 1 / (1 + e^{-a_i(\theta - b_i)})$, is
-$P_i(\theta) = c_i + (d_i - c_i)\,\psi_i(\theta)$ (the formula lives in `catsim.irt.icc`'s
+catsim's response function, with $F_i(\theta) = 1 / (1 + e^{-a_i(\theta - b_i)})$ the
+two-parameter curve (Barton and Lord, 1981, p. 1, call it $F$), is
+$P_i(\theta) = c_i + (d_i - c_i)\,F_i(\theta)$ (the formula lives in `catsim.irt.icc`'s
 docstring). Its derivatives with respect to the item parameters are
 
 $$
-\frac{\partial P}{\partial a} = (d - c)(\theta - b)\,\psi(1 - \psi), \qquad
-\frac{\partial P}{\partial b} = -(d - c)\,a\,\psi(1 - \psi),
+\frac{\partial P}{\partial a} = (d - c)(\theta - b)\,F(1 - F), \qquad
+\frac{\partial P}{\partial b} = -(d - c)\,a\,F(1 - F),
 $$
 
 $$
-\frac{\partial P}{\partial c} = 1 - \psi, \qquad
-\frac{\partial P}{\partial d} = \psi .
+\frac{\partial P}{\partial c} = 1 - F, \qquad
+\frac{\partial P}{\partial d} = F .
 $$
 
 Barton and Lord (1981, p. A3) give the first three for $P = c + (\delta - c)/(1 + e^{-DL})$ with
-$L = a(\theta - b)$ and $D = 1.7$ (p. A1), writing $\psi(1 - \psi)$ as
+$L = a(\theta - b)$ and $D = 1.7$ (p. A1), writing $F(1 - F)$ as
 $1/(e^{DL} + 2 + e^{-DL})$. This card departs from them in two ways:
 
 - $D = 1$, catsim's parameterization (ADR-0001); Baker (1987, p. 114) recommends abandoning the
@@ -134,7 +134,7 @@ $$
 $$
 
 the per-response form of Barton and Lord (1981, p. A2), $\sum (u - P)(\partial P/\partial\chi)/(PQ)$,
-summed within each group. Written in the intercept-slope form $\zeta + \lambda\theta$, it reduces
+with $Q = 1 - P$ (here and below; not the number of quadrature nodes), summed within each group. Written in the intercept-slope form $\zeta + \lambda\theta$, it reduces
 to Baker's (1987, p. 114) Equations 6 and 7 when $c = 0$ and $d = 1$, and to his Equations 14-16
 (p. 116) for the 3PL when $d = 1$.
 
@@ -161,7 +161,7 @@ None: the functions take abilities and items.
 
 The derivatives are exact closed forms. Where $P$ is close to 0 or 1 the factor $1/(PQ)$ grows, and
 for $c = 0$ or $d = 1$ the products $(\partial P/\partial\chi)/(PQ)$ simplify by cancellation; a
-numerically careful implementation forms them from $\psi$ rather than dividing.
+numerically careful implementation forms them from $F$ rather than dividing.
 
 mirt estimates in the intercept-slope form $a_1\theta + d$ (mirt 1.48 manual, p. 133). Agreement
 with mirt is checked at the level of the calibrator ([the MML-EM card](../estimation/mml-em.md)).

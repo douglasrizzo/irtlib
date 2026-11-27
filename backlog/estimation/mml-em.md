@@ -24,7 +24,8 @@ solution. The 1PL and 2PL come first because their M-step is the simplest.
   - its E-step applied the $N(0, 1)$ density twice, through Gauss-Hermite weights already rescaled to
     the normal (Bock & Aitkin, 1981, p. 446) and again through $g(X_q)$;
   - its bounds $a \in [0.1, 5]$ and $b \in [-6, 6]$ and its 40 Gauss-Hermite nodes had no source;
-    mirt leaves the slope and intercept unbounded and uses 61 equally spaced nodes (below);
+    mirt leaves the slope and intercept unbounded and uses 61 equally spaced nodes (Behavior and
+    Comparison);
   - its "1PL" fixed every slope at 1 without saying how the scale is identified (below);
   - its tests expected the gradient to vanish at the generating parameters, which holds only at the
     maximum likelihood estimate.
@@ -46,7 +47,7 @@ solution. The 1PL and 2PL come first because their M-step is the simplest.
 
 - catsim: `catsim.estimation.QuadratureGrid` (any nodes and positive weights; `uniform()` gives
   equally spaced nodes with equal weights, 121 on $[-6, 6]$ by default), `normal_log_prior`, and a
-  posterior over a grid for one examinee, with no missing responses; `catsim.irt.icc` and
+  posterior over a grid for one examinee's responses; `catsim.irt.icc` and
   `log_response_probabilities`.
 - pyitemcal: nothing; the derivatives with respect to item parameters are
   [the ICC-gradients card](../irt/icc-gradients.md).
@@ -64,9 +65,10 @@ requirements card settles; the card assumes the recommendation of each until the
   - Thissen (1982, p. 180, Table 2), LSAT-6 (Table 1, p. 179), 1PL with a common slope and $N(0, 1)$:
     $\hat a = 0.755$, $\hat b = (-3.615, -1.322, -0.318, -1.730, -2.780)$, to the three decimals printed.
   - Bock and Aitkin (1981, p. 455, Table 3), LSAT-6 and LSAT-7, the same model with difficulties
-    centred to sum to zero, labelled "10-pt. normal prior": the MML column. Their scale is the logit
-    with slope 1 (p. 454), so the comparison is with $\hat a(\hat b_j - \bar b)$, which is Thissen's
-    (1982, p. 180) "Standardized MML" column; for LSAT-6 the two tables agree within 0.001.
+    centred to sum to zero, labelled "10-pt. normal prior": the MML column. Their scale "is free and
+    is determined by the logit function" (p. 454). Thissen's (1982, p. 180) "Standardized MML"
+    column equals $\hat a(\hat b_i - \bar b)$ (the card's arithmetic), and for LSAT-6 it agrees with
+    Bock and Aitkin's column within 0.001, so the comparison is with $\hat a(\hat b_i - \bar b)$.
 - **Parity with mirt 1.48** (fixtures recorded with `TOL = 1e-8`, since the default stops short,
   as measured above): 2PL and equal-slope 2PL on `LSAT6` and `LSAT7`, and on a simulated matrix with
   missing entries; estimates, log-likelihood, and the log-likelihood at fixed parameters.
@@ -83,10 +85,12 @@ requirements card settles; the card assumes the recommendation of each until the
 1. **How the 1PL fixes its scale.**
    - Options: a common slope estimated with $N(0, 1)$ (Thissen, 1982, p. 175); slopes fixed at 1
      with the variance estimated (mirt's `"Rasch"`, mirt 1.48 manual, p. 123); slopes fixed at 1
-     with $N(0, 1)$, a more restrictive model (mirt's `"1PL"`, same page).
-   - The first two are the same model: "the square of the estimated slope is the same as the variance
-     of the population distribution" (Thissen, 1982, p. 175), and they reach the same maximum
-     (Evidence).
+     with $N(0, 1)$, a more restrictive model (mirt's `"1PL"`, manual pp. 123, 133).
+   - The first two are the same model, because $a(\theta - b)$ with $\theta \sim N(0, 1)$ is
+     $a\theta - ab$ with $a\theta \sim N(0, a^2)$ (the card's own step); they reach the same maximum
+     in the measurement (Evidence). Thissen (1982, p. 175) makes the related observation that "the
+     square of the estimated slope is the same as the variance of the population distribution for
+     conventionally standardized CML estimates".
    - The common slope converged in about a fifth of the EM cycles in the measurement, and acceleration
      helps less when the variance is estimated (Beisemann, Wartlick & Doebler, 2020, p. 232).
    - Assumed: the common slope, with the fixed-slope model expressed as a fixed parameter
@@ -95,7 +99,8 @@ requirements card settles; the card assumes the recommendation of each until the
    - Gauss-Hermite and equally spaced points both appear in Bock and Aitkin (1981, pp. 445, 449);
      Thissen (1982, p. 179) finds 11 points on $[-5, 5]$ adequate for the 1PL; Woodruff and Hanson
      (1996, p. 21) give about 20 as the minimum for the 2PL and 3PL; mirt uses 61 on $[-6, 6]$.
-   - Assumed: `QuadratureGrid.uniform(61)`, mirt's grid, so parity needs no setting.
+   - Assumed: mirt's grid, 61 equally spaced nodes on $[-6, 6]$ (`QuadratureGrid.uniform(61)`), with
+     `normal_log_prior()` giving the nodes their normal masses, so parity needs no setting.
 3. **The stopping rule.**
    - Bock and Aitkin (1981, p. 447) stop when the estimates are "stable to the required number of
      places"; mirt stops when every parameter changes by less than `TOL` = 1e-4.
@@ -106,19 +111,20 @@ requirements card settles; the card assumes the recommendation of each until the
      rule on the gradient of the marginal log-likelihood, which is zero at the maximum.
    - Not assumed: the requirements card decides, with measurements.
 4. **Acceleration.**
-   - mirt applies Ramsay's acceleration every third cycle by default (manual p. 128). Thissen
-     (1982, p. 181) reports it doubling or tripling the speed, but in its exact form it
-     over-accelerates and diverges, so he limits the parameter to about −2 to −4. Ramsay's paper is
+   - mirt applies Ramsay's acceleration by default (manual p. 128), every third cycle (source
+     `R/EMstep.group.R:347`). Thissen (1982, p. 181) reports it doubling or tripling the speed, but in
+     its exact form it "frequently leads to over-acceleration and divergence", so he limits the
+     parameter to about −2 to −4. Ramsay's paper is
      not on the shelf, so the method is known here only through Thissen and mirt's source.
-   - SQUAREM is fully documented (Du & Varadhan, 2020). Beisemann et al. (2020, p. 232) find
+   - SQUAREM is fully documented (Du & Varadhan, 2020, pp. 3-4). Beisemann et al. (2020, p. 232) find
      acceleration pays most for long tests and when the variance is fixed.
    - Assumed: no acceleration in the first version, measured before adding any (YAGNI). The fixed
      point does not depend on it, so parity holds either way.
 5. **The M-step solver and parameterization.** Newton or Fisher scoring per item in the
    intercept-slope form (Baker, 1987, p. 114, Equation 8), or a general optimizer (mirt uses BFGS
-   without bounds, manual p. 126). See the ICC-gradients card's first open question.
-6. **Starting values.** Bock and Aitkin (1981, p. 458) start intercepts from the inverse normal of
-   the item's proportion correct, as mirt does (below); Thissen (1982, p. 178) started at $b = 0$,
+   without bounds: manual p. 126; source `R/utils.R:1848`, `R/06-LoadPars.R:318-319`). See the ICC-gradients card's first open question.
+6. **Starting values.** Bock and Aitkin (1981, p. 458) name the inverse normal of the item's
+   proportion correct as a suitable starting intercept, which mirt uses (Behavior and Comparison); Thissen (1982, p. 178) started at $b = 0$,
    $a = 1$. Assumed: mirt's, for comparable iteration counts.
 7. **Items no estimate exists for.** An item answered correctly by everyone or by no one has no
    finite estimate, and MML does not prevent diverging slopes (Baker, 1987, p. 133, quoting
@@ -133,8 +139,8 @@ requirements card settles; the card assumes the recommendation of each until the
 **Module:** decided by the requirements card (planned)
 **Reference:** Bock & Aitkin (1981); Thissen (1982)
 **Last validated:** 2026-11-27, against Bock & Aitkin (1981), Baker (1987), Thissen (1982),
-Dempster, Laird & Rubin (1977), Beisemann, Wartlick & Doebler (2020), Woodruff & Hanson (1996) and
-Engelen (1987) on the paper shelf, and mirt 1.48 (reference manual and source).
+Dempster, Laird & Rubin (1977), Beisemann, Wartlick & Doebler (2020), Du & Varadhan (2020), Woodruff
+& Hanson (1996) and Engelen (1987) on the paper shelf, and mirt 1.48 (reference manual and source).
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -180,10 +186,11 @@ the expected number of correct responses and the expected number of examinees an
 $X_q$ (Baker, 1987, p. 132, Equations 42-44; Bock & Aitkin, 1981, p. 447).
 
 Departure: both sources define the counts over complete response patterns, with one expected
-sample size per node shared by every item. With missing responses, the product and the sums run over answered items only,
-so the expected sample size is per item. Beisemann et al. (2020, p. 211, Equation 5) define it that
-way, as the persons at a level "attempting item $j$", and mirt treats a missing response as
-contributing no factor (mirt 1.48 source, `R/04-PrepData.R:107`).
+sample size per node shared by every item. With missing responses, the product and the sums run
+over answered items only, so the expected sample size is per item. mirt treats a missing response
+as contributing no factor (mirt 1.48 source, `R/04-PrepData.R:107`). Beisemann et al. (2020,
+p. 211) count the complete-data sample size per item, the persons at a level "attempting item $j$"
+(Equation 5), though their expected count (Equation 6) carries no item index.
 
 **M-step.** For each item, maximize
 
@@ -206,11 +213,12 @@ Newton steps within each cycle (p. 181).
 **Convergence.** Each cycle that does not decrease the expected complete-data log-likelihood does not
 decrease the marginal likelihood (Dempster et al., 1977, p. 7, Theorem 1). Convergence is linear,
 at the rate of the largest eigenvalue of the algorithm's Jacobian at the maximum (p. 10), and becomes
-very slow near the solution (Bock & Aitkin, 1981, p. 447). Bock and Aitkin's procedure substitutes
-expected counts rather than taking the expected log-likelihood, and they note that it coincides with
-Dempster et al.'s EM only within the exponential family (p. 448). Beisemann et al. (2020, p. 211)
-derive the same expected counts from Dempster et al.'s expected complete-data log-likelihood for the
-1PL and 2PL.
+very slow near the solution (Bock & Aitkin, 1981, p. 447). Bock and Aitkin "substitute the expected
+values of the missing data ... into the log likelihood", where Dempster et al. take the expected
+log-likelihood; both reduce to the same algorithm "when the model is within the exponential family
+and the log likelihood is linear in the sufficient statistics" (p. 448). Beisemann et al. (2020,
+p. 211) obtain the same expected counts from the posterior expected complete-data log-likelihood of
+the 1PL and 2PL.
 
 ## Parameters
 
@@ -250,17 +258,18 @@ examinee, or by none, has no finite estimate.
 mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `method = "EM"`:
 
 - It estimates the intercept-slope form, which its manual writes $a_1\theta + d$ with $d$ the
-  intercept, not catsim's upper asymptote (manual p. 133); slope and intercept have no bounds.
+  intercept, not catsim's upper asymptote (manual p. 133); slope and intercept have no bounds
+  (source `R/06-LoadPars.R:318-319`).
 - Its grid is 61 equally spaced points on $[-6, 6]$, the normal density at them divided by its sum
-  (source `R/03-estimation.R:663`, `R/utils.R:542-543`).
-- It solves each M-step with BFGS (manual p. 126).
+  (source `R/03-estimation.R:663`, `R/utils.R:588-589`).
+- It solves each M-step with BFGS (manual p. 126; source `R/utils.R:1848`).
 - It stops when every parameter changes by less than `TOL` = 1e-4, or after 500 cycles (manual
   pp. 127, 129; source `R/utils.R:2929-2941`), and applies Ramsay acceleration every third cycle
   (manual p. 128; source `R/EMstep.group.R:347-357`).
 - It starts slopes at 0.851 and intercepts at the inverse normal of the proportion correct, rescaled
   (source `R/05-model.elements.R:42-64`).
 - Its `"1PL"` fixes every slope at 1 with $N(0, 1)$; its `"Rasch"` fixes every slope at 1 and
-  estimates the variance (manual p. 123). The common-slope 1PL is the 2PL with the slopes constrained
+  estimates the variance (manual pp. 123, 133). The common-slope 1PL is the 2PL with the slopes constrained
   equal.
 
 Where pyitemcal's defaults differ, each difference gets a setting that reproduces mirt for the parity

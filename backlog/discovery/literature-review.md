@@ -36,8 +36,10 @@ item wrong (Engelen, 1987, p. 25).
   Jacobian (p. 10), and slow near the solution (Bock & Aitkin, 1981, p. 447).
 - MML does not protect against slope estimates diverging (Baker, 1987, p. 133).
 - The 1PL with a common slope and a standard normal ability distribution is the same model as the
-  1PL with slopes fixed at 1 and the ability variance estimated: "the square of the estimated slope
-  is the same as the variance of the population distribution" (Thissen, 1982, p. 175).
+  1PL with slopes fixed at 1 and the ability variance estimated, since $a\theta$ with
+  $\theta \sim N(0, 1)$ has variance $a^2$ (the MML-EM card's step, confirmed by its measurement).
+  Thissen (1982, p. 175) notes that "the square of the estimated slope is the same as the variance of
+  the population distribution for conventionally standardized CML estimates".
 
 **Published values.** Thissen (1982, pp. 179-180, Tables 1-2) gives the LSAT-6 response patterns and
 their 1PL MML estimates; Bock and Aitkin (1981, p. 451, Table 1; p. 455, Table 3) give normal-ogive
@@ -45,9 +47,9 @@ and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 reproduces Thissen's estimate
 decimals printed (the MML-EM card's measurement).
 
 **Acceleration.** Ramsay's acceleration, as Thissen (1982, p. 181) applies it, doubles or triples the
-speed but diverges unless limited. Among the newer methods compared for the 1PL and 2PL, acceleration
+speed, but in its exact form "frequently leads to over-acceleration and divergence", so he limits it. Among the newer methods compared for the 1PL and 2PL, acceleration
 paid most for long tests and when the ability variance was fixed (Beisemann, Wartlick & Doebler, 2020,
-p. 232). SQUAREM is documented in full by Du and Varadhan (2020).
+p. 232). SQUAREM is documented in full by Du and Varadhan (2020, pp. 3-4).
 
 **mirt.** mirt 1.48 estimates by this method by default, on 61 equally spaced nodes, and stops when
 every parameter changes by less than $10^{-4}$; for the 1PL above, that rule stopped the
@@ -62,10 +64,10 @@ The EM algorithm does not give standard errors (Bock & Aitkin, 1981, p. 447). Th
 is the complete-data information less the missing information (Louis, 1982, p. 227, Equation 3.3;
 Meng & Rubin, 1991, p. 901, Equation 2.4.2), and the methods differ in how they obtain the missing
 part: Louis's exact form, the supplemented EM algorithm from the EM iteration history (Meng & Rubin,
-1991, p. 901), or Oakes's identity, approximated numerically from E-steps at perturbed parameters
+1991, pp. 901-902), or Oakes's identity, approximated numerically from E-steps at perturbed parameters
 (Chalmers, 2018, pp. 3-6). Oakes's approximation beat every supplemented-EM variant in accuracy and
-speed (Pritikin, 2017, p. 7); with central differences it matched Louis's exact form to about
-$10^{-11}$ at 3% of the time (Chalmers, 2018, p. 13). mirt 1.48 uses it by default.
+speed (Pritikin, 2017, p. 7); with central differences it matched Louis's exact form to a mean
+relative difference of $2.5 \times 10^{-11}$, at 3% of the time (Chalmers, 2018, p. 13). mirt 1.48 uses it by default.
 
 ## 3. Derivatives with respect to item parameters
 
@@ -121,7 +123,8 @@ Not openly available; Baker (1987, pp. 131-132) describes the method.
 
 Chalmers, R. P. (2018). Numerical approximation of the observed information matrix with Oakes'
 identity. *British Journal of Mathematical and Statistical Psychology, 71*(3), 415-436.
-https://doi.org/10.1111/bmsp.12127. Free to read at the publisher; pages cited are those of the
+https://doi.org/10.1111/bmsp.12127. Open copy:
+https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bmsp.12127. Pages cited are those of the
 Early View version, 1-22.
 
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
@@ -149,6 +152,13 @@ SEM algorithm. *Journal of the American Statistical Association, 86*(416), 899-9
 https://doi.org/10.1080/01621459.1991.10475130. Not openly available; Pritikin (2016, pp. 4-7)
 describes the method.
 
+Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory model by the
+Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
+Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
+
+Pritikin, J. N. (2016). *A computational note on the application of the supplemented EM algorithm to
+item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open access.
+
 Pritikin, J. N. (2017). A comparison of parameter covariance estimation methods for item response
 models in an expectation-maximization framework. *Cogent Psychology, 4*(1), 1279435.
 https://doi.org/10.1080/23311908.2017.1279435. Open access.
@@ -156,3 +166,7 @@ https://doi.org/10.1080/23311908.2017.1279435. Open access.
 Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
 *Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
 (1987, pp. 133-134) describes the method.
+
+Woodruff, D. J., & Hanson, B. A. (1996). *Estimation of item response models using the EM algorithm
+for finite mixtures* (ACT Research Report 96-6). ACT. Open copy:
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf
