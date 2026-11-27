@@ -31,34 +31,34 @@ The folders:
 | `status` | `ready` (enough to start), `needs-research` (claims to verify, or a design to write, before work), `needs-decision` (the maintainer chooses first), `blocked` (by the cards in `blocked_by`, or by what the card says), `parked` (outside the scope an ADR sets; moving it into scope needs that ADR changed) |
 | `priority` | `1` blocks the first calibration method · `2` needed before a release · `3` useful, though nothing is blocked · `4` a later phase or a scope change |
 | `effort` | `XS`, `S`, `M`, `L`, `XL` |
-| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[estimation/mml-em]` |
+| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[estimation/mml-em-3pl]` |
 | `raised_by` | What surfaced the card: a review, a measurement or a PR, as short text without commas |
 
 Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-22 cards: 4 ready, 0 needs-research, 1 needs-decision, 13 blocked, 4 parked.
+22 cards: 10 ready, 0 needs-research, 2 needs-decision, 6 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | 2 |
+| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | 3 |
 
 ## Priority 1
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | ready | M |  | moved from catsim's backlog |
-| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [mml-em](estimation/mml-em.md) | research pass |
+| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | ready | M |  | research pass |
 
 ## Priority 2
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | blocked | M | [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
-| [Evaluate item fit with S-X² and the mean-square statistics](fit/item-fit.md) | fit | technique | blocked | M | [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
+| [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | ready | M |  | moved from catsim's backlog |
+| [Evaluate item fit with S-X² and the mean-square statistics](fit/item-fit.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
 | [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
 
@@ -66,21 +66,22 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | blocked | M | [mml-em](estimation/mml-em.md) | maintainer during setup |
+| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | needs-decision | M |  | maintainer during setup |
 | [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | blocked | S | [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
-| [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | blocked | S | [mml-em](estimation/mml-em.md) | research pass |
-| [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
+| [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | blocked | S | [mml-em-3pl](estimation/mml-em-3pl.md) | ADR-0007 |
+| [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | ready | S |  | research pass |
+| [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
-| [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
+| [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
 
 ## Priority 4
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | blocked | L | [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
-| [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | blocked | S | [mml-em](estimation/mml-em.md) | Python-floor measurement of 2026-11-26 |
+| [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
 | [Make pyitemcal citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of pyitemcal |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of pyitemcal |
 

@@ -1,10 +1,10 @@
 ---
 title: Run the M-step's item updates in threads on free-threaded Python
 kind: feature
-status: blocked
+status: ready
 priority: 4
 effort: S
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [Python-floor measurement of 2026-11-26]
 ---
 
@@ -34,7 +34,7 @@ SciPy 1.18. The benchmark script is not in the repository; the measurement is re
 implemented M-step (Proposal).
 
 The benchmark's L-BFGS-B M-step is not the one ADR-0007 chose. Fisher scoring's updates are closed
-forms that NumPy can compute for every item at once, as the scratch EM of the MML-EM card does, so
+forms that NumPy computes for every item at once, as `pyitemcal.mml`'s M-step does, so
 threads may have nothing left to parallelize; the measurement on the implemented M-step decides.
 
 ## Proposal

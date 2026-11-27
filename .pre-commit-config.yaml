@@ -88,6 +88,12 @@ repos:
         language: system
         pass_filenames: false  # cyclic-import and duplicate-code need the whole package
         files: ^(src/.*\.py|pyproject\.toml)$
+      - id: import-linter
+        name: import-linter
+        entry: uv run --group dev lint-imports
+        language: system
+        pass_filenames: false
+        files: ^(src/.*\.py|pyproject\.toml)$
 
   # Dead code in src and tests; [tool.vulture] in pyproject.toml holds the paths and the whitelist.
   - repo: https://github.com/jendrikseipp/vulture

@@ -76,7 +76,7 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
    threshold. Assumed: several chains, with $\hat R$ reported for every parameter.
 4. **The output.** Draws or summaries: decided with this card (ADR-0006).
 5. **Missing responses.** Patz and Junker (1999b, pp. 351-352) impute them as an extra Gibbs step;
-   the likelihood can also leave them out, as the MML-EM card does. Assumed: left out.
+   the likelihood can also leave them out, as `pyitemcal.mml` does. Assumed: left out.
 
 ---
 

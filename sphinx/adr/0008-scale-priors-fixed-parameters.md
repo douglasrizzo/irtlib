@@ -19,7 +19,7 @@ card's measurement).
 
 On `LSAT6`, the 1PL with a common estimated slope and the 1PL with slopes fixed at 1 and the ability
 variance estimated (mirt's `"Rasch"`) reach the same maximum, in 12 and 80 cycles at mirt's default
-tolerance (`backlog/estimation/mml-em.md`). An item answered correctly by every examinee, or by
+tolerance (measured with mirt 1.48 on 2026-11-27). An item answered correctly by every examinee, or by
 none, has no finite maximum likelihood estimate; mirt's manual advises removing such items or using
 priors (p. 132).
 
@@ -27,7 +27,7 @@ priors (p. 132).
 
 - **Scale.**
   - Marginal maximum likelihood: ability normal with mean 0 and variance 1, mirt's default
-    (manual pp. 122, 131; `backlog/estimation/mml-em.md`).
+    (manual pp. 122, 131).
   - The 1PL: a common slope estimated with that normal ability distribution.
   - Conditional maximum likelihood: difficulties summing to zero.
   - Joint maximum likelihood: LOGIST's and BICAL's conventions (`backlog/estimation/jml.md`).

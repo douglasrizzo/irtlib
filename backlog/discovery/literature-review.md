@@ -8,7 +8,7 @@
 
 ## Marginal maximum likelihood with the EM algorithm
 
-**Card:** [estimation/mml-em.md](../estimation/mml-em.md).
+**Implemented:** `pyitemcal.mml`, whose module docstring holds the design and its sources.
 
 **What it is.** Marginal maximum likelihood (MML) integrates the examinees' abilities out over a
 population distribution and maximizes the likelihood of the item parameters alone (Bock & Aitkin,
@@ -36,22 +36,24 @@ item wrong (Engelen, 1987, p. 25).
 - MML does not protect against slope estimates diverging (Baker, 1987, p. 133).
 - The 1PL with a common slope and a standard normal ability distribution is the same model as the
   1PL with slopes fixed at 1 and the ability variance estimated, since $a\theta$ with
-  $\theta \sim N(0, 1)$ has variance $a^2$ (the MML-EM card's step, confirmed by its measurement).
+  $\theta \sim N(0, 1)$ has variance $a^2$ (this review's step; mirt reached the same maximum for
+  both on LSAT-6, in 2026-11-27's measurement).
   Thissen (1982, p. 175) notes that "the square of the estimated slope is the same as the variance of
   the population distribution for conventionally standardized CML estimates".
 
 **Published values.** Thissen (1982, pp. 179-180, Tables 1-2) gives the LSAT-6 response patterns and
 their 1PL MML estimates; Bock and Aitkin (1981, p. 451, Table 1; p. 455, Table 3) give normal-ogive
-and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 reproduces Thissen's estimates to the three
-decimals printed (the MML-EM card's measurement).
+and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 and `pyitemcal.mml` reproduce Thissen's
+estimates to the three decimals printed (`tests/test_mml.py`).
 
 **Acceleration.** Ramsay (1975, pp. 340-341, Equations 5 and 10) extrapolates a slow fixed-point
 iteration along its last step, by a factor set from the norms of the iterates' first and second
 differences and updated every third iteration (p. 345). As Thissen (1982, p. 181) applies it to MML,
 it doubles or triples the speed, but in its exact form "frequently leads to over-acceleration and
 divergence", so he limits it; mirt bounds it too, and departs from Ramsay's rule in three other ways
-(the MML-EM card). In the card's measurement, mirt's variant cut the cycles by 1.7 to 2.7 times
-without changing the estimates, and Ramsay's unbounded rule diverged on a slow case. Among the newer
+(`backlog/estimation/em-acceleration.md`). In that card's measurement, mirt's variant cut the cycles
+by 1.7 to 2.7 times without changing the estimates, and Ramsay's unbounded rule diverged on a slow
+case. Among the newer
 methods compared for the 1PL and 2PL, acceleration paid most for long tests and when the ability
 variance was fixed (Beisemann, Wartlick & Doebler, 2020, p. 232). SQUAREM is documented in full by
 Du and Varadhan (2020, pp. 3-4).

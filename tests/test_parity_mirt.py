@@ -16,36 +16,39 @@ range give the same log-likelihood within the tolerance.
 
 from __future__ import annotations
 
-import json
 import operator
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
 from scipy.special import expit, logsumexp
 
+from pyitemcal.mml import MMLCalibrator, marginal_log_likelihood
+from tests.mirt_fixtures import load, responses
+
 if TYPE_CHECKING:
   from catsim.typing import FloatArray
 
-_DATA = Path(__file__).parent / "parity" / "mirt"
-
-# Closed forms and sums on the same grid: a relative 1e-10 (ADR-0003).
+# Closed forms, sums on the same grid, and log-likelihoods at two estimates that agree within _ESTIMATE_ATOL, which
+# the log-likelihood feels only to second order: a relative 1e-10 (ADR-0003).
 _CLOSED_FORM_RTOL = 1e-10
+# Estimates, against mirt's recorded at TOL = 1e-8 with an exact M-step: 1e-5 (ADR-0003).
+_ESTIMATE_ATOL = 1e-5
+
+_MML_EM = load("mml_em")
+
+# The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
+# "1PL", whose slopes are fixed at 1.
+_MML_MODELS: dict[str, dict[str, Any]] = {
+  "2pl": {"model": "2PL"},
+  "equal_slopes": {"model": "1PL"},
+  "fixed_slopes": {"model": "1PL", "fixed_slope": 1.0},
+}
 
 
-def _load(name: str) -> dict[str, Any]:
-  with (_DATA / f"{name}.json").open(encoding="utf-8") as file:
-    return json.load(file)
-
-
-_MML_EM = _load("mml_em")
-
-
-def _responses(data: dict[str, Any]) -> FloatArray:
-  """Expand a data set's patterns into its response matrix, NaN where a response is missing."""
-  rows = [[np.nan if char == "." else float(char) for char in pattern] for pattern in data["patterns"]]
-  return np.repeat(np.array(rows), data["counts"], axis=0)
+def _two_pl_items(slope: FloatArray, intercept: FloatArray) -> FloatArray:
+  """Return 2PL items [a, b, 0, 1] from mirt's slopes and intercepts."""
+  return np.column_stack([slope, -intercept / slope, np.zeros_like(slope), np.ones_like(slope)])
 
 
 def _brute_force_log_likelihood(responses: FloatArray, slope: FloatArray, intercept: FloatArray) -> float:
@@ -71,7 +74,7 @@ def test_fixed_parameter_log_likelihood(name: str) -> None:
   """
   data = _MML_EM["data"][name]
   fixed = data["fixed"]
-  log_likelihood = _brute_force_log_likelihood(_responses(data), np.array(fixed["slope"]), np.array(fixed["intercept"]))
+  log_likelihood = _brute_force_log_likelihood(responses(data), np.array(fixed["slope"]), np.array(fixed["intercept"]))
   np.testing.assert_allclose(log_likelihood, fixed["log_likelihood"], rtol=_CLOSED_FORM_RTOL)
 
 
@@ -81,6 +84,34 @@ def test_estimate_log_likelihood(case: dict[str, Any]) -> None:
 
   Fails if a case's slopes and intercepts are recorded out of place, or the case names the wrong data set.
   """
-  responses = _responses(_MML_EM["data"][case["data"]])
-  log_likelihood = _brute_force_log_likelihood(responses, np.array(case["slope"]), np.array(case["intercept"]))
+  matrix = responses(_MML_EM["data"][case["data"]])
+  log_likelihood = _brute_force_log_likelihood(matrix, np.array(case["slope"]), np.array(case["intercept"]))
   np.testing.assert_allclose(log_likelihood, case["log_likelihood"], rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("name", sorted(_MML_EM["data"]))
+def test_mml_fixed_parameter_log_likelihood(name: str) -> None:
+  """pyitemcal's marginal log-likelihood at fixed 2PL parameters equals mirt's, with and without missing responses.
+
+  Fails if the E-step's grid masses or its treatment of missing responses differ from mirt's.
+  """
+  data = _MML_EM["data"][name]
+  fixed = data["fixed"]
+  items = _two_pl_items(np.array(fixed["slope"]), np.array(fixed["intercept"]))
+  np.testing.assert_allclose(
+    marginal_log_likelihood(responses(data), items), fixed["log_likelihood"], rtol=_CLOSED_FORM_RTOL
+  )
+
+
+@pytest.mark.parametrize("case", _MML_EM["cases"], ids=operator.itemgetter("id"))
+def test_mml_estimates(case: dict[str, Any]) -> None:
+  """MMLCalibrator's estimates and log-likelihood match mirt's for the 2PL, the common-slope 1PL and fixed slopes.
+
+  Compared in mirt's parameters, the slope and the intercept, with the calibrator stopped at mirt's tolerance.
+  """
+  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  calibration = calibrator.calibrate(responses(_MML_EM["data"][case["data"]]))
+  slope = calibration.items.discrimination
+  np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(calibration.log_likelihood, case["log_likelihood"], rtol=_CLOSED_FORM_RTOL)

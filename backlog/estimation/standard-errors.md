@@ -1,10 +1,10 @@
 ---
 title: Compute the standard errors of item estimates from the observed information
 kind: technique
-status: blocked
+status: ready
 priority: 1
 effort: M
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [research pass]
 ---
 
@@ -30,7 +30,7 @@ tolerances.
 - catsim: standard errors of ability estimates (`catsim.irt.see`).
 - pyitemcal: the per-item gradients this card builds on (`pyitemcal.irt`), and mirt's Oakes and
   Louis standard errors for the MML-EM cases (`tests/parity/mirt/mml_em.json`); the E-step is
-  [the MML-EM card](mml-em.md).
+  `pyitemcal.mml`.
 
 ## Proposal
 
@@ -43,7 +43,7 @@ answers of ADR-0006 and ADR-0007, accepted 2026-11-27, where they give one.
 
 - **Parity with mirt 1.48:** `SE = TRUE` with `SE.type = "Oakes"` and with `SE.type = "Louis"` (manual p. 125) on
   `LSAT6` and `LSAT7` and on a simulated matrix with missing entries, for the 2PL and the
-  equal-slope 2PL, with fixtures recorded at `TOL = 1e-8` (the MML-EM card's measurement).
+  equal-slope 2PL, with fixtures recorded at `TOL = 1e-8` (ADR-0003).
 - **Two methods agree:** the central-difference Oakes approximation agrees with Louis's exact form;
   Chalmers (2018, p. 13) reports a mean relative difference of the order of $10^{-11}$ on a
   32-item test.
@@ -136,7 +136,7 @@ complete-data Hessian, the M-step's own. The second, which Oakes calls the "miss
 (p. 480), differentiates the M-step gradient with respect to the parameters of the E-step. For
 complete data from an exponential family it is the sensitivity of the E-step's imputed sufficient
 statistics to those parameters (p. 481); in MML-EM the M-step gradient depends on the E-step's
-parameters only through the expected counts $\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card (the card's own
+parameters only through the expected counts $\bar r_{iq}$ and $\bar N_{iq}$ of `pyitemcal.mml` (the card's own
 algebra). The identity is "valid for all" $\psi$, not only at the maximum (p. 480), and Oakes suggests
 that "in some problems" it gives "the shortest and simplest route to the calculation of valid standard
 errors" for estimates obtained by EM (p. 482).

@@ -1,10 +1,10 @@
 ---
 title: Should the shared item response kernel move from catsim into pyitemcal?
 kind: decision
-status: blocked
+status: needs-decision
 priority: 3
 effort: M
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [maintainer during setup]
 ---
 
