@@ -1,18 +1,18 @@
 ---
-title: Make pyitemcal citable with CITATION.cff and Zenodo
+title: Make irtlib citable with CITATION.cff and Zenodo
 kind: maintenance
 status: blocked
 priority: 4
 effort: XS
 blocked_by: [maintenance/pypi-publishing]
-raised_by: [setup of pyitemcal]
+raised_by: [setup of irtlib]
 ---
 
-# Make pyitemcal citable with CITATION.cff and Zenodo
+# Make irtlib citable with CITATION.cff and Zenodo
 
 ## Problem
 
-Researchers who use pyitemcal in a study need a way to cite it, and a DOI for the version they used.
+Researchers who use irtlib in a study need a way to cite it, and a DOI for the version they used.
 
 ## Proposal
 

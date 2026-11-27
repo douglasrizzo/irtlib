@@ -5,18 +5,18 @@ status: ready
 priority: 3
 effort: M
 blocked_by: []
-raised_by: [setup of pyitemcal]
+raised_by: [setup of irtlib]
 ---
 
 # Build the documentation site
 
 ## Problem
 
-pyitemcal's documents are the README, the ADRs and the backlog. Researchers need a site with an
+irtlib's documents are the README, the ADRs and the backlog. Researchers need a site with an
 introduction, the methods' pages, the API reference and the ADRs, once there is a method to
 document.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 `sphinx/` holds the ADRs, `references.bib` and the charter (`sphinx/AGENTS.md`). catsim's site is the
 model: Sphinx with MyST, numpydoc, sphinxcontrib-bibtex, pydata-sphinx-theme and the plot directive,

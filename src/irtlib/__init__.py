@@ -2,4 +2,4 @@
 
 from importlib.metadata import version
 
-__version__ = version("pyitemcal")
+__version__ = version("irtlib")

@@ -15,8 +15,8 @@ from catsim.irt import icc
 from scipy.special import expit, logit
 from scipy.stats import lognorm, norm
 
-from pyitemcal.calibration import ConvergenceWarning
-from pyitemcal.mml import (
+from irtlib.calibration import ConvergenceWarning
+from irtlib.mml import (
   MMLCalibrator,
   Priors,
   _prior_terms,  # noqa: PLC2701

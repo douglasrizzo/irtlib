@@ -1,6 +1,6 @@
 # Contributing
 
-pyitemcal is in its design phase: the planned work, and the order it comes in, is in the
+irtlib is in its design phase: the planned work, and the order it comes in, is in the
 [backlog](backlog/README.md). Pick a card, do its work in a pull request into `dev`, and delete the
 card in that pull request.
 
@@ -14,7 +14,7 @@ uv sync --group dev
 uv run pre-commit install
 ```
 
-The first command installs pyitemcal with its runtime dependencies, declared in `pyproject.toml`, and
+The first command installs irtlib with its runtime dependencies, declared in `pyproject.toml`, and
 the tools for tests, linting, type checking and coverage. catsim comes from its `dev` branch on
 GitHub, at the commit `uv.lock` pins. pre-commit then runs the repository's formatters and checks on
 every commit.
@@ -29,12 +29,12 @@ uv run pytest -q
 uv run pre-commit run --all-files
 ```
 
-pytest also runs the docstring examples in `src/pyitemcal`, and turns warnings into errors. The hooks
+pytest also runs the docstring examples in `src/irtlib`, and turns warnings into errors. The hooks
 run Ruff, ty, pylint, vulture, typos and the check of the backlog's index.
 
 ## Parity tests with mirt
 
-`tests/test_parity_mirt.py` compares pyitemcal with the R package mirt, its reference implementation
+`tests/test_parity_mirt.py` compares irtlib with the R package mirt, its reference implementation
 (ADR-0003), on outputs recorded in the JSON files of `tests/parity/mirt/`. The tests need no R.
 
 The files are regenerated, never edited, when a case script beside them changes or the pinned mirt
@@ -45,7 +45,7 @@ Rscript tests/parity/mirt/generate.R
 ```
 
 The first run installs mirt, at the version `generate.R` pins, with its dependencies, into
-`~/.cache/pyitemcal-parity/R-lib`, outside your own R library; set `PYITEMCAL_MIRT_LIB` to use
+`~/.cache/irtlib-parity/R-lib`, outside your own R library; set `IRTLIB_MIRT_LIB` to use
 another folder. A rerun with the same mirt version writes the same bytes, so `git diff` shows only
 what a change to the cases or the version moved.
 

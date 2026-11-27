@@ -1,4 +1,4 @@
-# Bayes modal MML-EM with priors on the item parameters (pyitemcal.mml): the 3PL with a normal prior
+# Bayes modal MML-EM with priors on the item parameters (irtlib.mml): the 3PL with a normal prior
 # on the logit of its guessing parameter, the 2PL with a lognormal prior on the slope and a normal
 # prior on the intercept, the 1PL with a lognormal prior on its shared slope, which mirt counts once,
 # and the 4PL with normal priors on the logits of c and d (ADR-0008). Settings as mml_em.R:
@@ -43,7 +43,7 @@ simulated_four_pl_responses <- function() {
   x
 }
 
-# The model "1PL" is mirt's 2PL with the slopes constrained equal, pyitemcal's 1PL.
+# The model "1PL" is mirt's 2PL with the slopes constrained equal, irtlib's 1PL.
 fit_with_priors <- function(x, model, priors) {
   n_items <- ncol(x)
   tuples <- vapply(priors, function(prior) {

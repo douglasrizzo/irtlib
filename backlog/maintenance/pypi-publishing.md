@@ -5,17 +5,17 @@ status: blocked
 priority: 3
 effort: M
 blocked_by: [maintenance/released-catsim, maintenance/license, maintenance/docs-site]
-raised_by: [setup of pyitemcal]
+raised_by: [setup of irtlib]
 ---
 
 # Publish releases to PyPI with trusted publishing
 
 ## Problem
 
-pyitemcal builds and tests its wheel in CI but publishes nothing. A release needs a license, a
+irtlib builds and tests its wheel in CI but publishes nothing. A release needs a license, a
 catsim it can name in its metadata, and documentation to point users to.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 catsim's `.github/workflows/ci-cd.yml` is the model:
 

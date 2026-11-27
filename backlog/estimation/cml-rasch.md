@@ -17,7 +17,7 @@ conditioning on it removes the abilities from the likelihood and leaves the diff
 and the conditional likelihood "does not depend on the distribution function" of ability (Bock &
 Aitkin, 1981, p. 443; Haberman, 2004, p. 35).
 Conditional maximum likelihood (CML) is the reference estimator for the Rasch model in the
-literature pyitemcal's comparison studies draw on, and the 1PL MML estimates are checked against it
+literature irtlib's comparison studies draw on, and the 1PL MML estimates are checked against it
 (Bock & Aitkin, 1981, p. 455, Table 3).
 
 ## Evidence
@@ -33,7 +33,7 @@ Gustafsson (1980), Baker and Harwell (1996), Engelen (1987) and Robitzsch (2021)
 - "cost $O(I^2)$ per score group": the symmetric functions of all orders together cost
   $k(k - 1)/2$ multiplications by the summation algorithm (Baker & Harwell, 1996, p. 189).
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 Nothing for conditional estimation in either package.
 
@@ -64,7 +64,7 @@ sum-to-zero constraint. It follows MML-EM in the build order of
 1. **Missing responses.** "For missing at random data, LIM (and ordinary CML) will likely fail (see
    [134]), and MML or JML will usually be preferred", while the methods "can also be applied in
    situations in which data is missing completely at random (MCAR)" (Robitzsch, 2021, p. 827);
-   ADR-0001 commits pyitemcal to response matrices with missing entries. Options: CML for complete
+   ADR-0001 commits irtlib to response matrices with missing entries. Options: CML for complete
    data only, with an error otherwise; or a CML over the items each examinee answered, for data
    missing completely at random, which needs a source for its equations. **Decided** (ADR-0006):
    complete data only, with an error naming MML-EM as the alternative.

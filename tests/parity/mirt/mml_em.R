@@ -1,5 +1,5 @@
 # Marginal maximum likelihood with the EM algorithm for the 1PL and 2PL, with Oakes's standard errors
-# and Louis's as a cross-check (pyitemcal.mml).
+# and Louis's as a cross-check (irtlib.mml).
 #
 # Every fit runs to TOL = 1e-8 with an exact M-step, control = list(reltol = 1e-14), because mirt's
 # defaults stop short of the maximum (ADR-0003, ADR-0007). The grid is mirt's default, 61 points on

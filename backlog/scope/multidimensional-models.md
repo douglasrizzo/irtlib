@@ -15,7 +15,7 @@ raised_by: [scope set by ADR-0001]
 Tests that measure several abilities at once need multidimensional models, with a discrimination per
 dimension and an ability vector per examinee. Their calibration integrates over several dimensions,
 which changes the quadrature, the identification constraints and the cost of every method. ADR-0001
-keeps pyitemcal to one ability per examinee, and catsim's models are unidimensional.
+keeps irtlib to one ability per examinee, and catsim's models are unidimensional.
 
 ## Proposal
 

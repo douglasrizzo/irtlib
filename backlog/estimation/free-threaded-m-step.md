@@ -18,7 +18,7 @@ Python, per-item updates written as a loop run one after another, whatever the n
 
 ## Evidence
 
-A benchmark of one 2PL EM iteration, made when pyitemcal's Python floor was chosen (ADR-0002), on
+A benchmark of one 2PL EM iteration, made when irtlib's Python floor was chosen (ADR-0002), on
 2026-11-26, on an Apple M4 Pro: 5,000 examinees, 40 items, 61 quadrature nodes, 30% missing
 responses, and a per-item L-BFGS-B M-step with analytic gradients. Medians of five interleaved runs:
 
@@ -34,7 +34,7 @@ SciPy 1.18. The benchmark script is not in the repository; the measurement is re
 implemented M-step (Proposal).
 
 The benchmark's L-BFGS-B M-step is not the one ADR-0007 chose. Fisher scoring's updates are closed
-forms that NumPy computes for every item at once, as `pyitemcal.mml`'s M-step does, so
+forms that NumPy computes for every item at once, as `irtlib.mml`'s M-step does, so
 threads may have nothing left to parallelize; the measurement on the implemented M-step decides.
 
 ## Proposal

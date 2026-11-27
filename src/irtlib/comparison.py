@@ -154,7 +154,7 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
   Raises
   ------
   ValueError
-      If the responses fail :py:func:`pyitemcal.calibration.validate_responses`, have a missing response, or do not
+      If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not
       have one column per item; or the model leaves no degrees of freedom.
   """
   matrix = validate_responses(responses)

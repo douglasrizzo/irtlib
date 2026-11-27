@@ -3,12 +3,12 @@
 > Built from sources on the paper shelf, each claim cited to the location where it was read
 > (citation convention in [the backlog README](../README.md)). It covers every method card in `irt/`,
 > `estimation/` and `fit/`. Formulas live on the method cards; this review says what the sources
-> establish, how the methods compare, how mirt implements them, and in what order pyitemcal should
+> establish, how the methods compare, how mirt implements them, and in what order irtlib should
 > build them.
 
 ## Marginal maximum likelihood with the EM algorithm
 
-**Implemented:** `pyitemcal.mml`, whose module docstring holds the design and its sources.
+**Implemented:** `irtlib.mml`, whose module docstring holds the design and its sources.
 
 **What it is.** Marginal maximum likelihood (MML) integrates the examinees' abilities out over a
 population distribution and maximizes the likelihood of the item parameters alone (Bock & Aitkin,
@@ -43,7 +43,7 @@ item wrong (Engelen, 1987, p. 25).
 
 **Published values.** Thissen (1982, pp. 179-180, Tables 1-2) gives the LSAT-6 response patterns and
 their 1PL MML estimates; Bock and Aitkin (1981, p. 451, Table 1; p. 455, Table 3) give normal-ogive
-and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 and `pyitemcal.mml` reproduce Thissen's
+and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 and `irtlib.mml` reproduce Thissen's
 estimates to the three decimals printed (`tests/test_mml.py`).
 
 **Acceleration.** Ramsay (1975, pp. 340-341, Equations 5 and 10) extrapolates a slow fixed-point
@@ -65,7 +65,7 @@ their locations.
 
 ## Standard errors of item estimates
 
-**Implemented:** the standard errors of `pyitemcal.mml`, whose module docstring holds the design.
+**Implemented:** the standard errors of `irtlib.mml`, whose module docstring holds the design.
 
 The EM algorithm does not give standard errors (Bock & Aitkin, 1981, p. 447). The observed information
 is the complete-data information less the missing information (Louis, 1982, p. 227, Equation 3.3;
@@ -80,7 +80,7 @@ relative difference of $2.5 \times 10^{-11}$, at 3% of the time (Chalmers, 2018,
 
 ## Derivatives with respect to item parameters
 
-**Implemented:** `pyitemcal.irt`, whose module docstring holds the design and its sources.
+**Implemented:** `irtlib.irt`, whose module docstring holds the design and its sources.
 
 Every M-step and every standard error uses the derivatives of the response probability with respect
 to the item's parameters. Barton and Lord (1981, pp. A1-A3) give them for the four-parameter model with
@@ -90,7 +90,7 @@ observed data, so "the Hessian is the information matrix".
 
 ## The 3PL and priors on item parameters
 
-**Implemented:** the 3PL and priors of `pyitemcal.mml`, whose module docstring holds the design.
+**Implemented:** the 3PL and priors of `irtlib.mml`, whose module docstring holds the design.
 
 The 3PL's likelihood is "nearly flat along one or more dimensions" of $(a, b, c)$, and Bayesian item
 estimation was motivated by wanting "reasonable" estimates, "in particular, finite ones" (Mislevy,
@@ -107,7 +107,7 @@ a prior, mirt put four of five guessing estimates at 0; with a logit-normal prio
 
 ## The 4PL
 
-**Implemented:** the 4PL of `pyitemcal.mml`, whose module docstring holds the design.
+**Implemented:** the 4PL of `irtlib.mml`, whose module docstring holds the design.
 
 Barton and Lord (1981, p. 2) proposed an upper asymptote below 1 for high-ability examinees who make
 a clerical error, fixed it at one value for all items (p. 3), and found "no compelling reason to urge
@@ -128,7 +128,7 @@ consistent (Andersen, 1970, p. 286, Theorem 1), though "not in general ... effic
 elementary symmetric functions they need are computed by the summation algorithm, since the faster
 difference algorithm "breaks down when there are more than 20-50 items" (Gustafsson, 1980,
 pp. 381-382). With data missing at random, ordinary CML "will likely fail" and MML or JML is
-preferred (Robitzsch, 2021, p. 827), and pyitemcal's response matrices may have missing entries
+preferred (Robitzsch, 2021, p. 827), and irtlib's response matrices may have missing entries
 (ADR-0001).
 
 ## Joint maximum likelihood
@@ -160,7 +160,7 @@ sampling for maximum likelihood, with a cost that grows linearly in the number o
 
 ## Item fit
 
-**Implemented:** S-X² in `pyitemcal.fit`, whose module docstring holds the design; the Rasch mean
+**Implemented:** S-X² in `irtlib.fit`, whose module docstring holds the design; the Rasch mean
 squares are [fit/mean-squares.md](../fit/mean-squares.md).
 
 Orlando and Thissen's (2000) S-X² groups examinees by their number-correct score and computes the
@@ -176,7 +176,7 @@ pp. 705, 714, Table 3).
 
 ## Model comparison
 
-**Implemented:** `pyitemcal.comparison`, whose module docstring holds the design.
+**Implemented:** `irtlib.comparison`, whose module docstring holds the design.
 
 Nested models are compared by $-2$ times the difference of their log-likelihoods, "distributed as
 $\chi^2$" (Orlando & Thissen, 2000, p. 51), as Thissen (1982, p. 178) compares the 1PL and 2PL; any

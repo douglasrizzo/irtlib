@@ -105,7 +105,7 @@ jobs:
       # --cov turns on the coverage gate (fail_under in pyproject.toml).
       - name: Run tests
         shell: bash
-        run: uv run pytest --verbose --cov=pyitemcal
+        run: uv run pytest --verbose --cov=irtlib
 
   build:
     name: Build package
@@ -171,10 +171,10 @@ jobs:
           uv pip install --python "$RUNNER_TEMP/wheel-venv" -r "$RUNNER_TEMP/runtime.txt" pytest hypothesis
           wheel=(dist/*.whl)
           uv pip install --python "$RUNNER_TEMP/wheel-venv" --no-deps "${wheel[0]}"
-          # Without the source tree, the only pyitemcal the tests can import is the installed wheel.
+          # Without the source tree, the only irtlib the tests can import is the installed wheel.
           rm -rf src
 
       - name: Run tests against the installed wheel
         run: |
-          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import pyitemcal; assert 'site-packages' in pyitemcal.__file__, pyitemcal.__file__"
+          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import irtlib; assert 'site-packages' in irtlib.__file__, irtlib.__file__"
           "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests

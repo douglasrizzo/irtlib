@@ -13,7 +13,7 @@ import pytest
 from catsim.irt import icc, log_response_probabilities
 from scipy.special import expit, logit
 
-from pyitemcal.irt import log_likelihood_gradient, parameter_information, probability_gradient
+from irtlib.irt import log_likelihood_gradient, parameter_information, probability_gradient
 
 if TYPE_CHECKING:
   from collections.abc import Callable

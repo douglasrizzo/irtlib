@@ -22,14 +22,14 @@ uses both packages can control them the same way.
   `int | numpy.random.Generator | None` and passes it through `numpy.random.default_rng`: `None`
   draws fresh entropy (NumPy's convention), an `int` fixes the state, and a `Generator` is used as
   is.
-- pyitemcal never uses NumPy's global random state or the standard library's `random` module;
+- irtlib never uses NumPy's global random state or the standard library's `random` module;
   Ruff's banned-API rule rejects `random`.
 - A method that draws in more than one place derives its streams from the one generator it is
   given, so the same `rng` reproduces the whole call.
 
 ## Consequences
 
-- The same seed, data and settings give the same estimates, on the same versions of pyitemcal,
+- The same seed, data and settings give the same estimates, on the same versions of irtlib,
   catsim, NumPy and SciPy. Across platforms results agree up to floating-point rounding.
 - A recovery study can draw its responses and its estimator's random numbers from separate seeds,
   and compare methods on the same responses.

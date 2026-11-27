@@ -1,5 +1,5 @@
 ---
-title: Should the shared item response kernel move from catsim into pyitemcal?
+title: Should the shared item response kernel move from catsim into irtlib?
 kind: decision
 status: needs-decision
 priority: 3
@@ -8,27 +8,27 @@ blocked_by: []
 raised_by: [maintainer during setup]
 ---
 
-# Should the shared item response kernel move from catsim into pyitemcal?
+# Should the shared item response kernel move from catsim into irtlib?
 
 ## Problem
 
-pyitemcal depends on catsim for the item response kernel (ADR-0004). Calibration produces the item
+irtlib depends on catsim for the item response kernel (ADR-0004). Calibration produces the item
 banks a CAT consumes, so the kernel may belong with the producer, with catsim depending on
-pyitemcal. The direction is cheap to change before pyitemcal has users and expensive after.
+irtlib. The direction is cheap to change before irtlib has users and expensive after.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 The kernel is in catsim: `catsim.irt` (`icc`, `log_response_probabilities`, `information`),
 `QuadratureGrid` and the priors in `catsim.estimation`, `IrtModel`, and `ItemBank` with its
-validation and CSV format. pyitemcal imports exactly those names (ADR-0004).
+validation and CSV format. irtlib imports exactly those names (ADR-0004).
 
 ## Proposal
 
-Decide once the first method, MML-EM, has shaped pyitemcal's own kernel: the contract is set
+Decide once the first method, MML-EM, has shaped irtlib's own kernel: the contract is set
 (ADR-0006), but the batched, masked functions the first weighing point compares exist only once a
 method uses them. Weigh:
 
-- what pyitemcal's batched, masked functions look like next to catsim's one-examinee ones, and
+- what irtlib's batched, masked functions look like next to catsim's one-examinee ones, and
   whether catsim would use them;
 - that catsim would gain a dependency, which changes catsim's ADR-0021 and ADR-0001;
 - whether `ItemBank`, with its names and validation, belongs with the calibrator that produces banks
