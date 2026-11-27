@@ -73,6 +73,9 @@ The maintainer's guidance for choosing which techniques, papers and equations ir
   any edit to them keeps that true (`backlog/README.md`, revalidation checklist).
 - When a source is behind a paywall, list it for the maintainer to fetch; do not cite it through a
   summary.
+- A claim, formula or default with no source on the shelf is recorded in
+  `backlog/discovery/sources-wanted.md`; ask the maintainer about each row before relying on a
+  reference implementation in its place (`backlog/README.md`, "Citation convention").
 
 ## Source Code Guidelines
 
