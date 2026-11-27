@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from scipy.special import logsumexp
 from scipy.stats import norm
 
 from irtlib import quadrature
@@ -283,6 +284,42 @@ def test_each_row_is_that_examinees_posterior_alone() -> None:
   post = posterior(log_likelihood, grid, normal_log_prior(_PRIOR_MEAN, _PRIOR_SD))
 
   np.testing.assert_allclose(post, np.vstack([expected, expected[0]]), rtol=1e-12, atol=1e-300)
+
+
+def test_posterior_of_a_long_response_pattern_is_normalized_in_log_space() -> None:
+  """Long response patterns keep a posterior that sums to 1 and equals one normalized in log space.
+
+  Four examinees answer 2,000 items of the 3PL and 4PL, drawn from the model, and a fifth answers 100 of them. The four
+  long patterns have a log-likelihood below -745, the log of the smallest float, at every node, and the fifth stays
+  near -44. Fails if the posterior underflows or loses its normalization on long patterns: exponentiating before
+  shifting each row by its own maximum leaves the long rows with no mass, and shifting every row by the batch's
+  maximum leaves them with none beside the short one.
+  """
+  rng = np.random.default_rng(20261127)
+  n_items = 2000
+  items = np.column_stack([
+    rng.uniform(0.5, 2.5, n_items),
+    rng.normal(0.0, 1.5, n_items),
+    rng.uniform(0.0, 0.3, n_items),
+    rng.uniform(0.9, 1.0, n_items),
+  ])
+  theta = np.array([-2.0, -0.5, 0.5, 2.0, 1.0])
+  a, b, c, d = items.T
+  probability = c + (d - c) / (1.0 + np.exp(-a * (theta[:, np.newaxis] - b)))
+  responses = (rng.random(probability.shape) < probability).astype(float)
+  responses[-1, 100:] = np.nan
+  grid = QuadratureGrid.uniform()
+  log_likelihood = _log_likelihood(responses, items, grid.nodes)
+  # the standard normal log-density at the nodes, up to its constant, which cancels
+  log_joint = log_likelihood + np.log(grid.weights) - grid.nodes**2 / 2
+  reference = np.exp(log_joint - logsumexp(log_joint, axis=1, keepdims=True))
+
+  post = posterior(log_likelihood, grid, normal_log_prior())
+
+  assert np.all(log_likelihood[:4] < -745.2)
+  np.testing.assert_allclose(post.sum(axis=1), np.ones(5), rtol=0, atol=1e-12)
+  # entries below 1e-300 are subnormal or nearly so, where neither computation keeps a relative precision
+  np.testing.assert_allclose(post, reference, rtol=1e-11, atol=1e-300)
 
 
 def test_posterior_moments_match_a_brute_force_integral() -> None:
