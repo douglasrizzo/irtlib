@@ -49,6 +49,24 @@ The first run installs mirt, at the version `generate.R` pins, with its dependen
 another folder. A rerun with the same mirt version writes the same bytes, so `git diff` shows only
 what a change to the cases or the version moved.
 
+## Parity tests with catR
+
+`tests/test_parity_catr.py` compares irtlib's response functions with the R package catR, their
+second reference implementation (ADR-0003), on outputs recorded in the JSON files of
+`tests/parity/catr/`. These tests need no R either.
+
+The files are regenerated, never edited, when a case script beside them changes or the pinned catR
+version moves:
+
+```bash
+Rscript tests/parity/catr/generate.R
+```
+
+The first run installs catR, at the version `generate.R` pins, from CRAN's source archive into
+`~/.cache/irtlib-parity/R-lib`, the library the mirt generator uses; set `IRTLIB_CATR_LIB` to use
+another folder. Both generators write their files through `tests/parity/json.R`, and a rerun with
+the same catR version writes the same bytes.
+
 ## Sources
 
 Every formula and every claim about a method cites a location in a source that its author has read.

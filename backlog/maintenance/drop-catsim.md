@@ -4,7 +4,7 @@ kind: maintenance
 status: blocked
 priority: 2
 effort: M
-blocked_by: [irt/response-functions, irt/quadrature, irt/item-bank]
+blocked_by: [irt/quadrature, irt/item-bank]
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 
@@ -26,14 +26,14 @@ and still agrees, while catsim keeps its own copy (ADR-0004).
 
 1. Import every moved name from irtlib, in one pull request, since an irtlib `ItemBank` never
    equals a catsim one: in `src/irtlib/mml.py:67-69`, `fit.py:40-41` and `calibration.py:10-11`, and
-   in `tests/test_irt.py:13`, `test_mml.py:13-14`, `test_parity_mirt.py:25` and
+   in `tests/test_irt.py:17`, `test_mml.py:13-14`, `test_parity_mirt.py:27` and
    `test_comparison.py:13`. Replace the private versions with the moved functions; replace the
    inline response draws of the recovery tests with the drawing function; keep one constant for
    the four item columns, where `mml._N_PARAMETERS` repeats it.
 2. A calibration reports its estimates as they come, and builds its bank from the valid items
    only: a miskeyed item, with a slope that is not positive, warns rather than raises (maintainer,
-   2026-11-27). `calibration.validate_responses` builds on the response-matrix check of
-   `irt/response-functions` and adds its own rule, that every item is answered.
+   2026-11-27). `calibration.validate_responses` builds on the response-matrix check,
+   `irtlib._responses.response_matrix`, and adds its own rule, that every item is answered.
 3. Remove catsim from `[project.dependencies]` and `[tool.uv.sources]`; edit ADR-0002 (runtime
    dependencies NumPy and SciPy) and `AGENTS.md` (the list of catsim names) in the same pull
    request.

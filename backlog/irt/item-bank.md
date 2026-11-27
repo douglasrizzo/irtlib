@@ -1,10 +1,10 @@
 ---
 title: Bring the model names, the item bank and response drawing from catsim into irtlib
 kind: feature
-status: blocked
+status: ready
 priority: 2
 effort: M
-blocked_by: [irt/response-functions]
+blocked_by: []
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 
