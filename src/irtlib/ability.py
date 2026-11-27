@@ -1,7 +1,7 @@
 r"""Ability estimation: each examinee's ability, with its standard error, from responses to items of known parameters.
 
-Each estimator takes the items, one row ``[a, b, c, d]`` per item, and a response matrix with one row per examinee and
-one column per item, holding 1, 0 or NaN where the examinee did not answer the item. It returns an
+Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where
+the examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column. It returns an
 :py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the
 estimator's objective. An examinee's estimate depends only on the items it answered, so its row gives the same
 estimate alone as in any matrix. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses
@@ -17,16 +17,18 @@ u_{ij}}` and to :math:`\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}`: under the 3
 all correct nor all incorrect can also have their supremum at an infinity. By the maintainer's decision of 2026-11-27,
 the maximum likelihood estimate is the maximizer over the extended real line: :math:`+\infty` or :math:`-\infty`
 wherever the likelihood comes closest to its supremum only in that limit, with standard error :math:`\infty`, since the
-information tends to 0 at either infinity. The same decision gives the caller two ways to finite numbers, never used
-together:
+information tends to 0 at either infinity. An examinee who answered no item has a constant likelihood, which every
+ability maximizes: its estimate is NaN, and its standard error :math:`\infty`, the information being 0. The same
+decision gives the caller two ways to finite numbers, never used together:
 
 - ``bounds``: the estimate maximizes the likelihood within them, and responses all correct or all incorrect give the
   bound they point to. Bounds are always set in practice (:cite:t:`Warm1989`, p. 442), and catR 3.17 sets them by
   default: its default ``constantPatt = NULL`` estimates such responses by maximum likelihood too
   (:cite:t:`Magis2022`, p. 115), which returns the end of its ``range`` that the score points to (source
   ``R/thetaEst.R:9-10, 100-109``).
-- ``fallback``: another estimator, called once on the rows whose estimate is not finite, whose estimates, standard
-  errors and evaluation counts replace theirs; :py:attr:`AbilityEstimates.from_fallback` marks those rows.
+- ``fallback``: another estimator, called once on the rows whose estimate is not finite, the unanswered rows
+  included, whose estimates, standard errors and evaluation counts replace theirs;
+  :py:attr:`AbilityEstimates.from_fallback` marks those rows.
 
 The search evaluates the log-likelihood at 201 equally spaced abilities of the range and refines the best between its
 neighbours with SciPy's bounded search, ``scipy.optimize.minimize_scalar``, keeping the refinement only if no worse: the
@@ -40,7 +42,8 @@ within a relative :math:`10^{-12}`, and the best ability found otherwise. After 
 a vanishing discrimination need, the search stops at the best ability found and warns.
 
 mirt 1.48 also gives :math:`+\infty` or :math:`-\infty` to responses all correct or all incorrect
-(``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`. It searches the
+(``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`, and NA to both
+for an examinee who answered no item (``R/fscores.internal.R:94-96, 185``). It searches the
 other responses with R's ``nlm`` from the EAP estimate, up to an ability of :math:`\pm 20` (``R/fscores.R:305``;
 ``R/fscores.internal.R:687``), takes the standard error from ``nlm``'s numerical Hessian, the observed information
 (``R/fscores.internal.R:1072-1101``), which is :math:`I` for items with :math:`c_i = 0` and :math:`d_i = 1` (see the
@@ -91,7 +94,8 @@ refined by Brent's method, ``scipy.optimize.brentq``, is a maximum of the weight
 score points out of. Of several, the estimate is the one of largest weighted likelihood, ranked by integrating the score
 from the lower bound with ``scipy.integrate.quad``. Warm finds finite estimates for responses all correct or all
 incorrect on his tests (p. 443, Table 1), and :cite:t:`Magis2012` (p. 11) propose the estimator for them; irtlib's
-estimate lies within the bounds whatever the responses.
+estimate lies within the bounds whatever the responses. An examinee who answered no item has no estimate, NaN, and
+standard error :math:`\infty`, as under maximum likelihood.
 
 mirt 1.48 maximizes :math:`\log L_j + \tfrac12 \log I` instead (``R/fscores.internal.R:705-738``), Warm's estimate when
 every answered item has :math:`c_i = 0` and :math:`d_i = 1`, and takes its standard error from ``nlm``'s numerical
@@ -146,7 +150,7 @@ class AbilityEstimates:
   ----------
   theta : numpy.ndarray
       The estimates, one per row of the response matrix.
-  se : numpy.ndarray
+  standard_errors : numpy.ndarray
       Their standard errors, by the estimator's formula.
   evaluations : numpy.ndarray
       For each examinee, how many times the estimator evaluated its objective, the likelihood, the posterior or Warm's
@@ -157,7 +161,7 @@ class AbilityEstimates:
   """
 
   theta: FloatArray
-  se: FloatArray
+  standard_errors: FloatArray
   evaluations: IntArray
   from_fallback: BoolArray
 
@@ -201,11 +205,11 @@ def _check_bounds(bounds: _Bounds) -> _Bounds:
   return float(low), float(high)
 
 
-def _answered(items: FloatArray, matrix: FloatArray) -> Iterable[tuple[FloatArray, FloatArray]]:
-  """Yield each examinee's items and responses, the items it did not answer left out."""
+def _answered(matrix: FloatArray, items: FloatArray) -> Iterable[tuple[FloatArray, FloatArray]]:
+  """Yield each examinee's responses and items, the items it did not answer left out."""
   for row in matrix:
     answered = ~numpy.isnan(row)
-    yield items[answered], row[answered]
+    yield row[answered], items[answered]
 
 
 def _estimates(rows: Iterable[tuple[float, float, int]]) -> AbilityEstimates:
@@ -213,13 +217,13 @@ def _estimates(rows: Iterable[tuple[float, float, int]]) -> AbilityEstimates:
   values = list(rows)
   return AbilityEstimates(
     theta=numpy.array([theta for theta, _, _ in values], dtype=float),
-    se=numpy.array([se for _, se, _ in values], dtype=float),
+    standard_errors=numpy.array([se for _, se, _ in values], dtype=float),
     evaluations=numpy.array([evaluations for _, _, evaluations in values], dtype=int),
     from_fallback=numpy.zeros(len(values), dtype=bool),
   )
 
 
-def _log_likelihood(items: FloatArray, responses: FloatArray) -> _Objective:
+def _log_likelihood(responses: FloatArray, items: FloatArray) -> _Objective:
   """Return one examinee's log-likelihood at each of an array of abilities, from the items it answered."""
   log_likelihood = irt.log_likelihood_function(responses[numpy.newaxis], items)
   return lambda theta: log_likelihood(theta)[0]
@@ -273,8 +277,8 @@ def _maximum(objective: _Objective, bounds: _Bounds, tol: float) -> tuple[float,
 
 
 def expected_a_posteriori(
-  items: FloatArray,
   responses: npt.ArrayLike,
+  items: FloatArray,
   *,
   grid: QuadratureGrid | None = None,
   log_prior: LogPrior | None = None,
@@ -286,11 +290,12 @@ def expected_a_posteriori(
 
   Parameters
   ----------
-  items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
+  items : numpy.ndarray
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a > 0``
+      and ``0 <= c < d <= 1``.
   grid : QuadratureGrid or None, optional
       The nodes the posterior is computed on. Default is ``QuadratureGrid.uniform()``, 121 nodes on [-6, 6].
   log_prior : LogPrior or None, optional
@@ -313,8 +318,8 @@ def expected_a_posteriori(
   --------
   >>> import numpy
   >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
-  >>> estimates = expected_a_posteriori(items, numpy.array([[1, 0, numpy.nan], [1, 1, 1]]))
-  >>> estimates.theta.round(4), estimates.se.round(4)
+  >>> estimates = expected_a_posteriori(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)
+  >>> estimates.theta.round(4), estimates.standard_errors.round(4)
   (array([-0.2809,  0.8555]), array([0.7837, 0.828 ]))
   """
   grid = QuadratureGrid.uniform() if grid is None else grid
@@ -323,15 +328,15 @@ def expected_a_posteriori(
   n_examinees = post.shape[0]
   return AbilityEstimates(
     theta=posterior_mean(post, grid.nodes),
-    se=numpy.sqrt(posterior_variance(post, grid.nodes)),
+    standard_errors=numpy.sqrt(posterior_variance(post, grid.nodes)),
     evaluations=numpy.full(n_examinees, grid.nodes.size),
     from_fallback=numpy.zeros(n_examinees, dtype=bool),
   )
 
 
 def maximum_a_posteriori(
-  items: FloatArray,
   responses: npt.ArrayLike,
+  items: FloatArray,
   *,
   log_prior: LogPrior | None = None,
   bounds: _Bounds = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
@@ -345,11 +350,12 @@ def maximum_a_posteriori(
 
   Parameters
   ----------
-  items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
+  items : numpy.ndarray
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a > 0``
+      and ``0 <= c < d <= 1``.
   log_prior : LogPrior or None, optional
       The prior's log-density. Default is ``normal_log_prior()``, the standard normal.
   bounds : tuple[float, float], optional
@@ -376,8 +382,8 @@ def maximum_a_posteriori(
   --------
   >>> import numpy
   >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
-  >>> estimates = maximum_a_posteriori(items, numpy.array([[1, 0, numpy.nan], [1, 1, 1]]))
-  >>> estimates.theta.round(4), estimates.se.round(4)
+  >>> estimates = maximum_a_posteriori(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)
+  >>> estimates.theta.round(4), estimates.standard_errors.round(4)
   (array([-0.2728,  0.823 ]), array([0.8029, 0.8002]))
   """
   log_prior = normal_log_prior() if log_prior is None else log_prior
@@ -385,13 +391,13 @@ def maximum_a_posteriori(
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
   return _estimates(
-    _posterior_mode(row_items, row_responses, log_prior, bounds, tol)
-    for row_items, row_responses in _answered(items, matrix)
+    _posterior_mode(row_responses, row_items, log_prior, bounds, tol)
+    for row_responses, row_items in _answered(matrix, items)
   )
 
 
 def _posterior_mode(
-  items: FloatArray, responses: FloatArray, log_prior: LogPrior, bounds: _Bounds, tol: float
+  responses: FloatArray, items: FloatArray, log_prior: LogPrior, bounds: _Bounds, tol: float
 ) -> tuple[float, float, int]:
   """Return one examinee's posterior mode, its standard error and the posterior evaluations it took.
 
@@ -405,7 +411,7 @@ def _posterior_mode(
   ValueError
       If the log-posterior is not finite at any search point.
   """
-  log_likelihood = _log_likelihood(items, responses)
+  log_likelihood = _log_likelihood(responses, items)
   theta, _, evaluations = _maximum(lambda theta: log_likelihood(theta) + log_prior(theta), bounds, tol)
   h = _CURVATURE_STEP
   below, at, above = log_prior(numpy.array([theta - h, theta, theta + h]))
@@ -416,8 +422,8 @@ def _posterior_mode(
 
 
 def maximum_likelihood(
-  items: FloatArray,
   responses: npt.ArrayLike,
+  items: FloatArray,
   *,
   bounds: _Bounds | None = None,
   fallback: Callable[[FloatArray, FloatArray], AbilityEstimates] | None = None,
@@ -428,21 +434,22 @@ def maximum_likelihood(
   Without ``bounds`` the estimate maximizes the likelihood over the whole ability scale, infinities included: it is
   ``inf`` or ``-inf`` where the likelihood comes closest to its supremum only in that limit, as it does for responses
   all correct or all incorrect, and its standard error is then ``inf``. With ``bounds`` it maximizes the likelihood
-  within them, and is finite. An examinee who answered no item has no estimate, NaN, and no standard error, NaN. A
+  within them, and is finite. An examinee who answered no item has no estimate, NaN, and standard error ``inf``. A
   ``fallback`` replaces every estimate that is not finite, infinite or NaN.
 
   Parameters
   ----------
-  items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
+  items : numpy.ndarray
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a > 0``
+      and ``0 <= c < d <= 1``.
   bounds : tuple[float, float] or None, optional
       The range the estimate is searched in; responses all correct or all incorrect give the bound they point to.
       Default is None, the whole ability scale.
   fallback : Callable or None, optional
-      An estimator called as ``fallback(items, responses)``, once, on the rows whose estimate is not finite, such as
+      An estimator called as ``fallback(responses, items)``, once, on the rows whose estimate is not finite, such as
       ``functools.partial(expected_a_posteriori, log_prior=normal_log_prior(0.0, 1.0))``; its estimates, standard
       errors and evaluation counts replace theirs, and ``from_fallback`` marks them. Default is None, which keeps them.
   tol : float, optional
@@ -467,11 +474,11 @@ def maximum_likelihood(
   >>> import numpy
   >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
   >>> responses = numpy.array([[1, 0, numpy.nan], [1, 1, 1]])
-  >>> maximum_likelihood(items, responses).theta.round(4)
+  >>> maximum_likelihood(responses, items).theta.round(4)
   array([-0.6463,     inf])
-  >>> maximum_likelihood(items, responses, bounds=(-4.0, 4.0)).theta.round(4)
+  >>> maximum_likelihood(responses, items, bounds=(-4.0, 4.0)).theta.round(4)
   array([-0.6463,  4.    ])
-  >>> estimates = maximum_likelihood(items, responses, fallback=expected_a_posteriori)
+  >>> estimates = maximum_likelihood(responses, items, fallback=expected_a_posteriori)
   >>> estimates.theta.round(4), estimates.from_fallback
   (array([-0.6463,  0.8555]), array([False,  True]))
   """
@@ -482,26 +489,29 @@ def maximum_likelihood(
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
   estimates = _estimates(
-    _likelihood_maximum(row_items, row_responses, bounds, tol) for row_items, row_responses in _answered(items, matrix)
+    _likelihood_maximum(row_responses, row_items, bounds, tol) for row_responses, row_items in _answered(matrix, items)
   )
   replaced = ~numpy.isfinite(estimates.theta)
   if fallback is None or not replaced.any():
     return estimates
-  substitute = fallback(items, matrix[replaced])
+  substitute = fallback(matrix[replaced], items)
   if substitute.theta.shape != (int(replaced.sum()),):
     msg = f"the fallback returned {substitute.theta.shape} estimates for {int(replaced.sum())} rows"
     raise ValueError(msg)
-  theta, se, evaluations = estimates.theta.copy(), estimates.se.copy(), estimates.evaluations.copy()
-  theta[replaced], se[replaced], evaluations[replaced] = substitute.theta, substitute.se, substitute.evaluations
-  return AbilityEstimates(theta=theta, se=se, evaluations=evaluations, from_fallback=replaced)
+  theta, standard_errors = estimates.theta.copy(), estimates.standard_errors.copy()
+  evaluations = estimates.evaluations.copy()
+  theta[replaced], standard_errors[replaced] = substitute.theta, substitute.standard_errors
+  evaluations[replaced] = substitute.evaluations
+  return AbilityEstimates(theta, standard_errors, evaluations, from_fallback=replaced)
 
 
 def _likelihood_maximum(
-  items: FloatArray, responses: FloatArray, bounds: _Bounds | None, tol: float
+  responses: FloatArray, items: FloatArray, bounds: _Bounds | None, tol: float
 ) -> tuple[float, float, int]:
   """Return one examinee's maximum likelihood estimate, its standard error and the likelihood evaluations it took."""
   if not responses.size:
-    return math.nan, math.nan, 0
+    # every ability maximizes the likelihood of no response, which gives no information
+    return math.nan, math.inf, 0
   n_correct = int(numpy.count_nonzero(responses))
   if n_correct in {0, responses.size}:
     # the likelihood of responses all correct rises with the ability, and that of responses all incorrect falls
@@ -510,9 +520,9 @@ def _likelihood_maximum(
       return (math.inf if all_correct else -math.inf), math.inf, 0
     theta = bounds[1] if all_correct else bounds[0]
     return theta, irt.see(theta, items), 0
-  log_likelihood = _log_likelihood(items, responses)
+  log_likelihood = _log_likelihood(responses, items)
   if bounds is None:
-    theta, evaluations = _supremum(log_likelihood, items, responses, tol)
+    theta, evaluations = _supremum(log_likelihood, responses, items, tol)
   else:
     theta, _, evaluations = _maximum(log_likelihood, bounds, tol)
   return theta, irt.see(theta, items) if math.isfinite(theta) else math.inf, evaluations
@@ -532,7 +542,7 @@ class _End:
   """The log-likelihood's limit as the ability goes to infinity in the end's direction."""
 
 
-def _end(theta: float, direction: float, items: FloatArray, responses: FloatArray) -> _End:
+def _end(theta: float, direction: float, responses: FloatArray, items: FloatArray) -> _End:
   """Return an end of the search range: the largest log-likelihood any ability beyond it can have, and the limit."""
   log_p, log_q = irt.log_response_probabilities(theta, items)
   _, _, c, d = items.T
@@ -548,13 +558,13 @@ def _end(theta: float, direction: float, items: FloatArray, responses: FloatArra
   return _End(direction, theta, float(ceiling.sum()), float(limit.sum()))
 
 
-def _supremum(log_likelihood: _Objective, items: FloatArray, responses: FloatArray, tol: float) -> tuple[float, int]:
+def _supremum(log_likelihood: _Objective, responses: FloatArray, items: FloatArray, tol: float) -> tuple[float, int]:
   """Return the ability that maximizes one examinee's likelihood over the extended real line, and the evaluations."""
   low, high = THETA_MIN_EXTENDED, THETA_MAX_EXTENDED
   theta, value, evaluations = _maximum(log_likelihood, (low, high), tol)
   step = high - low
   for _ in range(_MAX_EXTENSIONS):
-    ends = [_end(low, -1.0, items, responses), _end(high, 1.0, items, responses)]
+    ends = [_end(low, -1.0, responses, items), _end(high, 1.0, responses, items)]
     largest = max(ends, key=operator.attrgetter("limit"))
     target = max(value, largest.limit)
     slack = _RELATIVE_SLACK * max(1.0, abs(target))
@@ -581,8 +591,8 @@ def _supremum(log_likelihood: _Objective, items: FloatArray, responses: FloatArr
 
 
 def weighted_likelihood(
-  items: FloatArray,
   responses: npt.ArrayLike,
+  items: FloatArray,
   *,
   bounds: _Bounds = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
   tol: float = 1e-6,
@@ -590,17 +600,18 @@ def weighted_likelihood(
   """Return each examinee's weighted likelihood estimate, Warm's, with its standard error.
 
   The estimate is the root of Warm's modified score within the bounds; of several, the one of largest weighted
-  likelihood, and of none, the bound the score points to. An examinee who answered no item has no estimate, NaN, and no
-  standard error, NaN. The evaluation count is the number of modified-score evaluations. A ranking integral that does
+  likelihood, and of none, the bound the score points to. An examinee who answered no item has no estimate, NaN, and
+  standard error ``inf``. The evaluation count is the number of modified-score evaluations. A ranking integral that does
   not converge warns with :py:class:`scipy.integrate.IntegrationWarning`.
 
   Parameters
   ----------
-  items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
+  items : numpy.ndarray
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a > 0``
+      and ``0 <= c < d <= 1``.
   bounds : tuple[float, float], optional
       The range the estimate is searched in. Default is ``(THETA_MIN_EXTENDED, THETA_MAX_EXTENDED)``, [-6, 6].
   tol : float, optional
@@ -623,23 +634,23 @@ def weighted_likelihood(
   --------
   >>> import numpy
   >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
-  >>> estimates = weighted_likelihood(items, numpy.array([[1, 0, numpy.nan], [1, 1, 1]]))
-  >>> estimates.theta.round(4), estimates.se.round(4)
+  >>> estimates = weighted_likelihood(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)
+  >>> estimates.theta.round(4), estimates.standard_errors.round(4)
   (array([-0.5154,  1.8903]), array([1.4041, 1.9431]))
   """
   bounds = _check_bounds(bounds)
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
   rows: list[tuple[float, float, int]] = []
-  for row, (row_items, row_responses) in enumerate(_answered(items, matrix)):
-    theta, se, evaluations, messages = _weighted_likelihood_root(row_items, row_responses, bounds, tol)
+  for row, (row_responses, row_items) in enumerate(_answered(matrix, items)):
+    theta, se, evaluations, messages = _weighted_likelihood_root(row_responses, row_items, bounds, tol)
     rows.append((theta, se, evaluations))
     for message in messages:
       warnings.warn(f"examinee in row {row}: {message}", IntegrationWarning, stacklevel=2)
   return _estimates(rows)
 
 
-def _modified_score(theta: npt.ArrayLike, items: FloatArray, responses: FloatArray) -> FloatArray:
+def _modified_score(theta: npt.ArrayLike, responses: FloatArray, items: FloatArray) -> FloatArray:
   """Return Warm's modified score at each ability: the likelihood's score plus J / (2 I)."""
   thetas = numpy.atleast_1d(numpy.asarray(theta, dtype=float))
   log_p, log_q = irt.log_response_probabilities(thetas, items)
@@ -657,18 +668,19 @@ def _modified_score(theta: npt.ArrayLike, items: FloatArray, responses: FloatArr
 
 
 def _weighted_likelihood_root(
-  items: FloatArray, responses: FloatArray, bounds: _Bounds, tol: float
+  responses: FloatArray, items: FloatArray, bounds: _Bounds, tol: float
 ) -> tuple[float, float, int, list[str]]:
   """Return one examinee's WLE, its standard error, the score evaluations it took and the ranking's warnings."""
   if not responses.size:
-    return math.nan, math.nan, 0, []
+    # every ability maximizes the weighted likelihood of no response, which gives no information
+    return math.nan, math.inf, 0, []
 
   def score(theta: float) -> float:
-    return float(_modified_score(theta, items, responses)[0])
+    return float(_modified_score(theta, responses, items)[0])
 
   low, high = bounds
   scan = numpy.linspace(low, high, _SCAN_POINTS)
-  values = _modified_score(scan, items, responses)
+  values = _modified_score(scan, responses, items)
   evaluations = scan.size
   # Maxima of the weighted likelihood: + to - sign changes of its derivative (a zero at the right end of a bracket is a
   # valid Brent endpoint), and any bound the modified score points outward from

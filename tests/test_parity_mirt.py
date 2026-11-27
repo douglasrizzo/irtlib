@@ -444,6 +444,11 @@ _NO_RESPONSE = (
   "for an examinee who answered no item mirt 1.48 returns NA (R/fscores.internal.R:94-96, 185); irtlib's posterior "
   "is then the prior, whose mean, mode and standard deviation it returns"
 )
+_NO_RESPONSE_STANDARD_ERROR = (
+  "for an examinee who answered no item mirt 1.48 returns NA (R/fscores.internal.R:94-96, 185); irtlib's maximum "
+  "likelihood and weighted likelihood estimates are NaN with standard error inf, the information being 0 (maintainer, "
+  "2026-11-27)"
+)
 _OBSERVED_INFORMATION = (
   "mirt 1.48 takes the standard error from nlm's numerical Hessian, the observed information, plus the prior's "
   "precision for MAP (R/fscores.internal.R:1064-1068, 1083-1101); irtlib's is the expected information, which equals "
@@ -475,7 +480,7 @@ def _floats(values: list[Any]) -> FloatArray:
 
 def _ability_estimates(case: dict[str, Any]) -> AbilityEstimates:
   """Return irtlib's estimates of a case's patterns, by the case's method on its bank, with irtlib's defaults."""
-  return _ESTIMATORS[case["method"]](np.array(_ABILITY["banks"][case["bank"]]), responses(case))
+  return _ESTIMATORS[case["method"]](responses(case), np.array(_ABILITY["banks"][case["bank"]]))
 
 
 def test_ability_fixture_uses_irtlibs_grid() -> None:
@@ -545,8 +550,10 @@ def test_ability_estimates(case: dict[str, Any]) -> None:
     ("ml_constant/2pl", _INFINITE_STANDARD_ERROR),
     ("ml_constant/4pl", _INFINITE_STANDARD_ERROR),
     ("ml_supremum/4pl", _SUPREMUM),
+    ("ml_unanswered/2pl", _NO_RESPONSE_STANDARD_ERROR),
     ("wle/2pl", _WEIGHTED_STANDARD_ERROR),
     ("wle/4pl", _WEIGHTED_STANDARD_ERROR),
+    ("wle_unanswered/2pl", _NO_RESPONSE_STANDARD_ERROR),
   ),
 )
 def test_ability_standard_errors(case: dict[str, Any]) -> None:
@@ -557,4 +564,4 @@ def test_ability_standard_errors(case: dict[str, Any]) -> None:
   """
   estimates = _ability_estimates(case)
   rtol = _CLOSED_FORM_RTOL if case["method"] == "EAP" else _STANDARD_ERROR_RTOL
-  np.testing.assert_allclose(estimates.se, _floats(case["se"]), rtol=rtol)
+  np.testing.assert_allclose(estimates.standard_errors, _floats(case["se"]), rtol=rtol)

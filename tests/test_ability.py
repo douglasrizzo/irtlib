@@ -112,21 +112,21 @@ class TestEveryEstimator:
     An estimator that let one row's responses reach another's estimate, counted a missing response as incorrect or
     correct, or answered an unanswered row from its neighbour, fails.
     """
-    together = estimator(_ITEMS, _RESPONSES)
+    together = estimator(_RESPONSES, _ITEMS)
 
     for row, responses in enumerate(_RESPONSES):
       answered = ~np.isnan(responses)
-      alone = estimator(_ITEMS[answered], _rows(responses[answered]))
+      alone = estimator(_rows(responses[answered]), _ITEMS[answered])
 
       np.testing.assert_allclose(together.theta[row], alone.theta[0], rtol=1e-12, atol=1e-14)
-      np.testing.assert_allclose(together.se[row], alone.se[0], rtol=1e-12)
+      np.testing.assert_allclose(together.standard_errors[row], alone.standard_errors[0], rtol=1e-12)
       assert together.evaluations[row] == alone.evaluations[0]
-    assert together.theta.shape == together.se.shape == together.evaluations.shape == (len(_RESPONSES),)
+    assert together.theta.shape == together.standard_errors.shape == together.evaluations.shape == (len(_RESPONSES),)
 
   @pytest.mark.parametrize("estimator", _ESTIMATORS.values(), ids=_ESTIMATORS.keys())
   def test_no_estimate_comes_from_a_fallback(self, estimator: Callable[..., AbilityEstimates]) -> None:
     """Only a maximum likelihood fallback marks a row; a mask left uninitialized or True would mislabel estimates."""
-    assert not estimator(_ITEMS, _RESPONSES).from_fallback.any()
+    assert not estimator(_RESPONSES, _ITEMS).from_fallback.any()
 
   @pytest.mark.parametrize("estimator", _SEARCHES.values(), ids=_SEARCHES.keys())
   @pytest.mark.parametrize("tol", [0.0, -1e-6, math.nan])
@@ -135,7 +135,7 @@ class TestEveryEstimator:
   ) -> None:
     """A tolerance that is not positive fails before the search, not inside SciPy."""
     with pytest.raises(ValueError, match="tol must be positive"):
-      estimator(_ITEMS, _RESPONSES, tol=tol)
+      estimator(_RESPONSES, _ITEMS, tol=tol)
 
   @pytest.mark.parametrize("estimator", _SEARCHES.values(), ids=_SEARCHES.keys())
   @pytest.mark.parametrize(
@@ -152,7 +152,7 @@ class TestEveryEstimator:
   ) -> None:
     """Bounds that are not a finite interval with low < high fail before the search, not inside SciPy."""
     with pytest.raises(ValueError, match="bounds must be finite with low < high"):
-      estimator(_ITEMS, _RESPONSES, bounds=bounds)
+      estimator(_RESPONSES, _ITEMS, bounds=bounds)
 
   @pytest.mark.parametrize("estimator", _ESTIMATORS.values(), ids=_ESTIMATORS.keys())
   def test_items_of_the_wrong_shape_or_count_are_rejected(self, estimator: Callable[..., AbilityEstimates]) -> None:
@@ -161,11 +161,11 @@ class TestEveryEstimator:
     Unchecked, a response matrix with fewer columns than items would be scored against the first items only.
     """
     with pytest.raises(ValueError, match="items must be an"):
-      estimator(_ITEMS[:, :3], _RESPONSES)
+      estimator(_RESPONSES, _ITEMS[:, :3])
     with pytest.raises(ValueError, match="one item per column"):
-      estimator(_ITEMS[:3], _RESPONSES)
+      estimator(_RESPONSES, _ITEMS[:3])
     with pytest.raises(ValueError, match="a response must be 0 or 1"):
-      estimator(_ITEMS, np.full((1, 4), 0.5))
+      estimator(np.full((1, 4), 0.5), _ITEMS)
 
   @pytest.mark.parametrize(
     "estimator",
@@ -185,7 +185,7 @@ class TestEveryEstimator:
     """
     items = np.array([[1.0, 1.0, 0.0, 1.0], [1.0, -1.0, 0.0, 1.0]])
 
-    assert estimator(items, _rows([1.0, 0.0])).theta[0] == pytest.approx(0.5, abs=1e-5)
+    assert estimator(_rows([1.0, 0.0]), items).theta[0] == pytest.approx(0.5, abs=1e-5)
 
   @pytest.mark.parametrize(
     ("estimator", "expected"),
@@ -213,7 +213,7 @@ class TestEveryEstimator:
     weighs the nodes -1, 0 and 1 by e^(-1/2) sigma(-1), 1/2 and e^(-1/2) sigma(1) after a correct answer, a mean of
     e^(-1/2) tanh(1/2) / (e^(-1/2) + 1/2). An estimator that ignored its bounds returned +-1.10 (WLE) or +-inf (ML).
     """
-    theta = estimator(np.array([[1.0, 0.0, 0.0, 1.0]]), _rows([correct])).theta[0]
+    theta = estimator(_rows([correct]), np.array([[1.0, 0.0, 0.0, 1.0]])).theta[0]
 
     assert theta == pytest.approx(expected if correct else -expected, abs=1e-5)
 
@@ -242,7 +242,7 @@ class TestMaximumLikelihood:
     ])
     grid = np.linspace(-6.0, 6.0, 120_001)
 
-    estimates = maximum_likelihood(items, responses)
+    estimates = maximum_likelihood(responses, items)
 
     for row, theta in zip(responses, estimates.theta, strict=True):
       assert theta == pytest.approx(grid[np.argmax(_log_likelihood(grid, items, row))], abs=1e-4)
@@ -314,11 +314,11 @@ class TestMaximumLikelihood:
       high = np.sum(np.log(np.where(pattern == 1, d, 1 - d)))
     expected = (math.inf if high > low else -math.inf) if infinite else float(grid[np.argmax(values)])
 
-    estimate = maximum_likelihood(item_matrix, _rows(pattern))
+    estimate = maximum_likelihood(_rows(pattern), item_matrix)
 
     assert (max(low, high) >= values.max()) == infinite
     assert estimate.theta[0] == pytest.approx(expected, abs=1e-3)
-    assert estimate.se[0] == (
+    assert estimate.standard_errors[0] == (
       math.inf if infinite else pytest.approx(_information(estimate.theta[0], item_matrix) ** -0.5, rel=1e-12)
     )
 
@@ -331,7 +331,7 @@ class TestMaximumLikelihood:
     items = np.array([[1e-21, -1.0, 0.25, 1.0], [1e-21, 1.0, 0.25, 1.0]])
 
     def estimate() -> AbilityEstimates:
-      return maximum_likelihood(items, _rows([0.0, 1.0]))
+      return maximum_likelihood(_rows([0.0, 1.0]), items)
 
     with pytest.warns(RuntimeWarning, match="without settling") as caught:
       estimates = estimate()
@@ -348,9 +348,9 @@ class TestMaximumLikelihood:
     only at the infinity. A search returned the end of its range instead, a Dodd step a finite value, and a standard
     error from an information at the estimate NaN or 0.
     """
-    estimates = maximum_likelihood(_ITEMS, np.array([[correct, _NAN, correct, correct]]))
+    estimates = maximum_likelihood(np.array([[correct, _NAN, correct, correct]]), _ITEMS)
 
-    assert (estimates.theta[0], estimates.se[0], estimates.evaluations[0]) == (expected, math.inf, 0)
+    assert (estimates.theta[0], estimates.standard_errors[0], estimates.evaluations[0]) == (expected, math.inf, 0)
 
   @pytest.mark.parametrize(("correct", "expected"), [(1.0, 2.5), (0.0, -1.5)], ids=["correct", "incorrect"])
   def test_bounds_give_a_constant_pattern_the_bound_it_points_to(self, correct: float, expected: float) -> None:
@@ -359,22 +359,23 @@ class TestMaximumLikelihood:
     The standard error is 1 / sqrt(I) at the bound, I written out. A search would return a point within its
     tolerance of the bound, and an estimate without bounds the infinity.
     """
-    estimates = maximum_likelihood(_ITEMS, np.array([[correct, correct, _NAN, correct]]), bounds=(-1.5, 2.5))
+    estimates = maximum_likelihood(np.array([[correct, correct, _NAN, correct]]), _ITEMS, bounds=(-1.5, 2.5))
 
     assert estimates.theta[0] == expected
-    assert estimates.se[0] == pytest.approx(_information(expected, _ITEMS[[0, 1, 3]]) ** -0.5, rel=1e-12)
+    assert estimates.standard_errors[0] == pytest.approx(_information(expected, _ITEMS[[0, 1, 3]]) ** -0.5, rel=1e-12)
     assert estimates.evaluations[0] == 0
 
   @pytest.mark.parametrize("estimator", [maximum_likelihood, weighted_likelihood], ids=["ml", "wle"])
   def test_an_examinee_who_answered_nothing_has_no_estimate(self, estimator: Callable[..., AbilityEstimates]) -> None:
-    """A row with every response missing gets NaN for the estimate and its standard error, after no evaluation.
+    """A row with every response missing gets NaN for the estimate and inf for its standard error, after no evaluation.
 
-    Its likelihood is 1 everywhere, so it has no maximum, and the search returned a bound of its range.
+    Its likelihood is 1 everywhere, so every ability maximizes it, and it carries no information. The search returned
+    a bound of its range, and a standard error of NaN or from the information of items not answered would be wrong.
     """
-    estimates = estimator(_ITEMS, np.full((1, 4), _NAN))
+    estimates = estimator(np.full((1, 4), _NAN), _ITEMS)
 
     assert np.isnan(estimates.theta[0])
-    assert np.isnan(estimates.se[0])
+    assert estimates.standard_errors[0] == math.inf
     assert estimates.evaluations[0] == 0
 
   def test_standard_error_is_the_inverse_root_of_the_information_at_the_estimate(self) -> None:
@@ -387,10 +388,10 @@ class TestMaximumLikelihood:
     items = np.tile([1.0, 0.0, 0.0, 1.0], (16, 1))
     responses = np.array([[1.0, 0.0] * 8, [1.0, 0.0] * 2 + [_NAN] * 12])
 
-    estimates = maximum_likelihood(items, responses)
+    estimates = maximum_likelihood(responses, items)
 
     np.testing.assert_allclose(estimates.theta, [0.0, 0.0], atol=1e-6)
-    np.testing.assert_allclose(estimates.se, [0.5, 1.0], rtol=1e-9)
+    np.testing.assert_allclose(estimates.standard_errors, [0.5, 1.0], rtol=1e-9)
 
   def test_tolerance_is_honoured(self) -> None:
     """A fine tolerance gives the maximum SciPy finds at 1e-12 on the written-out likelihood; a coarse one is cheaper.
@@ -407,7 +408,7 @@ class TestMaximumLikelihood:
       options={"xatol": 1e-12},
     ).x
 
-    coarse, fine = (maximum_likelihood(items, _rows(pattern), tol=tol) for tol in (1e-2, 1e-10))
+    coarse, fine = (maximum_likelihood(_rows(pattern), items, tol=tol) for tol in (1e-2, 1e-10))
 
     assert fine.theta[0] == pytest.approx(reference, abs=1e-7)
     assert coarse.theta[0] == pytest.approx(reference, abs=1e-2)
@@ -430,7 +431,7 @@ class TestMaximumLikelihood:
       options={"xatol": 1e-6},
     )
 
-    estimates = maximum_likelihood(items, _rows(pattern), bounds=(-6.0, 6.0))
+    estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0))
 
     assert estimates.evaluations[0] == 201 + refinement.nfev
 
@@ -447,46 +448,46 @@ class TestFallback:
     marks them. A fallback applied to every row, or to the infinite ones but not the unanswered one, or that shifted the
     other rows' values, fails.
     """
-    plain = maximum_likelihood(_ITEMS, _RESPONSES)
+    plain = maximum_likelihood(_RESPONSES, _ITEMS)
     replaced = ~np.isfinite(plain.theta)
-    substitute = self._EAP(_ITEMS, _RESPONSES[replaced])
+    substitute = self._EAP(_RESPONSES[replaced], _ITEMS)
 
-    estimates = maximum_likelihood(_ITEMS, _RESPONSES, fallback=self._EAP)
+    estimates = maximum_likelihood(_RESPONSES, _ITEMS, fallback=self._EAP)
 
     np.testing.assert_array_equal(estimates.from_fallback, [False, False, False, True, True])
     np.testing.assert_array_equal(estimates.from_fallback, replaced)
-    for field in ("theta", "se", "evaluations"):
+    for field in ("theta", "standard_errors", "evaluations"):
       np.testing.assert_array_equal(getattr(estimates, field)[~replaced], getattr(plain, field)[~replaced])
       np.testing.assert_array_equal(getattr(estimates, field)[replaced], getattr(substitute, field))
 
   def test_a_fallback_is_called_once_on_the_rows_it_replaces(self) -> None:
-    """The fallback sees the items and only the rows to replace, in one call, and is not called when none is needed.
+    """The fallback sees only the rows to replace, and the items, in one call, and is not called when none is needed.
 
     Calling it row by row, or with the whole matrix, fails; so does calling it for responses whose estimates are all
     finite.
     """
     calls: list[tuple[FloatArray, FloatArray]] = []
 
-    def recording(items: FloatArray, responses: FloatArray) -> AbilityEstimates:
-      calls.append((items, responses))
-      return self._EAP(items, responses)
+    def recording(responses: FloatArray, items: FloatArray) -> AbilityEstimates:
+      calls.append((responses, items))
+      return self._EAP(responses, items)
 
-    maximum_likelihood(_ITEMS, _RESPONSES, fallback=recording)
-    maximum_likelihood(_ITEMS, _RESPONSES[:3], fallback=recording)
+    maximum_likelihood(_RESPONSES, _ITEMS, fallback=recording)
+    maximum_likelihood(_RESPONSES[:3], _ITEMS, fallback=recording)
 
     assert len(calls) == 1
-    np.testing.assert_array_equal(calls[0][0], _ITEMS)
-    np.testing.assert_array_equal(calls[0][1], _RESPONSES[3:])
+    np.testing.assert_array_equal(calls[0][0], _RESPONSES[3:])
+    np.testing.assert_array_equal(calls[0][1], _ITEMS)
 
   def test_bounds_and_a_fallback_together_are_rejected(self) -> None:
     """With bounds every estimate is finite, so a fallback would never apply; the two together are an error."""
     with pytest.raises(ValueError, match="bounds and fallback cannot be given together"):
-      maximum_likelihood(_ITEMS, _RESPONSES, bounds=(-4.0, 4.0), fallback=self._EAP)
+      maximum_likelihood(_RESPONSES, _ITEMS, bounds=(-4.0, 4.0), fallback=self._EAP)
 
   def test_a_fallback_that_returns_another_number_of_estimates_is_rejected(self) -> None:
     """A fallback that answers for the whole matrix instead of the rows it was given would scatter its estimates."""
     with pytest.raises(ValueError, match="estimates for 2 rows"):
-      maximum_likelihood(_ITEMS, _RESPONSES, fallback=lambda items, _: self._EAP(items, _RESPONSES))
+      maximum_likelihood(_RESPONSES, _ITEMS, fallback=lambda _, items: self._EAP(_RESPONSES, items))
 
 
 class TestMaximumAPosteriori:
@@ -506,7 +507,7 @@ class TestMaximumAPosteriori:
     responses = np.vstack([patterns, missing])
     fine = np.linspace(-6.0, 6.0, 240_001)
 
-    estimates = maximum_a_posteriori(items, responses, log_prior=normal_log_prior(mean, sd))
+    estimates = maximum_a_posteriori(responses, items, log_prior=normal_log_prior(mean, sd))
 
     for pattern, theta in zip(responses, estimates.theta, strict=True):
       log_posterior = _log_likelihood(fine, items, pattern) - 0.5 * ((fine - mean) / sd) ** 2
@@ -526,7 +527,7 @@ class TestMaximumAPosteriori:
       sizes.append(theta.size)
       return normal(theta)
 
-    estimates = maximum_a_posteriori(_ITEMS, _rows([1.0, 0.0, 1.0, 1.0]), log_prior=recording_prior)
+    estimates = maximum_a_posteriori(_rows([1.0, 0.0, 1.0, 1.0]), _ITEMS, log_prior=recording_prior)
 
     assert sizes.count(201) == 1
     assert estimates.evaluations[0] == 201 + sizes.count(1)
@@ -549,13 +550,13 @@ class TestMaximumAPosteriori:
     Outside the support the negative log-posterior is +inf, a flat region a bounded search cannot cross, so searching
     the whole bounds at once returned 6.0 in every case.
     """
-    estimates = maximum_a_posteriori(self._HARD_ITEMS, _rows(responses), log_prior=uniform_log_prior(low, high))
+    estimates = maximum_a_posteriori(_rows(responses), self._HARD_ITEMS, log_prior=uniform_log_prior(low, high))
 
     assert estimates.theta[0] == pytest.approx(expected, abs=1e-5)
 
   def test_estimate_stays_inside_a_prior_narrower_than_a_search_step(self) -> None:
     """Both neighbours of the only search point in the support lie outside it; the estimate still lies inside."""
-    estimates = maximum_a_posteriori(self._HARD_ITEMS, _rows([1.0, 0.0, 1.0]), log_prior=uniform_log_prior(-0.01, 0.01))
+    estimates = maximum_a_posteriori(_rows([1.0, 0.0, 1.0]), self._HARD_ITEMS, log_prior=uniform_log_prior(-0.01, 0.01))
 
     assert -0.01 <= estimates.theta[0] <= 0.01
 
@@ -566,7 +567,7 @@ class TestMaximumAPosteriori:
   def test_a_prior_without_mass_at_any_search_point_is_an_error(self, low: float, high: float) -> None:
     """A prior with no support at any search point leaves no mode to find; a search would return an arbitrary point."""
     with pytest.raises(ValueError, match="must contain at least one of them"):
-      maximum_a_posteriori(self._HARD_ITEMS, _rows([1.0, _NAN, _NAN]), log_prior=uniform_log_prior(low, high))
+      maximum_a_posteriori(_rows([1.0, _NAN, _NAN]), self._HARD_ITEMS, log_prior=uniform_log_prior(low, high))
 
   @pytest.mark.parametrize("mean", [0.5, 0.03], ids=["off_the_search_points", "midway_between_two_points"])
   def test_without_responses_the_estimate_is_the_prior_mode_within_tol(self, mean: float) -> None:
@@ -575,7 +576,7 @@ class TestMaximumAPosteriori:
     A mode midway between two search points makes them tie, which is not a flat posterior: it must be refined too.
     """
     estimates = maximum_a_posteriori(
-      self._HARD_ITEMS, np.full((1, 3), _NAN), log_prior=normal_log_prior(mean=mean, sd=1.0), tol=1e-8
+      np.full((1, 3), _NAN), self._HARD_ITEMS, log_prior=normal_log_prior(mean=mean, sd=1.0), tol=1e-8
     )
 
     assert estimates.theta[0] == pytest.approx(mean, abs=1e-6)
@@ -588,7 +589,7 @@ class TestMaximumAPosteriori:
       high_mode = np.log(0.7) - 0.5 * ((theta - 2.0) / 0.3) ** 2
       return np.logaddexp(low_mode, high_mode)
 
-    estimates = maximum_a_posteriori(self._HARD_ITEMS, np.full((1, 3), _NAN), log_prior=log_prior)
+    estimates = maximum_a_posteriori(np.full((1, 3), _NAN), self._HARD_ITEMS, log_prior=log_prior)
 
     assert estimates.theta[0] == pytest.approx(2.0, abs=1e-5)
 
@@ -598,10 +599,10 @@ class TestMaximumAPosteriori:
     Neither the prior nor the data carry information, so the SE is infinite, and no refinement runs, so only the 201
     search points count. An SE of 0 or NaN, or a count that added a refinement, fails.
     """
-    estimates = maximum_a_posteriori(self._HARD_ITEMS, np.full((1, 3), _NAN), log_prior=uniform_log_prior())
+    estimates = maximum_a_posteriori(np.full((1, 3), _NAN), self._HARD_ITEMS, log_prior=uniform_log_prior())
 
     assert estimates.theta[0] == pytest.approx(0.0, abs=1e-12)
-    assert (estimates.se[0], estimates.evaluations[0]) == (math.inf, 201)
+    assert (estimates.standard_errors[0], estimates.evaluations[0]) == (math.inf, 201)
 
   def test_standard_error_adds_the_normal_priors_precision_to_the_information(self) -> None:
     """With an N(0, 0.8^2) prior and one 4PL item, the SE is 1 / sqrt(I + 1 / 0.8^2) at the estimate.
@@ -611,10 +612,10 @@ class TestMaximumAPosteriori:
     """
     items = np.array([[1.5, 0.5, 0.2, 0.95]])
 
-    estimates = maximum_a_posteriori(items, _rows([1.0]), log_prior=normal_log_prior(mean=0.0, sd=0.8))
+    estimates = maximum_a_posteriori(_rows([1.0]), items, log_prior=normal_log_prior(mean=0.0, sd=0.8))
 
     expected = 1.0 / math.sqrt(_information(estimates.theta[0], items) + 1.0 / 0.8**2)
-    assert estimates.se[0] == pytest.approx(expected, rel=1e-6)
+    assert estimates.standard_errors[0] == pytest.approx(expected, rel=1e-6)
 
   @pytest.mark.parametrize(
     ("low", "high", "responses", "edge"),
@@ -632,11 +633,11 @@ class TestMaximumAPosteriori:
     curvature, a central difference, reaches outside the support and is not finite. Taking it as it is made the
     precision infinite and the SE 0; a prior term added inside the support fails too.
     """
-    estimates = maximum_a_posteriori(self._HARD_ITEMS, _rows(responses), log_prior=uniform_log_prior(low, high))
+    estimates = maximum_a_posteriori(_rows(responses), self._HARD_ITEMS, log_prior=uniform_log_prior(low, high))
 
     if edge is not None:
       assert estimates.theta[0] == pytest.approx(edge, abs=1e-5)
-    assert estimates.se[0] == pytest.approx(
+    assert estimates.standard_errors[0] == pytest.approx(
       1.0 / math.sqrt(_information(estimates.theta[0], self._HARD_ITEMS)), rel=1e-12
     )
 
@@ -653,7 +654,7 @@ class TestExpectedAPosteriori:
   )
   def test_without_responses_the_estimate_is_the_prior_mean(self, log_prior: LogPrior | None, expected: float) -> None:
     """With no response the estimate is the prior's mean; an estimator that ignored a given prior returns 0."""
-    estimates = expected_a_posteriori(_ITEMS, np.full((1, 4), _NAN), log_prior=log_prior)
+    estimates = expected_a_posteriori(np.full((1, 4), _NAN), _ITEMS, log_prior=log_prior)
 
     assert estimates.theta[0] == pytest.approx(expected, abs=1e-12)
 
@@ -668,7 +669,7 @@ class TestExpectedAPosteriori:
     items = np.array([[1.0, 3.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
     grid = QuadratureGrid.uniform(n_nodes=3, low=-1.0, high=1.0)
 
-    estimates = expected_a_posteriori(items, _rows([_NAN, 1.0]), grid=grid, log_prior=uniform_log_prior())
+    estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid=grid, log_prior=uniform_log_prior())
 
     assert estimates.theta[0] == pytest.approx(np.tanh(0.5) / 1.5, rel=1e-12)
 
@@ -685,14 +686,14 @@ class TestExpectedAPosteriori:
     mass /= mass.sum()
     mean = mass @ grid.nodes
 
-    estimates = expected_a_posteriori(items, _rows(pattern), grid=grid, log_prior=normal_log_prior(mean=0.5, sd=1.2))
+    estimates = expected_a_posteriori(_rows(pattern), items, grid=grid, log_prior=normal_log_prior(mean=0.5, sd=1.2))
 
     assert estimates.theta[0] == pytest.approx(mean, rel=1e-12)
-    assert estimates.se[0] == pytest.approx(np.sqrt(mass @ (grid.nodes - mean) ** 2), rel=1e-12)
+    assert estimates.standard_errors[0] == pytest.approx(np.sqrt(mass @ (grid.nodes - mean) ** 2), rel=1e-12)
 
   def test_evaluations_count_one_per_grid_node(self) -> None:
     """Each estimate evaluates the likelihood once per grid node: 31, not the items answered nor the default 121."""
-    estimates = expected_a_posteriori(_ITEMS, _RESPONSES, grid=QuadratureGrid.uniform(n_nodes=31))
+    estimates = expected_a_posteriori(_RESPONSES, _ITEMS, grid=QuadratureGrid.uniform(n_nodes=31))
 
     np.testing.assert_array_equal(estimates.evaluations, np.full(len(_RESPONSES), 31))
 
@@ -719,7 +720,7 @@ class TestWeightedLikelihood:
     patterns = np.array(list(product([0.0, 1.0], repeat=5)))
     responses = np.vstack([patterns, np.where(np.eye(5, dtype=bool)[np.arange(32) % 5], _NAN, patterns)])
 
-    estimates = weighted_likelihood(items, responses)
+    estimates = weighted_likelihood(responses, items)
 
     for pattern, theta in zip(responses, estimates.theta, strict=True):
       answered = ~np.isnan(pattern)
@@ -737,7 +738,7 @@ class TestWeightedLikelihood:
     log_information = np.log(np.sum(items[:, 0] ** 2 * p * (1.0 - p), axis=1))
     patterns = np.array(list(product([0.0, 1.0], repeat=5)))
 
-    estimates = weighted_likelihood(items, patterns)
+    estimates = weighted_likelihood(patterns, items)
 
     for pattern, theta in zip(patterns, estimates.theta, strict=True):
       reference = grid[np.argmax(_log_likelihood(grid, items, pattern) + 0.5 * log_information)]
@@ -752,7 +753,7 @@ class TestWeightedLikelihood:
     """
     items = np.column_stack([np.linspace(0.8, 2.0, 8), np.linspace(-2.0, 2.0, 8), np.zeros(8), np.ones(8)])
     patterns = np.array(list(product([0.0, 1.0], repeat=8)))
-    estimates = weighted_likelihood(items, patterns).theta
+    estimates = weighted_likelihood(patterns, items).theta
 
     for theta in (-2.0, -1.0, 0.0, 1.0, 2.0):
       p = _probability(np.array(theta), items)
@@ -775,9 +776,11 @@ class TestWeightedLikelihood:
     """
     items = np.array([[1.2, -1.0, 0.2, 1.0], [0.8, 0.0, 0.1, 0.95], [1.6, 0.7, 0.25, 1.0], [1.0, 1.5, 0.0, 0.9]])
 
-    estimates = weighted_likelihood(items, _rows([1.0, 1.0, 0.0, 1.0]))
+    estimates = weighted_likelihood(_rows([1.0, 1.0, 0.0, 1.0]), items)
 
-    assert estimates.se[0] == pytest.approx(1.0 / math.sqrt(_information(estimates.theta[0], items)), rel=1e-12)
+    assert estimates.standard_errors[0] == pytest.approx(
+      1.0 / math.sqrt(_information(estimates.theta[0], items)), rel=1e-12
+    )
 
   @pytest.mark.parametrize(
     ("b", "correct", "expected"),
@@ -794,7 +797,7 @@ class TestWeightedLikelihood:
     For one 2PL item the weighted likelihood P^1.5 Q^0.5 peaks where P = 3/4 after a correct answer (1/4 after an
     incorrect one), at b +- ln 3 / a, beyond [-6, 6] for b = +-10.
     """
-    estimates = weighted_likelihood(np.array([[1.0, b, 0.0, 1.0]]), _rows([correct]))
+    estimates = weighted_likelihood(_rows([correct]), np.array([[1.0, b, 0.0, 1.0]]))
 
     assert estimates.theta[0] == expected
 
@@ -811,7 +814,7 @@ class TestWeightedLikelihood:
     fine_scores = np.array([_warm_modified_score(theta, self._TWO_MAXIMA, pattern) for theta in fine])
     weighted = np.concatenate([[0.0], np.cumsum((fine_scores[1:] + fine_scores[:-1]) / 2 * np.diff(fine))])
 
-    estimates = weighted_likelihood(self._TWO_MAXIMA, _rows(pattern))
+    estimates = weighted_likelihood(_rows(pattern), self._TWO_MAXIMA)
 
     assert np.sum((scan_scores[:-1] > 0) & (scan_scores[1:] <= 0)) + (scan_scores[0] <= 0) + (scan_scores[-1] > 0) >= 2
     assert estimates.theta[0] == pytest.approx(fine[int(np.argmax(weighted))], abs=1e-3)
@@ -835,7 +838,7 @@ class TestWeightedLikelihood:
     a = 10.0
     p, q = expit(a * (theta - b)), expit(-a * (theta - b))
 
-    value = ability._modified_score(theta, np.array([[a, b, 0.0, 1.0]]), np.array([correct]))[0]  # noqa: SLF001
+    value = ability._modified_score(theta, np.array([correct]), np.array([[a, b, 0.0, 1.0]]))[0]  # noqa: SLF001
 
     assert value == pytest.approx((a * q if correct else -a * p) + a * (q - p) / 2.0, rel=1e-12)
 
@@ -860,7 +863,7 @@ class TestWeightedLikelihood:
       if len(searches) > 1:
         expected += sum(quad(score, -6.0, root, limit=200, full_output=1)[2]["neval"] for root, _ in searches)
 
-      estimates = weighted_likelihood(items, _rows(pattern))
+      estimates = weighted_likelihood(_rows(pattern), items)
 
       assert len(searches) == n_candidates
       assert estimates.evaluations[0] == expected
@@ -876,7 +879,7 @@ class TestWeightedLikelihood:
     responses = np.array([[1.0, _NAN], [_NAN, 0.0]])
 
     def estimate() -> AbilityEstimates:
-      return weighted_likelihood(items, responses)
+      return weighted_likelihood(responses, items)
 
     with pytest.warns(IntegrationWarning, match=r"examinee in row 1: .*subdivisions") as caught:
       estimate()

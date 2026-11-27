@@ -180,14 +180,14 @@ def _estimate(case: dict[str, Any]) -> AbilityEstimates:
   match case["method"]:
     case "EAP":
       grid = _trapezoid_grid(**case["grid"])
-      return expected_a_posteriori(items, responses, grid=grid, log_prior=_log_prior(case["prior"]))
+      return expected_a_posteriori(responses, items, grid=grid, log_prior=_log_prior(case["prior"]))
     case "BM":
       bounds = tuple(case["range"])
-      return maximum_a_posteriori(items, responses, log_prior=_log_prior(case["prior"]), bounds=bounds)
+      return maximum_a_posteriori(responses, items, log_prior=_log_prior(case["prior"]), bounds=bounds)
     case "WL":
-      return weighted_likelihood(items, responses, bounds=tuple(case["range"]))
+      return weighted_likelihood(responses, items, bounds=tuple(case["range"]))
     case _:
-      return maximum_likelihood(items, responses, bounds=tuple(case["range"]))
+      return maximum_likelihood(responses, items, bounds=tuple(case["range"]))
 
 
 def _estimating_equation(case: dict[str, Any]) -> Callable[[float], float]:
@@ -293,7 +293,7 @@ class TestEstimators:
     may differ by that much times the standard error's slope, which generate.R records; the 1 added to the slope leaves
     room for the central-difference curvature of the prior.
     """
-    se = _estimate(case).se[0]
+    se = _estimate(case).standard_errors[0]
 
     if case["method"] == "EAP":
       assert se == pytest.approx(float(case["se"]), rel=_CLOSED_FORM_RTOL, abs=0)

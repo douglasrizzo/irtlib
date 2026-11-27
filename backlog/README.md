@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 11 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+21 cards: 12 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -59,6 +59,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
+| [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
