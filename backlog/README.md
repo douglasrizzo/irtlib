@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-22 cards: 10 ready, 0 needs-research, 1 needs-decision, 7 blocked, 4 parked.
+23 cards: 10 ready, 1 needs-research, 1 needs-decision, 7 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -61,6 +61,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
@@ -129,6 +130,10 @@ which sources and when it was last checked.
   offset.
 - When the source itself cannot be obtained, the claim waits, or it says whose description it relies
   on: "as described by X (Year, p. N)".
+- A claim, formula or default with no source on the shelf goes into
+  `discovery/sources-wanted.md`, with where it is used and what was searched, and the maintainer is
+  asked for the source. When none can be found, the code may follow a reference implementation,
+  cited at its version and its file and line, and the row stays until a published source is read.
 - A claim about mirt cites the mirt version, and the page of its manual or the function in its
   source.
 - Say where the card departs from its sources.
