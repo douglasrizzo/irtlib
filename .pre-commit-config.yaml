@@ -1,0 +1,144 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  # 1. Fast fail checks first
+  - repo: local
+    hooks:
+      # Catches `git add -f` past .gitignore too.
+      - id: forbid-local-dirs
+        name: local-only directories must not be committed
+        entry: these paths are local-only (see AGENTS.md)
+        language: fail
+        files: ^(\.claude|\.pre-commit-cache|papers)/
+      # Tests mock only at boundaries (network, files, clocks, random draws), never pyitemcal itself.
+      # monkeypatch.setattr/delattr/setitem/delitem and mock's patch, patch.object and the like are rejected when the
+      # target, positional or `target=`, is a "pyitemcal..." string, a pyitemcal.* object, or a name that a
+      # `from pyitemcal... import` or `import pyitemcal... as` line binds (the regex captures that name and
+      # looks for it as the target).
+      # A pyitemcal object held in a local variable is not caught. --multiline: the pattern spans lines.
+      - id: no-patching-pyitemcal
+        name: tests patch only boundaries, not pyitemcal internals
+        entry: '(?:^[ \t]*(?:from[ \t]+pyitemcal[\w.]*[ \t]+import[ \t]+(?:\([^)]*?|[^\n]*?)|import[ \t]+pyitemcal[\w.]*[ \t]+as[ \t]+)\b(\w+)\b.*?)?(?:monkeypatch\.(?:set|del)(?:attr|item)|\bpatch(?:\.\w+)?)\(\s*(?:target\s*=\s*)?(?:["'']?pyitemcal\b|\1\b)'
+        language: pygrep
+        args: [--multiline]
+        files: ^tests/
+      # backlog/README.md's index is generated from the cards' frontmatter, which the script also checks.
+      - id: backlog-index
+        name: backlog index matches the cards
+        entry: uv run --no-project python backlog/_index.py
+        language: system
+        pass_filenames: false
+        always_run: true  # a commit that only deletes a card must still rewrite the index
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1024, --enforce-all]  # --enforce-all: CI runs --all-files, where nothing is newly added
+      - id: check-merge-conflict
+      - id: check-ast
+      - id: check-toml
+      - id: check-yaml
+      - id: check-json
+      - id: check-xml
+      - id: debug-statements
+
+  # 2. Code structure modifications (before formatting)
+  - repo: https://github.com/JelleZijlstra/autotyping
+    rev: 24.9.0
+    hooks:
+      - id: autotyping
+        stages: [pre-commit]
+        types: [python]
+        args: [--safe]
+
+  # 3. File fixers
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  # 4. Linting and formatting
+  - repo: local
+    hooks:
+      # Ruff runs from uv.lock, so these hooks and `uv run ruff` never disagree.
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --only-group dev ruff check --force-exclude --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --only-group dev ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: ty-check
+        name: ty check
+        entry: uv run --group dev ty check
+        language: system
+        pass_filenames: false
+        types_or: [python, pyi]
+      - id: pylint
+        name: pylint
+        entry: uv run --group dev pylint src/pyitemcal
+        language: system
+        pass_filenames: false  # cyclic-import and duplicate-code need the whole package
+        files: ^(src/.*\.py|pyproject\.toml)$
+
+  # Dead code in src and tests; [tool.vulture] in pyproject.toml holds the paths and the whitelist.
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: v2.16
+    hooks:
+      - id: vulture
+        types_or: [python, toml]
+
+  # Spelling; [tool.typos] in pyproject.toml holds the domain words.
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.52.2
+    hooks:
+      - id: typos
+        args: [--force-exclude]  # report only: a rewrite of an identifier would break the code
+
+  # 5. Other formatters
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: pretty-format-json
+        args:
+          - "--autofix"
+        # the mirt parity data (ADR-0003): its R scripts write 17 significant digits, which this hook would shorten
+        exclude: ^tests/parity/mirt/.*\.json$
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/hukkin/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        exclude: ^(sphinx|backlog|\.github)/
+        additional_dependencies:
+          - mdformat-gfm
+          - mdformat-toc
+          - mdformat-footnote
+
+  # 6. Validation checks last
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.13.9  # the uv release of UV_VERSION in .github/workflows/ci.yml
+    hooks:
+      - id: uv-lock
+        name: Check uv.lock is up to date
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.39.0
+    hooks:
+      - id: check-github-workflows
+        args: ["--verbose"]
+      - id: check-dependabot

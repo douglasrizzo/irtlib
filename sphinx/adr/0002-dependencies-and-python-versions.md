@@ -1,0 +1,53 @@
+# ADR-0002: NumPy, SciPy and catsim Are the Only Runtime Dependencies, on Python 3.12 and Later
+
+## Status
+
+Accepted 2026-11-26
+
+## Context
+
+Every package a library requires is one more version range that the projects installing it must
+reconcile with their own, and one more range the tests must cover at both ends. Calibration is
+array arithmetic and numerical optimization, which NumPy and SciPy provide, and it shares its item
+response functions with catsim (ADR-0004), whose own runtime dependencies are NumPy and SciPy.
+
+catsim supports Python 3.11 and later. A measurement made when this package was set up, on
+2026-11-26, compared the floors 3.11 to 3.14 for a representative EM iteration and for the
+development lock file:
+
+- the interpreter version changed neither step's speed beyond noise, since the work runs in NumPy,
+  SciPy and BLAS;
+- with a 3.11 floor the lock resolves NumPy and SciPy twice, older releases for 3.11 and newer ones
+  from 3.12, because NumPy 2.5 and SciPy 1.18 require 3.12; from a 3.12 floor it resolves each once;
+- `typing.override`, which every override carries, is in the standard library from 3.12; below it
+  comes from typing-extensions;
+- 3.12 is the Python version with the most NumPy downloads, and the Scientific Python ecosystem's
+  support schedule (SPEC 0) drops it in late 2026.
+
+## Decision
+
+- pyitemcal's runtime dependencies are NumPy, SciPy and catsim.
+- It supports Python 3.12 and later. Its development lock and local tools use 3.13, as catsim's do.
+- A new runtime dependency needs an ADR of its own.
+
+## Consequences
+
+- An environment that installs pyitemcal gets nothing beyond what catsim already brings.
+- Every supported Python resolves to the same NumPy and SciPy releases, so a failure on one Python
+  is never a different library in disguise; the declared floors are tested in CI entries of their
+  own.
+- The code uses the Python 3.12 type-parameter syntax, and imports `override` from `typing`, with no
+  compatibility module.
+- A catsim user on Python 3.11 cannot install pyitemcal.
+- Data-frame libraries, plotting libraries and file formats other than catsim's CSV stay out of
+  pyitemcal; its results are NumPy arrays that those libraries read.
+
+## Alternatives Considered
+
+- Python 3.11, catsim's floor: two NumPy and SciPy releases in the lock, and typing-extensions, for
+  users of a Python version that reaches its end of life in October 2027.
+- Python 3.13, SPEC 0's floor: little beyond 3.12 for this package's code, at the cost of the largest
+  group of users.
+- Python 3.14, for free threading: a thread-parallel M-step gains on free-threaded builds under any
+  floor (`backlog/estimation/free-threaded-m-step.md`), so the floor need not exclude 3.12 and 3.13.
+- An optional dependency for plotting or data frames: no feature needs one yet.

@@ -1,0 +1,278 @@
+[build-system]
+requires = ["setuptools>=84.2.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [
+    { name = "Douglas De Rizzo Meneghetti", email = "douglasrizzo@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Topic :: Education :: Testing",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+keywords = [
+    "item calibration",
+    "item response theory",
+    "IRT",
+    "parameter estimation",
+    "psychometrics",
+]
+name = "pyitemcal"
+version = "0.1.0"
+description = "Item parameter calibration for item response theory"
+# The runtime dependencies and the Python versions are set by ADR-0002. The floors are catsim's, which
+# the CI test job's lowest-direct entries install.
+dependencies = [
+    "numpy>=2.3.1",
+    "scipy>=1.16",
+    # No version: the API pyitemcal uses is on catsim's dev branch only, which [tool.uv.sources] names
+    # (ADR-0004). backlog/maintenance/released-catsim.md pins a released range.
+    "catsim",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+
+[project.urls]
+Source = "https://github.com/douglasrizzo/pyitemcal"
+Issues = "https://github.com/douglasrizzo/pyitemcal/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.uv.sources]
+catsim = { git = "https://github.com/douglasrizzo/catsim", branch = "dev" }
+
+[tool.ruff]
+line-length = 120
+indent-width = 2
+preview = true
+
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "F",
+    "E",
+    "W",
+    "I",
+    "N",
+    "D",
+    "D417",  # every parameter documented; the numpy convention turns it off
+    "DOC",
+    "UP",
+    "ANN",
+    "B",
+    "A",
+    "BLE",
+    "C4",
+    "C90",  # McCabe complexity, at most 10 (lint.mccabe below)
+    "EM",
+    "ERA",
+    "EXE",
+    "FBT",  # a boolean flag is keyword-only, so a call reads flag=True rather than a bare True
+    "G",
+    "PIE",
+    "Q",
+    "RSE",
+    "RET",
+    "SLF",
+    "SIM",
+    "TC",
+    "ARG",
+    "PTH",
+    "PT",
+    "FIX",  # bans TODO/FIXME/XXX/HACK comments outright, which leaves TD nothing to check
+    "TID251",  # banned APIs only; TID252 would ban the package's relative imports
+    "PD",
+    "PLE",
+    "PLW",
+    "PLC",
+    "PLR01",
+    "PLR02",
+    "PLR04",
+    "PLR09",  # too many arguments (at most 6, 5 positional), locals, statements, branches or returns
+    "PLR1",
+    "PLR2",
+    "PLR5",
+    "PLR6",
+    "TRY",
+    "PGH",
+    "FLY",
+    "NPY",
+    "PERF",
+    "FURB",
+    "S",
+    "RUF",
+    "T20",
+]
+ignore = [
+  "D421",    # Google-style rule; numpy-style property docstrings start with "Return ..."
+  "DOC502",  # numpydoc lists the exceptions a function lets propagate from its callees
+  "E111",
+  "E114",
+  "PLR0912",  # too many branches: C901 already bounds the branching
+  "RUF105",  # Keep standard `# noqa` comments rather than migrating to `# ruff: ignore`
+  "RUF201",  # Keep rule codes in this config rather than migrating to rule names
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-args = 6
+max-positional-args = 5
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pydoclint]
+# A one-line docstring has no sections to check.
+ignore-one-line-docstrings = true
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"numpy.typing.NDArray".msg = "Use FloatArray or IntArray from catsim.typing (ADR-0004)."
+"random".msg = "Take a numpy.random.Generator from the caller (ADR-0005); the global random module cannot be seeded per call."
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+  "ANN",      # Test fixture wiring and local helpers do not need exhaustive annotations
+  "ARG005",   # Mocked call signatures often intentionally ignore parameters
+  "DOC",      # Test and fixture docstrings have no Returns or Raises sections
+  "FBT",      # Test helpers and parametrized tests take booleans positionally
+  "PLC0415",  # Local imports in tests are acceptable when improving isolation
+  "PLR6301",  # Test methods don't need to use self
+  "PLR2004",  # Magic values are fine in tests - they're explicit test expectations
+  "RUF069",   # Exact float expectations are acceptable in tests
+  "S",        # Security rules are too noisy for intentionally non-production test code
+  "TC001",    # Test-only type imports do not justify TYPE_CHECKING indirection
+  "TC003",    # Test-only type imports do not justify TYPE_CHECKING indirection
+]
+# Every test has a docstring naming the behaviour it checks, or the bug that would make it fail (AGENTS.md):
+# D102 and D103 stay on for tests, with no numpydoc sections, so the other pydocstyle rules are off.
+"tests/test_*.py" = ["D100", "D101", "D104", "D105", "D106", "D107", "D2", "D3", "D4"]
+# Fixtures, strategies and builders are not tests; a new helper module of tests/ joins this list.
+"tests/{__init__,conftest}.py" = ["D"]
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+[dependency-groups]
+dev = [
+    "hypothesis>=6.127.0",
+    "import-linter>=2.17",
+    "pre-commit>=4.5.1",
+    "pylint>=4.0.5",
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.15.9",
+    "ty>=0.0.28",
+]
+
+[tool.pytest.ini_options]
+# The suite and the package's docstring examples.
+testpaths = ["tests", "src/pyitemcal"]
+# importlib: the tests and the docstring examples both import the pyitemcal that is installed, so a
+# run from an unpacked sdist does not import src/pyitemcal a second time beside it.
+addopts = "--strict-markers --strict-config --doctest-modules --import-mode=importlib"
+xfail_strict = true
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["pyitemcal"]
+
+[tool.coverage.report]
+# Input-validation raises stay measured, so an untested check shows up as missed.
+exclude_also = ["if TYPE_CHECKING:", "if __name__ == .__main__.:", "raise NotImplementedError"]
+# The CI test job measures coverage from the first pull request that adds tests (AGENTS.md).
+fail_under = 90
+show_missing = true
+
+[tool.vulture]
+# src and tests together: on its own, src's public API reads as unused.
+paths = ["src/pyitemcal", "tests"]
+min_confidence = 60
+
+[tool.typos.default.extend-words]
+lik = "lik"  # likelihood, in variable names
+nd = "nd"  # numpy's NDArray, in the sketches of the cards carried over from catsim
+
+[tool.ty.src]
+include = ["src/pyitemcal", "tests", "backlog"]
+
+[tool.ty.rules]
+# ty's default rules, plus the ones below. Left off: unsound-return and unsound-assignment (NumPy and
+# SciPy stubs leak Any into return values).
+possibly-unresolved-reference = "error"
+missing-type-argument = "error"
+blanket-ignore-comment = "error"
+division-by-zero = "error"
+possibly-missing-import = "error"
+redundant-cast = "error"
+unused-ignore-comment = "error"
+unused-type-ignore-comment = "error"
+# A function tested for truth instead of called; both rules only warn by default.
+redundant-condition = "error"
+truthiness-test-of-callable = "error"
+# A condition always true or always false: a dead branch, or an exhaustive check written as an elif.
+redundant-condition-strict = "error"
+# Every override carries @override, so a base-class rename fails the check at each orphaned override.
+missing-override-decorator = "error"
+
+# ---------------------------------------------------------------------------
+# Pylint
+# ---------------------------------------------------------------------------
+[tool.pylint.messages-control]
+# Only messages Ruff and ty lack. ty reports incompatible overrides, overridden finals and functions
+# tested for truth; Ruff reports the slot, classmethod, except, finally, statement and dict-key checks.
+enable = [
+  "duplicate-code",
+  "too-many-ancestors",
+  "too-many-instance-attributes",
+  "attribute-defined-outside-init",
+  "super-init-not-called",
+  "non-parent-init-called",
+  "useless-parent-delegation",
+  "unused-private-member",
+  "bad-except-order",
+  "cyclic-import",
+  "redefined-outer-name",
+]
+disable = ["all"]
+
+[tool.pylint.design]
+max-parents = 7
+max-attributes = 12
+
+[tool.pylint.similarities]
+min-similarity-lines = 10
+ignore-imports = true
+ignore-docstrings = true
+ignore-comments = true

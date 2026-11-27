@@ -1,0 +1,182 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The uv release every setup-uv step installs. Dependabot does not update it: bump it by hand, to
+  # the rev of the uv-lock hook in .pre-commit-config.yaml, which Dependabot does update.
+  UV_VERSION: "0.13.9"
+
+jobs:
+  pre-commit:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: uv run --only-group dev pre-commit run --all-files
+
+  test:
+    # Spelled out so the entries keep the check names the branch rulesets require.
+    name: Run tests (${{ matrix.os }}, ${{ matrix.python-version }}${{ matrix.resolution == 'lowest-direct' && ', lowest-direct' || '' }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      # uv would otherwise take the repository's .python-version (3.13) over setup-python's interpreter.
+      UV_PYTHON: ${{ matrix.python-version }}
+      # An environment variable rather than a `uv sync` flag: `uv run` re-resolves a lock made with a
+      # different resolution, which would replace the floors with the latest releases.
+      UV_RESOLUTION: ${{ matrix.resolution }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every supported Python on the primary OS (ADR-0002)
+        os: [ubuntu-latest]
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
+        resolution: [highest]
+        include:
+          # Cross-platform testing on one Python only
+          - os: macos-latest
+            python-version: "3.14"
+            resolution: highest
+          - os: windows-latest
+            python-version: "3.14"
+            resolution: highest
+          # Every direct dependency at the lower bound pyproject.toml declares, on the oldest Python,
+          # so the floors stay ones CI has tested. macOS too: its numpy wheels link Apple's Accelerate
+          # rather than OpenBLAS, so a floor that passes on Linux can fail there.
+          - os: ubuntu-latest
+            python-version: "3.12"
+            resolution: lowest-direct
+          - os: macos-latest
+            python-version: "3.12"
+            resolution: lowest-direct
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        if: matrix.resolution == 'highest'
+        run: uv sync --locked --group dev
+
+      # Not --locked: uv.lock holds the latest releases, and this entry resolves again to the floors.
+      - name: Install dependencies at their lower bounds
+        if: matrix.resolution == 'lowest-direct'
+        run: |
+          uv sync --group dev
+          uv pip list
+
+      # pytest exits with 5 when it collects no tests, as it does until the first module and its tests
+      # land. That pull request removes the `|| [ $? -eq 5 ]` here and in test-wheel, and adds
+      # --cov=pyitemcal here, which turns on the coverage gate (AGENTS.md).
+      - name: Run tests
+        shell: bash
+        run: uv run pytest --verbose || [ $? -eq 5 ]
+
+  build:
+    name: Build package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      - name: Build package
+        run: uv build
+
+      - name: Check package metadata
+        run: uvx twine check --strict dist/*
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  test-wheel:
+    name: Test the built wheel
+    # Runs the suite against the built wheel, installed into a clean environment, so a packaging
+    # mistake (a missing module or data file) fails here.
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Download all the dists
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Install the wheel into a clean environment
+        run: |
+          # The wheel's metadata names catsim without a version, which would install catsim's last
+          # release rather than the dev commit uv.lock pins (ADR-0004), so the locked runtime
+          # dependencies go in first and the wheel goes in without its own.
+          uv export --frozen --no-dev --no-emit-project --no-hashes --output-file "$RUNNER_TEMP/runtime.txt"
+          uv venv --python 3.12 "$RUNNER_TEMP/wheel-venv"
+          uv pip install --python "$RUNNER_TEMP/wheel-venv" -r "$RUNNER_TEMP/runtime.txt" pytest hypothesis
+          wheel=(dist/*.whl)
+          uv pip install --python "$RUNNER_TEMP/wheel-venv" --no-deps "${wheel[0]}"
+          # Without the source tree, the only pyitemcal the tests can import is the installed wheel.
+          rm -rf src
+
+      - name: Run tests against the installed wheel
+        run: |
+          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import pyitemcal; assert 'site-packages' in pyitemcal.__file__, pyitemcal.__file__"
+          "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests || [ $? -eq 5 ]

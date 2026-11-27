@@ -1,0 +1,45 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    # Propose a version only once it is a week old, so a broken or compromised release has time
+    # to be found and yanked first. Cooldown does not delay security updates.
+    cooldown:
+      default-days: 7
+    # One PR per update type instead of one per package; individual PRs all
+    # conflict on uv.lock and pile up waiting for rebases.
+    groups:
+      uv-dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+      uv-security:
+        applies-to: security-updates
+        patterns: ["*"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns: ["*"]
+      actions-security:
+        applies-to: security-updates
+        patterns: ["*"]
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    cooldown:
+      default-days: 7
+    groups:
+      pre-commit-hooks:
+        applies-to: version-updates
+        patterns: ["*"]

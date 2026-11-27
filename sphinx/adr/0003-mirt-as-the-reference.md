@@ -1,0 +1,58 @@
+# ADR-0003: Parity Tests Check pyitemcal Against mirt
+
+## Status
+
+Accepted 2026-11-26
+
+## Context
+
+A calibration method can be implemented, converge and still be wrong: a wrongly scaled quadrature, a
+gradient off by a factor or a prior applied twice all give plausible estimates. An independent
+implementation of the same method is a strong check. mirt, a published and widely used R package,
+implements marginal maximum likelihood estimation of the 1PL to 4PL models with priors, standard
+errors of the item estimates and item-fit statistics, and calibration researchers rely on it.
+
+A check against generating parameters is a second, independent one: responses drawn from known
+parameters should give back those parameters, within the sampling error of the sample size. It
+needs no other software, and it catches what agreement with mirt cannot, such as a departure both
+packages share.
+
+## Decision
+
+- mirt is pyitemcal's reference implementation: every method mirt implements is checked against it
+  by parity tests in three parts:
+  - R scripts in `tests/parity/mirt/` run a pinned mirt version on fixed response matrices and write
+    the matrices, the settings and mirt's outputs, with the R and mirt versions, to JSON files in the
+    repository;
+  - a pytest module compares pyitemcal's outputs with those files in every test run, with no R
+    installed;
+  - one documented command regenerates the files, when the cases change or the pinned mirt version
+    moves. It needs R and mirt.
+- Every method also has parameter-recovery tests: responses drawn from known parameters, with a
+  fixed seed, and the estimates compared with the generating values within a tolerance that the
+  sample size justifies.
+- pyitemcal keeps its own defaults. Every departure from mirt either has a setting that reproduces
+  mirt, which the parity tests use, or is stated where the method is documented, with its reason,
+  and kept in the parity tests as a strict expected failure with that reason, so a departure that
+  closes fails the run until it is removed from the list.
+- The tolerances of each comparison are set by the parity-harness card
+  (`backlog/discovery/mirt-parity-harness.md`).
+
+## Consequences
+
+- A claim that pyitemcal agrees with mirt is backed by a test, and a change that breaks agreement
+  fails it.
+- A new method that mirt implements comes with its parity cases and its recovery tests; one that mirt
+  lacks comes with recovery tests and the published values its sources give.
+- The parity tests follow one mirt version; moving to another is a deliberate change of the fixed
+  outputs.
+- No document says what mirt or another package lacks.
+
+## Alternatives Considered
+
+- Running mirt in CI: R and its packages on every run, slower and less reliable, to check outputs
+  that change only with the cases or the pinned version.
+- Recovery tests alone: they cannot tell a method's own bias from an implementation error.
+- Several reference packages: two references can disagree, and each doubles the fixtures.
+- mirt's defaults everywhere: a default that the research pass finds poorly founded need not be
+  copied, as long as a setting reproduces mirt for the parity tests.
