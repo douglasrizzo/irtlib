@@ -20,8 +20,8 @@ must include an evaluation of how well the data fit" (Wright & Stone, 1979, p. 6
 
 - The research pass (2026-11-27) checked the card carried over from catsim:
   - its interpretation table (below 0.7 overfit, 0.7-1.3 good, above 1.3 underfit, above 2.0
-    degraded) has no source on the shelf; Wright and Masters (1982, p. 101) standardize the mean
-    squares instead;
+    degraded) has no source on the shelf; Wright and Masters (1982, p. 101) standardize the weighted
+    mean square instead;
   - its point-biserial rules ("$\le 0$ ... flagged for removal", "$< 0.15$ weak") have no source,
     and "there is no clear basis for determining what magnitude item point-biserial establishes item
     acceptability" (Wright & Stone, 1979, p. 26);
@@ -41,8 +41,11 @@ card's.
 
 S-X² (Orlando & Thissen, 2000) as the item-fit statistic for every model, computed on the MML-EM
 card's grid, and the weighted and unweighted mean squares (Wright & Masters, 1982) for the Rasch
-model. Yen's $Q_1$ is left out: with the true model it rejected 95% of items on a 10-item test
-(Orlando & Thissen, 2000, p. 57, Table 1).
+model. Statistics that group examinees by estimated ability are left out: Orlando and Thissen's
+$Q_1$-$X^2$, an index "similar to Yen's (1981) $Q_1$" (p. 55), rejected .95 to .96 of the items of a
+10-item test on data from the fitted model, .14 to .30 at 40 items and .06 to .15 at 80 (p. 57,
+Table 1). S-X² is applied to the 4PL as well, which Orlando and Thissen did not simulate (they fitted
+the 1PL to 3PL).
 
 ## Tests
 
@@ -57,42 +60,45 @@ model. Yen's $Q_1$ is left out: with the true model it rejected 95% of items on 
 
 ## Open Questions
 
-1. **Missing responses.** S-X² is defined on complete response patterns, and mirt does not compute
-   it with missing data (above). Zhang and Wang (2022, pp. 708-709) adapt it to missing responses,
-   and report false-positive rates far above the nominal level for the unadapted indices (p. 714,
-   Table 3). Options: complete data only; or their adaptation. Assumed: complete data only, with an
+1. **Missing responses.** S-X² "cannot handle incomplete data directly" (Zhang & Wang, 2022, p. 705),
+   and mirt 1.48 stops with an error when a response is missing (above). Zhang and Wang (pp. 708-709)
+   adapt it to missing responses; for the unadapted S-X² they report false-positive rates far above
+   the nominal level on 40-item tests with 10% or 20% of responses missing, and near it with 1%
+   missing (p. 714, Table 3). Options: complete data only; or their adaptation. Assumed: complete data only, with an
    error naming the alternative.
 2. **Collapsing.** Orlando and Thissen (2000, p. 56) collapse from both ends of the score range
    toward the middle until every expected count is at least 1; mirt's collapsing differs in its
    details (source `R/utils.R:2410`). Assumed: Orlando and Thissen's rule, with a setting for
    mirt's in the parity tests.
-3. **Which abilities the mean squares use.** Wright and Masters use the Rasch model's estimates; mirt
-   uses EAP estimates by default (source `R/itemfit.R:259-268`). Assumed: EAP, as mirt.
+3. **Which abilities the mean squares use.** Wright and Masters use estimates of the person and item
+   parameters from the same data (1982, p. 101, Section 5.4.4); mirt uses EAP ability estimates by
+   default (source `R/itemfit.R:259-268`). Assumed: EAP, as mirt.
 
 ---
 
 **Module:** decided by the requirements card (planned)
 **Reference:** Orlando & Thissen (2000)
 **Last validated:** 2026-11-27, against Orlando & Thissen (2000), Yen (1981), Wright & Masters (1982),
-Wright & Stone (1979) and Zhang & Wang (2022) on the paper shelf, and mirt 1.48 (reference manual and
-source).
+Wright & Stone (1979), Kang & Chen (2007) and Zhang & Wang (2022) on the paper shelf, and mirt 1.48
+(reference manual and source).
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
 
 Item fit compares, item by item, the responses a calibrated model predicts with the responses
 observed. Statistics that group examinees by their estimated ability, such as Yen's (1981, p. 246)
-$Q_1$, inherit the error in those estimates; Orlando and Thissen (2000) group examinees by their
-number-correct score instead, which is observed, and compute the expected proportions from the model
-itself.
+$Q_1$, have observed proportions that depend on the model, which makes their distribution hard to
+ascertain, and equal-size groups are "highly sample dependent" (Orlando & Thissen, 2000, p. 52).
+Orlando and Thissen group examinees by their number-correct score instead, which is observed, and
+compute the expected proportions from the model itself.
 
 ## Definition
 
-**S-X².** For item $i$ and number-correct score $k = 1, \dots, n - 1$, with $N_k$ examinees at score
-$k$ and $O_{ik}$ the observed proportion of them answering item $i$ correctly,
+**S-X².** For item $i$ of $M$ and number-correct score $k = 1, \dots, M - 1$, with $N_k$ examinees
+at score $k$ and $O_{ik}$ the observed proportion of them answering item $i$ correctly,
 
 $$
-S\text{-}X^2_i = \sum_{k=1}^{n-1} N_k \frac{(O_{ik} - E_{ik})^2}{E_{ik}(1 - E_{ik})}
+S\text{-}X^2_i = \sum_{k=1}^{M-1} N_k \frac{(O_{ik} - E_{ik})^2}{E_{ik}(1 - E_{ik})}
 $$
 
 (Orlando & Thissen, 2000, p. 54, Equation 13). The expected proportion $E_{ik}$ is the integral over
@@ -100,15 +106,17 @@ ability of $P_i$ times the likelihood of a score of $k - 1$ on the other items, 
 integral of the likelihood of a score of $k$, both weighted by the ability density (p. 54,
 Equation 12); the summed-score likelihoods come from a recursion over items (p. 53, Equations 6-11,
 after Lord and Wingersky). Orlando and Thissen integrate on equally spaced points from −4.5 to 4.5
-(p. 54). Scores with small expected counts are collapsed toward the middle until every expected count
+(p. 54); this card uses the MML-EM card's grid, 61 points on $[-6, 6]$, as mirt does (source
+`R/itemfit.R:816-823`), a departure from their grid. Scores with small expected counts are collapsed toward the middle until every expected count
 is at least 1, and the degrees of freedom are the number of rows after collapsing less the number of
 item parameters estimated (p. 56).
 
-**Mean squares** (Rasch model). With $z_{ni}$ the standardized residual of person $n$ on item $i$ and
-$W_{ni}$ its variance, the unweighted mean square is the mean of $z_{ni}^2$ and the weighted mean
-square is $\sum_n z_{ni}^2 W_{ni} / \sum_n W_{ni}$ (Wright & Masters, 1982, p. 99, Equations
-5.4.6-5.4.7). Their expectation is 1, and they are standardized by a cube-root transformation
-(p. 100, Table 5.4a; p. 101).
+**Mean squares** (Rasch model). With $z_{ij}$ the standardized residual of examinee $j$ on item $i$
+and $W_{ij}$ the variance of the response (Wright & Masters, 1982, p. 98, Equation 5.4.3), the
+unweighted mean square is the mean of $z_{ij}^2$ and the weighted mean square is
+$\sum_j z_{ij}^2 W_{ij} / \sum_j W_{ij}$ (p. 99, Equations 5.4.6-5.4.7). Their expectation is 1, and
+the weighted mean square is standardized by a cube-root transformation (p. 100, Table 5.4a;
+p. 101).
 
 ## Parameters
 
@@ -128,8 +136,8 @@ square is $\sum_n z_{ni}^2 W_{ni} / \sum_n W_{ni}$ (Wright & Masters, 1982, p. 9
 
 ## Behavior and Comparison
 
-On data from the fitted model, S-X² rejected at .04 to .07 for 10, 40 and 80 items, where $Q_1$
-rejected at .95 to .96 for 10 items (Orlando & Thissen, 2000, p. 57, Table 1). Its power against
+On data from the fitted model, S-X² rejected at .04 to .07 for 10, 40 and 80 items, where
+$Q_1$-$X^2$ rejected at .95 to .96 for 10 items (Orlando & Thissen, 2000, p. 57, Table 1). Its power against
 fitting the 1PL to 3PL data was .52 to .58 (same table).
 
 mirt 1.48 computes S-X² by default in `itemfit()` with `mincell = 1`, and the mean squares as
@@ -145,6 +153,10 @@ mirt 1.48 computes S-X² by default in `itemfit()` with `mincell = 1`, and the m
 
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
 [Reference manual and source]. https://cran.r-project.org/package=mirt
+
+Kang, T., & Chen, T. T. (2007). *An investigation of the performance of the generalized S-X²
+item-fit index for polytomous IRT models* (ACT Research Report 2007-1). ACT. Open copy:
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR2007-1.pdf
 
 Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response
 theory models. *Applied Psychological Measurement, 24*(1), 50-64.
