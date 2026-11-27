@@ -16,7 +16,7 @@ The 3PL adds each item's guessing parameter $c$, and with it estimates that maxi
 often leaves at a boundary or unstable. The remedy the sources and BILOG use is Bayes modal
 estimation: the EM algorithm of [the MML-EM card](mml-em.md), with prior densities on the item
 parameters added to the M-step (Mislevy, 1986, p. 182). Priors serve the 2PL too, where they keep
-slopes finite (Baker, 1987, p. 131), so the mechanism is the card's and the 3PL is its first use.
+slopes finite (Baker, 1987, pp. 130-131), so the mechanism is the card's and the 3PL is its first use.
 
 ## Evidence
 
@@ -28,7 +28,8 @@ slopes finite (Baker, 1987, p. 131), so the mechanism is the card's and the 3PL 
     p. 383, Equation 27), not Mislevy's (1986) prior, which is normal on the logit of $c$ (p. 183);
   - "c drifts toward 0 or its upper bound" is not stated in any source read; the likelihood is
     "nearly flat along one or more dimensions" of $(a, b, c)$ jointly (Mislevy, 1986, p. 189).
-- A measurement on mirt 1.48 (2026-11-27), `LSAT7` (1,000 examinees, 5 items), `TOL = 1e-6`:
+- A measurement on mirt 1.48 (2026-11-27), `LSAT7` (1,000 examinees, 5 items), `TOL = 1e-6`,
+  `technical = list(NCYCLES = 2000)`:
 
   | Fit | EM cycles | Estimates of $c$ | log-likelihood |
   |---|---|---|---|
@@ -52,14 +53,17 @@ are the requirements card's to settle; the card assumes the recommendation of ea
 
 - **Parity with mirt 1.48:** the 3PL with a `norm` prior on logit $c$ (manual p. 155), and the 2PL
   with a `lnorm` prior on $a$, on simulated data with missing entries; fixtures at `TOL = 1e-8`.
-  Fixtures avoid mirt's `expbeta` prior: its gradient adds $(\alpha - 1)/c - (\beta - 1)/(1 - c)$ to
-  the gradient with respect to logit $c$ (source `R/utils.R:1435-1450`), without the factor
-  $c(1 - c)$ that its log-prior on that scale implies (`R/utils.R:1488-1497`).
+  Fixtures do not use mirt's `expbeta` prior. On the logit scale, the derivative of the
+  Beta($\alpha_\beta$, $\beta_\beta$) log-density of $c$ is
+  $c(1 - c)[(\alpha_\beta - 1)/c - (\beta_\beta - 1)/(1 - c)]$ (the card's chain rule); mirt 1.48's
+  `expbeta` evaluates the beta log-density of $c$ (source `R/utils.R:1488-1497`) and adds
+  $(\alpha_\beta - 1)/c - (\beta_\beta - 1)/(1 - c)$ to the gradient with respect to logit $c$
+  (`R/utils.R:1435-1450`), so the two differ by that factor.
 - **Prior gradients:** each prior's gradient and Hessian agree with finite differences of its log
   density on the scale the parameter is estimated on.
 - **Flat priors:** with every prior flat, the estimates equal the maximum likelihood estimates.
 - **Beta parameterization:** Beta($mp + 1$, $m(1 - p) + 1$) has mode $p$ (closed form); Harwell and
-  Baker's (1991, p. 383) default Beta(5, 17) is $m = 20$, $p = .2$.
+  Baker's (1991, pp. 383, 386) default Beta(5, 17) is $m = 20$, $p = .2$.
 - **Recovery** (ADR-0003): 3PL responses from known parameters with a fixed seed; with the priors
   recommended below, every estimate within a multiple of its standard error.
 
@@ -69,7 +73,7 @@ are the requirements card's to settle; the card assumes the recommendation of ea
    manual recommends for its logit-scale guessing parameter (p. 132); or a beta prior on $c$ itself,
    which allows $c = 0$ (Mislevy, 1986, p. 183) and is PC-BILOG's (Harwell & Baker, 1991, p. 383).
    Assumed: normal on logit $c$, as mirt.
-2. **Default priors.** mirt has none (source `R/06-LoadPars.R:361-362`); BILOG's defaults are normal
+2. **Default priors.** mirt sets no default prior (source `R/06-LoadPars.R:361-362`); BILOG's defaults are normal
    on $(\log a, b, \operatorname{logit} c)$ with variances .25, 4.00 and .25 (Mislevy, 1986, p. 190);
    PC-BILOG's are $\log a \sim N(0, .5^2)$, $b \sim N(0, 2^2)$ and $c \sim$ Beta(5, 17) (Harwell &
    Baker, 1991, p. 383). The measurement shows the 3PL without a prior putting four of five $c$'s at
@@ -108,7 +112,9 @@ $\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card, the M-step equation for $c$ 
 $(1 - c)^{-1}\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Harwell & Baker, 1991,
 p. 383, Equation 26), and those for the intercept and slope are Baker's (1987, p. 116) Equations
 14-15 with the expected counts in place of the observed ones; each prior adds its term
-(Harwell & Baker, 1991, p. 383).
+(Harwell & Baker, 1991, p. 383). Estimated on the logit scale $\gamma$ that this card proposes,
+the equation for $c$ becomes $c\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Mislevy,
+1986, p. 184, Equation 22), the equation above multiplied by $dc/d\gamma = c(1 - c)$.
 
 Mislevy (1986, p. 183) estimates $\alpha = \log a$, $\beta = b$ and $\gamma = \operatorname{logit} c$,
 so that $a = e^\alpha$ and $c = 1/(1 + e^{-\gamma})$ stay in range, with normal priors on the three,
@@ -116,7 +122,7 @@ and notes that a beta prior on untransformed $c$ may be preferable when $c = 0$ 
 A beta prior Beta($\alpha_\beta$, $\beta_\beta$) is set by a weight $m$ and a location $p$ as
 $\alpha_\beta = mp + 1$ and $\beta_\beta = m(1 - p) + 1$ (Harwell & Baker, 1991, p. 386); they call
 $p$ the mean, but with these parameters $p$ is the mode (the card's arithmetic: the mode of
-Beta($\alpha$, $\beta$) is $(\alpha - 1)/(\alpha + \beta - 2)$).
+Beta($\alpha_\beta$, $\beta_\beta$) is $(\alpha_\beta - 1)/(\alpha_\beta + \beta_\beta - 2)$).
 
 The posterior precision of the estimates is the information plus the negative second derivative of
 the log prior (Mislevy, 1986, p. 182, Equations 15-17), so the standard errors of
@@ -139,10 +145,11 @@ the log prior (Mislevy, 1986, p. 182, Equations 15-17), so the standard errors o
 
 ## Behavior and Comparison
 
-Under BILOG's default prior with a logit-scale variance of .25, "we would expect most c's to lie between
-.15 and .35" (Mislevy, 1986, p. 190); the range is the prior's spread, not a bound. Priors on $a$ and
+Under BILOG's default logit-scale variance of .25, "if the logit average of lower asymptotes were
+.25", most c's would lie between .15 and .35 (Mislevy, 1986, p. 190); the range is the prior's
+spread, not a bound. Priors on $a$ and
 $c$ keep the slopes from diverging and $c$ plausible, the Heywood problem of joint and marginal
-estimation (Baker, 1987, pp. 131, 133).
+estimation (Baker, 1987, pp. 130-131, 133).
 
 mirt 1.48 fits the 3PL with `itemtype = "3PL"`:
 
@@ -153,7 +160,7 @@ mirt 1.48 fits the 3PL with `itemtype = "3PL"`:
   types `norm`, `lnorm`, `beta` and `expbeta` (manual p. 155); for the guessing parameter its manual
   recommends `norm`, on the logit scale (p. 132).
 - It solves the M-step with BFGS, or with nlminb when a parameter has a finite bound (source
-  `R/EMstep.group.R:117-122`).
+  `R/EMstep.group.R:118-122`).
 - `guess` fixes the guessing parameter for an item type that does not estimate it, such as the 2PL,
   and only sets its starting value under `"3PL"` (source `R/06-LoadPars.R:85-91`); its manual
   describes `guess` as fixed (p. 124).

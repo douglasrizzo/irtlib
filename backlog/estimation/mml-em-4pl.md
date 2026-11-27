@@ -30,7 +30,8 @@ gives boundary and diverging estimates.
     Robitzsch, 2022, p. 3).
 - A measurement on mirt 1.48 (2026-11-27): the 4PL on `LSAT7` (1,000 examinees, 5 items), with normal
   priors of standard deviation .5 on logit $c$ and logit $d$ centred at logit .2 and logit .8, did not
-  converge in 2,000 EM cycles, with slopes between 2.5 and 22.4.
+  converge in 2,000 EM cycles at `TOL = 1e-6`, with slopes between 2.5 and 22.4; at mirt's default
+  `TOL = 1e-4` it reported convergence at cycle 85, with slopes between 2.49 and 22.21.
 
 ## What pyitemcal and catsim have now
 
@@ -47,8 +48,9 @@ The open questions are the requirements card's to settle.
 - **Parity with mirt 1.48:** the 4PL with `norm` priors on logit $c$ and logit $d$ (manual p. 155),
   on simulated data of at least 5,000 examinees; fixtures at `TOL = 1e-8`.
 - **Recovery** (ADR-0003): Waller and Feuerstahler's (2017, p. 9) design, tests of 20, 40 and 60
-  items at $N$ from 1,000 to 20,000, against their bias and RMSE (Table 4).
-- **Published values:** Battauz (2020, pp. 275-276, Table 5), the ISRD-2 data, 18 items, $N = 3247$,
+  items at $N$ from 1,000 to 20,000, against their bias and RMSE (Table 4), stating where the test
+  departs from the conditions they give on p. 9.
+- **Published values:** Battauz (2020, pp. 275-276, Table 5), the ISRD-2 data, 19 items, $N = 3247$ (p. 273),
   maximum likelihood without priors and with the 1.7 constant absent, as in catsim.
 
 ## Open Questions
@@ -59,7 +61,7 @@ The open questions are the requirements card's to settle.
    2017, p. 4). Assumed: a normal prior on logit $d$, the 3PL card's form.
 2. **A penalty instead of a prior.** Battauz (2020) shrinks each item's parameters toward their common
    mean; the penalty equals a normal log-density (p. 277), and it cut the RMSE of $a$ from 39.30 to
-   11.59 at $n = 500$ in the first simulation setting (p. 273, Table 1). Assumed: priors only
+   11.59 at $N = 500$ in the first simulation setting (p. 273, Table 1). Assumed: priors only
    (YAGNI), since the 3PL card's priors cover the same ground.
 3. **Fixing $d$ on some items.** mirt's `upper` sets only the starting value under `"4PL"` (source
    `R/06-LoadPars.R:85-91`); fixing is the requirements card's question 8.
@@ -78,21 +80,23 @@ mirt 1.48 (reference manual and source).
 Barton and Lord (1981, p. 2) introduced the upper asymptote for high-ability students making a
 clerical error on an easy item. They fixed it at a common value for all items (p. 3) and found "no
 compelling reason to urge the use of this model" (p. 6). Interest returned with Bayesian estimation:
-Loken and Rulison (2010, p. 523) fitted it by Markov chain Monte Carlo, though they "do not mean to
-imply that fitting a 4PM necessarily requires a Bayesian approach", and Waller and Feuerstahler
+Loken and Rulison (2010, p. 513) fitted it by Markov chain Monte Carlo, though they "do not mean to
+imply that fitting a 4PM necessarily requires a Bayesian approach" (p. 523), and Waller and Feuerstahler
 (2017) by Bayes modal estimation. It is "not yet widely applied in the operational practice of
 educational studies" (Robitzsch, 2022, p. 3).
 
 ## Definition
 
 The 4PL is catsim's response function, $P = c + (d - c)F$. Bayes modal estimation is the 3PL card's,
-with $d$ estimated as logit $d$ and a prior on it, and its M-step uses the derivative with respect to
-$d$ from [the ICC-gradients card](../irt/icc-gradients.md).
+with $d$ estimated as logit $d$ and a prior on it. Its M-step uses the derivative with respect to
+$d$ from [the ICC-gradients card](../irt/icc-gradients.md) times $d(1 - d)$, the derivative of $d$
+with respect to logit $d$ (the card's chain rule, as Mislevy, 1986, p. 184, Equation 22, does for
+$c$).
 
-Several sources parameterize the upper asymptote differently: Robitzsch (2022) and Culpepper (2016)
-estimate a slipping probability, one minus the upper asymptote, and Loken and Rulison (2010),
-Culpepper (2016) and Waller and Feuerstahler (2017) include the 1.7 constant. Their values convert
-before they compare with catsim's.
+Several sources parameterize the model differently: Robitzsch (2022) and Culpepper (2016) estimate
+a slipping probability, one minus the upper asymptote; Culpepper (2016) fits the normal-ogive model in
+slope-threshold form; and Loken and Rulison (2010) and Waller and Feuerstahler (2017) include the 1.7
+constant. Their values convert before they compare with catsim's.
 
 ## Parameters
 
@@ -101,11 +105,12 @@ As the 3PL card, with a prior on $d$ (Open Question 1).
 ## Behavior and Comparison
 
 - **Without priors**, maximum likelihood puts many upper asymptotes at the boundary: 7 of Battauz's
-  (2020, pp. 275-276, Table 5) 18 items have $\hat d = 1.00$, and one item's slope is 55.90; with no
-  priors, 18 of Robitzsch's (2022, p. 9) 70 items have a slipping estimate of zero.
+  (2020, pp. 275-276, Table 5) 19 items have $\hat d = 1.00$, and one item's slope is 55.90; with no
+  priors, 18 of Robitzsch's (2022, pp. 8-9) 70 items have a slipping estimate of zero.
 - **With Bayes modal estimation**, Waller and Feuerstahler (2017, p. 19) conclude that "at least
-  $N = 5{,}000$" examinees are needed when accurate $d$ estimates matter; with 1,000 examinees, most
-  of their simulated data sets failed (p. 6).
+  $N = 5{,}000$ subjects are needed for accurate 4PM item calibration", and that accurate estimates of
+  $d$ need "large numbers of persons with high trait values"; with 1,000 examinees, most of their
+  simulated data sets failed (p. 6).
 - **By Markov chain Monte Carlo** on the normal-ogive 4PL, Culpepper (2016, Section 5) finds
   $N \geq 2500$ enough for educational items and up to 10,000 for psychopathology items.
 
@@ -144,7 +149,8 @@ https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11
 Loken, E., & Rulison, K. L. (2010). Estimation of a four-parameter item response theory model.
 *British Journal of Mathematical and Statistical Psychology, 63*(3), 509-525.
 https://doi.org/10.1348/000711009X474502. Open copy (accepted manuscript):
-https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf
+https://web.archive.org/web/20240708235413/https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf
+(archived copy of the UNCG repository's file)
 
 Robitzsch, A. (2022). Four-parameter guessing model and related item response models. *Mathematical and
 Computational Applications, 27*(6), 95. https://doi.org/10.3390/mca27060095. Open access.

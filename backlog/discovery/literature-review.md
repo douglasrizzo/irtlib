@@ -90,8 +90,9 @@ densities to the M-step's equations (p. 182, Equation 14), estimating $\log a$, 
 $\operatorname{logit} c$ (p. 183). BILOG's default priors on these are normal with variances .25,
 4.00 and .25 (p. 190); PC-BILOG's are $\log a \sim N(0, .5^2)$, $b \sim N(0, 2^2)$ and
 $c \sim$ Beta(5, 17) for five-option items (Harwell & Baker, 1991, p. 383). Priors on the slope also
-keep the 2PL's estimates finite (Baker, 1987, p. 131). mirt 1.48 sets no default prior and
-recommends a normal prior on the logit of its guessing parameter (manual p. 132). On LSAT-7 without
+keep the 2PL's estimates finite (Baker, 1987, pp. 130-131). mirt 1.48 sets no default prior (source
+`R/06-LoadPars.R:361-362`) and recommends a normal prior on the logit of its guessing parameter
+(manual p. 132). On LSAT-7 without
 a prior, mirt put four of five guessing estimates at 0; with a logit-normal prior they lay between
 .175 and .212 (the card's measurement).
 
@@ -103,8 +104,9 @@ Barton and Lord (1981, p. 2) proposed an upper asymptote below 1 for high-abilit
 a clerical error, fixed it at one value for all items (p. 3), and found "no compelling reason to urge
 the use of this model" (p. 6); it is still rarely used (Loken & Rulison, 2010, p. 510; Robitzsch,
 2022, p. 3). Without priors, maximum likelihood puts many upper asymptotes at 1 (Battauz, 2020,
-pp. 275-276, Table 5; Robitzsch, 2022, p. 9). Bayes modal estimation needs "at least $N = 5{,}000$"
-examinees for accurate upper asymptotes (Waller & Feuerstahler, 2017, p. 19), and Markov chain Monte
+pp. 275-276, Table 5; Robitzsch, 2022, pp. 8-9). Bayes modal estimation needs "at least
+$N = 5{,}000$ subjects ... for accurate 4PM item calibration" (Waller & Feuerstahler, 2017, p. 19),
+and Markov chain Monte
 Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 2016, Section 5).
 
 ## Build order, so far
@@ -185,7 +187,8 @@ https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11
 Loken, E., & Rulison, K. L. (2010). Estimation of a four-parameter item response theory model.
 *British Journal of Mathematical and Statistical Psychology, 63*(3), 509-525.
 https://doi.org/10.1348/000711009X474502. Open copy (accepted manuscript):
-https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf
+https://web.archive.org/web/20240708235413/https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf
+(archived copy of the UNCG repository's file)
 
 Louis, T. A. (1982). Finding the observed information matrix when using the EM algorithm. *Journal of
 the Royal Statistical Society: Series B, 44*(2), 226-233.
