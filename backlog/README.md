@@ -52,7 +52,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | ready | M |  | moved from catsim's backlog |
-| [Evaluate item fit with S-X² and the mean-square statistics](fit/item-fit.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
 | [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
 
@@ -66,6 +65,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | blocked | S | [mml-em-3pl](estimation/mml-em-3pl.md) | ADR-0007 |
 | [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | ready | S |  | research pass |
+| [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of pyitemcal |

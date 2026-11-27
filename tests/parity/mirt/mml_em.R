@@ -38,8 +38,9 @@ from_table <- function(table) {
   )
 }
 
-simulated_responses <- function() {
-  set.seed(SIMULATED_SEED, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+# 2PL responses of 1,000 examinees to 10 items, a share of them missing completely at random.
+simulated_responses <- function(seed, missing) {
+  set.seed(seed, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
   n_examinees <- 1000L
   n_items <- 10L
   a <- rlnorm(n_items, 0, 0.3)
@@ -47,7 +48,7 @@ simulated_responses <- function() {
   theta <- rnorm(n_examinees)
   p <- plogis(sweep(outer(theta, b, "-"), 2, a, "*"))
   x <- matrix(as.integer(runif(n_examinees * n_items) < p), n_examinees, n_items)
-  x[runif(n_examinees * n_items) < 0.1] <- NA
+  x[runif(n_examinees * n_items) < missing] <- NA
   x
 }
 
@@ -111,7 +112,7 @@ mml_em_case <- function(name, x, model) {
 }
 
 mml_em_cases <- function() {
-  data <- list(lsat6 = from_table(LSAT6), lsat7 = from_table(LSAT7), simulated = as_patterns(simulated_responses()))
+  data <- list(lsat6 = from_table(LSAT6), lsat7 = from_table(LSAT7), simulated = as_patterns(simulated_responses(SIMULATED_SEED, 0.1)))
   data$simulated$seed <- SIMULATED_SEED
   matrices <- lapply(data, from_patterns)
   for (name in names(data)) {

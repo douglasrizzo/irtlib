@@ -225,8 +225,8 @@ type = "layers"
 containers = ["pyitemcal"]
 exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
-  "mml",
-  "calibration | irt",  # "|": siblings that never import each other
+  "fit | mml",  # "|": siblings that never import each other
+  "calibration | irt",
 ]
 
 [tool.vulture]
