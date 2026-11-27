@@ -34,6 +34,9 @@ if TYPE_CHECKING:
 _CLOSED_FORM_RTOL = 1e-10
 # Estimates, against mirt's recorded at TOL = 1e-8 with an exact M-step: 1e-5 (ADR-0003).
 _ESTIMATE_ATOL = 1e-5
+# Standard errors, computed at estimates that agree within _ESTIMATE_ATOL, by the same identity and difference step:
+# a relative 1e-4.
+_STANDARD_ERROR_RTOL = 1e-4
 
 _MML_EM = load("mml_em")
 
@@ -115,3 +118,20 @@ def test_mml_estimates(case: dict[str, Any]) -> None:
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(calibration.log_likelihood, case["log_likelihood"], rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("case", _MML_EM["cases"], ids=operator.itemgetter("id"))
+def test_mml_standard_errors(case: dict[str, Any]) -> None:
+  """MMLCalibrator's standard errors of a and b match mirt's Oakes standard errors; a parameter not estimated has none.
+
+  mirt reports the slope's standard error and, by the delta method, the difficulty's (``coef(..., IRTpars = TRUE)``).
+  """
+  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  standard_errors = calibrator.calibrate(responses(_MML_EM["data"][case["data"]])).standard_errors
+  assert standard_errors is not None
+  np.testing.assert_allclose(standard_errors[:, 1], case["b_se"], rtol=_STANDARD_ERROR_RTOL)
+  if "slope_se" in case:
+    np.testing.assert_allclose(standard_errors[:, 0], case["slope_se"], rtol=_STANDARD_ERROR_RTOL)
+  else:
+    assert np.all(np.isnan(standard_errors[:, 0]))
+  assert np.all(np.isnan(standard_errors[:, 2:]))

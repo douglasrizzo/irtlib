@@ -62,6 +62,94 @@ def test_likelihood_never_decreases() -> None:
   assert log_likelihoods[-1] > log_likelihoods[0]
 
 
+def _louis_information(matrix: np.ndarray, slope: np.ndarray, intercept: np.ndarray) -> np.ndarray:
+  """Return Louis's (1982, p. 227, Equation 3.2) observed information of complete 2PL responses, slopes first.
+
+  The expected complete-data information, which for the 2PL holds no data, less the posterior covariance of the
+  complete-data score, from each examinee's posterior over 61 nodes on [-6, 6] with normal masses.
+  """
+  nodes = np.linspace(-6.0, 6.0, 61)
+  log_masses = -(nodes**2) / 2 - np.log(np.sum(np.exp(-(nodes**2) / 2)))
+  probability = expit(intercept + slope * nodes[:, np.newaxis])  # nodes x items
+  log_joint = matrix @ np.log(probability).T + (1 - matrix) @ np.log1p(-probability).T + log_masses
+  posterior = np.exp(log_joint - log_joint.max(axis=1, keepdims=True))
+  posterior /= posterior.sum(axis=1, keepdims=True)  # examinees x nodes
+  # the complete-data score at each node: (u - P) X for the slopes, (u - P) for the intercepts
+  residual = matrix[:, np.newaxis, :] - probability[np.newaxis, :, :]
+  score = np.concatenate([residual * nodes[np.newaxis, :, np.newaxis], residual], axis=2)
+  n_items = slope.size
+  blocks = np.zeros((nodes.size, 2 * n_items, 2 * n_items))
+  weight = probability * (1 - probability)
+  for item in range(n_items):
+    for row, column, factor in [(0, 0, nodes**2), (0, 1, nodes), (1, 0, nodes), (1, 1, np.ones_like(nodes))]:
+      blocks[:, row * n_items + item, column * n_items + item] = weight[:, item] * factor
+  mean_score = np.einsum("jq,jqp->jp", posterior, score)
+  covariance_of_score = np.einsum("jq,jqp,jqr->pr", posterior, score, score) - mean_score.T @ mean_score
+  return np.einsum("jq,qpr->pr", posterior, blocks) - covariance_of_score
+
+
+def test_standard_errors_match_louis_exact_form() -> None:
+  """The standard errors match those of Louis's exact observed information, computed independently here.
+
+  Oakes's identity by central differences agrees with Louis's form to about 1e-11 (Chalmers, 2018, p. 13). Fails if
+  the missing information has the wrong sign or scale, or the delta method to a and b is wrong.
+  """
+  calibration = MMLCalibrator(tolerance=1e-10).calibrate(_LSAT7)
+  slope = calibration.items.discrimination
+  intercept = -slope * calibration.items.difficulty
+  covariance = np.linalg.inv(_louis_information(_LSAT7, slope, intercept))
+  n_items = slope.size
+  jacobian = np.zeros((n_items, 2 * n_items))
+  jacobian[np.arange(n_items), np.arange(n_items)] = intercept / slope**2
+  jacobian[np.arange(n_items), n_items + np.arange(n_items)] = -1 / slope
+  assert calibration.standard_errors is not None
+  np.testing.assert_allclose(calibration.standard_errors[:, 0], np.sqrt(np.diag(covariance)[:n_items]), rtol=1e-7)
+  np.testing.assert_allclose(
+    calibration.standard_errors[:, 1], np.sqrt(np.einsum("np,pr,nr->n", jacobian, covariance, jacobian)), rtol=1e-7
+  )
+
+
+def test_unidentified_model_reports_no_standard_errors() -> None:
+  """A 2PL of one item, whose slope and intercept one proportion correct cannot both identify, has no standard errors.
+
+  The information matrix cannot be inverted: the result holds None and a RuntimeWarning says why. With the slope
+  fixed, the same item has a standard error for its difficulty.
+  """
+  matrix = (np.random.default_rng(0).random((500, 1)) < 0.6).astype(float)
+  with pytest.warns(RuntimeWarning, match="could not be inverted"):
+    calibration = MMLCalibrator().calibrate(matrix)
+  assert calibration.standard_errors is None
+  fixed = MMLCalibrator(fixed_slope=1.0).calibrate(matrix)
+  assert fixed.standard_errors is not None
+  assert np.isnan(fixed.standard_errors[0, 0])
+  assert fixed.standard_errors[0, 1] > 0
+
+
+def test_standard_errors_cover_the_generating_parameters() -> None:
+  """Over 60 simulated calibrations, the standard errors match the estimates' spread and their intervals cover.
+
+  Each parameter's mean standard error is within 30% of its estimates' standard deviation, and 91% to 98% of the
+  95% intervals contain the generating value: about three sampling errors of each statistic from its target.
+  """
+  slopes = np.array([0.8, 1.0, 1.2, 1.5, 2.0])
+  difficulties = np.array([-1.0, -0.5, 0.0, 0.5, 1.0])
+  truth = np.concatenate([slopes, difficulties])
+  rng = np.random.default_rng(20261127)
+  estimates, standard_errors = [], []
+  for _ in range(60):
+    theta = rng.normal(size=1000)
+    matrix = (rng.random((1000, 5)) < expit(slopes * (theta[:, np.newaxis] - difficulties))).astype(float)
+    calibration = MMLCalibrator().calibrate(matrix)
+    assert calibration.standard_errors is not None
+    estimates.append(np.concatenate([calibration.items.discrimination, calibration.items.difficulty]))
+    standard_errors.append(np.concatenate([calibration.standard_errors[:, 0], calibration.standard_errors[:, 1]]))
+  estimates, standard_errors = np.array(estimates), np.array(standard_errors)
+  ratio = standard_errors.mean(axis=0) / estimates.std(axis=0, ddof=1)
+  coverage = np.mean(np.abs(estimates - truth) <= 1.96 * standard_errors)
+  assert np.all((ratio > 0.7) & (ratio < 1.3)), ratio
+  assert 0.91 <= coverage <= 0.98, coverage
+
+
 def test_marginal_log_likelihood_with_a_missing_response() -> None:
   """The marginal log-likelihood equals a brute-force sum that leaves a missing response out of its examinee's product.
 

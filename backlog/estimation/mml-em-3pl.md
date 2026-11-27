@@ -132,7 +132,8 @@ Beta($\alpha_\beta$, $\beta_\beta$) is $(\alpha_\beta - 1)/(\alpha_\beta + \beta
 
 The posterior precision of the estimates is the information plus the negative second derivative of
 the log prior (Mislevy, 1986, p. 182, Equations 15-17), so the standard errors of
-[the standard-errors card](standard-errors.md) carry over with the prior's term added.
+`pyitemcal.mml` carry over with the prior's term added. Its complete-data information is the
+expected one, exact for the 2PL only (Baker, 1987, p. 116): the 3PL's needs the observed one.
 
 ## Parameters
 
