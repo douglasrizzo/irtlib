@@ -229,6 +229,7 @@ layers = [
   "comparison",
   "fit | mml",  # "|": siblings that never import each other
   "calibration",
+  "quadrature",
   "irt",
   "typing",
 ]
