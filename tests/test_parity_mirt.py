@@ -24,11 +24,10 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
-from catsim import ItemBank
 from scipy.integrate import quad
 from scipy.special import expit, logsumexp
 
-from irtlib import irt
+from irtlib import ItemBank, irt
 from irtlib.calibration import Calibration, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
@@ -138,9 +137,9 @@ def test_mml_estimates(case: dict[str, Any]) -> None:
   """
   calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
   calibration = calibrator.calibrate(responses(_MML_EM["data"][case["data"]]))
-  slope = calibration.items.discrimination
+  slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
-  np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(-slope * calibration.estimates[:, 1], case["intercept"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(calibration.log_likelihood, case["log_likelihood"], rtol=_CLOSED_FORM_RTOL)
 
 
@@ -173,8 +172,10 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
   Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
   """
   slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
+  estimates = _two_pl_items(slope, intercept)
   calibration = Calibration(
-    items=ItemBank(_two_pl_items(slope, intercept)),
+    estimates=estimates,
+    items=ItemBank(estimates),
     standard_errors=None,
     log_likelihood=0.0,
     n_parameters=0,
@@ -287,10 +288,10 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
 def test_mml_priors_estimates(case: dict[str, Any]) -> None:
   """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's."""
   calibration = _prior_calibration(case["id"])
-  slope = calibration.items.discrimination
+  slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
-  np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
-  for key, asymptote in [("guessing", calibration.items.pseudo_guessing), ("upper", calibration.items.upper_asymptote)]:
+  np.testing.assert_allclose(-slope * calibration.estimates[:, 1], case["intercept"], atol=_ESTIMATE_ATOL)
+  for key, asymptote in [("guessing", calibration.estimates[:, 2]), ("upper", calibration.estimates[:, 3])]:
     if key in case:
       np.testing.assert_allclose(np.log(asymptote / (1 - asymptote)), case[key], atol=_ESTIMATE_ATOL)
 

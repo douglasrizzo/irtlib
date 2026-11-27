@@ -33,7 +33,8 @@ released and requires Python 3.12 (ADR-0002). `catsim.irt` is part of catsim's p
   copies; until that release, catsim's development can take irtlib from its GitHub branch.
 - While both copies exist, catsim at a fixed commit is a development dependency of irtlib's
   benchmarks, which time each moved function against catsim's original and compare their values. A
-  slowdown that catsim's simulations would feel gets a card for a faster version in irtlib.
+  moved function that takes more than 1.2 times catsim's time, on the shapes catsim calls it with,
+  gets a card for a faster version in irtlib.
 
 ## Consequences
 

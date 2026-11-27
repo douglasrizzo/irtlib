@@ -64,14 +64,19 @@ import warnings
 from dataclasses import dataclass
 
 import numpy
-from catsim import IrtModel, ItemBank
-from catsim.estimation import QuadratureGrid, normal_log_prior
-from catsim.irt import log_response_probabilities
 from scipy.special import expit, logit, logsumexp
 from scipy.stats import norm
 
-from .calibration import Calibration, ConvergenceWarning, default_grid, validate_responses
-from .irt import log_likelihood_gradient, parameter_information
+from .bank import IrtModel, ItemBank
+from .calibration import Calibration, ConvergenceWarning, _valid_items, default_grid, validate_responses
+from .irt import (
+  _N_COLUMNS,
+  log_likelihood,
+  log_likelihood_gradient,
+  log_response_probabilities,
+  parameter_information,
+)
+from .quadrature import QuadratureGrid, normal_log_prior, posterior, prior_masses
 from .typing import FloatArray, IntArray
 
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
@@ -88,7 +93,8 @@ _M_STEP_ITERATIONS = 50
 _STEP_HALVINGS = 30
 # mirt's central-difference step for Oakes's identity (ADR-0007)
 _OAKES_STEP = 1e-5
-_N_PARAMETERS = 4
+# abilities are normal with mean 0 and variance 1 (ADR-0008)
+_ABILITY_PRIOR = normal_log_prior()
 _SLOPE, _INTERCEPT, _GUESSING, _UPPER = 0, 1, 2, 3
 
 
@@ -213,20 +219,6 @@ def _prior_terms_of(priors: Priors) -> tuple[_PriorTerm, ...]:
   )
 
 
-def _log_masses(grid: QuadratureGrid) -> FloatArray:
-  """Return the log of the normal masses of the grid's nodes, normalized to sum to 1."""
-  log_masses = numpy.log(grid.weights) + normal_log_prior()(grid.nodes)
-  return log_masses - logsumexp(log_masses)
-
-
-def _log_joint(responses: FloatArray, items: FloatArray, grid: QuadratureGrid) -> FloatArray:
-  """Return the log of L_j(X_q) A_q for every examinee and node, shape (examinees, nodes)."""
-  answered = ~numpy.isnan(responses)
-  correct = numpy.where(answered, responses, 0.0)
-  log_p, log_q = log_response_probabilities(grid.nodes, items)
-  return correct @ log_p.T + (answered - correct) @ log_q.T + _log_masses(grid)
-
-
 def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: QuadratureGrid | None = None) -> float:
   """Return the marginal log-likelihood of a response matrix, with abilities normal with mean 0 and variance 1.
 
@@ -236,7 +228,7 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
       The response matrix: one row per examinee, one column per item, holding 1, 0 or NaN for a missing response.
   items : numpy.ndarray
       A matrix of items ``[a, b, c, d]``, one row per column of ``responses``.
-  grid : catsim.estimation.QuadratureGrid, optional
+  grid : irtlib.quadrature.QuadratureGrid, optional
       The nodes the abilities are integrated over. Default is 61 equally spaced nodes on [-6, 6].
 
   Returns
@@ -246,9 +238,11 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
 
   Raises
   ------
+  TypeError
+      If the responses are neither Booleans, integers nor floats.
   ValueError
-      If the responses fail :py:func:`irtlib.calibration.validate_responses`, or ``items`` does not have one row
-      per item.
+      If the responses fail :py:func:`irtlib.calibration.validate_responses`, or ``items`` is not a matrix of four
+      columns with one row per item.
 
   Examples
   --------
@@ -257,11 +251,9 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
   -1.386294
   """
   matrix = validate_responses(responses)
-  items = numpy.asarray(items, dtype=float)
-  if items.shape != (matrix.shape[1], _N_PARAMETERS):
-    msg = f"items must have one row [a, b, c, d] per item, shape ({matrix.shape[1]}, 4), got {items.shape}"
-    raise ValueError(msg)
-  return float(numpy.sum(logsumexp(_log_joint(matrix, items, grid if grid is not None else default_grid()), axis=1)))
+  grid = grid if grid is not None else default_grid()
+  log_masses = numpy.log(prior_masses(grid, _ABILITY_PRIOR))
+  return float(numpy.sum(logsumexp(log_likelihood(grid.nodes, matrix, items) + log_masses, axis=1)))
 
 
 class MMLCalibrator:
@@ -273,7 +265,7 @@ class MMLCalibrator:
 
   Parameters
   ----------
-  model : catsim.IrtModel or str, optional
+  model : irtlib.IrtModel or str, optional
       ``"2PL"``, the default, estimates a slope per item; ``"1PL"`` one slope shared by every item; ``"3PL"`` also a
       guessing parameter per item, best with a guessing prior; ``"4PL"`` also an upper asymptote per item, best with
       priors on both asymptotes and thousands of examinees.
@@ -286,7 +278,7 @@ class MMLCalibrator:
       Default is 1e-6.
   max_cycles : int, optional
       The most cycles a calibration runs before it stops unconverged. Default is 500.
-  grid : catsim.estimation.QuadratureGrid, optional
+  grid : irtlib.quadrature.QuadratureGrid, optional
       The nodes the abilities are integrated over. Default is 61 equally spaced nodes on [-6, 6].
 
   Raises
@@ -354,7 +346,7 @@ class MMLCalibrator:
     ----------
     responses : numpy.ndarray
         The response matrix: one row per examinee, one column per item, holding 1, 0 or NaN for a missing response.
-    start : catsim.ItemBank, optional
+    start : irtlib.ItemBank, optional
         Items to start from, one per column; the 1PL starts from their mean slope. By default, the slope 0.851 and
         an intercept from each item's proportion correct.
 
@@ -364,16 +356,18 @@ class MMLCalibrator:
         The estimates, their standard errors and the log-likelihood at them. If the stopping rule is not met within
         ``max_cycles``, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if
         the information matrix cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is
-        issued.
+        issued; if an item's estimates are not valid in an item bank, such as a miskeyed item's slope that is not
+        positive, the result's bank leaves the item out and a ``RuntimeWarning`` names it.
 
     Raises
     ------
+    TypeError
+        If the responses are neither Booleans, integers nor floats.
     ValueError
         If the responses fail :py:func:`irtlib.calibration.validate_responses`; an item was answered correctly by
-        every examinee who answered it or by none, which leaves it no finite estimate; an item's slope estimate is
-        not positive, which a catsim item bank cannot hold; the expected information of the parameters is singular;
-        or ``start`` has a different number of items, or leaves an item's guessing parameter at or above its upper
-        asymptote.
+        every examinee who answered it or by none, which leaves it no finite estimate; the expected information of
+        the parameters is singular; or ``start`` has a different number of items, or leaves an item's guessing
+        parameter at or above its upper asymptote.
     """
     matrix = validate_responses(responses)
     proportion = _proportion_correct(matrix)
@@ -397,14 +391,7 @@ class MMLCalibrator:
         ConvergenceWarning,
         stacklevel=2,
       )
-    items = _to_items(values)
-    reversed_items = numpy.flatnonzero(items[:, 0] <= 0)
-    if reversed_items.size:
-      msg = (
-        f"the items in columns {reversed_items.tolist()} have slope estimates that are not positive: the chance of "
-        "a correct answer falls as ability rises, as for a miskeyed item; reverse their scoring or remove them"
-      )
-      raise ValueError(msg)
+    estimates = _to_items(values)
     information = _observed_information(matrix, values, index, self._grid, self._priors)
     standard_errors = _standard_errors(values, index, information)
     if standard_errors is None:
@@ -415,9 +402,10 @@ class MMLCalibrator:
         stacklevel=2,
       )
     return Calibration(
-      items=ItemBank(items),
+      estimates=estimates,
+      items=_valid_items(estimates),
       standard_errors=standard_errors,
-      log_likelihood=float(numpy.sum(logsumexp(_log_joint(matrix, items, self._grid), axis=1))),
+      log_likelihood=marginal_log_likelihood(matrix, estimates, self._grid),
       n_parameters=int(index.max()) + 1,
       item_parameters=numpy.count_nonzero(index >= 0, axis=1),
       cycles=cycles,
@@ -460,7 +448,7 @@ class MMLCalibrator:
         If the start leaves an item's guessing parameter at or above its upper asymptote.
     """
     n_items = proportion.size
-    values = numpy.empty((n_items, _N_PARAMETERS))
+    values = numpy.empty((n_items, _N_COLUMNS))
     if start is None:
       values[:, 0] = _START_SLOPE
       with numpy.errstate(divide="ignore"):
@@ -482,7 +470,7 @@ class MMLCalibrator:
     if self._model is IrtModel.PL4:
       upper = start.upper_asymptote if start is not None else numpy.ones(n_items)
       values[:, 3] = logit(numpy.where(upper < 1, upper, _START_UPPER))
-    index = numpy.full((n_items, _N_PARAMETERS), -1)
+    index = numpy.full((n_items, _N_COLUMNS), -1)
     if self._fixed_slope is not None:
       values[:, 0] = self._fixed_slope
       index[:, 1] = numpy.arange(n_items)
@@ -514,12 +502,6 @@ def _to_items(values: FloatArray) -> FloatArray:
   return numpy.column_stack([slope, -intercept / slope, expit(guessing), expit(upper)])
 
 
-def _posterior(responses: FloatArray, items: FloatArray, grid: QuadratureGrid) -> FloatArray:
-  """Return each examinee's posterior over the nodes, shape (examinees, nodes): L_j(X_q) A_q / P_j."""
-  log_joint = _log_joint(responses, items, grid)
-  return numpy.exp(log_joint - logsumexp(log_joint, axis=1, keepdims=True))
-
-
 def _objective(
   values: FloatArray,
   index: IntArray,
@@ -538,8 +520,8 @@ def _objective(
 def _expected_counts(matrix: FloatArray, values: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
   """Return the E-step's expected numbers of correct responses and of responses, shape (nodes, items)."""
   answered = ~numpy.isnan(matrix)
-  posterior = _posterior(matrix, _to_items(values), grid)
-  return posterior.T @ numpy.where(answered, matrix, 0.0), posterior.T @ answered.astype(float)
+  posteriors = posterior(log_likelihood(grid.nodes, matrix, _to_items(values)), grid, _ABILITY_PRIOR)
+  return posteriors.T @ numpy.where(answered, matrix, 0.0), posteriors.T @ answered.astype(float)
 
 
 def _free_gradient(
@@ -668,7 +650,7 @@ def _standard_errors(values: FloatArray, index: IntArray, information: FloatArra
   variances = numpy.concatenate([slope_variance, difficulty_variance, *asymptote_variances])
   if not numpy.all(numpy.isfinite(variances) & (variances > 0)):
     return None
-  standard_errors = numpy.full((n_items, _N_PARAMETERS), numpy.nan)
+  standard_errors = numpy.full((n_items, _N_COLUMNS), numpy.nan)
   standard_errors[free_slope, 0] = numpy.sqrt(slope_variance)
   standard_errors[:, 1] = numpy.sqrt(difficulty_variance)
   for column, free, variance in zip((_GUESSING, _UPPER), free_asymptotes, asymptote_variances, strict=True):

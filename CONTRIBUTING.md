@@ -15,9 +15,8 @@ uv run pre-commit install
 ```
 
 The first command installs irtlib with its runtime dependencies, declared in `pyproject.toml`, and
-the tools for tests, linting, type checking and coverage. catsim comes from its `dev` branch on
-GitHub, at the commit `uv.lock` pins. pre-commit then runs the repository's formatters and checks on
-every commit.
+the tools for tests, linting, type checking and coverage. pre-commit then runs the repository's
+formatters and checks on every commit.
 
 ## Quality gate
 
@@ -66,6 +65,22 @@ The first run installs catR, at the version `generate.R` pins, from CRAN's sourc
 `~/.cache/irtlib-parity/R-lib`, the library the mirt generator uses; set `IRTLIB_CATR_LIB` to use
 another folder. Both generators write their files through `tests/parity/json.R`, and a rerun with
 the same catR version writes the same bytes.
+
+## Benchmarks against catsim
+
+`benchmarks/catsim_baseline.py` times each function irtlib took from catsim against catsim's
+original, on the shapes catsim calls them with, and checks that the two give the same values within
+a relative 1e-12 (ADR-0004). It runs on demand, not in CI, where timings are noisy:
+
+```bash
+uv run --group benchmarks python benchmarks/catsim_baseline.py
+```
+
+The `benchmarks` dependency group installs catsim from GitHub, at the commit `pyproject.toml` pins.
+The script prints each function's time in both packages and their ratio, flags a ratio above 1.2,
+and exits with status 1 if a function's values disagree. A function more than 1.2 times slower than
+catsim's gets a card in the backlog for a faster version, with the ratio and the shape it was
+measured on.
 
 ## Sources
 

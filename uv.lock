@@ -14,7 +14,7 @@ wheels = [
 [[package]]
 name = "catsim"
 version = "0.21.0"
-source = { git = "https://github.com/douglasrizzo/catsim?branch=dev#97b89f5023871391ba213e3e3c95f4ec8af8f20b" }
+source = { git = "https://github.com/douglasrizzo/catsim?rev=97b89f5023871391ba213e3e3c95f4ec8af8f20b#97b89f5023871391ba213e3e3c95f4ec8af8f20b" }
 dependencies = [
     { name = "numpy" },
     { name = "scipy" },
@@ -387,12 +387,14 @@ name = "irtlib"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "catsim" },
     { name = "numpy" },
     { name = "scipy" },
 ]
 
 [package.dev-dependencies]
+benchmarks = [
+    { name = "catsim" },
+]
 dev = [
     { name = "hypothesis" },
     { name = "import-linter" },
@@ -406,12 +408,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "catsim", git = "https://github.com/douglasrizzo/catsim?branch=dev" },
     { name = "numpy", specifier = ">=2.3.1" },
     { name = "scipy", specifier = ">=1.16" },
 ]
 
 [package.metadata.requires-dev]
+benchmarks = [{ name = "catsim", git = "https://github.com/douglasrizzo/catsim?rev=97b89f5023871391ba213e3e3c95f4ec8af8f20b" }]
 dev = [
     { name = "hypothesis", specifier = ">=6.127.0" },
     { name = "import-linter", specifier = ">=2.17" },

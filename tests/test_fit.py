@@ -10,8 +10,8 @@ import itertools
 
 import numpy as np
 import pytest
-from scipy.special import expit
 
+from irtlib.drawing import draw_responses
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
   _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
@@ -70,10 +70,10 @@ def test_type_one_error_rate() -> None:
   rng = np.random.default_rng(20261127)
   slopes = rng.lognormal(0.0, 0.3, 10)
   difficulties = rng.normal(size=10)
+  items = np.column_stack([slopes, difficulties, np.zeros(10), np.ones(10)])
   p_values = []
   for _ in range(30):
-    theta = rng.normal(size=1000)
-    matrix = (rng.random((1000, 10)) < expit(slopes * (theta[:, np.newaxis] - difficulties))).astype(float)
+    matrix = draw_responses(rng.normal(size=1000), items, rng=rng)
     p_values.append(s_x2(MMLCalibrator().calibrate(matrix), matrix).p_value)
   rejection_rate = np.mean(np.concatenate(p_values) < 0.05)
   assert 0.015 <= rejection_rate <= 0.10, rejection_rate
@@ -90,3 +90,18 @@ def test_incomplete_or_mismatched_responses_are_refused() -> None:
     s_x2(calibration, _LSAT7[:, :4])
   with pytest.raises(ValueError, match="min_expected"):
     s_x2(calibration, _LSAT7, min_expected=-1.0)
+
+
+def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
+  """S-X² evaluates every item at its estimates, the miskeyed one the calibration's bank leaves out included.
+
+  Fails if S-X² reads the bank, which has one item fewer than the responses, rather than the estimates.
+  """
+  rng = np.random.default_rng(3)
+  items = np.array([[1.0, 0.0, 0.0, 1.0], [1.5, 0.5, 0.0, 1.0], [-1.0, 0.0, 0.0, 1.0], [1.2, -0.5, 0.0, 1.0]])
+  matrix = draw_responses(rng.normal(size=2000), items, rng=rng)
+  with pytest.warns(RuntimeWarning, match="miskeyed"):
+    calibration = MMLCalibrator().calibrate(matrix)
+  fit = s_x2(calibration, matrix)
+  assert fit.statistic.shape == (4,)
+  assert np.all(fit.df > 0)

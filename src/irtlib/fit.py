@@ -37,11 +37,11 @@ S-X² "cannot handle incomplete data directly" :cite:p:`Zhang2022` (p. 705), so 
 from dataclasses import dataclass
 
 import numpy
-from catsim.estimation import normal_log_prior
-from catsim.irt import icc
 from scipy.stats import chi2
 
 from .calibration import Calibration, validate_responses
+from .irt import icc
+from .quadrature import normal_log_prior, prior_masses
 from .typing import FloatArray, IntArray
 
 
@@ -67,6 +67,8 @@ class ItemFit:
 def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float = 1.0) -> ItemFit:
   """Return the S-X² item-fit statistic of every item of a calibration, from the responses it was calibrated on.
 
+  Every item is evaluated at its estimates, including the items the calibration's bank leaves out.
+
   Parameters
   ----------
   calibration : Calibration
@@ -85,6 +87,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
 
   Raises
   ------
+  TypeError
+      If the responses are neither Booleans, integers nor floats.
   ValueError
       If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do
       not have one column per item of the calibration, or ``min_expected`` is negative.
@@ -96,13 +100,12 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   if numpy.isnan(matrix).any():
     msg = "S-X² needs complete responses; remove the examinees with missing responses"
     raise ValueError(msg)
-  items = calibration.items.items
+  items = calibration.estimates
   if matrix.shape[1] != items.shape[0]:
     msg = f"the responses have {matrix.shape[1]} items, the calibration {items.shape[0]}"
     raise ValueError(msg)
   grid = calibration.grid
-  masses = grid.weights * numpy.exp(normal_log_prior()(grid.nodes))
-  masses /= masses.sum()
+  masses = prior_masses(grid, normal_log_prior())
   probability = icc(grid.nodes, items).T  # items x nodes
   expected = _expected_proportions(probability, masses)
   scores = matrix.sum(axis=1).astype(int)

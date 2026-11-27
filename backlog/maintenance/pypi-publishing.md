@@ -13,9 +13,8 @@ raised_by: [setup of irtlib]
 ## Problem
 
 irtlib builds and tests its wheel in CI but publishes nothing. A release needs a license and
-documentation to point users to. It also needs no catsim in its metadata, since a wheel cannot name a
-Git branch: that comes with `maintenance/drop-catsim`. catsim's own adoption of irtlib waits for
-this first release (ADR-0004).
+documentation to point users to. catsim's own adoption of irtlib waits for this first release
+(ADR-0004).
 
 ## What irtlib and catsim have now
 

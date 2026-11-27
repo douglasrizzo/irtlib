@@ -1,9 +1,8 @@
 """Tests of the item response functions, the quantities derived from them and their parameter derivatives.
 
 Expected values come from hand-worked cases, closed forms, the published example of Magis (2013, p. 311), the 4PL
-written out in the tests, brute-force sums, searches and integrals over it, central differences of catsim's response
-probabilities and log-probabilities, which share no code with the module, and Baker's (1987, p. 116) identity for the
-2PL.
+written out in the tests, brute-force sums, searches, integrals and central differences over it, and Baker's (1987,
+p. 116) identity for the 2PL.
 """
 
 from __future__ import annotations
@@ -14,7 +13,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from catsim.irt import icc, log_response_probabilities
 from scipy.integrate import quad
 from scipy.optimize import minimize_scalar
 from scipy.special import expit, logit
@@ -57,9 +55,20 @@ def _central_differences(
   return np.stack(columns, axis=-1)
 
 
+def _log_probabilities(theta: FloatArray, items: FloatArray) -> tuple[FloatArray, FloatArray]:
+  """Return log P and log Q of the 4PL written out, every ability against every item.
+
+  Q is written out as (1 - d) + (d - c) / (1 + exp(a (theta - b))), not as 1 - P, whose cancellation the second
+  differences below would magnify.
+  """
+  a, b, c, d = items.T
+  z = a * (theta[:, np.newaxis] - b)
+  return np.log(c + (d - c) / (1 + np.exp(-z))), np.log((1 - d) + (d - c) / (1 + np.exp(z)))
+
+
 def _grouped_log_likelihood(parameters: FloatArray, correct: FloatArray, total: FloatArray) -> FloatArray:
-  """Return each item's grouped log-likelihood at the nodes ``_THETAS``, from catsim's log-probabilities."""
-  log_p, log_q = log_response_probabilities(_THETAS, _to_items(parameters))
+  """Return each item's grouped log-likelihood at the nodes ``_THETAS``, from the 4PL written out."""
+  log_p, log_q = _log_probabilities(_THETAS, _to_items(parameters))
   return np.sum(correct * log_p + (total - correct) * log_q, axis=0)
 
 
@@ -76,9 +85,9 @@ def test_probability_gradient_hand_worked(item: list[float], theta: float, expec
 
 
 def test_probability_gradient_is_the_limit_of_differences() -> None:
-  """Each derivative equals the central difference of catsim's response probability in that parameter."""
+  """Each derivative equals the central difference of the 4PL's probability, written out, in that parameter."""
   parameters = _to_parameters(_INTERIOR)
-  expected = _central_differences(lambda shifted: icc(_THETAS, _to_items(shifted)), parameters, _STEP)
+  expected = _central_differences(lambda shifted: _probability(_THETAS, _to_items(shifted)), parameters, _STEP)
   np.testing.assert_allclose(probability_gradient(_THETAS, _INTERIOR), expected, atol=1e-9)
 
 
@@ -134,12 +143,12 @@ def test_parameter_information_is_the_expected_negative_hessian() -> None:
     """Return the negative Hessian of one response's log-likelihood at every node, shape (nodes, items, 4, 4)."""
 
     def log_likelihood(shifted: FloatArray) -> FloatArray:
-      log_p, log_q = log_response_probabilities(_THETAS, _to_items(shifted))
+      log_p, log_q = _log_probabilities(_THETAS, _to_items(shifted))
       return outcome * log_p + (1 - outcome) * log_q
 
     return -_central_differences(lambda outer: _central_differences(log_likelihood, outer, step), parameters, step)
 
-  p = icc(_THETAS, _INTERIOR)[..., np.newaxis, np.newaxis]
+  p = _probability(_THETAS, _INTERIOR)[..., np.newaxis, np.newaxis]
   expected_per_response = p * negative_hessian(1.0) + (1 - p) * negative_hessian(0.0)
   expected = np.einsum("kn,knpr->npr", total, expected_per_response)
   np.testing.assert_allclose(parameter_information(_THETAS, _INTERIOR, total), expected, rtol=1e-5, atol=1e-6)
@@ -158,9 +167,7 @@ def test_two_parameter_information_is_the_observed_one() -> None:
 
   def log_likelihood(location: FloatArray) -> FloatArray:
     slope, intercept = location.T
-    log_p, log_q = log_response_probabilities(
-      _THETAS, np.column_stack([slope, -intercept / slope, np.zeros(2), np.ones(2)])
-    )
+    log_p, log_q = _log_probabilities(_THETAS, np.column_stack([slope, -intercept / slope, np.zeros(2), np.ones(2)]))
     return np.sum(correct * log_p + (total - correct) * log_q, axis=0)
 
   location = np.column_stack([items[:, 0], -items[:, 0] * items[:, 1]])

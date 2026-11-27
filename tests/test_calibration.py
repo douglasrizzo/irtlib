@@ -1,0 +1,34 @@
+"""Tests of the bank that every calibrator builds from its estimates, beyond those of a calibration.
+
+Expected values are hand-worked: which estimates break which rule of an item bank, and the names of the rest.
+"""
+
+import numpy as np
+import pytest
+
+from irtlib.calibration import _valid_items  # noqa: PLC2701 - no calibrator gives estimates of which none is valid
+
+
+def test_estimates_of_which_none_is_valid_give_no_bank() -> None:
+  """Estimates of which none is valid in a bank give no bank, with a warning naming each item and its rule.
+
+  A bank of no items cannot be built, so a function that tried would raise rather than warn.
+  """
+  estimates = np.array([[-0.8, 0.0, 0.0, 1.0], [1.0, np.nan, 0.0, 1.0]])
+  message = r"NaN or infinite parameters for 1 \('item_1'\); discrimination <= 0 for 0 \('item_0'\); .*miskeyed"
+  with pytest.warns(RuntimeWarning, match=message):
+    assert _valid_items(estimates) is None
+
+
+def test_an_item_left_out_for_its_asymptotes_is_not_called_miskeyed() -> None:
+  """An item whose guessing parameter exceeds its upper asymptote is left out, without being called miskeyed.
+
+  Only a slope that is not positive is what a miskeyed item gives.
+  """
+  estimates = np.array([[1.0, 0.0, 0.3, 0.2], [1.2, 0.5, 0.0, 1.0]])
+  with pytest.warns(RuntimeWarning, match=r"pseudo-guessing >= upper asymptote for 0 \('item_0'\)") as caught:
+    bank = _valid_items(estimates)
+  assert "miskeyed" not in str(caught[0].message)
+  assert bank is not None
+  assert bank.names == ("item_1",)
+  np.testing.assert_array_equal(bank.items, estimates[[1]])

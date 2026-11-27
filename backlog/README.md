@@ -53,7 +53,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | ready | L |  | ADR-0004 as decided on 2026-11-27 |
 | [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
-| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | ready | M |  | ADR-0004 as decided on 2026-11-27 |
 
 ## Priority 3
 
@@ -64,6 +63,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | blocked | M | [ability-estimation](estimation/ability-estimation.md) | moved from catsim's backlog |
+| [Make the log-likelihood and the posterior of one examinee as fast as catsim's](irt/one-examinee-speed.md) | irt | fix | ready | S |  | benchmarks against catsim on 2026-11-27 |
 | [Reject the out-of-range inputs that the code moved from catsim accepts](irt/inherited-input-checks.md) | irt | fix | ready | XS |  | reviews of the moves on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |

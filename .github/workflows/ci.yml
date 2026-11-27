@@ -163,18 +163,20 @@ jobs:
 
       - name: Install the wheel into a clean environment
         run: |
-          # The wheel's metadata names catsim without a version, which would install catsim's last
-          # release rather than the dev commit uv.lock pins (ADR-0004), so the locked runtime
-          # dependencies go in first and the wheel goes in without its own.
+          # The locked runtime dependencies go in first, so the tests run on the releases uv.lock pins;
+          # the wheel then brings what its metadata names, NumPy and SciPy, which are already there. The
+          # export leaves out every dependency group, the benchmarks' catsim among them (ADR-0002).
           uv export --frozen --no-dev --no-emit-project --no-hashes --output-file "$RUNNER_TEMP/runtime.txt"
           uv venv --python 3.12 "$RUNNER_TEMP/wheel-venv"
           uv pip install --python "$RUNNER_TEMP/wheel-venv" -r "$RUNNER_TEMP/runtime.txt" pytest hypothesis
           wheel=(dist/*.whl)
-          uv pip install --python "$RUNNER_TEMP/wheel-venv" --no-deps "${wheel[0]}"
+          uv pip install --python "$RUNNER_TEMP/wheel-venv" "${wheel[0]}"
           # Without the source tree, the only irtlib the tests can import is the installed wheel.
           rm -rf src
 
       - name: Run tests against the installed wheel
         run: |
           "$RUNNER_TEMP/wheel-venv/bin/python" -c "import irtlib; assert 'site-packages' in irtlib.__file__, irtlib.__file__"
+          # irtlib and its tests run without catsim, which this environment does not have (ADR-0002).
+          "$RUNNER_TEMP/wheel-venv/bin/python" -c "import importlib.util; assert importlib.util.find_spec('catsim') is None"
           "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests
