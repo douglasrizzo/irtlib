@@ -4,7 +4,7 @@ kind: maintenance
 status: blocked
 priority: 2
 effort: M
-blocked_by: [irt/quadrature, irt/item-bank]
+blocked_by: [irt/item-bank]
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 

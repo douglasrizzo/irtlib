@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-21 cards: 10 ready, 0 needs-research, 2 needs-decision, 5 blocked, 4 parked.
+21 cards: 10 ready, 1 needs-research, 2 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -51,16 +51,16 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | blocked | L | [quadrature](irt/quadrature.md) | ADR-0004 as decided on 2026-11-27 |
+| [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | ready | L |  | ADR-0004 as decided on 2026-11-27 |
 | [Bring the model names, the item bank and response drawing from catsim into irtlib](irt/item-bank.md) | irt | feature | ready | M |  | ADR-0004 as decided on 2026-11-27 |
-| [Bring the quadrature grid, the ability priors and the posterior from catsim into irtlib](irt/quadrature.md) | irt | feature | ready | S |  | ADR-0004 as decided on 2026-11-27 |
 | [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
-| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [quadrature](irt/quadrature.md), [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
+| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
 
 ## Priority 3
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
@@ -129,6 +129,10 @@ which sources and when it was last checked.
   offset.
 - When the source itself cannot be obtained, the claim waits, or it says whose description it relies
   on: "as described by X (Year, p. N)".
+- A claim, formula or default with no source on the shelf goes into
+  `discovery/sources-wanted.md`, with where it is used and what was searched, and the maintainer is
+  asked for the source. When none can be found, the code may follow a reference implementation,
+  cited at its version and its file and line, and the row stays until a published source is read.
 - A claim about mirt cites the mirt version, and the page of its manual or the function in its
   source.
 - Say where the card departs from its sources.
