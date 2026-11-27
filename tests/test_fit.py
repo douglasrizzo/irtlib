@@ -12,12 +12,12 @@ import numpy as np
 import pytest
 from scipy.special import expit
 
-from pyitemcal.fit import (
+from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
   _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
   s_x2,
 )
-from pyitemcal.mml import MMLCalibrator
+from irtlib.mml import MMLCalibrator
 from tests.mirt_fixtures import load, responses
 
 _LSAT7 = responses(load("mml_em")["data"]["lsat7"])

@@ -86,7 +86,7 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Raises
   ------
   ValueError
-      If the responses fail :py:func:`pyitemcal.calibration.validate_responses`, have a missing response, or do
+      If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do
       not have one column per item of the calibration, or ``min_expected`` is negative.
   """
   if not min_expected >= 0:

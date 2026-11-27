@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help improve pyitemcal!
+about: Create a report to help improve irtlib!
 title: ''
 labels: ''
 assignees: ''
@@ -22,7 +22,7 @@ If applicable, add screenshots to help explain your problem.
 **Software versions:**
 
 - Python: [e.g. 3.13.1, from `python --version`]
-- pyitemcal: [e.g. 0.1.0, from `pip show pyitemcal`]
+- irtlib: [e.g. 0.1.0, from `pip show irtlib`]
 - catsim: [from `pip show catsim`]
 
 **Additional context**

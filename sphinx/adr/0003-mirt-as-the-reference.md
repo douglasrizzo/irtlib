@@ -1,4 +1,4 @@
-# ADR-0003: Parity Tests Check pyitemcal Against mirt
+# ADR-0003: Parity Tests Check irtlib Against mirt
 
 ## Status
 
@@ -19,19 +19,19 @@ packages share.
 
 ## Decision
 
-- mirt is pyitemcal's reference implementation: every method mirt implements is checked against it
+- mirt is irtlib's reference implementation: every method mirt implements is checked against it
   by parity tests in three parts:
   - R scripts in `tests/parity/mirt/` run a pinned mirt version on fixed response matrices and write
     the matrices, the settings and mirt's outputs, with the R and mirt versions, to JSON files in the
     repository;
-  - a pytest module compares pyitemcal's outputs with those files in every test run, with no R
+  - a pytest module compares irtlib's outputs with those files in every test run, with no R
     installed;
   - one documented command regenerates the files, when the cases change or the pinned mirt version
     moves. It needs R and mirt.
 - Every method also has parameter-recovery tests: responses drawn from known parameters, with a
   fixed seed, and the estimates compared with the generating values within a tolerance that the
   sample size justifies.
-- pyitemcal keeps its own defaults. Every departure from mirt either has a setting that reproduces
+- irtlib keeps its own defaults. Every departure from mirt either has a setting that reproduces
   mirt, which the parity tests use, or is stated where the method is documented, with its reason,
   and kept in the parity tests as a strict expected failure with that reason, so a departure that
   closes fails the run until it is removed from the list.
@@ -43,7 +43,7 @@ packages share.
 
 ## Consequences
 
-- A claim that pyitemcal agrees with mirt is backed by a test, and a change that breaks agreement
+- A claim that irtlib agrees with mirt is backed by a test, and a change that breaks agreement
   fails it.
 - A new method that mirt implements comes with its parity cases and its recovery tests; one that mirt
   lacks comes with recovery tests and the published values its sources give.

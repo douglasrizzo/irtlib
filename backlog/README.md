@@ -1,6 +1,6 @@
 # Backlog
 
-Every piece of planned work on pyitemcal is a card in this folder:
+Every piece of planned work on irtlib is a card in this folder:
 
 - estimation methods, each with its full design;
 - features, fixes and maintenance;
@@ -44,28 +44,28 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Priority |
 |---|---|---|
-| [Choose pyitemcal's license](maintenance/license.md) | maintenance | 2 |
-| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | 3 |
+| [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
+| [Should the shared item response kernel move from catsim into irtlib?](discovery/invert-catsim-dependency.md) | discovery | 3 |
 
 ## Priority 2
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Choose pyitemcal's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
+| [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
 | [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
 
 ## Priority 3
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | needs-decision | M |  | maintainer during setup |
+| [Should the shared item response kernel move from catsim into irtlib?](discovery/invert-catsim-dependency.md) | discovery | decision | needs-decision | M |  | maintainer during setup |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
-| [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
-| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
-| [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
+| [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
+| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
+| [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
 
 ## Priority 4
 
@@ -73,8 +73,8 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
-| [Make pyitemcal citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of pyitemcal |
-| [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of pyitemcal |
+| [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
+| [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 
 ## Parked: outside the scope an ADR sets
 
@@ -93,7 +93,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 ## Technique cards
 
-A technique card carries the full design of a method pyitemcal does not implement yet, in the
+A technique card carries the full design of a method irtlib does not implement yet, in the
 sections of [`_template.md`](_template.md). The cards are MyST Markdown, ready for the documentation
 site; GitHub does not render MyST roles and directives. mdformat is kept off this folder
 (`.pre-commit-config.yaml`), because it rewrites that syntax and breaks the `$$` math.
@@ -104,7 +104,7 @@ which sources and when it was last checked.
 ### Workflow
 
 1. **Research** (`needs-research`): verify the card's claims against the primary sources (and mirt's
-   documentation or source, when the card cites mirt), check what pyitemcal and catsim already have,
+   documentation or source, when the card cites mirt), check what irtlib and catsim already have,
    and write the technique sections from the template, following the citation convention below.
 2. **Revalidate** the card with the checklist below before it is implemented.
 3. **Implement** the method once its open questions are answered, with tests for its guarantees and

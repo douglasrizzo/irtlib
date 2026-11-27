@@ -12,9 +12,9 @@ import numpy as np
 import pytest
 from catsim import ItemBank
 
-from pyitemcal.calibration import Calibration, default_grid
-from pyitemcal.comparison import aic, bic, g2, likelihood_ratio
-from pyitemcal.mml import MMLCalibrator
+from irtlib.calibration import Calibration, default_grid
+from irtlib.comparison import aic, bic, g2, likelihood_ratio
+from irtlib.mml import MMLCalibrator
 from tests.mirt_fixtures import load, responses
 
 _COMPARISON = load("comparison")

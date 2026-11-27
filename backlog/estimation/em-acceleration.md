@@ -12,10 +12,10 @@ raised_by: [ADR-0007]
 
 ## Problem
 
-`pyitemcal.mml` runs plain EM, which converges linearly and slowly near the solution (Dempster, Laird
+`irtlib.mml` runs plain EM, which converges linearly and slowly near the solution (Dempster, Laird
 & Rubin, 1977, p. 10; Bock & Aitkin, 1981, p. 447). ADR-0007 leaves acceleration out of the first
 version, since the 2PL fits took under 0.1 seconds, and has it measured again on the 3PL and 4PL,
-whose fits took hundreds to thousands of cycles in mirt, and 936 in `pyitemcal.mml` for a 4PL of 5,000
+whose fits took hundreds to thousands of cycles in mirt, and 936 in `irtlib.mml` for a 4PL of 5,000
 examinees with priors (2026-11-27).
 
 ## Evidence
@@ -59,9 +59,9 @@ examinees with priors (2026-11-27).
   100 to 96 at `1e-6`; with `control = list(reltol = 1e-14)` the counts became 46 to 16 and 77 to 31,
   close to the scratch EM's.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
-`pyitemcal.mml.MMLCalibrator` runs plain EM, with no acceleration (ADR-0007). catsim has no EM.
+`irtlib.mml.MMLCalibrator` runs plain EM, with no acceleration (ADR-0007). catsim has no EM.
 
 ## Proposal
 

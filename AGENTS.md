@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repository guidance for coding agents working in `pyitemcal`.
+Repository guidance for coding agents working in `irtlib`.
 
 ## Scope
 
@@ -8,7 +8,7 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 
 ## Project Summary
 
-`pyitemcal` calibrates items: it estimates the parameters of the unidimensional dichotomous 1PL to
+`irtlib` calibrates items: it estimates the parameters of the unidimensional dichotomous 1PL to
 4PL models, with their standard errors, from a response matrix with missing entries, and evaluates
 item fit (ADR-0001). Its estimates use catsim's parameterization and bank format, and it builds on
 catsim's public item response functions (ADR-0004).
@@ -16,13 +16,13 @@ catsim's public item response functions (ADR-0004).
 The project is in its design phase: its methods are reviewed from their primary sources
 (`backlog/discovery/literature-review.md`), the calibrator contract and settings are decided
 (ADR-0006 to ADR-0008), and the mirt parity harness is in place (`tests/parity/mirt/`). The first
-method, MML-EM for the 1PL to 4PL with priors and standard errors (`pyitemcal.mml`), S-X² item fit
-(`pyitemcal.fit`) and model comparison (`pyitemcal.comparison`) are implemented; the order of work is
+method, MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), S-X² item fit
+(`irtlib.fit`) and model comparison (`irtlib.comparison`) are implemented; the order of work is
 the rest of the review's build order.
 
 ## Repository Layout
 
-- `src/pyitemcal/`: package source code
+- `src/irtlib/`: package source code
 - `tests/`: automated test suite
 - `backlog/`: every piece of planned work, as cards with frontmatter, and the citation rules
 - `sphinx/adr/`: Architecture Decision Records
@@ -35,20 +35,20 @@ the rest of the review's build order.
   `backlog/scope/` until the ADR changes.
 - Runtime dependencies are NumPy, SciPy and catsim only (ADR-0002); a new one needs an ADR.
 - Use catsim only through the names ADR-0004 lists, each imported from its public path. Using
-  another catsim name changes ADR-0004 first. pyitemcal follows catsim's changes; catsim knows
-  nothing of pyitemcal, so never propose a catsim change for pyitemcal's sake without the
+  another catsim name changes ADR-0004 first. irtlib follows catsim's changes; catsim knows
+  nothing of irtlib, so never propose a catsim change for irtlib's sake without the
   maintainer.
 - Every method that mirt implements is checked against mirt by parity tests with recorded fixtures,
   and every method has parameter-recovery tests (ADR-0003).
 - Every random draw comes from an `rng: int | numpy.random.Generator | None` argument, passed through
   `numpy.random.default_rng`, where None draws fresh entropy (ADR-0005). No global NumPy random
   state, no stdlib `random`.
-- Performance is not a requirement. When a change makes pyitemcal slower, say so to the maintainer
+- Performance is not a requirement. When a change makes irtlib slower, say so to the maintainer
   when it happens, with measurements.
 
 ## Choosing Techniques
 
-The maintainer's guidance for choosing which techniques, papers and equations pyitemcal implements:
+The maintainer's guidance for choosing which techniques, papers and equations irtlib implements:
 
 - Compare what the papers teach with what the R packages implement, mirt first; depart from them only
   where the alternative has a measured upside, and record the measurement where the choice is made.
@@ -93,7 +93,7 @@ The maintainer's guidance for choosing which techniques, papers and equations py
 Before writing or reviewing documentation of any kind, read `sphinx/AGENTS.md`, the documentation
 charter. Each kind of document has one job and audience:
 
-- `README.md`: what pyitemcal is, its status, install from source; newcomers on GitHub.
+- `README.md`: what irtlib is, its status, install from source; newcomers on GitHub.
 - Docstrings: the call contract; anyone calling the object.
 - ADRs (`sphinx/adr/`): why the architecture is shaped this way; contributors.
 - `backlog/`: every piece of planned work, as cards with frontmatter, whose index the README
@@ -115,9 +115,9 @@ Hard rules:
 - Pre-commit runs ruff, ty, pylint, vulture, typos and the backlog index; run them all with
   `uv run pre-commit run --all-files`.
 - Preferred validation commands:
-  - `uv run pytest -q` (also runs the docstring examples in `src/pyitemcal`; warnings are errors)
+  - `uv run pytest -q` (also runs the docstring examples in `src/irtlib`; warnings are errors)
   - `uv run ruff check .`
-  - `uv run pylint src/pyitemcal`
+  - `uv run pylint src/irtlib`
   - `uv run ty check`
 - Every test has a docstring naming what it tests for: the behaviour, or the bug that would make it
   fail. Test docstrings have no argument sections.
@@ -125,7 +125,7 @@ Hard rules:
   output or a brute-force reference, never from the code under test.
 - ty checks `tests/` too. A test double subclasses the base class it stands in for; a line that
   passes a deliberately wrong type carries `# ty: ignore[<rule>]`.
-- CI's test job measures coverage of `pyitemcal` and fails below `fail_under` in `pyproject.toml`.
+- CI's test job measures coverage of `irtlib` and fails below `fail_under` in `pyproject.toml`.
 - Parity tests with mirt (ADR-0003) read the JSON fixtures in `tests/parity/mirt/`, which
   `tests/parity/mirt/generate.R` writes; a fixture is never edited by hand. A case script per
   method family sits beside `generate.R`, and `CONTRIBUTING.md` says how to regenerate them.

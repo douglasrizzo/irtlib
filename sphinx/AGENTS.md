@@ -1,10 +1,10 @@
 # Documentation charter
 
-These rules govern every document in pyitemcal: `README.md`, the docstrings, the ADRs under
+These rules govern every document in irtlib: `README.md`, the docstrings, the ADRs under
 `sphinx/adr/`, `backlog/`, `CONTRIBUTING.md` and the GitHub release notes. They are instructions
 for coding agents and contributors. Read them before writing or reviewing documentation of any kind.
 
-pyitemcal has no documentation website yet (`backlog/maintenance/docs-site.md`). The folder
+irtlib has no documentation website yet (`backlog/maintenance/docs-site.md`). The folder
 `sphinx/` holds the ADRs and `references.bib` so that the site, when it comes, builds around them
 without moving anything. The kinds of documents the site will add (concept pages, guides, method
 pages, notebooks) get their rules here in the pull request that adds the first of them, adapted from
@@ -16,7 +16,7 @@ In order of priority (ADR-0001):
 
 1. **Researchers** who calibrate item banks or compare calibration methods.
 2. **Method authors** who add an estimation method.
-3. **Contributors** changing pyitemcal itself.
+3. **Contributors** changing irtlib itself.
 
 Each kind of document below names its audience. Write for that reader only. Researchers know IRT
 and may not know software design.
@@ -30,7 +30,7 @@ and may not know software design.
   version, "new" for something just added, card IDs, or PR and issue numbers. The exceptions are the
   Context section of an ADR and backlog cards.
 - Put plain language first. Use a symbol only after the text has introduced it in words.
-- In code, import each object from its shortest public path, in pyitemcal and in catsim.
+- In code, import each object from its shortest public path, in irtlib and in catsim.
 
 ### Sources
 
@@ -40,11 +40,11 @@ every document, not only to cards. Never cite a source or a location from memory
 
 ### mirt and other packages
 
-pyitemcal's methods rest on their published sources, not on another package. mirt, the reference
-implementation the parity tests compare pyitemcal with (ADR-0003), appears where a method's
+irtlib's methods rest on their published sources, not on another package. mirt, the reference
+implementation the parity tests compare irtlib with (ADR-0003), appears where a method's
 documentation states its agreement and its departures, in the mirt ADR and in the parity section of
 `CONTRIBUTING.md`. An ADR may name another package where its practice was one of the forces behind
-the decision. No document says what another package lacks, or presents a pyitemcal choice as an
+the decision. No document says what another package lacks, or presents an irtlib choice as an
 improvement on another package's.
 
 ### History
@@ -56,8 +56,8 @@ The GitHub release notes are the only place for "what changed". There is no CHAN
 - A method's formulas live with the method: on its backlog card until it is implemented, then on its
   documentation page. Its docstring says in one sentence what the method computes, in words, and
   gives the call contract.
-- The item response functions pyitemcal takes from catsim (ADR-0004) keep their formulas in
-  catsim's docstrings; pyitemcal's documents link them and do not re-derive them.
+- The item response functions irtlib takes from catsim (ADR-0004) keep their formulas in
+  catsim's docstrings; irtlib's documents link them and do not re-derive them.
 
 ### One home per topic
 
@@ -65,7 +65,7 @@ Each topic has one home. Other documents say what they need in a sentence and li
 
 | Topic | Home |
 |---|---|
-| What pyitemcal is; install | README |
+| What irtlib is; install | README |
 | Why the architecture is shaped this way | the ADR |
 | Planned work, and the research behind it | its card in `backlog/` |
 | How to cite sources; how a card is revalidated | `backlog/README.md` |
@@ -76,7 +76,7 @@ Each topic has one home. Other documents say what they need in a sentence and li
 
 ### README
 
-- **Job:** tell a visitor on GitHub what pyitemcal is and where it stands: what it is (two
+- **Job:** tell a visitor on GitHub what irtlib is and where it stands: what it is (two
   sentences), its status, how to install it from source, where the plans and decisions are.
 - **Audience and level:** every newcomer; introductory.
 - **Not here:** developer setup (`CONTRIBUTING.md`), design notes (ADRs), method descriptions
@@ -132,7 +132,7 @@ Each topic has one home. Other documents say what they need in a sentence and li
 
 ## Terms and notation
 
-Until pyitemcal has a terms page of its own (`backlog/maintenance/docs-site.md`), use the terms and
+Until irtlib has a terms page of its own (`backlog/maintenance/docs-site.md`), use the terms and
 symbols of catsim's
 [terms and notation](https://github.com/douglasrizzo/catsim/blob/dev/sphinx/terms-and-notation.md),
 and these for calibration:

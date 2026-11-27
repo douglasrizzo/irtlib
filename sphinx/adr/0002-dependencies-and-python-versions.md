@@ -26,21 +26,21 @@ development lock file:
 
 ## Decision
 
-- pyitemcal's runtime dependencies are NumPy, SciPy and catsim.
+- irtlib's runtime dependencies are NumPy, SciPy and catsim.
 - It supports Python 3.12 and later. Its development lock and local tools use 3.13, as catsim's do.
 - A new runtime dependency needs an ADR of its own.
 
 ## Consequences
 
-- An environment that installs pyitemcal gets nothing beyond what catsim already brings.
+- An environment that installs irtlib gets nothing beyond what catsim already brings.
 - Every supported Python resolves to the same NumPy and SciPy releases, so a failure on one Python
   is never a different library in disguise; the declared floors are tested in CI entries of their
   own.
 - The code uses the Python 3.12 type-parameter syntax, and imports `override` from `typing`, with no
   compatibility module.
-- A catsim user on Python 3.11 cannot install pyitemcal.
+- A catsim user on Python 3.11 cannot install irtlib.
 - Data-frame libraries, plotting libraries and file formats other than catsim's CSV stay out of
-  pyitemcal; its results are NumPy arrays that those libraries read.
+  irtlib; its results are NumPy arrays that those libraries read.
 
 ## Alternatives Considered
 

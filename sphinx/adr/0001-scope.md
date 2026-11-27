@@ -1,4 +1,4 @@
-# ADR-0001: pyitemcal Calibrates Unidimensional Dichotomous Items
+# ADR-0001: irtlib Calibrates Unidimensional Dichotomous Items
 
 ## Status
 
@@ -18,7 +18,7 @@ while a CAT administers them. Each is a body of methods of its own.
 
 ## Decision
 
-- pyitemcal estimates the item parameters of the unidimensional dichotomous logistic models, 1PL to
+- irtlib estimates the item parameters of the unidimensional dichotomous logistic models, 1PL to
   4PL, from a matrix of responses that may have missing entries, with the standard errors of the
   estimates.
 - It evaluates the fit of a calibrated model to the responses, item by item.

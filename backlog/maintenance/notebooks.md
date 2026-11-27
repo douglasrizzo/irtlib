@@ -5,7 +5,7 @@ status: ready
 priority: 3
 effort: M
 blocked_by: []
-raised_by: [setup of pyitemcal]
+raised_by: [setup of irtlib]
 ---
 
 # Write the tutorial notebooks

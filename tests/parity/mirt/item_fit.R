@@ -1,4 +1,4 @@
-# S-X2 item fit (Orlando & Thissen, 2000) of 1PL and 2PL calibrations (pyitemcal.fit), with mirt's
+# S-X2 item fit (Orlando & Thissen, 2000) of 1PL and 2PL calibrations (irtlib.fit), with mirt's
 # default collapsing (mincell = 1) on its default grid, 61 points on [-6, 6].
 #
 # Each case records mirt's estimates, so the Python test computes S-X2 at the same parameters, and

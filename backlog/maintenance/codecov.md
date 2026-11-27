@@ -5,7 +5,7 @@ status: ready
 priority: 4
 effort: XS
 blocked_by: []
-raised_by: [setup of pyitemcal]
+raised_by: [setup of irtlib]
 ---
 
 # Report coverage to Codecov

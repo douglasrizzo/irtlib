@@ -1,4 +1,4 @@
-"""Parity tests with mirt, pyitemcal's reference implementation (ADR-0003).
+"""Parity tests with mirt, irtlib's reference implementation (ADR-0003).
 
 The expected values are mirt's outputs on fixed cases, which ``tests/parity/mirt/generate.R`` wrote, with the R and
 mirt versions, into the JSON files beside it; CONTRIBUTING.md says how to regenerate them. The tests need no R.
@@ -25,13 +25,13 @@ import pytest
 from catsim import ItemBank
 from scipy.special import expit, logsumexp
 
-from pyitemcal.calibration import Calibration, default_grid
-from pyitemcal.comparison import aic, bic, g2, likelihood_ratio
-from pyitemcal.fit import (
+from irtlib.calibration import Calibration, default_grid
+from irtlib.comparison import aic, bic, g2, likelihood_ratio
+from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
   s_x2,
 )
-from pyitemcal.mml import (
+from irtlib.mml import (
   MMLCalibrator,
   Priors,
   _prior_terms,  # noqa: PLC2701
@@ -113,7 +113,7 @@ def test_estimate_log_likelihood(case: dict[str, Any]) -> None:
 
 @pytest.mark.parametrize("name", sorted(_MML_EM["data"]))
 def test_mml_fixed_parameter_log_likelihood(name: str) -> None:
-  """pyitemcal's marginal log-likelihood at fixed 2PL parameters equals mirt's, with and without missing responses.
+  """irtlib's marginal log-likelihood at fixed 2PL parameters equals mirt's, with and without missing responses.
 
   Fails if the E-step's grid masses or its treatment of missing responses differ from mirt's.
   """
@@ -216,12 +216,12 @@ _PRIOR_ARGUMENTS = {"a1": ("slope", 0), "d": ("intercept", 1), "g": ("guessing",
 
 _STOPS_SHORT = (
   "mirt 1.48 reports convergence with these priors where the gradient of the marginal log-posterior is still 6.6e-5 to "
-  "7.4e-4 in size; pyitemcal's estimates bring it below 1e-6, at a higher log-posterior, and differ from mirt's by up "
+  "7.4e-4 in size; irtlib's estimates bring it below 1e-6, at a higher log-posterior, and differ from mirt's by up "
   "to 1.7e-4, and by 1.6e-2 on the 4PL, whose likelihood is nearly flat along a ridge (measured 2026-11-27)"
 )
 _LOGNORMAL_HESSIAN = (
   "mirt 1.48's Hessian of the lognormal prior has the opposite sign on its last term (source R/utils.R:1430), which "
-  "its Oakes standard errors take in; pyitemcal differentiates the lognormal log-density itself"
+  "its Oakes standard errors take in; irtlib differentiates the lognormal log-density itself"
 )
 
 

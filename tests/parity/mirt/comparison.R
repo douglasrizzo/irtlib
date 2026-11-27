@@ -1,4 +1,4 @@
-# Model comparison of MML-EM calibrations (pyitemcal.comparison): the log-likelihood, AIC, BIC and G2
+# Model comparison of MML-EM calibrations (irtlib.comparison): the log-likelihood, AIC, BIC and G2
 # against the general multinomial of the 1PL (slopes constrained equal) and 2PL on LSAT6 and LSAT7,
 # and the likelihood-ratio test of the 1PL against the 2PL from anova(). The fits use the settings of
 # mml_em.R.

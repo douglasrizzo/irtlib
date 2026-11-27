@@ -27,7 +27,7 @@ raised_by: []
 
 \<Measurements, the walkthrough or PR that found it, a failing case. Numbers, not impressions.>
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 \<Checked against the code, with file and function names.>
 
@@ -56,7 +56,7 @@ form, a published value or a brute-force reference, never from the code under te
 % has the workflow, the citation convention and the revalidation checklist.
 % -----------------------------------------------------------------------------------------------------
 
-**Module:** `pyitemcal.<module>.<Name>` (planned)
+**Module:** `irtlib.<module>.<Name>` (planned)
 **Reference:** Author (Year)
 **Last validated:** YYYY-MM-DD, against \<the sources on the shelf and the mirt version checked>.
 **Implementation guidance:** written against ADR-0006 to ADR-0008 on YYYY-MM-DD.
@@ -107,7 +107,7 @@ sources.>
 and how it compares with its alternatives, with sources.>
 
 \<Where mirt implements the method, a last paragraph on which mirt function and settings match, with
-the mirt version, and where pyitemcal departs (ADR-0003). Leave it out when mirt has no counterpart.>
+the mirt version, and where irtlib departs (ADR-0003). Leave it out when mirt has no counterpart.>
 
 ## Guarantees
 
@@ -131,7 +131,7 @@ into sphinx/references.bib.>
 
 ## Implementation Guidance
 
-**Proposed location:** `src/pyitemcal/<module>.py`
+**Proposed location:** `src/irtlib/<module>.py`
 
 **Mock implementation:**
 

@@ -15,7 +15,7 @@ raised_by: [moved from catsim's backlog]
 Joint maximum likelihood (JML) estimates every examinee's ability alongside the item parameters. It
 is the method of LOGIST and of the Rasch programs BICAL and UCON (Baker, 1987, pp. 112, 115, 118), so
 researchers comparing calibration methods, the first audience ADR-0001 names, need it as a
-reference point. Its estimates are not consistent when the test length is fixed, so pyitemcal offers
+reference point. Its estimates are not consistent when the test length is fixed, so irtlib offers
 it for comparison and preliminary estimates, not as a default.
 
 ## Evidence
@@ -34,11 +34,11 @@ The research pass (2026-11-27) checked the card carried over from catsim:
 - "discrimination $a$ is overestimated" rests only on secondary reports (Baker, 1987, p. 118) and is
   dropped.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 - catsim: ability estimators for one examinee at a time.
-- pyitemcal: nothing; ADR-0004 assigns pyitemcal ability estimation for many examinees at once, and
-  the item step's derivatives are `pyitemcal.irt`'s.
+- irtlib: nothing; ADR-0004 assigns irtlib ability estimation for many examinees at once, and
+  the item step's derivatives are `irtlib.irt`'s.
 
 ## Proposal
 
@@ -91,7 +91,7 @@ length (Bock & Aitkin, 1981, p. 443; Baker, 1987, p. 117).
 
 The likelihood of the item responses is maximized jointly over the abilities and the item parameters.
 Each cycle estimates every examinee's ability with the items fixed, then every item's parameters
-with the abilities fixed; the item step is the grouped likelihood of `pyitemcal.irt` with the
+with the abilities fixed; the item step is the grouped likelihood of `irtlib.irt` with the
 estimated abilities as the groups (Baker, 1987, pp. 112-114). The scale is identified by fixing the
 abilities' mean and standard deviation, or for the Rasch model the mean difficulty (pp. 112, 115).
 Examinees with every item right or wrong have no finite estimate and are removed, as are items
@@ -170,5 +170,5 @@ https://hdl.handle.net/11299/98553
 ## Implementation Guidance
 
 Follows ADR-0006 to ADR-0008; items with no finite estimate are removed and reported (ADR-0008).
-The item step shares the M-step's Fisher scoring (`pyitemcal.mml`), with estimated abilities in place
+The item step shares the M-step's Fisher scoring (`irtlib.mml`), with estimated abilities in place
 of quadrature nodes.

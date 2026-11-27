@@ -27,7 +27,7 @@ keywords = [
     "parameter estimation",
     "psychometrics",
 ]
-name = "pyitemcal"
+name = "irtlib"
 version = "0.1.0"
 description = "Item parameter calibration for item response theory"
 # The runtime dependencies and the Python versions are set by ADR-0002. The floors are catsim's, which
@@ -35,7 +35,7 @@ description = "Item parameter calibration for item response theory"
 dependencies = [
     "numpy>=2.3.1",
     "scipy>=1.16",
-    # No version: the API pyitemcal uses is on catsim's dev branch only, which [tool.uv.sources] names
+    # No version: the API irtlib uses is on catsim's dev branch only, which [tool.uv.sources] names
     # (ADR-0004). backlog/maintenance/released-catsim.md pins a released range.
     "catsim",
 ]
@@ -43,8 +43,8 @@ requires-python = ">=3.12"
 readme = "README.md"
 
 [project.urls]
-Source = "https://github.com/douglasrizzo/pyitemcal"
-Issues = "https://github.com/douglasrizzo/pyitemcal/issues"
+Source = "https://github.com/douglasrizzo/irtlib"
+Issues = "https://github.com/douglasrizzo/irtlib/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -197,16 +197,16 @@ dev = [
 
 [tool.pytest.ini_options]
 # The suite and the package's docstring examples.
-testpaths = ["tests", "src/pyitemcal"]
-# importlib: the tests and the docstring examples both import the pyitemcal that is installed, so a
-# run from an unpacked sdist does not import src/pyitemcal a second time beside it.
+testpaths = ["tests", "src/irtlib"]
+# importlib: the tests and the docstring examples both import the irtlib that is installed, so a
+# run from an unpacked sdist does not import src/irtlib a second time beside it.
 addopts = "--strict-markers --strict-config --doctest-modules --import-mode=importlib"
 xfail_strict = true
 filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
-source = ["pyitemcal"]
+source = ["irtlib"]
 
 [tool.coverage.report]
 # Input-validation raises stay measured, so an untested check shows up as missed.
@@ -216,13 +216,13 @@ fail_under = 90
 show_missing = true
 
 [tool.importlinter]
-root_package = "pyitemcal"
+root_package = "irtlib"
 
 [[tool.importlinter.contracts]]
 id = "layers"
-name = "pyitemcal layers (ADR-0006)"
+name = "irtlib layers (ADR-0006)"
 type = "layers"
-containers = ["pyitemcal"]
+containers = ["irtlib"]
 exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
   "comparison",
@@ -232,7 +232,7 @@ layers = [
 
 [tool.vulture]
 # src and tests together: on its own, src's public API reads as unused.
-paths = ["src/pyitemcal", "tests"]
+paths = ["src/irtlib", "tests"]
 min_confidence = 60
 
 [tool.typos.default.extend-words]
@@ -242,7 +242,7 @@ LSAT = "LSAT"  # Law School Admission Test, the data of Bock & Aitkin (1981) and
 LOGIST = "LOGIST"  # ETS's joint maximum likelihood program (Mislevy & Stocking, 1989)
 
 [tool.ty.src]
-include = ["src/pyitemcal", "tests", "backlog"]
+include = ["src/irtlib", "tests", "backlog"]
 
 [tool.ty.rules]
 # ty's default rules, plus the ones below. Left off: unsound-return and unsound-assignment (NumPy and

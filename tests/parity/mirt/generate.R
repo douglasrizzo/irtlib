@@ -1,11 +1,11 @@
-# Writes the mirt outputs that tests/test_parity_mirt.py compares pyitemcal with (ADR-0003).
+# Writes the mirt outputs that tests/test_parity_mirt.py compares irtlib with (ADR-0003).
 #
 # Run from anywhere, with R installed:
 #
 #   Rscript tests/parity/mirt/generate.R
 #
-# mirt is loaded from the library named by the PYITEMCAL_MIRT_LIB environment variable, by default
-# ~/.cache/pyitemcal-parity/R-lib, outside the repository and the user's R library. When the pinned
+# mirt is loaded from the library named by the IRTLIB_MIRT_LIB environment variable, by default
+# ~/.cache/irtlib-parity/R-lib, outside the repository and the user's R library. When the pinned
 # mirt version is missing there, the script installs mirt from CRAN with its dependencies, then the
 # pinned version from CRAN's source archive over it.
 #
@@ -49,7 +49,7 @@ install_mirt <- function(lib) {
   stop("could not install mirt ", MIRT_VERSION, " into ", lib)
 }
 
-lib <- Sys.getenv("PYITEMCAL_MIRT_LIB", file.path(path.expand("~"), ".cache", "pyitemcal-parity", "R-lib"))
+lib <- Sys.getenv("IRTLIB_MIRT_LIB", file.path(path.expand("~"), ".cache", "irtlib-parity", "R-lib"))
 if (!has_pinned(lib)) {
   install_mirt(lib)
 }

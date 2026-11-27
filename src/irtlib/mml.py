@@ -17,7 +17,7 @@ Each cycle has two steps (:cite:t:`Baker1987`, p. 132, Equations 42-46; :cite:t:
   :math:`\bar N_{iq} = \sum_j L_j(X_q) A_q / \tilde P_j` over the examinees who answered it, and the expected number
   answering it correctly, :math:`\bar r_{iq}`, the same sum weighted by :math:`u_{ij}`;
 - the M-step maximizes :math:`\sum_q [\bar r_{iq} \log P_i(X_q) + (\bar N_{iq} - \bar r_{iq}) \log Q_i(X_q)]` in the
-  item parameters, the grouped log-likelihood of :py:mod:`pyitemcal.irt`.
+  item parameters, the grouped log-likelihood of :py:mod:`irtlib.irt`.
 
 The prior masses enter only through the expected counts. With missing responses the sums run over the examinees
 who answered each item, so the expected sample size :math:`\bar N_{iq}` is per item; the sources define it over
@@ -247,7 +247,7 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
   Raises
   ------
   ValueError
-      If the responses fail :py:func:`pyitemcal.calibration.validate_responses`, or ``items`` does not have one row
+      If the responses fail :py:func:`irtlib.calibration.validate_responses`, or ``items`` does not have one row
       per item.
 
   Examples
@@ -362,14 +362,14 @@ class MMLCalibrator:
     -------
     Calibration
         The estimates, their standard errors and the log-likelihood at them. If the stopping rule is not met within
-        ``max_cycles``, the result says so and a :py:class:`~pyitemcal.calibration.ConvergenceWarning` is issued; if
+        ``max_cycles``, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if
         the information matrix cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is
         issued.
 
     Raises
     ------
     ValueError
-        If the responses fail :py:func:`pyitemcal.calibration.validate_responses`; an item was answered correctly by
+        If the responses fail :py:func:`irtlib.calibration.validate_responses`; an item was answered correctly by
         every examinee who answered it or by none, which leaves it no finite estimate; an item's slope estimate is
         not positive, which a catsim item bank cannot hold; the expected information of the parameters is singular;
         or ``start`` has a different number of items, or leaves an item's guessing parameter at or above its upper

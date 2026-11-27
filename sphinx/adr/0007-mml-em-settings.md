@@ -6,7 +6,7 @@ Accepted 2026-11-27
 
 ## Context
 
-MML-EM is pyitemcal's first method; the 3PL, 4PL and standard errors build on it. Its settings
+MML-EM is irtlib's first method; the 3PL, 4PL and standard errors build on it. Its settings
 decide how close a result is to the maximum and whether parity tests can reproduce mirt (ADR-0003);
 the guidance for choosing techniques (`AGENTS.md`) departs from mirt only for a measured upside.
 

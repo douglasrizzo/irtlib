@@ -12,9 +12,9 @@ raised_by: [moved from catsim's backlog]
 
 ## Problem
 
-`pyitemcal.fit` computes S-X², the item-fit statistic for every model. Rasch practitioners also
+`irtlib.fit` computes S-X², the item-fit statistic for every model. Rasch practitioners also
 expect the weighted and unweighted mean squares of Wright and Masters (1982), which compare each
-response with its expectation under estimated abilities. pyitemcal has neither them nor the
+response with its expectation under estimated abilities. irtlib has neither them nor the
 ability estimates they need.
 
 ## Evidence
@@ -29,10 +29,10 @@ ability estimates they need.
   - its mean-square formulas match Wright and Masters (1982, p. 99), who define them for the Rasch
     family of models (p. 10).
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
-- pyitemcal: S-X² (`pyitemcal.fit.s_x2`); no ability estimates for many examinees at once, which
-  ADR-0004 assigns to pyitemcal.
+- irtlib: S-X² (`irtlib.fit.s_x2`); no ability estimates for many examinees at once, which
+  ADR-0004 assigns to irtlib.
 - catsim: EAP for one examinee at a time (`catsim.estimation.EAPEstimator`).
 
 ## Proposal
@@ -56,7 +56,7 @@ responses (ADR-0006), then the weighted and unweighted mean squares for the Rasc
 
 ---
 
-**Module:** the fit layer of ADR-0006, beside `pyitemcal.fit`'s S-X² (planned)
+**Module:** the fit layer of ADR-0006, beside `irtlib.fit`'s S-X² (planned)
 **Reference:** Wright & Masters (1982)
 **Last validated:** 2026-11-27, against Wright & Masters (1982) and Wright & Stone (1979) on the paper
 shelf, and mirt 1.48 (reference manual and source).

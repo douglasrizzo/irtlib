@@ -1,4 +1,4 @@
-# ADR-0004: pyitemcal Builds on catsim's Public Item Response Functions
+# ADR-0004: irtlib Builds on catsim's Public Item Response Functions
 
 ## Status
 
@@ -18,23 +18,23 @@ examinee at a time: its log-likelihood, posterior and estimators have no batched
 responses, and catsim has no derivatives with respect to item parameters. catsim requires only NumPy
 and SciPy, so depending on it adds no other package.
 
-When pyitemcal was set up, the catsim functions it uses existed only on catsim's `dev` branch: the
+When irtlib was set up, the catsim functions it uses existed only on catsim's `dev` branch: the
 last catsim release, 0.21.0, predates them.
 
 ## Decision
 
-- pyitemcal imports from catsim's public API only, each name from its public path (catsim's
+- irtlib imports from catsim's public API only, each name from its public path (catsim's
   ADR-0023), and only:
   - `catsim.irt`: `icc`, `log_response_probabilities` and `information`;
   - `catsim.estimation`: `QuadratureGrid`, `LogPrior`, `normal_log_prior` and `uniform_log_prior`;
   - `catsim`: `IrtModel`, and `ItemBank` with its CSV reading and writing, for validated output;
   - `catsim.typing`: `FloatArray` and `IntArray`.
-- pyitemcal implements what calibration needs and catsim lacks: the log-likelihood and posterior
+- irtlib implements what calibration needs and catsim lacks: the log-likelihood and posterior
   of a whole response matrix with missing entries, derivatives with respect to item parameters,
   ability estimation for many examinees at once, and drawing responses for recovery tests.
-- pyitemcal depends on catsim; catsim does not know pyitemcal. When catsim changes a name pyitemcal
-  uses, pyitemcal follows in a pull request of its own.
-- Until catsim's next release, pyitemcal takes catsim from its `dev` branch, through uv's sources,
+- irtlib depends on catsim; catsim does not know irtlib. When catsim changes a name irtlib
+  uses, irtlib follows in a pull request of its own.
+- Until catsim's next release, irtlib takes catsim from its `dev` branch, through uv's sources,
   with the commit pinned in `uv.lock`. From that release on, it declares the range of catsim
   versions it is tested with (`backlog/maintenance/released-catsim.md`).
 
@@ -42,12 +42,12 @@ last catsim release, 0.21.0, predates them.
 
 - The response functions, the parameterization and the bank format are catsim's, so they cannot
   drift apart.
-- Importing pyitemcal imports catsim, about 0.4 seconds on the machine measured.
-- A catsim change to a name in the list breaks pyitemcal until pyitemcal follows; catsim's own
+- Importing irtlib imports catsim, about 0.4 seconds on the machine measured.
+- A catsim change to a name in the list breaks irtlib until irtlib follows; catsim's own
   tests do not warn of it.
-- pyitemcal cannot be published while it depends on an unreleased catsim, since a wheel's metadata
+- irtlib cannot be published while it depends on an unreleased catsim, since a wheel's metadata
   cannot name a Git branch.
-- Whether the kernel should move into pyitemcal, with catsim depending on it, is an open decision
+- Whether the kernel should move into irtlib, with catsim depending on it, is an open decision
   (`backlog/discovery/invert-catsim-dependency.md`).
 
 ## Alternatives Considered
@@ -56,5 +56,5 @@ last catsim release, 0.21.0, predates them.
   tests catch it after.
 - A third package for the kernel: three packages to release in step for about a hundred lines of
   code.
-- Moving the kernel into pyitemcal before the requirements show what the kernel must offer: it
+- Moving the kernel into irtlib before the requirements show what the kernel must offer: it
   commits to a dependency direction without knowing what it serves.

@@ -16,7 +16,7 @@ Markov chain Monte Carlo (MCMC) samples the joint posterior of the abilities and
 parameters, so it reports the uncertainty of the item estimates as a whole distribution, not a
 standard error at a mode. It is how the 4PL has been fitted (Loken & Rulison, 2010, p. 513;
 Culpepper, 2016, Section 2). Its point estimates agree closely with those of BILOG (below), and the
-run times reported are hours, so its value for pyitemcal is the posterior, and it comes last in the
+run times reported are hours, so its value for irtlib is the posterior, and it comes last in the
 build order.
 
 ## Evidence
@@ -34,20 +34,20 @@ Patz and Junker (1999a, 1999b), Kim and Bolt (2007), Gelman and Rubin (1992) and
 - "orders of magnitude slower than MML-EM" is not measured on the same data in any source; the run
   times they report are below.
 
-## What pyitemcal and catsim have now
+## What irtlib and catsim have now
 
 Nothing for sampling in either package; ADR-0005 governs how a sampler takes its random numbers.
 
 ## Proposal
 
 A Metropolis-Hastings-within-Gibbs sampler for the logistic 1PL to 3PL (Patz & Junker, 1999a,
-1999b), with `pyitemcal.mml`'s priors, several chains from one generator, and the potential scale
+1999b), with `irtlib.mml`'s priors, several chains from one generator, and the potential scale
 reduction as its convergence check. It uses NumPy only (ADR-0002).
 
 ## Tests
 
 - **Agreement with Bayes modal estimation:** on a large simulated sample, the posterior modes agree
-  with `pyitemcal.mml`'s Bayes modal estimates under the same priors, within a tolerance the test
+  with `irtlib.mml`'s Bayes modal estimates under the same priors, within a tolerance the test
   justifies from the chains' Monte Carlo error. Patz and Junker's (1999a, p. 163, Table 2) posterior
   means differed from BILOG's estimates by up to 0.01, and Kim and Bolt's (2007, p. 46) BILOG run used
   "the same priors"; the test departs from both by comparing modes.
@@ -76,7 +76,7 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
    threshold. Assumed: several chains, with $\hat R$ reported for every parameter.
 4. **The output.** Draws or summaries: decided with this card (ADR-0006).
 5. **Missing responses.** Patz and Junker (1999b, pp. 351-352) impute them as an extra Gibbs step;
-   the likelihood can also leave them out, as `pyitemcal.mml` does. Assumed: left out.
+   the likelihood can also leave them out, as `irtlib.mml` does. Assumed: left out.
 
 ---
 
@@ -106,7 +106,7 @@ within-chain variance estimate (Gelman & Rubin, 1992, p. 461).
 
 ## Parameters
 
-The number of chains, iterations and burn-in, the proposal scales, and the priors (`pyitemcal.mml`).
+The number of chains, iterations and burn-in, the proposal scales, and the priors (`irtlib.mml`).
 
 ## Behavior and Comparison
 
@@ -122,7 +122,7 @@ Metropolis-Hastings sampling and updates the item parameters by stochastic appro
 likelihood rather than posterior summaries (Cai, 2010a, p. 40); its computing time grows linearly
 with the number of latent dimensions, against EM's exponential growth (p. 51). For one dimension, EM
 was faster: 5 seconds against MH-RM's 10 (pp. 48-49), and EM "can be more efficient" at low dimension
-(p. 46). The review therefore gives MH-RM no card for pyitemcal's unidimensional models; mirt's
+(p. 46). The review therefore gives MH-RM no card for irtlib's unidimensional models; mirt's
 manual likewise calls EM "generally effective with 1-3 factors" (mirt 1.48 manual, p. 126).
 
 ## Guarantees
@@ -182,5 +182,5 @@ https://doi.org/10.3389/fpsyg.2020.02121. Open access.
 
 ## Implementation Guidance
 
-Follows ADR-0006 to ADR-0008, with `pyitemcal.mml`'s priors. The likelihood of an item given
+Follows ADR-0006 to ADR-0008, with `irtlib.mml`'s priors. The likelihood of an item given
 abilities is the M-step's, so the sampler shares the per-item likelihood code with MML-EM.
