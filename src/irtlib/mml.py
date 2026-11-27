@@ -76,7 +76,7 @@ from .irt import (
   log_response_probabilities,
   parameter_information,
 )
-from .quadrature import QuadratureGrid, normal_log_prior, posterior, prior_masses
+from .quadrature import QuadratureGrid, _log_masses, normal_log_prior, posterior
 from .typing import FloatArray, IntArray
 
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
@@ -252,7 +252,9 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
   """
   matrix = validate_responses(responses)
   grid = grid if grid is not None else default_grid()
-  log_masses = numpy.log(prior_masses(grid, _ABILITY_PRIOR))
+  # in log space throughout, so that the masses of nodes far in the tails need not be representable
+  log_masses = _log_masses(grid, _ABILITY_PRIOR)
+  log_masses -= logsumexp(log_masses)
   return float(numpy.sum(logsumexp(log_likelihood(grid.nodes, matrix, items) + log_masses, axis=1)))
 
 

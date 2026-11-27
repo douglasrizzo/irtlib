@@ -23,6 +23,7 @@ from irtlib.mml import (
   _PriorTerm,  # noqa: PLC2701 - the prior's derivatives are checked against scipy's densities
   marginal_log_likelihood,
 )
+from irtlib.quadrature import QuadratureGrid
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
@@ -169,14 +170,16 @@ def test_standard_errors_cover_the_generating_parameters() -> None:
   assert 0.91 <= coverage <= 0.98, coverage
 
 
-def test_marginal_log_likelihood_with_a_missing_response() -> None:
+@pytest.mark.parametrize(("n_nodes", "bound"), [(61, 6.0), (81, 40.0)], ids=["default grid", "wide grid"])
+def test_marginal_log_likelihood_with_a_missing_response(n_nodes: int, bound: float) -> None:
   """The marginal log-likelihood equals a brute-force sum that leaves a missing response out of its examinee's product.
 
-  Four examinees, three items, one response missing; normal masses at 61 equally spaced nodes on [-6, 6].
+  Four examinees, three items, one response missing; normal masses at 61 equally spaced nodes on [-6, 6], the default
+  grid, and at 81 on [-40, 40], whose outer masses underflow to 0, which a log of the masses would warn about.
   """
   matrix = np.array([[1.0, 0.0, 1.0], [0.0, np.nan, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]])
   items = np.array([[1.2, -0.4, 0.0, 1.0], [0.7, 0.9, 0.0, 1.0], [1.6, 0.1, 0.0, 1.0]])
-  nodes = np.linspace(-6.0, 6.0, 61)
+  nodes = np.linspace(-bound, bound, n_nodes)
   masses = np.exp(-(nodes**2) / 2)
   masses /= masses.sum()
   probability = expit(items[:, 0] * (nodes[:, np.newaxis] - items[:, 1]))  # the 2PL, nodes x items
@@ -187,7 +190,8 @@ def test_marginal_log_likelihood_with_a_missing_response() -> None:
       if not np.isnan(response):
         likelihood *= probability[:, item] if response == 1 else 1 - probability[:, item]
     expected += np.log(np.sum(masses * likelihood))
-  np.testing.assert_allclose(marginal_log_likelihood(matrix, items), expected, rtol=1e-12)
+  grid = QuadratureGrid.uniform(n_nodes, -bound, bound)
+  np.testing.assert_allclose(marginal_log_likelihood(matrix, items, grid), expected, rtol=1e-12)
 
 
 def test_an_examinee_who_answered_nothing_changes_nothing() -> None:
@@ -264,14 +268,16 @@ def test_responses_that_are_not_numbers_are_refused() -> None:
 def test_a_miskeyed_item_is_reported_and_left_out_of_the_bank() -> None:
   """An item whose correct answers fall as ability rises keeps its negative slope estimate, and the bank leaves it out.
 
-  A warning names the item, and the bank's items keep the names of their columns, so a bank that renumbered them, an
-  error that discarded the estimates, or a bank holding the miskeyed item fails.
+  A warning names the item and points at the caller of ``calibrate``, and the bank's items keep the names of their
+  columns, so a bank that renumbered them, an error that discarded the estimates, a bank holding the miskeyed item,
+  or a warning pointing inside irtlib fails.
   """
   rng = np.random.default_rng(3)
   items = _two_pl_items(np.array([1.0, 1.5, -1.0, 1.2]), np.zeros(4))
   matrix = draw_responses(rng.normal(size=2000), items, rng=rng)
-  with pytest.warns(RuntimeWarning, match=r"discrimination <= 0 for 2 \('item_2'\).*miskeyed item"):
+  with pytest.warns(RuntimeWarning, match=r"discrimination <= 0 for 2 \('item_2'\).*miskeyed item") as caught:
     calibration = MMLCalibrator().calibrate(matrix)
+  assert caught[0].filename == __file__
   assert calibration.estimates.shape == (4, 4)
   assert -1.3 < calibration.estimates[2, 0] < -0.7
   assert calibration.items is not None
