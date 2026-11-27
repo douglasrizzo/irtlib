@@ -38,7 +38,8 @@ to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional maximum likelihood and S-X².
 - **Layers,** lowest first: the derivatives of the item response function; estimation, with the
-  shared E-step and M-step below the methods; then standard errors, ability estimation and fit.
+  shared E-step and M-step below the methods, each method computing its own standard errors from
+  them; then ability estimation and fit.
   Drawing responses for recovery tests is a module of its own. The import-linter contract that
   `AGENTS.md` requires enforces the order.
 

@@ -40,7 +40,7 @@ on `LSAT7` within $1.4 \times 10^{-6}$, and measurements on 2026-11-27 showed:
 - **Starting values.** mirt's formula, computed from the answered responses only; a caller may pass
   starting items.
 - **Standard errors.** Oakes's identity, approximated by central differences, mirt's default
-  (manual p. 122; `backlog/estimation/standard-errors.md`).
+  (manual p. 122; Oakes, 1999, p. 480).
 - **Acceleration.** None in the first version; measured again with the 3PL and 4PL, whose fits
   took hundreds to thousands of cycles.
 

@@ -65,7 +65,7 @@ their locations.
 
 ## Standard errors of item estimates
 
-**Card:** [estimation/standard-errors.md](../estimation/standard-errors.md).
+**Implemented:** the standard errors of `pyitemcal.mml`, whose module docstring holds the design.
 
 The EM algorithm does not give standard errors (Bock & Aitkin, 1981, p. 447). The observed information
 is the complete-data information less the missing information (Louis, 1982, p. 227, Equation 3.3;

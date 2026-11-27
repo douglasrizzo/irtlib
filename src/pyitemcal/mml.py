@@ -31,6 +31,14 @@ marginal likelihood :cite:p:`Dempster1977` (p. 7, Theorem 1), and convergence is
 (:cite:t:`Dempster1977`, p. 10; :cite:t:`Bock1981`, p. 447). A calibration stops when no estimated parameter changes
 by more than its tolerance in a cycle (ADR-0007).
 
+The standard errors are the square roots of the inverse observed information at the estimates, by Oakes's identity
+:cite:p:`Oakes1999` (p. 480, Equations 5-6): the observed-data Hessian is the M-step's complete-data Hessian plus the
+derivative of the M-step's gradient with respect to the E-step's parameters, the missing information. For the 1PL and
+2PL in the slope and intercept the complete-data information holds no data :cite:p:`Baker1987` (p. 116), so it is the
+expected one; the missing information is approximated by central differences with step :math:`10^{-5}`, recomputing
+the E-step at perturbed parameters (:cite:t:`Chalmers2018`, pp. 5-7), and symmetrized, which Chalmers (p. 17) finds
+improves it (ADR-0007). The standard errors of :math:`a` and :math:`b = -\zeta / \lambda` follow by the delta method.
+
 Starting values are the slope 0.851 and the intercept :math:`\Phi^{-1}(p_i) \cdot 1.702 / \sqrt{0.75}`, where
 :math:`p_i` is item :math:`i`'s proportion correct among the examinees who answered it, mirt's starting values
 computed over answered responses only (ADR-0007); :cite:t:`Bock1981` (p. 458) name the inverse normal of the proportion
@@ -59,6 +67,8 @@ _GRID_NODES = 61
 _M_STEP_TOLERANCE = 1e-12
 _M_STEP_ITERATIONS = 50
 _STEP_HALVINGS = 30
+# mirt's central-difference step for Oakes's identity (ADR-0007)
+_OAKES_STEP = 1e-5
 _N_PARAMETERS = 4
 
 
@@ -197,8 +207,10 @@ class MMLCalibrator:
     Returns
     -------
     Calibration
-        The estimates and the log-likelihood at them. If the stopping rule is not met within ``max_cycles``, the
-        result says so and a :py:class:`~pyitemcal.calibration.ConvergenceWarning` is issued.
+        The estimates, their standard errors and the log-likelihood at them. If the stopping rule is not met within
+        ``max_cycles``, the result says so and a :py:class:`~pyitemcal.calibration.ConvergenceWarning` is issued; if
+        the information matrix cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is
+        issued.
 
     Raises
     ------
@@ -231,8 +243,17 @@ class MMLCalibrator:
         "a correct answer falls as ability rises, as for a miskeyed item; reverse their scoring or remove them"
       )
       raise ValueError(msg)
+    standard_errors = _standard_errors(values, index, _observed_information(matrix, values, index, self._grid))
+    if standard_errors is None:
+      warnings.warn(
+        "the information matrix could not be inverted, so the calibration reports no standard errors; the model "
+        "may not be identified by these responses",
+        RuntimeWarning,
+        stacklevel=2,
+      )
     return Calibration(
       items=ItemBank(items),
+      standard_errors=standard_errors,
       log_likelihood=float(numpy.sum(logsumexp(_log_joint(matrix, items, self._grid), axis=1))),
       n_parameters=int(index.max()) + 1,
       cycles=cycles,
@@ -248,15 +269,12 @@ class MMLCalibrator:
     tuple[numpy.ndarray, int, float]
         The parameters, the cycles run and the largest change of a free parameter in the last cycle.
     """
-    answered = (~numpy.isnan(matrix)).astype(float)
-    correct = numpy.where(answered > 0, matrix, 0.0)
     free = index >= 0
     change = math.inf
     cycles = 0
     while cycles < self._max_cycles and change > self._tolerance:
       cycles += 1
-      posterior = _posterior(matrix, _to_items(values), self._grid)
-      new_values = _m_step(values, index, self._grid.nodes, posterior.T @ correct, posterior.T @ answered)
+      new_values = _m_step(values, index, self._grid.nodes, *_expected_counts(matrix, values, self._grid))
       change = float(numpy.max(numpy.abs(new_values[free] - values[free])))
       values = new_values
     return values, cycles, change
@@ -330,25 +348,44 @@ def _grouped_log_likelihood(values: FloatArray, nodes: FloatArray, correct: Floa
   return float(numpy.sum(correct * log_p + (total - correct) * log_q))
 
 
+def _expected_counts(matrix: FloatArray, values: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
+  """Return the E-step's expected numbers of correct responses and of responses, shape (nodes, items)."""
+  answered = ~numpy.isnan(matrix)
+  posterior = _posterior(matrix, _to_items(values), grid)
+  return posterior.T @ numpy.where(answered, matrix, 0.0), posterior.T @ answered.astype(float)
+
+
+def _free_gradient(
+  values: FloatArray, index: IntArray, nodes: FloatArray, correct: FloatArray, total: FloatArray
+) -> FloatArray:
+  """Return the gradient of the grouped log-likelihood with respect to the free parameters."""
+  free = index >= 0
+  gradient = log_likelihood_gradient(nodes, _to_items(values), correct, total)
+  return numpy.bincount(index[free], weights=gradient[free], minlength=int(index.max()) + 1)
+
+
+def _free_information(values: FloatArray, index: IntArray, nodes: FloatArray, total: FloatArray) -> FloatArray:
+  """Return the expected information of the free parameters, summing each item's block into the shared ones."""
+  free = index >= 0
+  both_free = free[:, :, numpy.newaxis] & free[:, numpy.newaxis, :]
+  rows = numpy.broadcast_to(index[:, :, numpy.newaxis], both_free.shape)[both_free]
+  columns = numpy.broadcast_to(index[:, numpy.newaxis, :], both_free.shape)[both_free]
+  n_free = int(index.max()) + 1
+  information = numpy.zeros((n_free, n_free))
+  numpy.add.at(information, (rows, columns), parameter_information(nodes, _to_items(values), total)[both_free])
+  return information
+
+
 def _m_step(
   values: FloatArray, index: IntArray, nodes: FloatArray, correct: FloatArray, total: FloatArray
 ) -> FloatArray:
   """Return the parameters that maximize the grouped log-likelihood of the expected counts, by Fisher scoring."""
   free = index >= 0
-  n_free = int(index.max()) + 1
-  both_free = free[:, :, numpy.newaxis] & free[:, numpy.newaxis, :]
-  rows = numpy.broadcast_to(index[:, :, numpy.newaxis], both_free.shape)[both_free]
-  columns = numpy.broadcast_to(index[:, numpy.newaxis, :], both_free.shape)[both_free]
   objective = _grouped_log_likelihood(values, nodes, correct, total)
   for _ in range(_M_STEP_ITERATIONS):
-    items = _to_items(values)
-    gradient = numpy.bincount(
-      index[free], weights=log_likelihood_gradient(nodes, items, correct, total)[free], minlength=n_free
-    )
-    information = numpy.zeros((n_free, n_free))
-    numpy.add.at(information, (rows, columns), parameter_information(nodes, items, total)[both_free])
+    gradient = _free_gradient(values, index, nodes, correct, total)
     try:
-      step = numpy.linalg.solve(information, gradient)
+      step = numpy.linalg.solve(_free_information(values, index, nodes, total), gradient)
     except numpy.linalg.LinAlgError as error:
       msg = "the expected information of the item parameters is singular, so the items cannot be estimated"
       raise ValueError(msg) from error
@@ -367,3 +404,56 @@ def _m_step(
     if numpy.max(numpy.abs(step)) <= _M_STEP_TOLERANCE:
       break
   return values
+
+
+def _observed_information(matrix: FloatArray, values: FloatArray, index: IntArray, grid: QuadratureGrid) -> FloatArray:
+  """Return the observed information of the free parameters by Oakes's identity."""
+  # The complete-data information is the expected one, exact for the 1PL and 2PL in the slope and intercept; the
+  # missing information is the central difference of the M-step's gradient in the E-step's parameters, symmetrized.
+  # The counts are those at the estimates themselves, not the last cycle's, which came from the previous parameters.
+  _, total = _expected_counts(matrix, values, grid)
+  complete = _free_information(values, index, grid.nodes, total)
+  free = index >= 0
+  missing = numpy.empty_like(complete)
+  for parameter in range(complete.shape[0]):
+    gradients = []
+    for sign in (1.0, -1.0):
+      shifted = values.copy()
+      shifted[free] += sign * _OAKES_STEP * (index[free] == parameter)
+      gradients.append(_free_gradient(values, index, grid.nodes, *_expected_counts(matrix, shifted, grid)))
+    missing[:, parameter] = (gradients[0] - gradients[1]) / (2 * _OAKES_STEP)
+  return complete - (missing + missing.T) / 2
+
+
+def _standard_errors(values: FloatArray, index: IntArray, information: FloatArray) -> FloatArray | None:
+  """Return the standard errors of each item's a and b by the delta method.
+
+  Returns
+  -------
+  numpy.ndarray or None
+      The standard errors in the shape of the items, NaN for the parameters not estimated; None if the information
+      cannot be inverted or gives a variance that is not positive.
+  """
+  try:
+    covariance = numpy.linalg.inv(information)
+  except numpy.linalg.LinAlgError:
+    return None
+  n_items = values.shape[0]
+  rows = numpy.arange(n_items)
+  slope, intercept = values[:, 0], values[:, 1]
+  free_slope = index[:, 0] >= 0
+  # the derivatives of a = slope and b = -intercept / slope with respect to the free parameters
+  slope_jacobian = numpy.zeros((n_items, covariance.shape[0]))
+  difficulty_jacobian = numpy.zeros_like(slope_jacobian)
+  slope_jacobian[rows[free_slope], index[free_slope, 0]] = 1.0
+  difficulty_jacobian[rows[free_slope], index[free_slope, 0]] = intercept[free_slope] / slope[free_slope] ** 2
+  difficulty_jacobian[rows, index[:, 1]] = -1.0 / slope
+  slope_variance = numpy.einsum("nk,kl,nl->n", slope_jacobian, covariance, slope_jacobian)[free_slope]
+  difficulty_variance = numpy.einsum("nk,kl,nl->n", difficulty_jacobian, covariance, difficulty_jacobian)
+  variances = numpy.concatenate([slope_variance, difficulty_variance])
+  if not numpy.all(numpy.isfinite(variances) & (variances > 0)):
+    return None
+  standard_errors = numpy.full((n_items, _N_PARAMETERS), numpy.nan)
+  standard_errors[free_slope, 0] = numpy.sqrt(slope_variance)
+  standard_errors[:, 1] = numpy.sqrt(difficulty_variance)
+  return standard_errors

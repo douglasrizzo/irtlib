@@ -25,6 +25,9 @@ class Calibration:
   ----------
   items : catsim.ItemBank
       The estimated items, ``[a, b, c, d]`` per row, in the order of the response matrix's columns.
+  standard_errors : numpy.ndarray or None
+      The standard errors of the estimates, in the shape of ``items.items``, NaN for a parameter not estimated;
+      None, with a warning, when the information matrix could not be inverted.
   log_likelihood : float
       The log-likelihood of the responses at the estimates.
   n_parameters : int
@@ -39,6 +42,7 @@ class Calibration:
   """
 
   items: ItemBank
+  standard_errors: FloatArray | None
   log_likelihood: float
   n_parameters: int
   cycles: int

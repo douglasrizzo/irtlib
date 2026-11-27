@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-22 cards: 10 ready, 0 needs-research, 2 needs-decision, 6 blocked, 4 parked.
+21 cards: 9 ready, 0 needs-research, 2 needs-decision, 6 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -46,12 +46,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | 2 |
 | [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | 3 |
-
-## Priority 1
-
-| Card | Area | Kind | Status | Effort | Blocked by | Raised by |
-|---|---|---|---|---|---|---|
-| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | ready | M |  | research pass |
 
 ## Priority 2
 

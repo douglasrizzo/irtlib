@@ -8,9 +8,9 @@ simulations.
 ## Status
 
 pyitemcal is in its design phase. Its calibration methods are reviewed from their primary sources
-and the design of its API is decided. Marginal maximum likelihood calibration of the 1PL and 2PL is
-implemented and checked against the R package mirt; the other methods come next. Nothing is
-published on PyPI.
+and the design of its API is decided. Marginal maximum likelihood calibration of the 1PL and 2PL,
+with standard errors, is implemented and checked against the R package mirt; the other methods come
+next. Nothing is published on PyPI.
 
 ## Install from source
 
