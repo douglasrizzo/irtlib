@@ -71,8 +71,8 @@ The maintainer's guidance for choosing which techniques, papers and equations ir
 
 - Prefer small, explicit changes over broad implicit behavior.
 - Keep type annotations accurate; this repository uses `ty` as part of its quality gates.
-- Annotate NumPy arrays with `FloatArray` and `IntArray` from `catsim.typing` (ADR-0004). Ruff bans
-  `numpy.typing.NDArray` elsewhere.
+- Annotate NumPy arrays with `FloatArray` and `IntArray` from `irtlib.typing`; Ruff bans
+  `numpy.typing.NDArray` everywhere else, and a dtype without an alias gets a new one there.
 - Use the Python 3.12 type-parameter syntax for generics (ADR-0002).
 - A method that overrides a base-class method carries `@override`, from `typing`; ty's
   `missing-override-decorator` enforces it.

@@ -36,8 +36,9 @@ any distance from the difficulty.
 """
 
 import numpy
-from catsim.typing import FloatArray
 from scipy.special import expit
+
+from .typing import FloatArray
 
 
 def _logistic(

@@ -27,8 +27,9 @@ last catsim release, 0.21.0, predates them.
   ADR-0023), and only:
   - `catsim.irt`: `icc`, `log_response_probabilities` and `information`;
   - `catsim.estimation`: `QuadratureGrid`, `LogPrior`, `normal_log_prior` and `uniform_log_prior`;
-  - `catsim`: `IrtModel`, and `ItemBank` with its CSV reading and writing, for validated output;
-  - `catsim.typing`: `FloatArray` and `IntArray`.
+  - `catsim`: `IrtModel`, and `ItemBank` with its CSV reading and writing, for validated output.
+- irtlib defines its own NumPy array aliases, `irtlib.typing`'s `FloatArray` and `IntArray`: a
+  type alias carries no item response theory, so it is no reason to import a package.
 - irtlib implements what calibration needs and catsim lacks: the log-likelihood and posterior
   of a whole response matrix with missing entries, derivatives with respect to item parameters,
   ability estimation for many examinees at once, and drawing responses for recovery tests.

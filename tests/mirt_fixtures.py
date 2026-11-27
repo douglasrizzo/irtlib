@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 if TYPE_CHECKING:
-  from catsim.typing import FloatArray
+  from irtlib.typing import FloatArray
 
 _DATA = Path(__file__).parent / "parity" / "mirt"
 

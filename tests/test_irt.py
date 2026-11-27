@@ -18,7 +18,7 @@ from irtlib.irt import log_likelihood_gradient, parameter_information, probabili
 if TYPE_CHECKING:
   from collections.abc import Callable
 
-  from catsim.typing import FloatArray
+  from irtlib.typing import FloatArray
 
 # Items [a, b, c, d] strictly inside their bounds, so every parameter, logits included, can be perturbed.
 _INTERIOR = np.array([[0.8, -0.5, 0.25, 0.95], [2.2, 0.7, 0.1, 0.9], [1.3, 1.8, 0.05, 0.99]])
