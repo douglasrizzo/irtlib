@@ -446,8 +446,7 @@ _NO_RESPONSE = (
 )
 _NO_RESPONSE_STANDARD_ERROR = (
   "for an examinee who answered no item mirt 1.48 returns NA (R/fscores.internal.R:94-96, 185); irtlib's maximum "
-  "likelihood and weighted likelihood estimates are NaN with standard error inf, the information being 0 (maintainer, "
-  "2026-11-27)"
+  "likelihood and weighted likelihood estimates are NaN with standard error inf, the information being 0"
 )
 _OBSERVED_INFORMATION = (
   "mirt 1.48 takes the standard error from nlm's numerical Hessian, the observed information, plus the prior's "
@@ -456,7 +455,7 @@ _OBSERVED_INFORMATION = (
 )
 _INFINITE_STANDARD_ERROR = (
   "mirt 1.48 gives an infinite estimate no standard error, NA (R/fscores.internal.R:397-405); irtlib's is inf, since "
-  "the information tends to 0 at either infinity (maintainer, 2026-11-27)"
+  "the information tends to 0 at either infinity"
 )
 _SUPREMUM = (
   "where the likelihood comes closest to its supremum only at an infinity, irtlib's estimate is that infinity; mirt "

@@ -479,6 +479,26 @@ class TestFallback:
     np.testing.assert_array_equal(calls[0][0], _RESPONSES[3:])
     np.testing.assert_array_equal(calls[0][1], _ITEMS)
 
+  def test_a_fallbacks_warnings_name_the_callers_row_and_line(self) -> None:
+    """A warning from the fallback names the examinee's row in the caller's matrix, from the caller's line.
+
+    The fallback sees only the rows it replaces, here the third alone, after a wrong answer to a steep item that
+    guesses, where the WLE's ranking integral does not converge. Passed through, its warning named row 0 of that
+    sub-matrix and pointed at the line inside irtlib that called the fallback.
+    """
+    items = np.array([[1.0, 0.0, 0.0, 1.0], [200.0, 0.0, 0.2, 1.0]])
+    responses = np.array([[1.0, 0.0], [1.0, 0.0], [_NAN, 0.0]])
+
+    def estimate() -> AbilityEstimates:
+      return maximum_likelihood(responses, items, fallback=weighted_likelihood)
+
+    with pytest.warns(IntegrationWarning, match=r"^examinee in row 2: .*subdivisions") as caught:
+      estimates = estimate()
+
+    call_line = estimate.__code__.co_firstlineno + 1
+    assert {(warning.filename, warning.lineno) for warning in caught} == {(__file__, call_line)}
+    np.testing.assert_array_equal(estimates.from_fallback, [False, False, True])
+
   def test_bounds_and_a_fallback_together_are_rejected(self) -> None:
     """With bounds every estimate is finite, so a fallback would never apply; the two together are an error."""
     with pytest.raises(ValueError, match="bounds and fallback cannot be given together"):

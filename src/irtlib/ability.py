@@ -8,18 +8,17 @@ estimate alone as in any matrix. Below, :math:`L_j(\theta)` is the likelihood of
 :math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and
 :math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.
 
-**Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is
-:math:`1 / \sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all
-correct rises with the ability and that of responses all incorrect falls, so their estimates are :math:`+\infty` and
-:math:`-\infty` (:cite:t:`Warm1989`, p. 442). As :math:`\theta \to -\infty` each :math:`P_i` tends to :math:`c_i`, and
-as :math:`\theta \to +\infty` to :math:`d_i`, so the likelihood tends to :math:`\prod_i c_i^{u_{ij}} (1 - c_i)^{1 -
-u_{ij}}` and to :math:`\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}`: under the 3PL and 4PL, responses that are neither
-all correct nor all incorrect can also have their supremum at an infinity. By the maintainer's decision of 2026-11-27,
-the maximum likelihood estimate is the maximizer over the extended real line: :math:`+\infty` or :math:`-\infty`
-wherever the likelihood comes closest to its supremum only in that limit, with standard error :math:`\infty`, since the
-information tends to 0 at either infinity. An examinee who answered no item has a constant likelihood, which every
-ability maximizes: its estimate is NaN, and its standard error :math:`\infty`, the information being 0. The same
-decision gives the caller two ways to finite numbers, never used together:
+**Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /
+\sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with
+the ability and that of responses all incorrect falls, so their estimates are :math:`+\infty` and :math:`-\infty`
+(:cite:t:`Warm1989`, p. 442). As :math:`\theta \to -\infty` each :math:`P_i` tends to :math:`c_i`, and as :math:`\theta
+\to +\infty` to :math:`d_i`, so the likelihood tends to :math:`\prod_i c_i^{u_{ij}} (1 - c_i)^{1 - u_{ij}}` and to
+:math:`\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}`: under the 3PL and 4PL, responses that are neither all correct nor
+all incorrect can also have their supremum at an infinity. The maximum likelihood estimate is the maximizer over the
+extended real line: :math:`+\infty` or :math:`-\infty` wherever the likelihood comes closest to its supremum only in
+that limit, with standard error :math:`\infty`, since the information tends to 0 at either infinity. An examinee who
+answered no item has a constant likelihood, which every ability maximizes: its estimate is NaN, and its standard error
+:math:`\infty`, the information being 0. The caller has two ways to finite numbers, never used together:
 
 - ``bounds``: the estimate maximizes the likelihood within them, and responses all correct or all incorrect give the
   bound they point to. Bounds are always set in practice (:cite:t:`Warm1989`, p. 442), and catR 3.17 sets them by
@@ -105,6 +104,7 @@ Hessian of that weighted log-likelihood (``R/fscores.internal.R:1103-1119``).
 import math
 import operator
 import os
+import re
 import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
@@ -135,6 +135,9 @@ _SCAN_POINTS = 121
 _MAX_EXTENSIONS = 64
 # The package's directory, whose frames a warning skips, so that it points at the caller's line.
 _PACKAGE = str(Path(__file__).parent) + os.sep
+# How a warning about one examinee begins: the examinee's row in the response matrix.
+_ROW = "examinee in row {}: "
+_ROW_PATTERN = re.compile(r"^examinee in row (\d+): ")
 # Log-likelihoods closer than this, relative to their size, count as equal: the rounding of a sum over the items.
 _RELATIVE_SLACK = 1e-12
 
@@ -494,7 +497,7 @@ def maximum_likelihood(
   replaced = ~numpy.isfinite(estimates.theta)
   if fallback is None or not replaced.any():
     return estimates
-  substitute = fallback(matrix[replaced], items)
+  substitute = _fallback_estimates(fallback, matrix, items, replaced)
   if substitute.theta.shape != (int(replaced.sum()),):
     msg = f"the fallback returned {substitute.theta.shape} estimates for {int(replaced.sum())} rows"
     raise ValueError(msg)
@@ -503,6 +506,20 @@ def maximum_likelihood(
   theta[replaced], standard_errors[replaced] = substitute.theta, substitute.standard_errors
   evaluations[replaced] = substitute.evaluations
   return AbilityEstimates(theta, standard_errors, evaluations, from_fallback=replaced)
+
+
+def _fallback_estimates(
+  fallback: Callable[[FloatArray, FloatArray], AbilityEstimates], matrix: FloatArray, items: FloatArray, rows: BoolArray
+) -> AbilityEstimates:
+  """Return the fallback's estimates of the given rows, its warnings re-issued with the rows of the whole matrix."""
+  positions = numpy.flatnonzero(rows)
+  with warnings.catch_warnings(record=True) as caught:
+    warnings.simplefilter("always")
+    substitute = fallback(matrix[rows], items)
+  for warning in caught:
+    message = _ROW_PATTERN.sub(lambda match: _ROW.format(positions[int(match.group(1))]), str(warning.message))
+    warnings.warn(message, warning.category, skip_file_prefixes=(_PACKAGE,))
+  return substitute
 
 
 def _likelihood_maximum(
@@ -646,7 +663,7 @@ def weighted_likelihood(
     theta, se, evaluations, messages = _weighted_likelihood_root(row_responses, row_items, bounds, tol)
     rows.append((theta, se, evaluations))
     for message in messages:
-      warnings.warn(f"examinee in row {row}: {message}", IntegrationWarning, stacklevel=2)
+      warnings.warn(_ROW.format(row) + message, IntegrationWarning, skip_file_prefixes=(_PACKAGE,))
   return _estimates(rows)
 
 
