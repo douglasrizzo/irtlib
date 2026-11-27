@@ -6,15 +6,27 @@ and the algorithm's guarantees.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 from catsim import ItemBank
 from catsim.irt import icc
-from scipy.special import expit
+from scipy.special import expit, logit
+from scipy.stats import lognorm, norm
 
 from pyitemcal.calibration import ConvergenceWarning
-from pyitemcal.mml import MMLCalibrator, marginal_log_likelihood
+from pyitemcal.mml import (
+  MMLCalibrator,
+  Priors,
+  _prior_terms,  # noqa: PLC2701
+  _PriorTerm,  # noqa: PLC2701 - the prior's derivatives are checked against scipy's densities
+  marginal_log_likelihood,
+)
 from tests.mirt_fixtures import load, responses
+
+if TYPE_CHECKING:
+  from collections.abc import Callable
 
 _MML_EM = load("mml_em")
 _LSAT6 = responses(_MML_EM["data"]["lsat6"])
@@ -251,7 +263,9 @@ def test_a_reverse_keyed_item_is_refused() -> None:
 @pytest.mark.parametrize(
   ("arguments", "message"),
   [
-    ({"model": "3PL"}, "1PL and the 2PL"),
+    ({"model": "4PL"}, "1PL to the 3PL"),
+    ({"priors": Priors(guessing=(-1.4, 0.5))}, "guessing prior needs the 3PL"),
+    ({"fixed_slope": 1.0, "priors": Priors(slope=(0.0, 0.5))}, "slope prior needs an estimated slope"),
     ({"fixed_slope": 0.0}, "fixed_slope"),
     ({"tolerance": 0.0}, "tolerance"),
     ({"max_cycles": 0}, "max_cycles"),
@@ -270,3 +284,116 @@ def test_mismatched_items_are_refused() -> None:
     MMLCalibrator().calibrate(_LSAT7, start=three_items)
   with pytest.raises(ValueError, match="one row"):
     marginal_log_likelihood(_LSAT7, three_items.items)
+
+
+@pytest.mark.parametrize(
+  ("prior", "density"),
+  [
+    (_PriorTerm(0, 0.2, 0.5), lambda x: lognorm.logpdf(x, s=0.5, scale=np.exp(0.2))),
+    (_PriorTerm(1, -0.3, 2.0), lambda x: norm.logpdf(x, -0.3, 2.0)),
+    (_PriorTerm(2, float(logit(0.2)), 0.5), lambda x: norm.logpdf(x, logit(0.2), 0.5)),
+  ],
+  ids=["lognormal slope", "normal intercept", "normal logit c"],
+)
+def test_prior_terms_match_the_densities(prior: _PriorTerm, density: Callable[[np.ndarray], np.ndarray]) -> None:
+  """Each log-prior equals scipy's log-density, and its derivatives the central differences of that density.
+
+  The lognormal slope prior keeps the -log a term of the lognormal density; mirt 1.48's Hessian of it has the
+  opposite sign on its last term (source R/utils.R:1430), which this test would catch here.
+  """
+  values = np.array([[0.7, -1.1, -1.8, np.inf], [1.4, 0.4, -1.2, np.inf], [2.3, 1.9, -0.6, np.inf]])
+  column = values[:, prior.column]
+  log_prior, gradient, curvature = _prior_terms(values, (prior,), np.ones(values.shape, dtype=bool))
+  np.testing.assert_allclose(log_prior, np.sum(density(column)), rtol=1e-12)
+  step = 1e-5
+  first = (density(column + step) - density(column - step)) / (2 * step)
+  second = (density(column + step) - 2 * density(column) + density(column - step)) / step**2
+  np.testing.assert_allclose(gradient[:, prior.column], first, rtol=1e-7)
+  np.testing.assert_allclose(curvature[:, prior.column], second, rtol=1e-4)
+
+
+def test_estimates_are_the_posterior_mode() -> None:
+  """With priors on the slope and intercept, the estimates make the log-posterior's gradient vanish.
+
+  The gradient is a central difference of the public marginal log-likelihood plus scipy's log-densities of the
+  priors, independent of the calibrator's own score.
+  """
+  matrix = responses(_MML_EM["data"]["simulated"])
+  priors = Priors(slope=(0.0, 0.5), intercept=(0.0, 2.0))
+  calibration = MMLCalibrator(priors=priors, tolerance=1e-10).calibrate(matrix)
+  slope = calibration.items.discrimination
+  intercept = -slope * calibration.items.difficulty
+
+  def log_posterior(slope: np.ndarray, intercept: np.ndarray) -> float:
+    items = np.column_stack([slope, -intercept / slope, np.zeros_like(slope), np.ones_like(slope)])
+    prior = np.sum(lognorm.logpdf(slope, s=0.5)) + np.sum(norm.logpdf(intercept, 0.0, 2.0))
+    return marginal_log_likelihood(matrix, items) + prior
+
+  step = 1e-5
+  gradient = []
+  for item in range(slope.size):
+    shift = np.zeros_like(slope)
+    shift[item] = step
+    gradient.extend([
+      (log_posterior(slope + shift, intercept) - log_posterior(slope - shift, intercept)) / (2 * step),
+      (log_posterior(slope, intercept + shift) - log_posterior(slope, intercept - shift)) / (2 * step),
+    ])
+  np.testing.assert_allclose(gradient, 0.0, atol=1e-4)
+
+
+def test_intercept_prior_keeps_an_extreme_item_finite() -> None:
+  """An item every examinee answered correctly is refused without an intercept prior and estimated with one."""
+  matrix = _LSAT7.copy()
+  matrix[:, 0] = 1.0
+  with pytest.raises(ValueError, match="no finite estimate"):
+    MMLCalibrator().calibrate(matrix)
+  calibration = MMLCalibrator(priors=Priors(intercept=(0.0, 2.0))).calibrate(matrix)
+  assert np.all(np.isfinite(calibration.items.items))
+  assert calibration.items.difficulty[0] < calibration.items.difficulty[1:].min()
+
+
+def test_recovery_of_three_pl_parameters() -> None:
+  """3PL estimates with a prior on the logit of c, from 10,000 simulated examinees, recover the generating items.
+
+  Slopes within 25%, difficulties within 0.25 and guessing parameters within 0.08, which a guessing parameter
+  estimated on the wrong scale, or a prior pulling the wrong way, would exceed.
+  """
+  rng = np.random.default_rng(20261130)
+  slopes = rng.uniform(1.0, 2.0, 8)
+  difficulties = rng.uniform(-1.0, 1.5, 8)
+  guessing = rng.uniform(0.1, 0.3, 8)
+  theta = rng.normal(size=10_000)
+  probability = guessing + (1 - guessing) * expit(slopes * (theta[:, np.newaxis] - difficulties))
+  matrix = (rng.random(probability.shape) < probability).astype(float)
+  calibration = MMLCalibrator("3PL", priors=Priors(guessing=(float(logit(0.2)), 0.5))).calibrate(matrix)
+  np.testing.assert_allclose(calibration.items.discrimination, slopes, rtol=0.25)
+  np.testing.assert_allclose(calibration.items.difficulty, difficulties, atol=0.25)
+  np.testing.assert_allclose(calibration.items.pseudo_guessing, guessing, atol=0.08)
+
+
+@pytest.mark.parametrize(
+  "arguments", [{"intercept": (0.0, 0.0)}, {"slope": (float("nan"), 0.5)}, {"guessing": (0.0, float("inf"))}]
+)
+def test_invalid_priors(arguments: dict[str, tuple[float, float]]) -> None:
+  """A prior whose mean is not finite, or whose standard deviation is not finite and positive, is refused."""
+  with pytest.raises(ValueError, match="prior must be a finite mean"):
+    Priors(**arguments)
+
+
+def test_a_shared_slope_carries_its_prior_once() -> None:
+  """With the 1PL's shared slope, the slope prior counts once, not once per item.
+
+  Five copies of the prior would pull the slope as five priors do; the estimate equals the maximum of the marginal
+  log-likelihood plus one lognormal log-density, found here by a one-dimensional search.
+  """
+  calibration = MMLCalibrator("1PL", priors=Priors(slope=(0.5, 0.3)), tolerance=1e-10).calibrate(_LSAT7)
+  slope = calibration.items.discrimination[0]
+  intercept = -slope * calibration.items.difficulty
+
+  def log_posterior(candidate: float) -> float:
+    items = np.column_stack([np.full(5, candidate), -intercept / candidate, np.zeros(5), np.ones(5)])
+    return marginal_log_likelihood(_LSAT7, items) + lognorm.logpdf(candidate, s=0.3, scale=np.exp(0.5))
+
+  step = 1e-5
+  derivative = (log_posterior(slope + step) - log_posterior(slope - step)) / (2 * step)
+  assert abs(derivative) < 1e-3

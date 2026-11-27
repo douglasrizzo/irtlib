@@ -12,7 +12,7 @@ give each method a different shape. The maintainer accepted the answers below on
 the research pass rebuilt the method cards from their sources and before any method existed.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
-4PL share their E-step, and priors change only the M-step (`backlog/estimation/mml-em-3pl.md`).
+4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
 mirt takes a missing response as `NA` (manual p. 123), and a missing response contributes no factor
 to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
 

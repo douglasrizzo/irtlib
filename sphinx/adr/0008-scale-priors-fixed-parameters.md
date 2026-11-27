@@ -8,14 +8,14 @@ Accepted 2026-11-27
 
 Item estimates mean something only on a scale, and every method fixes its scale its own way. The
 3PL and 4PL need priors to keep their estimates finite and plausible, and the same priors serve the
-2PL (`backlog/estimation/mml-em-3pl.md`). Two families of priors were on the table: Mislevy's (1986,
-p. 183) normal priors on $\log a$, $b$ and the logit of $c$, which the 3PL card proposed; and mirt's,
+2PL (Mislevy, 1986, p. 189; Baker, 1987, pp. 130-131). Two families of priors were on the table: Mislevy's (1986,
+p. 183) normal priors on $\log a$, $b$ and the logit of $c$; and mirt's,
 defined on the parameters mirt estimates, the slope, the intercept and the logits of $c$ and $d$
 (mirt 1.48 manual, p. 155). The two give different estimates from the same hyperparameters: mirt's
 lognormal prior on the slope keeps the $-\log a$ term of the lognormal log-density, whose gradient
 term $-1/a$ its code adds (source `R/utils.R:1422-1433`), and a normal prior on $\log a$ has no such
-term. Without a prior, mirt's 3PL put four of five guessing estimates at 0 on `LSAT7` (the 3PL
-card's measurement).
+term. Without a prior, mirt's 3PL put four of five guessing estimates at 0 on `LSAT7` (measured
+2026-11-27).
 
 On `LSAT6`, the 1PL with a common estimated slope and the 1PL with slopes fixed at 1 and the ability
 variance estimated (mirt's `"Rasch"`) reach the same maximum, in 12 and 80 cycles at mirt's default

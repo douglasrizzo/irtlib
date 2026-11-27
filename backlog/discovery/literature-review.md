@@ -90,7 +90,7 @@ observed data, so "the Hessian is the information matrix".
 
 ## The 3PL and priors on item parameters
 
-**Card:** [estimation/mml-em-3pl.md](../estimation/mml-em-3pl.md).
+**Implemented:** the 3PL and priors of `pyitemcal.mml`, whose module docstring holds the design.
 
 The 3PL's likelihood is "nearly flat along one or more dimensions" of $(a, b, c)$, and Bayesian item
 estimation was motivated by wanting "reasonable" estimates, "in particular, finite ones" (Mislevy,
