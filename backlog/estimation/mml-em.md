@@ -111,11 +111,28 @@ requirements card settles; the card assumes the recommendation of each until the
      rule on the gradient of the marginal log-likelihood, which is zero at the maximum.
    - Not assumed: the requirements card decides, with measurements.
 4. **Acceleration.**
-   - mirt applies Ramsay's acceleration by default (manual p. 128), every third cycle (source
-     `R/EMstep.group.R:347`). Thissen (1982, p. 181) reports it doubling or tripling the speed, but in
-     its exact form it "frequently leads to over-acceleration and divergence", so he limits the
-     parameter to about −2 to −4. Ramsay's paper is
-     not on the shelf, so the method is known here only through Thissen and mirt's source.
+   - Ramsay (1975) writes a fixed-point iteration $X = G(X)$ as $X = \theta X + (1 - \theta)G(X)$,
+     where $0 < \theta < 1$ damps oscillation and $\theta < 0$ accelerates slow convergence (p. 340,
+     Equation 5). His rule sets
+     $\theta = 1 - (1 - \theta')\lVert\Delta X^{(k-2)}\rVert / \lVert\Delta^2 X^{(k-2)}\rVert$ from the
+     first and second differences of the iterates, $\theta'$ being the value used over the previous
+     three iterations (p. 341, Equation 10), and generalizes Aitken's $\delta^2$ to many parameters
+     (p. 344). His program updates $\theta$ every third iteration, holds it in between, and sets no
+     bound on it (p. 345; appendix, p. 358).
+   - mirt applies it by default (manual p. 128) with four departures (source
+     `R/EMstep.group.R:166, 287-291, 347-357`):
+     - every third cycle it extrapolates once from the latest EM step, instead of holding $\theta$;
+     - it computes $\theta$ afresh with the latest first difference in the numerator, which under
+       Ramsay's model of a constant contraction (pp. 340-341, Equations 6-7) gives a $\theta$ larger by
+       exactly 1, a shorter step (the card's own algebra);
+     - it floors $\theta$ at $-5$;
+     - it skips the step while the latest rise of the log-likelihood exceeds $\ln 100$ (it
+       accelerates only when `Mrate`, $e$ to the minus that rise, is above `.01`).
+
+     Thissen (1982, p. 181) reports the acceleration doubling or tripling the speed, but in its exact
+     form it "frequently leads to over-acceleration and divergence", so he limits the parameter to
+     about −2 to −4. The measurement below agrees: Ramsay's unbounded rule diverged on a slow case,
+     and mirt's bounded variant cut the cycles by 1.7 to 2.7 times without changing the estimates.
    - SQUAREM is fully documented (Du & Varadhan, 2020, pp. 3-4). Beisemann et al. (2020, p. 232) find
      acceleration pays most for long tests and when the variance is fixed.
    - Assumed: no acceleration in the first version, measured before adding any (YAGNI). The fixed
@@ -139,8 +156,9 @@ requirements card settles; the card assumes the recommendation of each until the
 **Module:** decided by the requirements card (planned)
 **Reference:** Bock & Aitkin (1981); Thissen (1982)
 **Last validated:** 2026-11-27, against Bock & Aitkin (1981), Baker (1987), Thissen (1982),
-Dempster, Laird & Rubin (1977), Beisemann, Wartlick & Doebler (2020), Du & Varadhan (2020), Woodruff
-& Hanson (1996) and Engelen (1987) on the paper shelf, and mirt 1.48 (reference manual and source).
+Dempster, Laird & Rubin (1977), Ramsay (1975), Beisemann, Wartlick & Doebler (2020), Du & Varadhan
+(2020), Woodruff & Hanson (1996) and Engelen (1987) on the paper shelf, and mirt 1.48 (reference
+manual and source).
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -262,10 +280,13 @@ mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `metho
   (source `R/06-LoadPars.R:364-365`).
 - Its grid is 61 equally spaced points on $[-6, 6]$, the normal density at them divided by its sum
   (source `R/03-estimation.R:663`, `R/utils.R:588-589`).
-- It solves each M-step with BFGS (manual p. 126; source `R/utils.R:1848`).
+- It solves each M-step with BFGS (manual p. 126; source `R/utils.R:1848`), through R's `optim`
+  with that optimizer's own tolerance unless `control` sets one (manual p. 129), and at most
+  `max(ceiling(Mrate * 50), 15)` iterations (source `R/EMstep.utils.R:91-93`). The M-step is
+  therefore inexact, which the measurement below shows limits mirt's accuracy at tight tolerances.
 - It stops when every parameter changes by less than `TOL` = 1e-4, or after 500 cycles (manual
   pp. 127, 129; source `R/utils.R:2929-2941`), and applies Ramsay acceleration every third cycle
-  (manual p. 128; source `R/EMstep.group.R:347-357`).
+  (manual p. 128; source `R/EMstep.group.R:347-357`; the fourth open question).
 - It starts slopes at 0.851 and intercepts at the inverse normal of the proportion correct, rescaled
   (source `R/05-model.elements.R:42-64`).
 - Its `"1PL"` fixes every slope at 1 with $N(0, 1)$; its `"Rasch"` fixes every slope at 1 and
@@ -274,6 +295,26 @@ mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `metho
 
 Where pyitemcal's defaults differ, each difference gets a setting that reproduces mirt for the parity
 tests (ADR-0003); which differences there are is the requirements card's to decide.
+
+**Measured: acceleration** (2026-11-27). A scratch NumPy 2PL following this card, with an exact
+M-step (Fisher scoring to $10^{-12}$), ran Ramsay's rule as published and as mirt applies it (the
+fourth open question), each stopped by mirt's rule on the unaccelerated EM step at `1e-6`. The table
+gives cycles and the largest error against plain EM converged to `1e-13`:
+
+| Acceleration | `LSAT7`, 1,000 × 5 | Simulated, 2,000 × 20, 10% missing | Simulated, 300 × 4, 30% missing |
+|---|---|---|---|
+| None | 76, $6.1 \times 10^{-6}$ | 38, $3.7 \times 10^{-6}$ | 19,555, $2.9 \times 10^{-3}$ |
+| mirt's variant of Ramsay's rule | 28, $2.7 \times 10^{-6}$ | 22, $2.1 \times 10^{-6}$ | 7,327, $2.9 \times 10^{-3}$ |
+| Ramsay's rule as published | 26, $5.0 \times 10^{-7}$ | 17, $7.4 \times 10^{-8}$ | diverged |
+
+On the slow case Ramsay's rule set $\theta = -5.5$ at cycle 3; the log-likelihood then fell, and the
+estimates were no longer finite at cycle 10. mirt's variant converged to the same estimates as plain
+EM, within $1.4 \times 10^{-11}$ when both ran to `1e-13`. In mirt 1.48 on `LSAT7`, with its default M-step, Ramsay acceleration cut the cycles
+from 48 to 28 at `TOL = 1e-4` but only from 100 to 96 at `1e-6`, where both fits stopped
+$1.5 \times 10^{-5}$ from mirt's estimate at `1e-12`. With `control = list(reltol = 1e-14)` the
+counts became 46 to 16 and 77 to 31, close to the scratch EM's, and the errors at `1e-6` fell to
+$6.7 \times 10^{-6}$ and $2.1 \times 10^{-6}$. mirt's estimate at `TOL = 1e-12` is then within
+$4.2 \times 10^{-7}$ of the scratch EM's, against $1.4 \times 10^{-6}$ with the default M-step.
 
 ## Guarantees
 
@@ -311,6 +352,9 @@ https://doi.org/10.18637/jss.v092.i07. Open access.
 
 Engelen, R. J. H. (1987). *A review of different estimation procedures in the Rasch model* (Research
 Report 87-6). University of Twente. Open copy: https://files.eric.ed.gov/fulltext/ED310126.pdf
+
+Ramsay, J. O. (1975). Solving implicit equations in psychometric data analysis. *Psychometrika,
+40*(3), 337-360. https://doi.org/10.1007/BF02291762. Not openly available.
 
 Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
 *Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
