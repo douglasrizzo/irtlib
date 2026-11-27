@@ -7,7 +7,7 @@ from .typing import FloatArray
 
 _MATRIX_NDIM = 2
 # the columns of an item matrix: a, b, c and d
-_ITEM_COLUMNS = 4
+_N_COLUMNS = 4
 
 
 def response_matrix(responses: npt.ArrayLike) -> FloatArray:
@@ -84,7 +84,7 @@ def responses_and_items(responses: npt.ArrayLike, items: npt.ArrayLike) -> tuple
   """
   # a float copy, so that 1 - d cannot wrap around in an unsigned integer type
   items = numpy.array(items, dtype=float)
-  if items.shape[1:] != (_ITEM_COLUMNS,):
+  if items.shape[1:] != (_N_COLUMNS,):
     msg = f"items must be an (n, 4) matrix, one row per item, got shape {items.shape}"
     raise ValueError(msg)
   matrix = response_matrix(responses)

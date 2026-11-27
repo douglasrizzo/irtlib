@@ -1,10 +1,10 @@
 ---
 title: Drop catsim as a runtime dependency, and benchmark the moved code against it
 kind: maintenance
-status: blocked
+status: ready
 priority: 2
 effort: M
-blocked_by: [irt/item-bank]
+blocked_by: []
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 
