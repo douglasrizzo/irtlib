@@ -1,10 +1,10 @@
 ---
 title: Calibrate the 3PL by Bayes modal estimation with priors on the item parameters
 kind: technique
-status: blocked
+status: ready
 priority: 2
 effort: M
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -14,7 +14,7 @@ raised_by: [moved from catsim's backlog]
 
 The 3PL adds each item's guessing parameter $c$, and with it estimates that maximum likelihood alone
 often leaves at a boundary or unstable. The remedy the sources and BILOG use is Bayes modal
-estimation: the EM algorithm of [the MML-EM card](mml-em.md), with prior densities on the item
+estimation: the EM algorithm of `pyitemcal.mml`, with prior densities on the item
 parameters added to the M-step (Mislevy, 1986, p. 182). Priors serve the 2PL too, where they keep
 slopes finite (Baker, 1987, pp. 130-131), so the mechanism is the card's and the 3PL is its first use.
 
@@ -41,7 +41,7 @@ slopes finite (Baker, 1987, pp. 130-131), so the mechanism is the card's and the
 - catsim: `catsim.estimation.LogPrior`, `normal_log_prior` and `uniform_log_prior`, priors on ability
   that ADR-0004 lets pyitemcal reuse.
 - pyitemcal: the derivatives with respect to the logit of $c$ (`pyitemcal.irt`); the 2PL is
-  [the MML-EM card](mml-em.md).
+  `pyitemcal.mml`.
 
 ## Proposal
 
@@ -111,7 +111,7 @@ The 3PL is catsim's response function with $d = 1$, $P = c + (1 - c)F$. For an i
 $\xi$ with prior density $p(\xi)$, Bayes modal estimation maximizes the log-likelihood plus
 $\log p(\xi)$. The EM algorithm carries over unchanged except that the M-step's likelihood equations
 gain the derivatives of the log prior (Mislevy, 1986, p. 182, Equation 14). With the expected counts
-$\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card, the M-step equation for $c$ is
+$\bar r_{iq}$ and $\bar N_{iq}$ of `pyitemcal.mml`, the M-step equation for $c$ is
 $(1 - c)^{-1}\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Harwell & Baker, 1991,
 p. 383, Equation 26), and those for the intercept and slope are Baker's (1987, p. 116) Equations
 14-15 with the expected counts in place of the observed ones; each prior adds its term

@@ -170,5 +170,5 @@ https://hdl.handle.net/11299/98553
 ## Implementation Guidance
 
 Follows ADR-0006 to ADR-0008; items with no finite estimate are removed and reported (ADR-0008).
-The item step shares the M-step's per-item solver (MML-EM card), with estimated abilities in place
+The item step shares the M-step's Fisher scoring (`pyitemcal.mml`), with estimated abilities in place
 of quadrature nodes.

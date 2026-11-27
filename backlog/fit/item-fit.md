@@ -1,10 +1,10 @@
 ---
 title: Evaluate item fit with S-X² and the mean-square statistics
 kind: technique
-status: blocked
+status: ready
 priority: 2
 effort: M
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -107,8 +107,8 @@ ability of $P_i$ times the likelihood of a score of $k - 1$ on the other items, 
 integral of the likelihood of a score of $k$, both weighted by the ability density (p. 54,
 Equation 12); the summed-score likelihoods come from a recursion over items (p. 53, Equations 6-11,
 after Lord and Wingersky). Orlando and Thissen integrate on equally spaced points from −4.5 to 4.5
-(p. 54); this card uses the MML-EM card's grid, 61 points on $[-6, 6]$, as mirt does (source
-`R/itemfit.R:816-823`), a departure from their grid. Scores with small expected counts are collapsed toward the middle until every expected count
+(p. 54); this card uses the calibration's grid (`pyitemcal.mml`), 61 points on $[-6, 6]$, as mirt
+does (source `R/itemfit.R:816-823`), a departure from their grid. Scores with small expected counts are collapsed toward the middle until every expected count
 is at least 1, and the degrees of freedom are the number of rows after collapsing less the number of
 item parameters estimated (p. 56).
 
@@ -181,5 +181,5 @@ copy: https://files.eric.ed.gov/fulltext/ED628568.pdf
 ## Implementation Guidance
 
 Follows ADR-0006: item fit is a function of a calibration result and the responses. The
-summed-score recursion and the expected proportions use the MML-EM card's grid and response
+summed-score recursion and the expected proportions use `pyitemcal.mml`'s grid and response
 probabilities.

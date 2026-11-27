@@ -15,9 +15,9 @@ catsim's public item response functions (ADR-0004).
 
 The project is in its design phase: its methods are reviewed from their primary sources
 (`backlog/discovery/literature-review.md`), the calibrator contract and settings are decided
-(ADR-0006 to ADR-0008), the mirt parity harness is in place (`tests/parity/mirt/`), and no
-calibration method is implemented yet. The order of work is the methods in the review's build
-order.
+(ADR-0006 to ADR-0008), and the mirt parity harness is in place (`tests/parity/mirt/`). The first
+method, MML-EM for the 1PL and 2PL (`pyitemcal.mml`), is implemented; the order of work is the rest
+of the review's build order.
 
 ## Repository Layout
 

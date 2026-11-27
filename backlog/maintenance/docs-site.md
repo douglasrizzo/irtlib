@@ -1,10 +1,10 @@
 ---
 title: Build the documentation site
 kind: docs
-status: blocked
+status: ready
 priority: 3
 effort: M
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [setup of pyitemcal]
 ---
 

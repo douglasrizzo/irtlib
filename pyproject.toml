@@ -215,6 +215,20 @@ exclude_also = ["if TYPE_CHECKING:", "if __name__ == .__main__.:", "raise NotImp
 fail_under = 90
 show_missing = true
 
+[tool.importlinter]
+root_package = "pyitemcal"
+
+[[tool.importlinter.contracts]]
+id = "layers"
+name = "pyitemcal layers (ADR-0006)"
+type = "layers"
+containers = ["pyitemcal"]
+exhaustive = true  # every new top-level module must be placed in a layer
+layers = [
+  "mml",
+  "calibration | irt",  # "|": siblings that never import each other
+]
+
 [tool.vulture]
 # src and tests together: on its own, src's public API reads as unused.
 paths = ["src/pyitemcal", "tests"]

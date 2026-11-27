@@ -1,10 +1,10 @@
 ---
 title: Compare calibrated models by likelihood ratio, AIC and BIC
 kind: technique
-status: blocked
+status: ready
 priority: 3
 effort: S
-blocked_by: [estimation/mml-em]
+blocked_by: []
 raised_by: [research pass]
 ---
 
@@ -29,7 +29,8 @@ records the definitions, their sources and how they behave.
 
 ## What pyitemcal and catsim have now
 
-Nothing; the log-likelihood comes from [the MML-EM card](../estimation/mml-em.md).
+A calibration result reports its maximized log-likelihood and its number of estimated parameters
+(`pyitemcal.calibration.Calibration`, from `pyitemcal.mml`); nothing computes the statistics below.
 
 ## Proposal
 
