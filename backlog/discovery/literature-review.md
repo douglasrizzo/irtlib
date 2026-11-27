@@ -2,10 +2,9 @@
 
 > Written by [the research pass](research-pass.md) from sources on the paper shelf, each claim cited
 > to the location where it was read (citation convention in [the backlog README](../README.md)).
-> It covers the methods reviewed so far; the last section lists the rest, whose cards still carry
-> the unverified material carried over from catsim. Formulas live on the method cards; this review
-> says what the sources establish, how the methods compare, how mirt implements them, and in what
-> order pyitemcal should build them.
+> It covers every method card in `irt/`, `estimation/` and `fit/`. Formulas live on the method cards;
+> this review says what the sources establish, how the methods compare, how mirt implements them, and
+> in what order pyitemcal should build them.
 
 ## Marginal maximum likelihood with the EM algorithm
 
@@ -149,29 +148,53 @@ slowly (Patz & Junker, 1999b, p. 353). The Metropolis-Hastings Robbins-Monro alg
 sampling for maximum likelihood, with a cost that grows linearly in the number of dimensions (Cai,
 2010a, pp. 40, 51), but for one dimension EM was faster (pp. 48-49), so it gets no card.
 
-## Build order, so far
+## Item fit
+
+**Card:** [fit/item-fit.md](../fit/item-fit.md).
+
+Orlando and Thissen's (2000) S-X² groups examinees by their number-correct score and computes the
+expected proportions from the model by a recursion over items (pp. 53-54); on data from the fitted
+model it rejected at .04 to .07, where Yen's (1981) $Q_1$, which groups by estimated ability,
+rejected at .95 to .96 on a 10-item test (Orlando & Thissen, 2000, p. 57, Table 1). The weighted and
+unweighted mean squares of Wright and Masters (1982, p. 99) apply to the Rasch family (p. 10). No
+source on the shelf gives the 0.7 to 1.3 bands often quoted for them, and "there is no clear basis"
+for a point-biserial cutoff (Wright & Stone, 1979, p. 26). S-X² is defined on complete data; with
+missing responses its unadapted form rejects far too often (Zhang & Wang, 2022, p. 714, Table 3).
+
+## Model comparison
+
+**Card:** [fit/model-comparison.md](../fit/model-comparison.md).
+
+Nested models are compared by twice the difference of their log-likelihoods (Thissen, 1982, p. 178),
+any models by AIC (Akaike, 1974, p. 719) or BIC (Schwarz, 1978, p. 461). BIC is consistent when the
+true model is a candidate and AIC is efficient when none is (Vrieze, 2012, Pages 10-11); for the 4PL
+and related models, "AIC should be preferred over BIC" (Robitzsch, 2022, p. 11). mirt 1.48
+reproduces Bock and Aitkin's (1981, p. 455, Table 3) $G^2$ for the Rasch model on LSAT-6 and LSAT-7
+(the card's measurement).
+
+## Build order
 
 1. The derivatives, which the M-steps and the standard errors share.
 2. MML-EM for the 1PL and 2PL.
 3. Standard errors.
-4. Priors on item parameters and the 3PL, one M-step addition that the 2PL shares.
-5. The 4PL, for banks that need an upper asymptote, with samples of several thousand.
-6. Conditional maximum likelihood, for the Rasch model on complete data.
-7. Joint maximum likelihood, for comparison studies.
-8. Markov chain Monte Carlo, for posterior distributions of the item parameters.
+4. Item fit by S-X², which ADR-0001 requires of every calibration.
+5. Priors on item parameters and the 3PL, one M-step addition that the 2PL shares.
+6. Model comparison, from the log-likelihoods the methods above report.
+7. The 4PL, for banks that need an upper asymptote, with samples of several thousand.
+8. Conditional maximum likelihood, for the Rasch model on complete data.
+9. Joint maximum likelihood, for comparison studies.
+10. Markov chain Monte Carlo, for posterior distributions of the item parameters.
 
-The full order, with the methods below, is set when the pass ends.
+## Sources
 
-## Not yet reviewed
-
-These cards still carry material carried over from catsim, unverified; the review sections replace
-it as the pass reaches them:
-
-- item fit and model comparison: [item-fit](../fit/item-fit.md).
-
-The carried-over review's impact and feasibility ratings are dropped: none of them had a source.
+Every source cited here is on the paper shelf and in `sphinx/references.bib`. The carried-over
+review's impact and feasibility ratings are dropped: none of them had a source.
 
 ## References
+
+Akaike, H. (1974). A new look at the statistical model identification. *IEEE Transactions on
+Automatic Control, 19*(6), 716-723. https://doi.org/10.1109/TAC.1974.1100705. Not openly available;
+Vrieze (2012, Pages 5-6) describes the criterion.
 
 Albert, J. H. (1992). Bayesian estimation of normal ogive item response curves using Gibbs sampling.
 *Journal of Educational Statistics, 17*(3), 251-269. https://doi.org/10.3102/10769986017003251. Not
@@ -279,6 +302,11 @@ Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory
 Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
 Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
 
+Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response
+theory models. *Applied Psychological Measurement, 24*(1), 50-64.
+https://doi.org/10.1177/01466216000241003. Not openly available; Kang and Chen (2007, pp. 4-5)
+describe the method.
+
 Patz, R. J., & Junker, B. W. (1999a). A straightforward approach to Markov chain Monte Carlo methods
 for item response models. *Journal of Educational and Behavioral Statistics, 24*(2), 146-178.
 https://doi.org/10.3102/10769986024002146. Not openly available; Kim and Bolt (2007) describe the
@@ -303,12 +331,21 @@ Robitzsch, A. (2021). A comprehensive simulation study of estimation methods for
 Robitzsch, A. (2022). Four-parameter guessing model and related item response models. *Mathematical and
 Computational Applications, 27*(6), 95. https://doi.org/10.3390/mca27060095. Open access.
 
+Schwarz, G. (1978). Estimating the dimension of a model. *Annals of Statistics, 6*(2), 461-464.
+https://doi.org/10.1214/aos/1176344136. Open copy:
+https://projecteuclid.org/journals/annals-of-statistics/volume-6/issue-2/Estimating-the-Dimension-of-a-Model/10.1214/aos/1176344136.pdf
+
 Sheng, Y. (2008). Markov chain Monte Carlo estimation of normal ogive IRT models in MATLAB. *Journal of
 Statistical Software, 25*(8), 1-15. https://doi.org/10.18637/jss.v025.i08. Open access.
 
 Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
 *Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
 (1987, pp. 133-134) describes the method.
+
+Vrieze, S. I. (2012). Model selection and psychological theory: A discussion of the differences
+between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC).
+*Psychological Methods, 17*(2), 228-243. https://doi.org/10.1037/a0027127. Open copy (author
+manuscript, cited by its page numbers): https://pmc.ncbi.nlm.nih.gov/articles/PMC3366160/
 
 Waller, N. G., & Feuerstahler, L. (2017). Bayesian modal estimation of the four-parameter item response
 model in real, realistic, and idealized data sets. *Multivariate Behavioral Research, 52*(3), 350-370.
@@ -323,6 +360,20 @@ Wright, B. D., & Douglas, G. A. (1977). Best procedures for sample-free item ana
 Psychological Measurement, 1*(2), 281-295. https://doi.org/10.1177/014662167700100216. Open copy:
 https://hdl.handle.net/11299/98553
 
+Wright, B. D., & Masters, G. N. (1982). *Rating scale analysis*. MESA Press. Open copy:
+https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf
+
+Wright, B. D., & Stone, M. H. (1979). *Best test design*. MESA Press. Open copy:
+https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf
+
+Yen, W. M. (1981). Using simulation results to choose a latent trait model. *Applied Psychological
+Measurement, 5*(2), 245-262. https://doi.org/10.1177/014662168100500212. Open copy:
+https://hdl.handle.net/11299/100381
+
 Zhang, J., Lu, J., Du, H., & Zhang, Z. (2020). Gibbs-slice sampling algorithm for estimating the
 four-parameter logistic model. *Frontiers in Psychology, 11*, 2121.
 https://doi.org/10.3389/fpsyg.2020.02121. Open access.
+
+Zhang, X., & Wang, C. (2022). Modified item-fit indices for dichotomous IRT models with missing data.
+*Applied Psychological Measurement, 46*(8), 705-719. https://doi.org/10.1177/01466216221125176. Open
+copy: https://files.eric.ed.gov/fulltext/ED628568.pdf
