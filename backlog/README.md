@@ -38,39 +38,42 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-18 cards: 9 ready, 0 needs-research, 2 needs-decision, 3 blocked, 4 parked.
+22 cards: 10 ready, 0 needs-research, 1 needs-decision, 7 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
-| [Should the shared item response kernel move from catsim into irtlib?](discovery/invert-catsim-dependency.md) | discovery | 3 |
 
 ## Priority 2
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | blocked | L | [response-functions](irt/response-functions.md), [quadrature](irt/quadrature.md) | ADR-0004 as decided on 2026-11-27 |
+| [Bring the model names, the item bank and response drawing from catsim into irtlib](irt/item-bank.md) | irt | feature | blocked | M | [response-functions](irt/response-functions.md) | ADR-0004 as decided on 2026-11-27 |
+| [Bring the quadrature grid, the ability priors and the posterior from catsim into irtlib](irt/quadrature.md) | irt | feature | ready | S |  | ADR-0004 as decided on 2026-11-27 |
+| [Bring the response functions and their quantities from catsim into irtlib.irt](irt/response-functions.md) | irt | feature | ready | M |  | ADR-0004 as decided on 2026-11-27 |
 | [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
-| [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
+| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [response-functions](irt/response-functions.md), [quadrature](irt/quadrature.md), [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
 
 ## Priority 3
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Should the shared item response kernel move from catsim into irtlib?](discovery/invert-catsim-dependency.md) | discovery | decision | needs-decision | M |  | maintainer during setup |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
-| [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
+| [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | blocked | M | [ability-estimation](estimation/ability-estimation.md) | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
-| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
+| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
 
 ## Priority 4
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | blocked | S | [response-functions](irt/response-functions.md) | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
@@ -157,5 +160,5 @@ fetch.
    says where it agrees and where it departs, with the mirt version, and its tests name the parity
    cases the implementation adds. A card never says what mirt lacks.
 5. **Implementation guidance** follows the calibrator contract and settings of ADR-0006 to
-   ADR-0008, and uses catsim only through the names ADR-0004 lists.
+   ADR-0008, and imports nothing from catsim (ADR-0004).
 6. **Status.** The top of the card says when it was last validated and against which sources.

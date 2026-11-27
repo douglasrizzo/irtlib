@@ -14,9 +14,10 @@ catsim's charter.
 
 In order of priority (ADR-0001):
 
-1. **Researchers** who calibrate item banks or compare calibration methods.
+1. **Researchers** who calibrate item banks, compare calibration methods or score examinees.
 2. **Method authors** who add an estimation method.
-3. **Contributors** changing irtlib itself.
+3. **Package authors** who build on irtlib's item response theory, catsim's first.
+4. **Contributors** changing irtlib itself.
 
 Each kind of document below names its audience. Write for that reader only. Researchers know IRT
 and may not know software design.
@@ -54,10 +55,12 @@ The GitHub release notes are the only place for "what changed". There is no CHAN
 ### Where a formula lives
 
 - A method's formulas live with the method: on its backlog card until it is implemented, then on its
-  documentation page. Its docstring says in one sentence what the method computes, in words, and
-  gives the call contract.
-- The item response functions irtlib takes from catsim (ADR-0004) keep their formulas in
-  catsim's docstrings; irtlib's documents link them and do not re-derive them.
+  documentation page; until the documentation site exists, its module's docstring is that page.
+  Its functions' docstrings say in one sentence what they compute, in words, and give the call
+  contract.
+- The item response functions and their quantities follow the same rule as a method (ADR-0004):
+  their formulas, with their sources, live in their module's docstring, and code moved from catsim
+  takes its formulas out of its function docstrings.
 
 ### One home per topic
 

@@ -1,16 +1,16 @@
 # irtlib
 
-irtlib estimates the parameters of item response theory models from test responses: it
-calibrates items. It covers the unidimensional dichotomous logistic models, 1PL to 4PL, and gives
-banks that [catsim](https://github.com/douglasrizzo/catsim) reads for computerized adaptive testing
-simulations.
+irtlib implements item response theory for the unidimensional dichotomous logistic models, 1PL to
+4PL: the response functions and their quantities, item calibration, ability estimation and model
+fit. Its item banks are the ones [catsim](https://github.com/douglasrizzo/catsim) runs computerized
+adaptive tests on.
 
 ## Status
 
-irtlib is in its design phase. Its calibration methods are reviewed from their primary sources
-and the design of its API is decided. Marginal maximum likelihood calibration of the 1PL to 4PL,
-with priors, standard errors, S-X² item fit and model comparison, is implemented and checked against
-the R package mirt; the other methods come next. Nothing is published on PyPI.
+irtlib is in its design phase. Marginal maximum likelihood calibration of the 1PL to 4PL, with
+priors, standard errors, S-X² item fit and model comparison, is implemented and checked against the
+R package mirt. The response functions, ability estimation and the item bank come from catsim next,
+then the other calibration methods. Nothing is published on PyPI.
 
 ## Install from source
 
