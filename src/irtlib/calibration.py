@@ -9,7 +9,8 @@ from dataclasses import dataclass
 import numpy
 from catsim import ItemBank
 from catsim.estimation import QuadratureGrid
-from catsim.typing import FloatArray, IntArray
+
+from .typing import FloatArray, IntArray
 
 _RESPONSE_NDIM = 2
 _GRID_NODES = 61

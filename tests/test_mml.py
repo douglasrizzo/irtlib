@@ -28,7 +28,7 @@ from tests.mirt_fixtures import load, responses
 if TYPE_CHECKING:
   from collections.abc import Callable
 
-  from catsim.typing import FloatArray
+  from irtlib.typing import FloatArray
 
 _MML_EM = load("mml_em")
 _LSAT6 = responses(_MML_EM["data"]["lsat6"])

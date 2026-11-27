@@ -147,10 +147,11 @@ convention = "numpy"
 ignore-one-line-docstrings = true
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
-"numpy.typing.NDArray".msg = "Use FloatArray or IntArray from catsim.typing (ADR-0004)."
+"numpy.typing.NDArray".msg = "Use FloatArray or IntArray from irtlib.typing."
 "random".msg = "Take a numpy.random.Generator from the caller (ADR-0005); the global random module cannot be seeded per call."
 
 [tool.ruff.lint.per-file-ignores]
+"src/irtlib/typing.py" = ["TID251"]  # the one module that defines the array aliases
 "tests/*" = [
   "ANN",      # Test fixture wiring and local helpers do not need exhaustive annotations
   "ARG005",   # Mocked call signatures often intentionally ignore parameters
@@ -228,6 +229,7 @@ layers = [
   "comparison",
   "fit | mml",  # "|": siblings that never import each other
   "calibration | irt",
+  "typing",
 ]
 
 [tool.vulture]
