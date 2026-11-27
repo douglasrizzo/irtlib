@@ -122,7 +122,7 @@ requirements card settles; the card assumes the recommendation of each until the
      point does not depend on it, so parity holds either way.
 5. **The M-step solver and parameterization.** Newton or Fisher scoring per item in the
    intercept-slope form (Baker, 1987, p. 114, Equation 8), or a general optimizer (mirt uses BFGS
-   without bounds: manual p. 126; source `R/utils.R:1848`, `R/06-LoadPars.R:318-319`). See the ICC-gradients card's first open question.
+   without bounds: manual p. 126; source `R/utils.R:1848`, `R/06-LoadPars.R:364-365`). See the ICC-gradients card's first open question.
 6. **Starting values.** Bock and Aitkin (1981, p. 458) name the inverse normal of the item's
    proportion correct as a suitable starting intercept, which mirt uses (Behavior and Comparison); Thissen (1982, p. 178) started at $b = 0$,
    $a = 1$. Assumed: mirt's, for comparable iteration counts.
@@ -259,7 +259,7 @@ mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `metho
 
 - It estimates the intercept-slope form, which its manual writes $a_1\theta + d$ with $d$ the
   intercept, not catsim's upper asymptote (manual p. 133); slope and intercept have no bounds
-  (source `R/06-LoadPars.R:318-319`).
+  (source `R/06-LoadPars.R:364-365`).
 - Its grid is 61 equally spaced points on $[-6, 6]$, the normal density at them divided by its sum
   (source `R/03-estimation.R:663`, `R/utils.R:588-589`).
 - It solves each M-step with BFGS (manual p. 126; source `R/utils.R:1848`).
