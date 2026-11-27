@@ -29,12 +29,13 @@ to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
   - their standard errors in the same parameterization, or none, with a flag, when the information
     matrix cannot be inverted;
   - the maximized log-likelihood and the number of estimated parameters;
-  - the cycles run, whether the stopping rule was met, and the rule's final value.
+  - the cycles run, whether the stopping rule was met, and the rule's final value;
+  - the grid abilities were integrated over, which item fit and ability estimates reuse.
 - **Non-convergence.** When the cycles run out, the calibrator returns the result flagged as not
   converged, with a warning.
 - **Ability estimates and item fit** are functions of a result and the responses, not part of the
-  result: EAP abilities on the calibration's grid; S-X² with its degrees of freedom per item; and the
-  weighted and unweighted mean squares for the Rasch model.
+  result: EAP abilities; S-X² with its degrees of freedom per item; and the weighted and unweighted
+  mean squares for the Rasch model.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional maximum likelihood and S-X².
 - **Layers,** lowest first: the derivatives of the item response function; estimation, with the
@@ -54,10 +55,8 @@ to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
 
 ## Alternatives Considered
 
-- Plain functions: each call repeats the configuration, and nothing holds a method's settings for
-  reuse across data sets.
-- One class per model: the models share the E-step and differ only in the M-step's terms, so
-  classes per model duplicate the shared work.
+- Plain functions: each call repeats the configuration.
+- One class per model: the models share the E-step and differ only in the M-step's terms.
 - A separate mask for missing responses, or a sentinel value: two arrays to keep in step, or a
   reserved code in the data; NaN marks a missing response in the one array, with no code reserved.
 - Raising an error on non-convergence: it discards estimates a caller may want to inspect.

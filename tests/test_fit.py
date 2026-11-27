@@ -1,0 +1,92 @@
+"""Tests of the S-X² item-fit statistic, beyond the parity tests with mirt.
+
+Expected values come from enumerating response patterns, hand-worked collapsing, and the statistic's rejection rate
+on data from the fitted model.
+"""
+
+from __future__ import annotations
+
+import itertools
+
+import numpy as np
+import pytest
+from scipy.special import expit
+
+from pyitemcal.fit import (
+  _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
+  _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
+  s_x2,
+)
+from pyitemcal.mml import MMLCalibrator
+from tests.mirt_fixtures import load, responses
+
+_LSAT7 = responses(load("mml_em")["data"]["lsat7"])
+
+
+def test_summed_score_likelihoods_enumerate_the_patterns() -> None:
+  """For four items, each score's likelihood is the sum of the probabilities of the patterns with that score.
+
+  Lord and Wingersky's recursion (Orlando & Thissen, 2000, p. 53, Equations 6-11) at three abilities.
+  """
+  probability = np.array([[0.2, 0.5, 0.9], [0.7, 0.4, 0.3], [0.55, 0.6, 0.65], [0.1, 0.8, 0.95]])
+  expected = np.zeros((5, 3))
+  for pattern in itertools.product((0, 1), repeat=4):
+    answers = np.array(pattern)[:, np.newaxis]
+    expected[sum(pattern)] += np.prod(np.where(answers == 1, probability, 1 - probability), axis=0)
+  np.testing.assert_allclose(_summed_score_likelihoods(probability), expected, rtol=1e-14)
+
+
+def test_collapse_merges_empty_single_and_small_rows() -> None:
+  """Rows are collapsed as mirt collapses them, on hand-worked tables of incorrect and correct counts.
+
+  An empty row is dropped; a row with one examinee goes into the next, the last such row into the one before; a
+  middle row with an expected count below 1 goes into the neighbour with fewer examinees.
+  """
+  observed = np.array([[0, 0], [1, 0], [3, 2], [5, 5], [0, 1]], dtype=float)
+  expected = np.array([[0.1, 0.1], [0.6, 0.4], [2.0, 3.0], [4.0, 6.0], [0.3, 0.7]])
+  merged_observed, merged_expected = _collapse(observed, expected, 1.0)
+  np.testing.assert_array_equal(merged_observed, [[4, 2], [5, 6]])
+  np.testing.assert_allclose(merged_expected, [[2.6, 3.4], [4.3, 6.7]])
+  observed = np.array([[2, 2], [3, 1], [2, 3]], dtype=float)
+  expected = np.array([[2.0, 2.0], [3.0, 0.5], [2.5, 2.5]])
+  merged_observed, merged_expected = _collapse(observed, expected, 1.0)
+  np.testing.assert_array_equal(merged_observed, [[5, 3], [2, 3]])
+  np.testing.assert_allclose(merged_expected, [[5.0, 2.5], [2.5, 2.5]])
+  # a middle row with one examinee goes into the next row, though the previous one has fewer examinees
+  observed = np.array([[2, 1], [1, 0], [4, 4]], dtype=float)
+  expected = np.array([[1.5, 1.5], [0.7, 0.3], [4.0, 4.0]])
+  merged_observed, merged_expected = _collapse(observed, expected, 1.0)
+  np.testing.assert_array_equal(merged_observed, [[2, 1], [5, 4]])
+  np.testing.assert_allclose(merged_expected, [[1.5, 1.5], [4.7, 4.3]])
+
+
+def test_type_one_error_rate() -> None:
+  """On 2PL data from the calibrated model, S-X² rejects at about the nominal .05 level.
+
+  Orlando and Thissen (2000, p. 57, Table 1) found .04 to .07; over 300 item tests the bounds are about three
+  sampling errors around .05. A wrong expected proportion, or degrees of freedom without the item's parameters, moves
+  the rate outside them; an error of one degree of freedom does not, and the parity tests catch it.
+  """
+  rng = np.random.default_rng(20261127)
+  slopes = rng.lognormal(0.0, 0.3, 10)
+  difficulties = rng.normal(size=10)
+  p_values = []
+  for _ in range(30):
+    theta = rng.normal(size=1000)
+    matrix = (rng.random((1000, 10)) < expit(slopes * (theta[:, np.newaxis] - difficulties))).astype(float)
+    p_values.append(s_x2(MMLCalibrator().calibrate(matrix), matrix).p_value)
+  rejection_rate = np.mean(np.concatenate(p_values) < 0.05)
+  assert 0.015 <= rejection_rate <= 0.10, rejection_rate
+
+
+def test_incomplete_or_mismatched_responses_are_refused() -> None:
+  """S-X² refuses responses with a missing entry or another number of items, and a negative minimum expected count."""
+  calibration = MMLCalibrator().calibrate(_LSAT7)
+  with_missing = _LSAT7.copy()
+  with_missing[0, 0] = np.nan
+  with pytest.raises(ValueError, match="complete responses"):
+    s_x2(calibration, with_missing)
+  with pytest.raises(ValueError, match="4 items, the calibration 5"):
+    s_x2(calibration, _LSAT7[:, :4])
+  with pytest.raises(ValueError, match="min_expected"):
+    s_x2(calibration, _LSAT7, min_expected=-1.0)

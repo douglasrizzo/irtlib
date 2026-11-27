@@ -8,9 +8,11 @@ from dataclasses import dataclass
 
 import numpy
 from catsim import ItemBank
-from catsim.typing import FloatArray
+from catsim.estimation import QuadratureGrid
+from catsim.typing import FloatArray, IntArray
 
 _RESPONSE_NDIM = 2
+_GRID_NODES = 61
 
 
 class ConvergenceWarning(RuntimeWarning):
@@ -32,6 +34,8 @@ class Calibration:
       The log-likelihood of the responses at the estimates.
   n_parameters : int
       The number of parameters estimated, a parameter shared by every item counted once.
+  item_parameters : numpy.ndarray
+      The number of parameters estimated for each item, a parameter shared by every item counted for each.
   cycles : int
       The cycles the calibration ran.
   converged : bool
@@ -39,15 +43,19 @@ class Calibration:
       :py:class:`ConvergenceWarning`.
   change : float
       The stopping rule's final value: the largest change of an estimated parameter in the last cycle.
+  grid : catsim.estimation.QuadratureGrid
+      The nodes abilities were integrated over, which item fit uses too.
   """
 
   items: ItemBank
   standard_errors: FloatArray | None
   log_likelihood: float
   n_parameters: int
+  item_parameters: IntArray
   cycles: int
   converged: bool
   change: float
+  grid: QuadratureGrid
 
 
 def validate_responses(responses: FloatArray) -> FloatArray:
@@ -91,3 +99,20 @@ def validate_responses(responses: FloatArray) -> FloatArray:
     msg = f"no examinee answered the items in columns {unanswered.tolist()}"
     raise ValueError(msg)
   return matrix
+
+
+def default_grid() -> QuadratureGrid:
+  """Return the grid abilities are integrated over by default (ADR-0007).
+
+  Returns
+  -------
+  catsim.estimation.QuadratureGrid
+      61 equally spaced nodes on [-6, 6], with equal weights.
+
+  Examples
+  --------
+  >>> grid = default_grid()
+  >>> grid.nodes.size, float(grid.nodes[0]), float(grid.nodes[-1])
+  (61, -6.0, 6.0)
+  """
+  return QuadratureGrid.uniform(_GRID_NODES)

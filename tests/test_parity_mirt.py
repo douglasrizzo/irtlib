@@ -21,8 +21,14 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
+from catsim import ItemBank
 from scipy.special import expit, logsumexp
 
+from pyitemcal.calibration import Calibration, default_grid
+from pyitemcal.fit import (
+  _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
+  s_x2,
+)
 from pyitemcal.mml import MMLCalibrator, marginal_log_likelihood
 from tests.mirt_fixtures import load, responses
 
@@ -37,8 +43,11 @@ _ESTIMATE_ATOL = 1e-5
 # Standard errors, computed at estimates that agree within _ESTIMATE_ATOL, by the same identity and difference step:
 # a relative 1e-4.
 _STANDARD_ERROR_RTOL = 1e-4
+# S-X² and its p-value at estimates that agree within _ESTIMATE_ATOL: a relative 1e-4.
+_S_X2_RTOL = 1e-4
 
 _MML_EM = load("mml_em")
+_ITEM_FIT = load("item_fit")
 
 # The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
 # "1PL", whose slopes are fixed at 1.
@@ -135,3 +144,58 @@ def test_mml_standard_errors(case: dict[str, Any]) -> None:
   else:
     assert np.all(np.isnan(standard_errors[:, 0]))
   assert np.all(np.isnan(standard_errors[:, 2:]))
+
+
+# The number of parameters mirt counts for each item of each model: a slope constrained equal across items counts for
+# each item, a fixed one not at all.
+_ITEM_PARAMETERS = {"2pl": 2, "equal_slopes": 2, "fixed_slopes": 1}
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """S-X², its degrees of freedom after collapsing and its p-value match mirt's at mirt's own estimates.
+
+  Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
+  """
+  slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
+  calibration = Calibration(
+    items=ItemBank(_two_pl_items(slope, intercept)),
+    standard_errors=None,
+    log_likelihood=0.0,
+    n_parameters=0,
+    item_parameters=np.full(slope.size, _ITEM_PARAMETERS[case["model"]]),
+    cycles=0,
+    converged=True,
+    change=0.0,
+    grid=default_grid(),
+  )
+  fit = s_x2(calibration, responses(_ITEM_FIT["data"][case["data"]]))
+  np.testing.assert_array_equal(fit.df, case["df"])
+  np.testing.assert_allclose(fit.statistic, case["s_x2"], rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(fit.p_value, case["p_value"], rtol=_CLOSED_FORM_RTOL, atol=1e-14)
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_of_a_calibration(case: dict[str, Any]) -> None:
+  """S-X² of MMLCalibrator's own calibration matches mirt's, degrees of freedom included.
+
+  The estimates agree within _ESTIMATE_ATOL, which moves the statistics by about a relative 1e-5.
+  """
+  matrix = responses(_ITEM_FIT["data"][case["data"]])
+  calibration = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_ITEM_FIT["settings"]["tol"]).calibrate(matrix)
+  fit = s_x2(calibration, matrix)
+  np.testing.assert_array_equal(fit.df, case["df"])
+  np.testing.assert_allclose(fit.statistic, case["s_x2"], rtol=_S_X2_RTOL)
+  np.testing.assert_allclose(fit.p_value, case["p_value"], rtol=_S_X2_RTOL)
+
+
+@pytest.mark.parametrize("table", range(len(_ITEM_FIT["collapse"])))
+def test_collapse_matches_mirt(table: int) -> None:
+  """Collapsing a table of incorrect and correct counts by score gives the table mirt's collapseCells gives.
+
+  Random tables with empty rows, rows of one examinee, tied neighbours and small expected counts exercise every rule.
+  """
+  case = _ITEM_FIT["collapse"][table]
+  observed, expected = _collapse(np.array(case["observed"]), np.array(case["expected"]), 1.0)
+  np.testing.assert_array_equal(observed, case["collapsed_observed"])
+  np.testing.assert_allclose(expected, case["collapsed_expected"], rtol=1e-13, atol=1e-13)

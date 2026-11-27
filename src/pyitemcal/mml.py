@@ -56,13 +56,12 @@ from catsim.typing import FloatArray, IntArray
 from scipy.special import expit, logsumexp
 from scipy.stats import norm
 
-from .calibration import Calibration, ConvergenceWarning, validate_responses
+from .calibration import Calibration, ConvergenceWarning, default_grid, validate_responses
 from .irt import log_likelihood_gradient, parameter_information
 
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
 _START_SLOPE = 0.5 * 1.702
 _START_INTERCEPT_SCALE = 1.702 / math.sqrt(0.75)
-_GRID_NODES = 61
 # The M-step's Fisher scoring stops when no parameter moves by more than this, or after the iterations below.
 _M_STEP_TOLERANCE = 1e-12
 _M_STEP_ITERATIONS = 50
@@ -84,11 +83,6 @@ def _log_joint(responses: FloatArray, items: FloatArray, grid: QuadratureGrid) -
   correct = numpy.where(answered, responses, 0.0)
   log_p, log_q = log_response_probabilities(grid.nodes, items)
   return correct @ log_p.T + (answered - correct) @ log_q.T + _log_masses(grid)
-
-
-def _default_grid() -> QuadratureGrid:
-  """Return 61 equally spaced nodes on [-6, 6], mirt's grid (ADR-0007)."""
-  return QuadratureGrid.uniform(_GRID_NODES)
 
 
 def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: QuadratureGrid | None = None) -> float:
@@ -125,7 +119,7 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
   if items.shape != (matrix.shape[1], _N_PARAMETERS):
     msg = f"items must have one row [a, b, c, d] per item, shape ({matrix.shape[1]}, 4), got {items.shape}"
     raise ValueError(msg)
-  return float(numpy.sum(logsumexp(_log_joint(matrix, items, grid if grid is not None else _default_grid()), axis=1)))
+  return float(numpy.sum(logsumexp(_log_joint(matrix, items, grid if grid is not None else default_grid()), axis=1)))
 
 
 class MMLCalibrator:
@@ -191,7 +185,7 @@ class MMLCalibrator:
     self._fixed_slope = fixed_slope
     self._tolerance = tolerance
     self._max_cycles = max_cycles
-    self._grid = grid if grid is not None else _default_grid()
+    self._grid = grid if grid is not None else default_grid()
 
   def calibrate(self, responses: FloatArray, start: ItemBank | None = None) -> Calibration:
     """Estimate the items of a response matrix.
@@ -256,9 +250,11 @@ class MMLCalibrator:
       standard_errors=standard_errors,
       log_likelihood=float(numpy.sum(logsumexp(_log_joint(matrix, items, self._grid), axis=1))),
       n_parameters=int(index.max()) + 1,
+      item_parameters=numpy.count_nonzero(index >= 0, axis=1),
       cycles=cycles,
       converged=converged,
       change=change,
+      grid=self._grid,
     )
 
   def _cycle(self, matrix: FloatArray, index: IntArray, values: FloatArray) -> tuple[FloatArray, int, float]:
