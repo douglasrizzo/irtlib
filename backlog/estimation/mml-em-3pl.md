@@ -1,149 +1,187 @@
 ---
-title: MML-EM extension for 3PL
+title: Calibrate the 3PL by Bayes modal estimation with priors on the item parameters
 kind: technique
-status: needs-research
+status: blocked
 priority: 2
-effort: S
-blocked_by: [discovery/research-pass, estimation/mml-em]
+effort: M
+blocked_by: [discovery/requirements, estimation/mml-em]
 raised_by: [moved from catsim's backlog]
 ---
 
-# MML-EM extension for 3PL
+# Calibrate the 3PL by Bayes modal estimation with priors on the item parameters
 
-> **Carried over from catsim's backlog on 2026-11-26, unverified.** Its equations, claims, sources and
-> sketch were never checked against the literature. [The research pass](../discovery/research-pass.md)
-> keeps only what the sources verify and deletes what is wrong or misleading, or deletes the card.
+## Problem
 
-> Background: [the literature review, section 5 (not yet reviewed)](../discovery/literature-review.md#5-not-yet-reviewed)
+The 3PL adds each item's guessing parameter $c$, and with it estimates that maximum likelihood alone
+often leaves at a boundary or unstable. The remedy the sources and BILOG use is Bayes modal
+estimation: the EM algorithm of [the MML-EM card](mml-em.md), with prior densities on the item
+parameters added to the M-step (Mislevy, 1986, p. 182). Priors serve the 2PL too, where they keep
+slopes finite (Baker, 1987, p. 131), so the mechanism is the card's and the 3PL is its first use.
 
-## Reference
+## Evidence
 
-Bock, R. D., & Aitkin, M. (1981). *Psychometrika*, 46(4), 443–459.
+- The research pass (2026-11-27) checked the card carried over from catsim:
+  - its bounds $c \in [0, 0.35]$, $a \in [0.1, 5]$ and $b \in [-6, 6]$ have no source; mirt sets no
+    bounds (source `R/06-LoadPars.R:364-365`), and estimating $c$ on the logit scale keeps it inside
+    $(0, 1)$ without one (Mislevy, 1986, p. 183);
+  - its Beta(5, 17) prior on $c$ is PC-BILOG's default for five-option items (Harwell & Baker, 1991,
+    p. 383, Equation 27), not Mislevy's (1986) prior, which is normal on the logit of $c$ (p. 183);
+  - "c drifts toward 0 or its upper bound" is not stated in any source read; the likelihood is
+    "nearly flat along one or more dimensions" of $(a, b, c)$ jointly (Mislevy, 1986, p. 189).
+- A measurement on mirt 1.48 (2026-11-27), `LSAT7` (1,000 examinees, 5 items), `TOL = 1e-6`:
 
-Mislevy, R. J. (1986). Bayes modal estimation in item response models. *Psychometrika*, 51(2), 177–195.
+  | Fit | EM cycles | Estimates of $c$ | log-likelihood |
+  |---|---|---|---|
+  | 3PL, no prior | 637 | 0.000 for 4 items, .298 for item 2 | −2658.0547 |
+  | 3PL, logit $c \sim N(\text{logit}\,.2,\ .5^2)$ | 130 | .175 to .212 | −2659.1705 |
 
-Baker, F. B., & Kim, S.-H. (2004). *Item Response Theory: Parameter Estimation Techniques* (2nd ed.). Chapters 9–10.
+## What pyitemcal and catsim have now
 
-## Theory
+- catsim: `catsim.estimation.LogPrior`, `normal_log_prior` and `uniform_log_prior`, priors on ability
+  that ADR-0004 lets pyitemcal reuse.
+- pyitemcal: nothing; the 2PL is [the MML-EM card](mml-em.md), the derivatives
+  [the ICC-gradients card](../irt/icc-gradients.md).
 
-The 3PL adds the pseudo-guessing parameter $c_i$:
+## Proposal
 
-$$P_i(\theta) = c_i + \frac{1 - c_i}{1 + \exp(-a_i(\theta - b_i))}$$
-
-The c-parameter is notoriously difficult to estimate via MML-EM:
-
-1. **Boundary problem**: $c$ tends to drift toward 0 or its upper bound. The likelihood surface is very flat in the c-direction, especially with small samples.
-2. **Identifiability**: With few low-ability examinees, the lower asymptote is poorly determined.
-
-### Solutions
-
-**Box constraints**: Bound $c \in [0.0, 0.35]$ in the M-step optimizer. This is the simplest approach and sufficient for most applications.
-
-**Bayesian regularization (Mislevy, 1986)**: Add a $\text{Beta}(\alpha, \beta)$ prior penalty on $c$ to the expected log-likelihood:
-
-$$\ell_i^{*} = \ell_i + (\alpha - 1) \log c_i + (\beta - 1) \log(1 - c_i)$$
-
-Common choice: $\text{Beta}(5, 17)$ which has mean $\approx 0.23$ and concentrates $c$ in the plausible $[0.05, 0.35]$ range. The gradient contribution from the prior is:
-
-$$\frac{\partial}{\partial c_i}\left[(\alpha-1)\log c_i + (\beta-1)\log(1-c_i)\right] = \frac{\alpha - 1}{c_i} - \frac{\beta - 1}{1 - c_i}$$
-
-### M-step changes
-
-The M-step for item $i$ now optimizes over $(a_i, b_i, c_i)$ with:
-- $a \in [0.1, 5.0]$, $b \in [-6.0, 6.0]$, $c \in [0.0, 0.35]$
-- The ICC probability is $P = c + (1-c) \cdot \psi$ instead of $P = \psi$
-- Gradients from icc-gradients's `icc_derivatives` include `dP_dc = 1 - ψ`
-
-The E-step is unchanged from mml-em.
-
-## Mock implementation
-
-```python
-# src/pyitemcal/mml_em.py  (extend existing MMLEMCalibrator)
-
-# Add "3PL" to the model Literal type:
-#   model: Literal["1PL", "2PL", "3PL"] = "2PL"
-
-# In __init__, add prior parameters:
-#   c_prior_alpha: float = 5.0
-#   c_prior_beta: float = 17.0
-
-# Modify calibrate() to initialize c:
-#   c = np.full(n_items, 0.2) if self.model == "3PL" else np.zeros(n_items)
-
-# Modify _m_step to include c in optimization for 3PL:
-def _m_step_3pl(self, items, nodes, r_bar, f_bar):
-    """M-step for 3PL: optimize (a, b, c) per item."""
-    n_items = items.shape[0]
-    a_new = items[:, 0].copy()
-    b_new = items[:, 1].copy()
-    c_new = items[:, 2].copy()
-
-    for i in range(n_items):
-        x0 = [a_new[i], b_new[i], c_new[i]]
-        bounds = [(0.1, 5.0), (-6.0, 6.0), (0.0, 0.35)]
-
-        result = optimize.minimize(
-            self._neg_expected_ll_item_3pl,
-            x0,
-            args=(i, nodes, r_bar, f_bar, self.c_prior_alpha, self.c_prior_beta),
-            method="L-BFGS-B",
-            bounds=bounds,
-            jac=True,
-        )
-        a_new[i], b_new[i], c_new[i] = result.x
-
-    return a_new, b_new, c_new
-
-@staticmethod
-def _neg_expected_ll_item_3pl(params, item_idx, nodes, r_bar, f_bar, alpha, beta):
-    """Negative expected log-likelihood + Beta prior on c, with gradient."""
-    a, b, c = params
-
-    z = np.exp(-a * (nodes - b))
-    psi = 1.0 / (1.0 + z)
-    P = c + (1.0 - c) * psi
-    Q = 1.0 - P
-
-    r_i = r_bar[:, item_idx]
-    f_q = f_bar
-
-    ll = np.sum(r_i * np.log(P + 1e-30) + (f_q - r_i) * np.log(Q + 1e-30))
-
-    # Beta prior on c
-    if c > 0 and c < 1:
-        ll += (alpha - 1) * np.log(c) + (beta - 1) * np.log(1 - c)
-
-    # Gradients
-    residual = (r_i - f_q * P) / (P * Q + 1e-30)
-    psi_deriv = psi * (1.0 - psi)
-
-    grad_a = np.sum(residual * (1.0 - c) * (nodes - b) * psi_deriv)
-    grad_b = np.sum(residual * (-(1.0 - c) * a * psi_deriv))
-    grad_c = np.sum(residual * (1.0 - psi))
-
-    # Prior gradient on c
-    if c > 0 and c < 1:
-        grad_c += (alpha - 1) / c - (beta - 1) / (1 - c)
-
-    return -ll, np.array([-grad_a, -grad_b, -grad_c])
-```
-
-## Proposed location
-
-Same file as mml-em: `src/pyitemcal/mml_em.py`. Extend `MMLEMCalibrator` to accept `model="3PL"`.
+The 3PL by MML-EM, with optional priors on the item parameters in the M-step, estimated on the
+transformed scale $(\log a, b, \operatorname{logit} c)$ (Mislevy, 1986, p. 183). The open questions
+are the requirements card's to settle; the card assumes the recommendation of each until then.
 
 ## Tests
 
-1. **Recovery test (3PL)**: Generate 20 items with `c ~ Uniform(0.05, 0.25)`, 1000 examinees. Assert recovered c values correlate $r > 0.7$ with true values (lower bar than a/b because c is harder).
-2. **c stays in bounds**: With `c_bounds=(0.0, 0.35)`, no estimated c should exceed 0.35 or go below 0.0.
-3. **Prior effect**: Compare estimates with and without the Beta prior. With prior, c values should be more concentrated around the prior mean.
-4. **3PL reduces to 2PL**: When true c=0 for all items, 3PL estimates should recover c ≈ 0 (within 0.05).
-5. **Log-likelihood monotonicity**: EM guarantee still holds — marginal LL should be non-decreasing across iterations.
-6. **Gradient correctness**: Numerical gradient check for the 3PL M-step objective at random parameter values.
+- **Parity with mirt 1.48:** the 3PL with a `norm` prior on logit $c$ (manual p. 155), and the 2PL
+  with a `lnorm` prior on $a$, on simulated data with missing entries; fixtures at `TOL = 1e-8`.
+  Fixtures avoid mirt's `expbeta` prior: its gradient adds $(\alpha - 1)/c - (\beta - 1)/(1 - c)$ to
+  the gradient with respect to logit $c$ (source `R/utils.R:1435-1450`), without the factor
+  $c(1 - c)$ that its log-prior on that scale implies (`R/utils.R:1488-1497`).
+- **Prior gradients:** each prior's gradient and Hessian agree with finite differences of its log
+  density on the scale the parameter is estimated on.
+- **Flat priors:** with every prior flat, the estimates equal the maximum likelihood estimates.
+- **Beta parameterization:** Beta($mp + 1$, $m(1 - p) + 1$) has mode $p$ (closed form); Harwell and
+  Baker's (1991, p. 383) default Beta(5, 17) is $m = 20$, $p = .2$.
+- **Recovery** (ADR-0003): 3PL responses from known parameters with a fixed seed; with the priors
+  recommended below, every estimate within a multiple of its standard error.
 
-## Notes
+## Open Questions
 
-- The Beta(5, 17) prior is from Mislevy (1986) and is the standard choice in `mirt` and `girth`. Make the prior parameters configurable.
-- With small samples ($N < 500$), c estimates are unreliable even with the prior. Document this limitation.
-- The 4PL extension (adding d-parameter) is deferred to a discussion card because d is even harder to estimate and rarely needed in practice.
+1. **The form of the prior on $c$.** A normal prior on logit $c$ (Mislevy, 1986, p. 183), which mirt's
+   manual recommends for its logit-scale guessing parameter (p. 132); or a beta prior on $c$ itself,
+   which allows $c = 0$ (Mislevy, 1986, p. 183) and is PC-BILOG's (Harwell & Baker, 1991, p. 383).
+   Assumed: normal on logit $c$, as mirt.
+2. **Default priors.** mirt has none (source `R/06-LoadPars.R:361-362`); BILOG's defaults are normal
+   on $(\log a, b, \operatorname{logit} c)$ with variances .25, 4.00 and .25 (Mislevy, 1986, p. 190);
+   PC-BILOG's are $\log a \sim N(0, .5^2)$, $b \sim N(0, 2^2)$ and $c \sim$ Beta(5, 17) (Harwell &
+   Baker, 1991, p. 383). The measurement shows the 3PL without a prior putting four of five $c$'s at
+   0. Assumed: no default prior, as mirt, with the 3PL's documentation recommending one; the
+   requirements card decides, with a recovery measurement.
+3. **Floating prior means.** BILOG can estimate the priors' means from the items (Mislevy, 1986,
+   p. 190); the PC-BILOG manual advises against it for small data sets (Harwell & Baker, 1991,
+   p. 386). Assumed: fixed hyperparameters (YAGNI).
+4. **How a caller passes priors**, on which parameters and scales: the requirements card's
+   question 6.
+5. **Starting value of $c$.** mirt starts at .15 (source `R/04-PrepData.R:70`). Assumed: as mirt.
+
+---
+
+**Module:** decided by the requirements card (planned)
+**Reference:** Mislevy (1986)
+**Last validated:** 2026-11-27, against Mislevy (1986), Harwell & Baker (1991) and Baker (1987) on
+the paper shelf, and mirt 1.48 (reference manual and source).
+**Implementation guidance:** not yet written; it waits for the requirements card.
+
+## Motivation
+
+On a multiple-choice item, examinees of low ability still answer correctly by chance, which the 3PL
+models with a lower asymptote $c$. Its likelihood is poorly determined: discrepant triples $(a, b, c)$
+trace similar curves over the abilities where examinees are, so the likelihood is "nearly flat along
+one or more dimensions", and Bayesian item estimation was motivated by wanting "reasonable" estimates,
+"in particular, finite ones" (Mislevy, 1986, p. 189). Priors on the item parameters give them.
+
+## Definition
+
+The 3PL is catsim's response function with $d = 1$, $P = c + (1 - c)F$. For an item's parameters
+$\xi$ with prior density $p(\xi)$, Bayes modal estimation maximizes the log-likelihood plus
+$\log p(\xi)$. The EM algorithm carries over unchanged except that the M-step's likelihood equations
+gain the derivatives of the log prior (Mislevy, 1986, p. 182, Equation 14). With the expected counts
+$\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card, the M-step equation for $c$ is
+$(1 - c)^{-1}\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]/P_i(X_q) = 0$ (Harwell & Baker, 1991,
+p. 383, Equation 26), and those for the intercept and slope are Baker's (1987, p. 116) Equations
+14-15 with the expected counts in place of the observed ones; each prior adds its term
+(Harwell & Baker, 1991, p. 383).
+
+Mislevy (1986, p. 183) estimates $\alpha = \log a$, $\beta = b$ and $\gamma = \operatorname{logit} c$,
+so that $a = e^\alpha$ and $c = 1/(1 + e^{-\gamma})$ stay in range, with normal priors on the three,
+and notes that a beta prior on untransformed $c$ may be preferable when $c = 0$ should be possible.
+A beta prior Beta($\alpha_\beta$, $\beta_\beta$) is set by a weight $m$ and a location $p$ as
+$\alpha_\beta = mp + 1$ and $\beta_\beta = m(1 - p) + 1$ (Harwell & Baker, 1991, p. 386); they call
+$p$ the mean, but with these parameters $p$ is the mode (the card's arithmetic: the mode of
+Beta($\alpha$, $\beta$) is $(\alpha - 1)/(\alpha + \beta - 2)$).
+
+The posterior precision of the estimates is the information plus the negative second derivative of
+the log prior (Mislevy, 1986, p. 182, Equations 15-17), so the standard errors of
+[the standard-errors card](standard-errors.md) carry over with the prior's term added.
+
+## Parameters
+
+```{eval-rst}
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 60
+
+   * - Parameter
+     - Default
+     - Description
+   * - priors on ``a``, ``b``, ``c``
+     - Open Question 2
+     - A prior density per parameter and item, on the scale the parameter is estimated on.
+```
+
+## Behavior and Comparison
+
+Under BILOG's default prior with a logit-scale variance of .25, "we would expect most c's to lie between
+.15 and .35" (Mislevy, 1986, p. 190); the range is the prior's spread, not a bound. Priors on $a$ and
+$c$ keep the slopes from diverging and $c$ plausible, the Heywood problem of joint and marginal
+estimation (Baker, 1987, pp. 131, 133).
+
+mirt 1.48 fits the 3PL with `itemtype = "3PL"`:
+
+- It stores the guessing parameter as a logit (manual p. 132; source `R/06-LoadPars.R:23`), starts it
+  at .15 (`R/04-PrepData.R:70`), and sets no prior and no bound by default
+  (`R/06-LoadPars.R:361-365`).
+- Priors are given in the model syntax as `PRIOR = (items, parameter, type, value1, value2)`, with
+  types `norm`, `lnorm`, `beta` and `expbeta` (manual p. 155); for the guessing parameter its manual
+  recommends `norm`, on the logit scale (p. 132).
+- It solves the M-step with BFGS, or with nlminb when a parameter has a finite bound (source
+  `R/EMstep.group.R:117-122`).
+- `guess` fixes the guessing parameter for an item type that does not estimate it, such as the 2PL,
+  and only sets its starting value under `"3PL"` (source `R/06-LoadPars.R:85-91`); its manual
+  describes `guess` as fixed (p. 124).
+
+## Guarantees
+
+1. Every estimate of $c$ lies strictly between 0 and 1.
+2. With no priors, the estimates are maximum likelihood estimates.
+3. A prior changes only the M-step, so the E-step's expected counts mean the same with or without it.
+
+## References
+
+Baker, F. B. (1987). Methodology review: Item parameter estimation under the one-, two-, and
+three-parameter logistic models. *Applied Psychological Measurement, 11*(2), 111-141.
+https://doi.org/10.1177/014662168701100201. Open copy: https://hdl.handle.net/11299/103398
+
+Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
+[Reference manual and source]. https://cran.r-project.org/package=mirt
+
+Harwell, M. R., & Baker, F. B. (1991). The use of prior distributions in marginalized Bayesian item
+parameter estimation: A didactic. *Applied Psychological Measurement, 15*(4), 375-389.
+https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11299/114468
+
+Mislevy, R. J. (1986). Bayes modal estimation in item response models. *Psychometrika, 51*(2),
+177-195. https://doi.org/10.1007/BF02293979. Not openly available; Harwell and Baker (1991,
+pp. 377-387) describe the method.
+
+## Implementation Guidance
+
+Waits for the requirements card (`discovery/requirements.md`). The prior terms enter only the
+M-step's objective, gradient and Hessian, so the 2PL, 3PL and 4PL share one implementation of them.

@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-25 cards: 1 ready, 6 needs-research, 1 needs-decision, 13 blocked, 4 parked.
+25 cards: 1 ready, 4 needs-research, 1 needs-decision, 15 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -61,7 +61,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [MML-EM extension for 3PL](estimation/mml-em-3pl.md) | estimation | technique | needs-research | S | [research-pass](discovery/research-pass.md), [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
+| [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
 | [Item fit statistics](fit/item-fit.md) | fit | technique | needs-research | S | [research-pass](discovery/research-pass.md) | moved from catsim's backlog |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
 | [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
@@ -71,9 +71,9 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | blocked | M | [requirements](discovery/requirements.md) | maintainer during setup |
+| [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
 | [Conditional Maximum Likelihood for Rasch/1PL](estimation/cml-rasch.md) | estimation | technique | needs-research | S | [research-pass](discovery/research-pass.md) | moved from catsim's backlog |
 | [Joint Maximum Likelihood (JML) estimator](estimation/jml.md) | estimation | technique | needs-research | S | [research-pass](discovery/research-pass.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
-| [MML-EM for 4PL](estimation/mml-em-4pl.md) | estimation | technique | needs-research | L | [research-pass](discovery/research-pass.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
