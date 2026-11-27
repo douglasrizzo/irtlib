@@ -13,7 +13,8 @@ there. A fixture recorded on a grid of another range, read with the slope and in
 responses counted, fails. The number of nodes cannot be checked this way: 41 or more equally spaced nodes on the same
 range give the same log-likelihood within the tolerance. The response-function fixture holds items with fixed
 parameters instead of responses, and is checked against the 4PL information of Magis (2013, p. 307, Equation 6),
-written out.
+written out. The ability fixture holds items with fixed parameters and response patterns, and its EAP estimates are
+checked against the posterior mean and standard deviation written out on mirt's grid.
 """
 
 from __future__ import annotations
@@ -29,6 +30,13 @@ from scipy.integrate import quad
 from scipy.special import expit, logsumexp
 
 from irtlib import irt
+from irtlib.ability import (
+  AbilityEstimates,
+  expected_a_posteriori,
+  maximum_a_posteriori,
+  maximum_likelihood,
+  weighted_likelihood,
+)
 from irtlib.calibration import Calibration, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
@@ -42,6 +50,7 @@ from irtlib.mml import (
   _PriorTerm,  # noqa: PLC2701 - the prior densities are compared with mirt's log-prior at its estimates
   marginal_log_likelihood,
 )
+from irtlib.quadrature import QuadratureGrid
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
@@ -422,3 +431,130 @@ def test_info_integral(case: dict[str, Any]) -> None:
   items = np.array(_RESPONSE_FUNCTIONS["items"])
   values = irt.info_integral(float(case["lower"]), float(case["upper"]), items)
   np.testing.assert_allclose(values, case["info"], rtol=_CLOSED_FORM_RTOL)
+
+
+_ABILITY = load("ability")
+_ESTIMATORS = {
+  "EAP": expected_a_posteriori,
+  "MAP": maximum_a_posteriori,
+  "ML": maximum_likelihood,
+  "WLE": weighted_likelihood,
+}
+_NO_RESPONSE = (
+  "for an examinee who answered no item mirt 1.48 returns NA (R/fscores.internal.R:94-96, 185); irtlib's posterior "
+  "is then the prior, whose mean, mode and standard deviation it returns"
+)
+_OBSERVED_INFORMATION = (
+  "mirt 1.48 takes the standard error from nlm's numerical Hessian, the observed information, plus the prior's "
+  "precision for MAP (R/fscores.internal.R:1064-1068, 1083-1101); irtlib's is the expected information, which equals "
+  "the observed only when every answered item has c = 0 and d = 1"
+)
+_INFINITE_STANDARD_ERROR = (
+  "mirt 1.48 gives an infinite estimate no standard error, NA (R/fscores.internal.R:397-405); irtlib's is inf, since "
+  "the information tends to 0 at either infinity (maintainer, 2026-11-27)"
+)
+_SUPREMUM = (
+  "where the likelihood comes closest to its supremum only at an infinity, irtlib's estimate is that infinity; mirt "
+  "1.48's nlm stops at its max_theta, -20, or short of the supremum, at 2.48, and turns an estimate whose standard "
+  "error exceeds 30 into an infinity (R/fscores.internal.R:1094-1096), which gives -inf for the first pattern"
+)
+_WEIGHTED = (
+  "mirt 1.48 maximizes log L + log I / 2 (R/fscores.internal.R:705-738), which is Warm's estimate only when every "
+  "answered item has c = 0 and d = 1 (Warm, 1989, p. 431); irtlib solves Warm's modified score equation"
+)
+_WEIGHTED_STANDARD_ERROR = (
+  "mirt 1.48's WLE standard error comes from nlm's numerical Hessian of its weighted log-likelihood; irtlib's is "
+  "1 / sqrt(I), catR's default"
+)
+
+
+def _floats(values: list[Any]) -> FloatArray:
+  """Return a list of JSON numbers, or of the strings json.R writes for infinities and NaN, as a float array."""
+  return np.array([float(value) for value in values], dtype=float)
+
+
+def _ability_estimates(case: dict[str, Any]) -> AbilityEstimates:
+  """Return irtlib's estimates of a case's patterns, by the case's method on its bank, with irtlib's defaults."""
+  return _ESTIMATORS[case["method"]](np.array(_ABILITY["banks"][case["bank"]]), responses(case))
+
+
+def test_ability_fixture_uses_irtlibs_grid() -> None:
+  """mirt's EAP grid in the fixture is irtlib's default, 121 nodes on [-6, 6]; another grid tests other settings."""
+  grid = QuadratureGrid.uniform()
+  settings = _ABILITY["settings"]
+  assert (settings["quadpts"], *settings["theta_lim"]) == (grid.nodes.size, grid.nodes[0], grid.nodes[-1])
+
+
+@pytest.mark.parametrize("case", [case for case in _ABILITY["cases"] if case["id"] in {"eap/2pl", "eap/4pl"}])
+def test_ability_fixture_eap_is_the_posterior_mean(case: dict[str, Any]) -> None:
+  """mirt's EAP estimates and standard errors are the mean and standard deviation of the posterior, written out.
+
+  The posterior weighs 121 nodes on [-6, 6] by the standard normal density and the 4PL likelihood of the answered items.
+  A fixture recorded on another grid or prior, or with its patterns or banks out of place, fails.
+  """
+  items = np.array(_ABILITY["banks"][case["bank"]])
+  nodes = np.linspace(-6.0, 6.0, 121)
+  a, b, c, d = items.T
+  p = c + (d - c) / (1.0 + np.exp(-a * (nodes[:, np.newaxis] - b)))
+  matrix = responses(case)
+  answered = ~np.isnan(matrix)
+  log_likelihood = np.where(answered, matrix, 0.0) @ np.log(p).T + np.where(answered, 1 - matrix, 0.0) @ np.log1p(-p).T
+  mass = np.exp(log_likelihood - nodes**2 / 2)
+  mass /= mass.sum(axis=1, keepdims=True)
+  mean = mass @ nodes
+  np.testing.assert_allclose(_floats(case["theta"]), mean, rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(
+    _floats(case["se"]), np.sqrt(np.sum(mass * (nodes - mean[:, np.newaxis]) ** 2, axis=1)), rtol=_CLOSED_FORM_RTOL
+  )
+
+
+def _ability_cases(*reasons: tuple[str, str]) -> list[Any]:
+  """Return the ability cases as parameters, each a strict expected failure where a reason names its id."""
+  return [_marked(case, *reasons) for case in _ABILITY["cases"]]
+
+
+@pytest.mark.parametrize(
+  "case",
+  _ability_cases(
+    ("eap_unanswered/2pl", _NO_RESPONSE),
+    ("map_unanswered/2pl", _NO_RESPONSE),
+    ("ml_supremum/4pl", _SUPREMUM),
+    ("wle/4pl", _WEIGHTED),
+  ),
+)
+def test_ability_estimates(case: dict[str, Any]) -> None:
+  """irtlib's EAP, MAP, ML and WLE estimates, with its default settings, match mirt's fscores.
+
+  EAP is a sum on the same grid, compared as a closed form; the others are searches, compared within the estimates'
+  tolerance. Infinite estimates match by sign, and NaN, for no estimate, by position.
+  """
+  estimates = _ability_estimates(case)
+  if case["method"] == "EAP":
+    np.testing.assert_allclose(estimates.theta, _floats(case["theta"]), rtol=_CLOSED_FORM_RTOL)
+  else:
+    np.testing.assert_allclose(estimates.theta, _floats(case["theta"]), rtol=0, atol=_ESTIMATE_ATOL)
+
+
+@pytest.mark.parametrize(
+  "case",
+  _ability_cases(
+    ("eap_unanswered/2pl", _NO_RESPONSE),
+    ("map_unanswered/2pl", _NO_RESPONSE),
+    ("map/4pl", _OBSERVED_INFORMATION),
+    ("ml/4pl", _OBSERVED_INFORMATION),
+    ("ml_constant/2pl", _INFINITE_STANDARD_ERROR),
+    ("ml_constant/4pl", _INFINITE_STANDARD_ERROR),
+    ("ml_supremum/4pl", _SUPREMUM),
+    ("wle/2pl", _WEIGHTED_STANDARD_ERROR),
+    ("wle/4pl", _WEIGHTED_STANDARD_ERROR),
+  ),
+)
+def test_ability_standard_errors(case: dict[str, Any]) -> None:
+  """irtlib's standard errors match mirt's: the posterior standard deviation for EAP, 1 / sqrt(I) for 2PL items.
+
+  On 2PL items the observed information of mirt's numerical Hessian is the expected information irtlib uses, plus the
+  prior's precision for MAP, so the two agree within the Hessian's accuracy.
+  """
+  estimates = _ability_estimates(case)
+  rtol = _CLOSED_FORM_RTOL if case["method"] == "EAP" else _STANDARD_ERROR_RTOL
+  np.testing.assert_allclose(estimates.se, _floats(case["se"]), rtol=rtol)

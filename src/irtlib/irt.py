@@ -123,7 +123,7 @@ import numpy.typing as npt
 from scipy import stats
 from scipy.special import expit, log_expit
 
-from ._responses import response_matrix
+from ._responses import responses_and_items
 from .typing import FloatArray
 
 THETA_MIN_TYPICAL = -4.0
@@ -137,9 +137,6 @@ THETA_MIN_EXTENDED = -6.0
 
 THETA_MAX_EXTENDED = 6.0
 """The upper end of the extended ability range, which the default quadrature grid spans."""
-
-# the columns of an item matrix: a, b, c and d
-_N_COLUMNS = 4
 
 
 def _split(items: FloatArray) -> tuple[FloatArray, FloatArray, FloatArray, FloatArray]:
@@ -736,16 +733,8 @@ def log_likelihood_function(responses: npt.ArrayLike, items: FloatArray) -> Call
   >>> log_lik(0.0).round(4), log_lik(numpy.array([0.0, 1.0])).round(4)
   (array([-1.3863]), array([[-1.3863, -1.6265]]))
   """
-  # a float copy: later changes to the caller's matrix cannot reach the function, and 1 - d cannot wrap around in an
-  # unsigned integer type
-  items = numpy.array(items, dtype=float)
-  if items.shape[1:] != (_N_COLUMNS,):
-    msg = f"items must be an (n, 4) matrix, one row per item, got shape {items.shape}"
-    raise ValueError(msg)
-  matrix = response_matrix(responses)
-  if matrix.shape[1] != items.shape[0]:
-    msg = f"responses has {matrix.shape[1]} columns and items {items.shape[0]} rows; there must be one item per column"
-    raise ValueError(msg)
+  # copies: later changes to the caller's arrays cannot reach the function
+  matrix, items = responses_and_items(responses, items)
   log_c, log_1md, log_dmc = _log_asymptotes(items)
   # One term per item that someone answered correctly, its log P, and one per item that someone answered incorrectly,
   # its log Q. log Q is log P's formula at the negated logit, and negating a negates the logit exactly, so one formula

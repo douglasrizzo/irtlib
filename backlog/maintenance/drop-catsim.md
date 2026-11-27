@@ -43,8 +43,11 @@ and still agrees, while catsim keeps its own copy (ADR-0004).
 5. Add benchmarks, run on demand and not in CI, where timings are noisy: each moved function timed
    against catsim's original with `timeit`, on the shapes catsim calls them with. Those are one
    ability against a bank of 500 items for the response functions and information, and one
-   examinee's responses on catsim's 121-node default grid for the posterior. The estimators join
-   them with `estimation/ability-estimation`, which this card does not wait for.
+   examinee's responses on catsim's 121-node default grid for the posterior, and one examinee's 20
+   responses for the four estimators of `irtlib.ability`, against catsim's `EAPEstimator`,
+   `MAPEstimator`, `NumericalSearchEstimator` and `WarmLikelihoodEstimator`. The maximum
+   likelihood estimates are compared on mixed responses, with bounds (-6, 6): on responses all
+   correct or all incorrect, catsim takes Dodd's step.
    They also check that the two agree within a relative `1e-12`. The pull request records every
    ratio; `CONTRIBUTING.md` says how to run them.
 

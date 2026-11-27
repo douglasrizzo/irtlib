@@ -37,8 +37,8 @@ The research pass (2026-11-27) checked the card carried over from catsim:
 ## What irtlib and catsim have now
 
 - catsim: ability estimators for one examinee at a time.
-- irtlib: nothing yet; ability estimation for many examinees at once is
-  `estimation/ability-estimation` (ADR-0001), and the item step's derivatives are `irtlib.irt`'s.
+- irtlib: maximum likelihood abilities for many examinees at once (`irtlib.ability`), and the item
+  step's derivatives (`irtlib.irt`).
 
 ## Proposal
 
