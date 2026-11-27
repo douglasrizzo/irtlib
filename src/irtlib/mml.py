@@ -67,12 +67,12 @@ import numpy
 from catsim import IrtModel, ItemBank
 from catsim.estimation import QuadratureGrid, normal_log_prior
 from catsim.irt import log_response_probabilities
-from catsim.typing import FloatArray, IntArray
 from scipy.special import expit, logit, logsumexp
 from scipy.stats import norm
 
 from .calibration import Calibration, ConvergenceWarning, default_grid, validate_responses
 from .irt import log_likelihood_gradient, parameter_information
+from .typing import FloatArray, IntArray
 
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
 _START_SLOPE = 0.5 * 1.702

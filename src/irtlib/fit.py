@@ -39,10 +39,10 @@ from dataclasses import dataclass
 import numpy
 from catsim.estimation import normal_log_prior
 from catsim.irt import icc
-from catsim.typing import FloatArray, IntArray
 from scipy.stats import chi2
 
 from .calibration import Calibration, validate_responses
+from .typing import FloatArray, IntArray
 
 
 @dataclass(frozen=True, slots=True)

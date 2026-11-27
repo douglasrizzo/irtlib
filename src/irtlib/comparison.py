@@ -26,11 +26,11 @@ With priors, the log-likelihood is the one at the Bayes modal estimates, without
 from dataclasses import dataclass
 
 import numpy
-from catsim.typing import FloatArray
 from scipy.stats import chi2
 
 from .calibration import Calibration, validate_responses
 from .mml import marginal_log_likelihood
+from .typing import FloatArray
 
 
 @dataclass(frozen=True, slots=True)

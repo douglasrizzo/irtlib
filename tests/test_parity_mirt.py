@@ -41,7 +41,7 @@ from irtlib.mml import (
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
-  from catsim.typing import FloatArray
+  from irtlib.typing import FloatArray
 
 # Closed forms, sums on the same grid, and log-likelihoods at two estimates that agree within _ESTIMATE_ATOL, which
 # the log-likelihood feels only to second order: a relative 1e-10 (ADR-0003).
