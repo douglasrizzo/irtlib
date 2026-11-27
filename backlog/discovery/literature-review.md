@@ -7,7 +7,7 @@
 > says what the sources establish, how the methods compare, how mirt implements them, and in what
 > order pyitemcal should build them.
 
-## 1. Marginal maximum likelihood with the EM algorithm
+## Marginal maximum likelihood with the EM algorithm
 
 **Card:** [estimation/mml-em.md](../estimation/mml-em.md).
 
@@ -56,7 +56,7 @@ every parameter changes by less than $10^{-4}$; for the 1PL above, that rule sto
 fixed-slope form short of the maximum (the card's measurement). The card lists its settings, with
 their locations.
 
-## 2. Standard errors of item estimates
+## Standard errors of item estimates
 
 **Card:** [estimation/standard-errors.md](../estimation/standard-errors.md).
 
@@ -69,7 +69,7 @@ part: Louis's exact form, the supplemented EM algorithm from the EM iteration hi
 speed (Pritikin, 2017, p. 7); with central differences it matched Louis's exact form to a mean
 relative difference of $2.5 \times 10^{-11}$, at 3% of the time (Chalmers, 2018, p. 13). mirt 1.48 uses it by default.
 
-## 3. Derivatives with respect to item parameters
+## Derivatives with respect to item parameters
 
 **Card:** [irt/icc-gradients.md](../irt/icc-gradients.md).
 
@@ -79,21 +79,51 @@ a common upper asymptote; Baker (1987, pp. 114, 116) gives the likelihood equati
 and notes that for the 1PL and 2PL, in the intercept-slope form, the second derivatives contain no
 observed data, so "the Hessian is the information matrix".
 
-## 4. Build order, so far
+## The 3PL and priors on item parameters
 
-1. The derivatives (section 3), which the M-step and the standard errors share.
-2. MML-EM for the 1PL and 2PL (section 1).
-3. Standard errors (section 2).
+**Card:** [estimation/mml-em-3pl.md](../estimation/mml-em-3pl.md).
+
+The 3PL's likelihood is "nearly flat along one or more dimensions" of $(a, b, c)$, and Bayesian item
+estimation was motivated by wanting "reasonable" estimates, "in particular, finite ones" (Mislevy,
+1986, p. 189). Bayes modal estimation keeps the EM algorithm and adds the derivatives of log prior
+densities to the M-step's equations (p. 182, Equation 14), estimating $\log a$, $b$ and
+$\operatorname{logit} c$ (p. 183). BILOG's default priors on these are normal with variances .25,
+4.00 and .25 (p. 190); PC-BILOG's are $\log a \sim N(0, .5^2)$, $b \sim N(0, 2^2)$ and
+$c \sim$ Beta(5, 17) for five-option items (Harwell & Baker, 1991, p. 383). Priors on the slope also
+keep the 2PL's estimates finite (Baker, 1987, pp. 130-131). mirt 1.48 sets no default prior (source
+`R/06-LoadPars.R:361-362`) and recommends a normal prior on the logit of its guessing parameter
+(manual p. 132). On LSAT-7 without
+a prior, mirt put four of five guessing estimates at 0; with a logit-normal prior they lay between
+.175 and .212 (the card's measurement).
+
+## The 4PL
+
+**Card:** [estimation/mml-em-4pl.md](../estimation/mml-em-4pl.md).
+
+Barton and Lord (1981, p. 2) proposed an upper asymptote below 1 for high-ability examinees who make
+a clerical error, fixed it at one value for all items (p. 3), and found "no compelling reason to urge
+the use of this model" (p. 6); it is still rarely used (Loken & Rulison, 2010, p. 510; Robitzsch,
+2022, p. 3). Without priors, maximum likelihood puts many upper asymptotes at 1 (Battauz, 2020,
+pp. 275-276, Table 5; Robitzsch, 2022, pp. 8-9). Bayes modal estimation needs "at least
+$N = 5{,}000$ subjects ... for accurate 4PM item calibration" (Waller & Feuerstahler, 2017, p. 19),
+and Markov chain Monte
+Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 2016, Section 5).
+
+## Build order, so far
+
+1. The derivatives, which the M-steps and the standard errors share.
+2. MML-EM for the 1PL and 2PL.
+3. Standard errors.
+4. Priors on item parameters and the 3PL, one M-step addition that the 2PL shares.
+5. The 4PL, for banks that need an upper asymptote, with samples of several thousand.
 
 The full order, with the methods below, is set when the pass ends.
 
-## 5. Not yet reviewed
+## Not yet reviewed
 
 These cards still carry material carried over from catsim, unverified; the review sections replace
 it as the pass reaches them:
 
-- the 3PL and 4PL, and priors on item parameters: [mml-em-3pl](../estimation/mml-em-3pl.md),
-  [mml-em-4pl](../estimation/mml-em-4pl.md);
 - joint and conditional maximum likelihood: [jml](../estimation/jml.md),
   [cml-rasch](../estimation/cml-rasch.md);
 - Markov chain Monte Carlo and the Metropolis-Hastings Robbins-Monro algorithm:
@@ -113,6 +143,9 @@ item-response model* (Research Report RR-81-20). Educational Testing Service.
 https://doi.org/10.1002/j.2333-8504.1981.tb01255.x. Open copy:
 https://files.eric.ed.gov/fulltext/ED207996.pdf
 
+Battauz, M. (2020). Regularized estimation of the four-parameter logistic model. *Psych, 2*(4),
+269-278. https://doi.org/10.3390/psych2040020. Open access.
+
 Beisemann, M., Wartlick, O., & Doebler, P. (2020). Comparison of recent acceleration techniques for
 the EM algorithm in one- and two-parameter logistic IRT models. *Psych, 2*(4), 209-252.
 https://doi.org/10.3390/psych2040018. Open access.
@@ -130,6 +163,11 @@ Early View version, 1-22.
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
 [Reference manual and source]. https://cran.r-project.org/package=mirt
 
+Culpepper, S. A. (2016). Revisiting the 4-parameter item response model: Bayesian estimation and
+application. *Psychometrika, 81*(4), 1142-1163. https://doi.org/10.1007/s11336-015-9477-6. Not
+openly available; Zhang, Lu, Du and Zhang (2020) describe the method. Cited by section: the shelf copy
+is the online version, without page numbers.
+
 Dempster, A. P., Laird, N. M., & Rubin, D. B. (1977). Maximum likelihood from incomplete data via
 the EM algorithm. *Journal of the Royal Statistical Society: Series B, 39*(1), 1-22.
 https://doi.org/10.1111/j.2517-6161.1977.tb01600.x. Not openly available; Woodruff and Hanson
@@ -142,6 +180,16 @@ https://doi.org/10.18637/jss.v092.i07. Open access.
 Engelen, R. J. H. (1987). *A review of different estimation procedures in the Rasch model* (Research
 Report 87-6). University of Twente. Open copy: https://files.eric.ed.gov/fulltext/ED310126.pdf
 
+Harwell, M. R., & Baker, F. B. (1991). The use of prior distributions in marginalized Bayesian item
+parameter estimation: A didactic. *Applied Psychological Measurement, 15*(4), 375-389.
+https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11299/114468
+
+Loken, E., & Rulison, K. L. (2010). Estimation of a four-parameter item response theory model.
+*British Journal of Mathematical and Statistical Psychology, 63*(3), 509-525.
+https://doi.org/10.1348/000711009X474502. Open copy (accepted manuscript):
+https://web.archive.org/web/20240708235413/https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf
+(archived copy of the UNCG repository's file)
+
 Louis, T. A. (1982). Finding the observed information matrix when using the EM algorithm. *Journal of
 the Royal Statistical Society: Series B, 44*(2), 226-233.
 https://doi.org/10.1111/j.2517-6161.1982.tb01203.x. Not openly available; Monroe and Cai (2013,
@@ -151,6 +199,10 @@ Meng, X.-L., & Rubin, D. B. (1991). Using EM to obtain asymptotic variance-covar
 SEM algorithm. *Journal of the American Statistical Association, 86*(416), 899-909.
 https://doi.org/10.1080/01621459.1991.10475130. Not openly available; Pritikin (2016, pp. 4-7)
 describes the method.
+
+Mislevy, R. J. (1986). Bayes modal estimation in item response models. *Psychometrika, 51*(2),
+177-195. https://doi.org/10.1007/BF02293979. Not openly available; Harwell and Baker (1991,
+pp. 377-387) describe the method.
 
 Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory model by the
 Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
@@ -163,10 +215,22 @@ Pritikin, J. N. (2017). A comparison of parameter covariance estimation methods 
 models in an expectation-maximization framework. *Cogent Psychology, 4*(1), 1279435.
 https://doi.org/10.1080/23311908.2017.1279435. Open access.
 
+Robitzsch, A. (2022). Four-parameter guessing model and related item response models. *Mathematical and
+Computational Applications, 27*(6), 95. https://doi.org/10.3390/mca27060095. Open access.
+
 Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
 *Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
 (1987, pp. 133-134) describes the method.
 
+Waller, N. G., & Feuerstahler, L. (2017). Bayesian modal estimation of the four-parameter item response
+model in real, realistic, and idealized data sets. *Multivariate Behavioral Research, 52*(3), 350-370.
+https://doi.org/10.1080/00273171.2017.1292893. Not openly available; Harwell and Baker (1991) describe
+the Bayes modal estimation it applies. Cited by the online version's pages, 1-21.
+
 Woodruff, D. J., & Hanson, B. A. (1996). *Estimation of item response models using the EM algorithm
 for finite mixtures* (ACT Research Report 96-6). ACT. Open copy:
 https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf
+
+Zhang, J., Lu, J., Du, H., & Zhang, Z. (2020). Gibbs-slice sampling algorithm for estimating the
+four-parameter logistic model. *Frontiers in Psychology, 11*, 2121.
+https://doi.org/10.3389/fpsyg.2020.02121. Open access.
