@@ -13,9 +13,10 @@ raised_by: [benchmarks against catsim on 2026-11-27]
 ## Problem
 
 catsim calls the log-likelihood and the posterior once or more per step of every simulated adaptive
-test, for one examinee. On that shape, irtlib's versions take 1.3 to 1.4 times catsim's time, above
+test, for one examinee. On that shape, irtlib's versions take 1.3 to 1.5 times catsim's time, above
 the 1.2 times the maintainer set for a faster version (ADR-0004). catsim's simulations will feel it
-once catsim builds on irtlib.
+once catsim builds on irtlib, and so do irtlib's EAP estimate, which calls both
+(`estimation/faster-ability-estimation`).
 
 ## Evidence
 
@@ -24,17 +25,17 @@ once catsim builds on irtlib.
 
 | Function | Shape | catsim | irtlib | Ratio |
 |---|---|---|---|---|
-| `irt.log_likelihood` | 20 responses, 121 nodes | 46-53 µs | 63-69 µs | 1.29-1.44 |
-| `quadrature.posterior`, with `irt.log_likelihood` | 20 responses, 121 nodes | 54-62 µs | 74-82 µs | 1.32-1.37 |
-| `quadrature.posterior_mean` | 121 nodes | 0.92-0.96 µs | 1.29-1.31 µs | 1.36-1.40 |
-| `quadrature.posterior_variance` | 121 nodes | 2.36-2.43 µs | 3.14-3.19 µs | 1.31-1.34 |
-| `irt.log_likelihood_function`, a call | 20 responses, 1 ability | 3.17-3.26 µs | 3.73-3.92 µs | 1.18-1.21 |
+| `irt.log_likelihood` | 20 responses, 121 nodes | 44.5-44.7 µs | 67.0-68.0 µs | 1.50-1.53 |
+| `quadrature.posterior`, with `irt.log_likelihood` | 20 responses, 121 nodes | 51.3-53.7 µs | 77.2-78.5 µs | 1.44-1.53 |
+| `quadrature.posterior_mean` | 121 nodes | 0.85-0.91 µs | 1.19-1.25 µs | 1.35-1.39 |
+| `quadrature.posterior_variance` | 121 nodes | 2.15-2.28 µs | 2.89-2.98 µs | 1.29-1.34 |
+| `irt.log_likelihood_function`, a call | 20 responses, 1 ability | 2.88-3.06 µs | 3.49-3.60 µs | 1.16-1.21 |
 
-For the log-likelihood, building the function takes 12.7 µs against catsim's 6.7 µs, and its call at
-the 121 nodes 43.7 µs against 38.5 µs (a scratch script on the same day). The build checks the
-response matrix (1.8 µs) and builds a float matrix that selects each examinee's terms; the call
+For the log-likelihood, building the function takes 12.2 µs against catsim's 6.4 µs, and its call at
+the 121 nodes 45.5 µs against 37.3 µs (a scratch script on the same day). The build checks the
+response matrix (1.7 µs) and builds a float matrix that selects each examinee's terms; the call
 multiplies by that matrix, where catsim sums one term per item. The posterior then checks the
-log-likelihood for NaN and +inf and for rows with no mass (10.5 µs from a given log-likelihood).
+log-likelihood for NaN and +inf and for rows with no mass (10.3 µs from a given log-likelihood).
 `posterior_mean` and `posterior_variance` sum along an axis of a one-row matrix, where catsim sums
 a vector.
 

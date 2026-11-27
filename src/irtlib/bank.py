@@ -30,7 +30,7 @@ import numpy
 import numpy.typing as npt
 
 from . import irt
-from .irt import _N_COLUMNS
+from ._responses import _N_COLUMNS
 from .typing import FloatArray, IntArray
 
 _CSV_PARAMETERS = ("a", "b", "c", "d")

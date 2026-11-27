@@ -13,3 +13,6 @@ FloatArray = npt.NDArray[numpy.floating[Any]]
 
 IntArray = npt.NDArray[numpy.integer[Any]]
 """A NumPy array of integers of any precision, such as item indices or parameter counts."""
+
+BoolArray = npt.NDArray[numpy.bool_]
+"""A NumPy array of Booleans, such as a mask of examinees."""

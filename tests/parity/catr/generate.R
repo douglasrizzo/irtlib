@@ -56,10 +56,12 @@ suppressPackageStartupMessages(library(catR, lib.loc = lib))
 
 here <- script_dir()
 source(file.path(dirname(here), "json.R"))
-source(file.path(here, "irt.R"))
+for (helper in c("irt.R", "estimation.R")) {
+  source(file.path(here, helper))
+}
 
 versions <- list(catr_version = CATR_VERSION, r_version = R.version.string)
-outputs <- list(irt = irt_cases())
+outputs <- list(irt = irt_cases(), estimation = estimation_cases())
 for (name in names(outputs)) {
   path <- file.path(here, paste0(name, ".json"))
   write_json(c(versions, outputs[[name]]), path)

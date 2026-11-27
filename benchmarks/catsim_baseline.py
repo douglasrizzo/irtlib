@@ -1,11 +1,17 @@
 """Time the code irtlib took from catsim against catsim's original, and check that the two agree (ADR-0004).
 
 Each function is timed with ``timeit`` on the shapes catsim calls it with: one ability against a bank of 500 items for
-the response functions and information, and one examinee's responses to 20 items on catsim's default grid of 121 nodes
-for the log-likelihood and the posterior. The script prints one row per function, with the ratio of irtlib's time to
-catsim's, flags a ratio above 1.2, and exits with status 1 if a function's values differ from catsim's by more than a
-relative 1e-12. irtlib's reliability is I / (I + 1) and catsim's 1 - 1 / I, so the check compares irtlib's with
-catsim's r read as 1 / (2 - r). Run it with the benchmarks' dependency group, which holds catsim at a fixed commit:
+the response functions and information; one examinee's responses to 20 items on catsim's default grid of 121 nodes for
+the log-likelihood and the posterior; and the same responses, mixed, for the ability estimators, against catsim's
+estimators on one step of an adaptive test, with bounds (-6, 6) for maximum likelihood. The script prints one row per
+function, with the ratio of irtlib's time to catsim's, flags a ratio above 1.2, and exits with status 1 if a function's
+values differ from catsim's by more than a relative 1e-12. Two cases take another tolerance:
+
+- the estimators that search for a maximum, MAP and ML, agree within their tolerance of 1e-6, in absolute terms, since
+  the two packages reach the maximum through different evaluations;
+- irtlib's reliability is I / (I + 1) and catsim's 1 - 1 / I, so the check reads catsim's r as 1 / (2 - r).
+
+Run it with the benchmarks' dependency group, which holds catsim at a fixed commit:
 
     uv run --group benchmarks python benchmarks/catsim_baseline.py
 """
@@ -21,13 +27,15 @@ from catsim import estimation as catsim_estimation
 from catsim import irt as catsim_irt
 
 import irtlib
-from irtlib import irt, quadrature
-from irtlib.typing import FloatArray
+from irtlib import ability, irt, quadrature
+from irtlib.typing import BoolArray, FloatArray
 
 _N_BANK = 500
 _N_ANSWERED = 20
 _SEED = 20261127
 _RTOL = 1e-12
+_SEARCH_TOL = 1e-6
+_BOUNDS = (-6.0, 6.0)
 _SLOWER = 1.2
 _REPEATS = 5
 
@@ -42,14 +50,20 @@ class Case:
   irtlib: Callable[[], object]
   from_catsim: Callable[[FloatArray], FloatArray] | None = None
   """irtlib's values from catsim's, where the two define the quantity differently; None where they agree."""
+  atol: float = 0.0
+  """The absolute difference allowed besides the relative 1e-12: an estimator's search tolerance."""
 
 
 def _values(result: object) -> FloatArray:
-  """Return a result as a float array: a bank's parameter matrix, a grid's nodes and weights, or its numbers."""
+  """Return a result as a float array: a bank's parameters, a grid's nodes and weights, an estimate and its error."""
   if isinstance(result, irtlib.ItemBank | catsim.ItemBank):
     return result.items
   if isinstance(result, quadrature.QuadratureGrid | catsim_estimation.QuadratureGrid):
     return numpy.concatenate([result.nodes, result.weights])
+  if isinstance(result, catsim.Estimate):
+    return numpy.array([result.theta, result.se])
+  if isinstance(result, ability.AbilityEstimates):
+    return numpy.concatenate([result.theta, result.standard_errors])
   return numpy.asarray(result, dtype=float)
 
 
@@ -117,7 +131,7 @@ def _bank_cases(bank: irtlib.ItemBank, theta: float) -> list[Case]:
   ]
 
 
-def _grid_cases(answered: FloatArray, correct: FloatArray, theta: float) -> list[Case]:
+def _grid_cases(answered: FloatArray, correct: BoolArray, theta: float) -> list[Case]:
   """Return the cases of the log-likelihood and the posterior, for one examinee's responses on the default grid."""
   matrix = correct.astype(float)[numpy.newaxis, :]
   grid, catsim_grid = quadrature.QuadratureGrid.uniform(), catsim_estimation.QuadratureGrid.uniform()
@@ -170,6 +184,50 @@ def _grid_cases(answered: FloatArray, correct: FloatArray, theta: float) -> list
   ]
 
 
+def _estimator_cases(bank: irtlib.ItemBank, correct: BoolArray) -> list[Case]:
+  """Return the estimators' cases for responses to the bank's first items; catsim's read a step's prebuilt context."""
+  answered = bank.items[: correct.size]
+  matrix = correct.astype(float)[numpy.newaxis, :]
+  context = catsim.StepContext(
+    item_bank=catsim.ItemBank(bank.items),
+    rng=numpy.random.default_rng(_SEED),
+    administered_items=tuple(range(correct.size)),
+    responses=tuple(bool(response) for response in correct),
+  )
+  eap, map_estimator = catsim_estimation.EAPEstimator(), catsim_estimation.MAPEstimator()
+  search = catsim_estimation.NumericalSearchEstimator(bounds=_BOUNDS)
+  warm = catsim_estimation.WarmLikelihoodEstimator()
+  shape = f"{correct.size} responses, {int(correct.sum())} correct"
+  return [
+    Case(
+      "ability.expected_a_posteriori",
+      shape,
+      lambda: eap.estimate(context),
+      lambda: ability.expected_a_posteriori(matrix, answered),
+    ),
+    Case(
+      "ability.maximum_a_posteriori",
+      shape,
+      lambda: map_estimator.estimate(context),
+      lambda: ability.maximum_a_posteriori(matrix, answered),
+      atol=_SEARCH_TOL,
+    ),
+    Case(
+      "ability.maximum_likelihood, bounds (-6, 6)",
+      shape,
+      lambda: search.estimate(context),
+      lambda: ability.maximum_likelihood(matrix, answered, bounds=_BOUNDS),
+      atol=_SEARCH_TOL,
+    ),
+    Case(
+      "ability.weighted_likelihood",
+      shape,
+      lambda: warm.estimate(context),
+      lambda: ability.weighted_likelihood(matrix, answered),
+    ),
+  ]
+
+
 def _cases() -> list[Case]:
   """Return every case: a bank of 500 4PL items, an ability of 0.7, and responses to the bank's first 20 items."""
   rng = numpy.random.default_rng(_SEED)
@@ -177,7 +235,7 @@ def _cases() -> list[Case]:
   theta = 0.7
   answered = bank.items[:_N_ANSWERED]
   correct = rng.random(_N_ANSWERED) < irt.icc(theta, answered)
-  return _bank_cases(bank, theta) + _grid_cases(answered, correct, theta)
+  return _bank_cases(bank, theta) + _grid_cases(answered, correct, theta) + _estimator_cases(bank, correct)
 
 
 def _seconds(function: Callable[[], object]) -> float:
@@ -188,14 +246,14 @@ def _seconds(function: Callable[[], object]) -> float:
 
 
 def _agree(case: Case) -> bool:
-  """Return whether irtlib's values equal catsim's within a relative 1e-12, in catsim's shape."""
+  """Return whether irtlib's values equal catsim's within a relative 1e-12 and the case's absolute tolerance."""
   expected = _values(case.catsim())
   if case.from_catsim is not None:
     expected = case.from_catsim(expected)
   actual = _values(case.irtlib())
   if actual.size != expected.size:
     return False
-  return bool(numpy.allclose(actual.reshape(expected.shape), expected, rtol=_RTOL, atol=0.0, equal_nan=True))
+  return bool(numpy.allclose(actual.reshape(expected.shape), expected, rtol=_RTOL, atol=case.atol, equal_nan=True))
 
 
 def main() -> int:

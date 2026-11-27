@@ -1,10 +1,10 @@
 ---
 title: Evaluate Rasch item fit with the weighted and unweighted mean squares
 kind: technique
-status: blocked
+status: ready
 priority: 3
 effort: M
-blocked_by: [estimation/ability-estimation]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -14,8 +14,8 @@ raised_by: [moved from catsim's backlog]
 
 `irtlib.fit` computes S-X², the item-fit statistic for every model. Rasch practitioners also
 expect the weighted and unweighted mean squares of Wright and Masters (1982), which compare each
-response with its expectation under estimated abilities. irtlib has neither them nor the
-ability estimates they need; those come first (`estimation/ability-estimation`).
+response with its expectation under estimated abilities. irtlib has the ability estimates they
+need, but not the mean squares.
 
 ## Evidence
 
@@ -31,14 +31,15 @@ ability estimates they need; those come first (`estimation/ability-estimation`).
 
 ## What irtlib and catsim have now
 
-- irtlib: S-X² (`irtlib.fit.s_x2`); no ability estimates for many examinees at once, which
-  ADR-0001 assigns to irtlib and `estimation/ability-estimation` brings from catsim.
-- catsim: EAP for one examinee at a time (`catsim.estimation.EAPEstimator`).
+- irtlib: S-X² (`irtlib.fit.s_x2`), and EAP abilities for many examinees at once
+  (`irtlib.ability.expected_a_posteriori`).
 
 ## Proposal
 
-EAP abilities of every examinee on the calibration's grid, from `estimation/ability-estimation`
-(ADR-0006), then the weighted and unweighted mean squares for the Rasch model from them.
+EAP abilities of every examinee on the calibration's grid, from
+`irtlib.ability.expected_a_posteriori` (ADR-0006), then the weighted and unweighted mean squares for
+the Rasch model from them. `fit` then imports `ability`, which sits beside it in the import-linter
+layers, so `ability` moves to its own layer between `fit` and `calibration`.
 
 ## Tests
 

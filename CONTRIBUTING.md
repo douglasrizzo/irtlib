@@ -50,9 +50,9 @@ what a change to the cases or the version moved.
 
 ## Parity tests with catR
 
-`tests/test_parity_catr.py` compares irtlib's response functions with the R package catR, their
-second reference implementation (ADR-0003), on outputs recorded in the JSON files of
-`tests/parity/catr/`. These tests need no R either.
+`tests/test_parity_catr.py` compares irtlib's response functions and ability estimators with the R
+package catR, their second reference implementation (ADR-0003), on outputs recorded in the JSON files
+of `tests/parity/catr/`. These tests need no R either.
 
 The files are regenerated, never edited, when a case script beside them changes or the pinned catR
 version moves:
@@ -68,9 +68,11 @@ the same catR version writes the same bytes.
 
 ## Benchmarks against catsim
 
-`benchmarks/catsim_baseline.py` times each function irtlib took from catsim against catsim's
-original, on the shapes catsim calls them with, and checks that the two give the same values within
-a relative 1e-12 (ADR-0004). It runs on demand, not in CI, where timings are noisy:
+`benchmarks/catsim_baseline.py` times each function irtlib took from catsim, the ability estimators
+included, against catsim's original, on the shapes catsim calls them with, and checks that the two
+give the same values: within a relative 1e-12, or the estimators' search tolerance for the maximum a
+posteriori and maximum likelihood estimates (ADR-0004). It runs on demand, not in CI, where timings
+are noisy:
 
 ```bash
 uv run --group benchmarks python benchmarks/catsim_baseline.py
