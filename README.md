@@ -7,9 +7,9 @@ simulations.
 
 ## Status
 
-pyitemcal is in its research phase. No calibration method is implemented yet, and nothing is
-published on PyPI. The first work is a review of the calibration literature from its primary
-sources, then the design of the API, then the methods, each checked against the R package mirt.
+pyitemcal is in its design phase. Its calibration methods are reviewed from their primary sources;
+none is implemented yet, and nothing is published on PyPI. The design of the API comes next, then the
+methods, each checked against the R package mirt.
 
 ## Install from source
 

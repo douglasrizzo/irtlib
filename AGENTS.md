@@ -13,9 +13,10 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 item fit (ADR-0001). Its estimates use catsim's parameterization and bank format, and it builds on
 catsim's public item response functions (ADR-0004).
 
-The project is in its research phase: no calibration method is implemented yet. The order of work
-is the research pass (`backlog/discovery/research-pass.md`), then the requirements
-(`backlog/discovery/requirements.md`), then the mirt parity harness, then the methods.
+The project is in its design phase: its methods are reviewed from their primary sources
+(`backlog/discovery/literature-review.md`) and no calibration method is implemented yet. The order of
+work is the requirements (`backlog/discovery/requirements.md`), then the mirt parity harness, then the
+methods in the review's build order.
 
 ## Repository Layout
 
@@ -43,13 +44,24 @@ is the research pass (`backlog/discovery/research-pass.md`), then the requiremen
 - Performance is not a requirement. When a change makes pyitemcal slower, say so to the maintainer
   when it happens, with measurements.
 
+## Choosing Techniques
+
+The maintainer's guidance for choosing which techniques, papers and equations pyitemcal implements:
+
+- Compare what the papers teach with what the R packages implement, mirt first; depart from them only
+  where the alternative has a measured upside, and record the measurement where the choice is made.
+- Weigh the trade-offs of new dependencies, matching mirt and speed; scratch implementations may
+  decide between techniques.
+- YAGNI and DRY: build for what the code needs today, and share code between techniques where they
+  share steps.
+
 ## Research Rules
 
 - Every formula, claim about a method and default rests on a source on the paper shelf, read at the
   location cited. Never cite a source, a page or an equation from memory. The citation convention
   and the revalidation checklist are in `backlog/README.md`.
-- The method cards carried over from catsim are unverified until the research pass rewrites them.
-  Do not implement from them, and do not copy their claims elsewhere.
+- The method cards and the literature review cite every claim to a page read on the paper shelf;
+  any edit to them keeps that true (`backlog/README.md`, revalidation checklist).
 - When a source is behind a paywall, list it for the maintainer to fetch; do not cite it through a
   summary.
 

@@ -14,8 +14,8 @@ regenerated README with the card.
 
 The folders:
 
-- `discovery/`: the research pass, the requirements and the parity harness, which come before any
-  method;
+- `discovery/`: the literature review, the requirements and the parity harness, which come before
+  any method;
 - `irt/`: item response functions and their derivatives;
 - `estimation/`: calibration methods;
 - `fit/`: item fit;
@@ -31,19 +31,20 @@ The folders:
 | `status` | `ready` (enough to start), `needs-research` (claims to verify, or a design to write, before work), `needs-decision` (the maintainer chooses first), `blocked` (by the cards in `blocked_by`, or by what the card says), `parked` (outside the scope an ADR sets; moving it into scope needs that ADR changed) |
 | `priority` | `1` blocks the first calibration method · `2` needed before a release · `3` useful, though nothing is blocked · `4` a later phase or a scope change |
 | `effort` | `XS`, `S`, `M`, `L`, `XL` |
-| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[discovery/research-pass]` |
+| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[discovery/requirements]` |
 | `raised_by` | What surfaced the card: a review, a measurement or a PR, as short text without commas |
 
 Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-26 cards: 1 ready, 0 needs-research, 1 needs-decision, 20 blocked, 4 parked.
+25 cards: 0 ready, 0 needs-research, 2 needs-decision, 19 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
+| [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | 1 |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | 2 |
 
 ## Priority 1
@@ -51,8 +52,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Build the parity harness that checks pyitemcal against mirt](discovery/mirt-parity-harness.md) | discovery | feature | blocked | M | [requirements](discovery/requirements.md) | ADR-0003 |
-| [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | decision | blocked | L | [research-pass](discovery/research-pass.md) | setup of pyitemcal |
-| [Rebuild the research behind calibration from primary sources](discovery/research-pass.md) | discovery | research | ready | XL |  | setup review of the cards carried over from catsim |
+| [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | decision | needs-decision | L |  | setup of pyitemcal |
 | [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
 | [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | research pass |
 | [Differentiate the item response function with respect to the item parameters](irt/icc-gradients.md) | irt | technique | blocked | S | [requirements](discovery/requirements.md) | moved from catsim's backlog |
@@ -110,10 +110,8 @@ sections of [`_template.md`](_template.md). The cards are MyST Markdown, ready f
 site; GitHub does not render MyST roles and directives. mdformat is kept off this folder
 (`.pre-commit-config.yaml`), because it rewrites that syntax and breaks the `$$` math.
 
-The cards carried over from catsim's backlog on 2026-11-26 were written there and never checked
-against their sources. Each says so at its top. The research pass rewrites each from its sources,
-keeping only what the literature verifies and deleting what is wrong or misleading, or deletes the
-card.
+Every technique card keeps only what its sources verify, and its "Last validated" line says against
+which sources and when it was last checked.
 
 ### Workflow
 
@@ -155,8 +153,8 @@ source in full in "References", because GitHub does not render citation roles.
 `papers/` at the repository root holds the PDFs of the sources. It is local and never committed
 (`.gitignore`, and a pre-commit hook rejects it even with `git add -f`), because most sources may not
 be redistributed. Its `papers/README.md` lists each file with its full citation and its page offset
-(printed page = PDF page + offset). The research pass builds the shelf; a source behind a paywall is
-listed for the maintainer to fetch.
+(printed page = PDF page + offset). A source behind a paywall is listed for the maintainer to
+fetch.
 
 ### Revalidation checklist
 

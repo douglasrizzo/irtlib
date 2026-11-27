@@ -1,10 +1,10 @@
 # Literature Review: Item Calibration
 
-> Written by [the research pass](research-pass.md) from sources on the paper shelf, each claim cited
-> to the location where it was read (citation convention in [the backlog README](../README.md)).
-> It covers every method card in `irt/`, `estimation/` and `fit/`. Formulas live on the method cards;
-> this review says what the sources establish, how the methods compare, how mirt implements them, and
-> in what order pyitemcal should build them.
+> Built from sources on the paper shelf, each claim cited to the location where it was read
+> (citation convention in [the backlog README](../README.md)). It covers every method card in `irt/`,
+> `estimation/` and `fit/`. Formulas live on the method cards; this review says what the sources
+> establish, how the methods compare, how mirt implements them, and in what order pyitemcal should
+> build them.
 
 ## Marginal maximum likelihood with the EM algorithm
 
