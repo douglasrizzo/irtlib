@@ -1,321 +1,317 @@
 ---
-title: MML-EM calibrator for 1PL and 2PL
+title: Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm
 kind: technique
-status: needs-research
+status: blocked
 priority: 1
 effort: M
-blocked_by: [discovery/research-pass, irt/icc-gradients]
+blocked_by: [discovery/requirements, irt/icc-gradients]
 raised_by: [moved from catsim's backlog]
 ---
 
-# MML-EM calibrator for 1PL and 2PL
-
-> **Carried over from catsim's backlog on 2026-11-26, unverified.** Its equations, claims, sources and
-> sketch were never checked against the literature. [The research pass](../discovery/research-pass.md)
-> keeps only what the sources verify and deletes what is wrong or misleading, or deletes the card.
-
-> Background: [the literature review §2.2](../discovery/literature-review.md)
-
-## Reference
-
-Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters: Application of an EM algorithm. *Psychometrika*, 46(4), 443–459.
-
-Baker, F. B., & Kim, S.-H. (2004). *Item Response Theory: Parameter Estimation Techniques* (2nd ed.). Marcel Dekker. Chapters 7–9.
-
-## Theory
-
-Marginal Maximum Likelihood (MML) integrates out examinee ability using a prior distribution $g(\theta)$, typically $N(0,1)$. This avoids the Neyman-Scott inconsistency problem of JML. The EM algorithm iterates:
-
-### E-step
-
-At each quadrature node $X_q$ ($q = 1, \ldots, Q$) with weight $A_q$ from Gauss-Hermite quadrature:
-
-1. Compute the likelihood of examinee $j$'s response pattern at node $q$:
-
-$$L_j(X_q) = \prod_{i \in \mathcal{A}_j} P_i(X_q)^{u_{ij}} (1 - P_i(X_q))^{1 - u_{ij}}$$
-
-2. Compute posterior weight:
-
-$$w_{jq} = \frac{L_j(X_q) \cdot A_q \cdot g(X_q)}{\sum_{q'} L_j(X_{q'}) \cdot A_{q'} \cdot g(X_{q'})}$$
-
-3. Accumulate expected counts:
-
-$$\bar{r}_{iq} = \sum_j w_{jq} \cdot u_{ij}$$
-$$\bar{f}_q = \sum_j w_{jq}$$
-
-where $\bar{r}_{iq}$ is the expected number of examinees at node $q$ who answer item $i$ correctly, and $\bar{f}_q$ is the expected total frequency at node $q$.
-
-### M-step
-
-For each item $i$, maximize the expected complete-data log-likelihood:
-
-$$\ell_i = \sum_q \left[\bar{r}_{iq} \log P_i(X_q) + (\bar{f}_q - \bar{r}_{iq}) \log(1 - P_i(X_q))\right]$$
-
-with respect to item parameters $(a_i, b_i)$ for 2PL, or $(b_i)$ only for 1PL (with $a$ fixed to a common value, typically 1.0).
-
-Use `scipy.optimize.minimize(method='L-BFGS-B')` with bounds:
-- $a \in [0.1, 5.0]$ (for 2PL)
-- $b \in [-6.0, 6.0]$
-
-Supply analytic gradients from icc-gradients's `icc_log_likelihood_gradient`.
-
-### Convergence
-
-Stop when:
-- Maximum absolute parameter change $< 0.001$, OR
-- Marginal log-likelihood change $< 10^{-4}$, OR
-- Maximum iterations reached (default: 500).
-
-### Quadrature
-
-Use Gauss-Hermite quadrature with 40 nodes (default). The nodes and weights come from `numpy.polynomial.hermite.hermgauss(n)`. Note: Gauss-Hermite quadrature integrates w.r.t. $\exp(-x^2)$, so to integrate w.r.t. $N(0,1)$ the nodes must be scaled by $\sqrt{2}$ and weights divided by $\sqrt{\pi}$.
-
-### Marginal log-likelihood
-
-For monitoring convergence, the marginal log-likelihood is:
-
-$$\log L = \sum_j \log \left(\sum_q L_j(X_q) \cdot A_q \cdot g(X_q)\right)$$
-
-### 1PL as a constrained 2PL
-
-The 1PL is a special case where all $a_i = a$ (a common discrimination, often fixed at 1.0). Implementation: in the M-step, fix `a` and only optimize `b`. Expose a `model` parameter: `"1PL"` or `"2PL"`.
-
-## Mock implementation
-
-```python
-# src/pyitemcal/__init__.py
-"""Item parameter calibration for IRT models."""
-
-from .mml_em import MMLEMCalibrator
-
-__all__ = ["MMLEMCalibrator"]
-
-
-# src/pyitemcal/mml_em.py
-"""Marginal Maximum Likelihood via EM (Bock & Aitkin, 1981)."""
-
-from typing import Literal
-
-import numpy as np
-import numpy.typing as npt
-from scipy import optimize
-
-from catsim import irt
-
-
-class MMLEMCalibrator:
-    """Estimate item parameters via MML-EM for 1PL or 2PL models.
-
-    Parameters
-    ----------
-    model : {"1PL", "2PL"}
-        Which IRT model to fit.
-    n_quad : int
-        Number of Gauss-Hermite quadrature nodes. Default 40.
-    max_iter : int
-        Maximum EM iterations. Default 500.
-    tol : float
-        Convergence tolerance on max absolute parameter change. Default 0.001.
-    """
-
-    def __init__(
-        self,
-        model: Literal["1PL", "2PL"] = "2PL",
-        n_quad: int = 40,
-        max_iter: int = 500,
-        tol: float = 1e-3,
-    ) -> None:
-        self.model = model
-        self.n_quad = n_quad
-        self.max_iter = max_iter
-        self.tol = tol
-
-    def calibrate(
-        self,
-        responses: npt.NDArray[np.integer],
-    ) -> dict:
-        """Estimate item parameters from a binary response matrix.
-
-        Parameters
-        ----------
-        responses : numpy.ndarray, shape (n_examinees, n_items)
-            Binary response matrix. 1 = correct, 0 = incorrect.
-            NaN or -1 for not-administered items (sparse designs).
-
-        Returns
-        -------
-        dict with keys:
-            'items': numpy.ndarray, shape (n_items, 4)
-                Estimated [a, b, c, d] for each item. c=0, d=1 for 1PL/2PL.
-            'log_likelihood': list[float]
-                Marginal log-likelihood at each iteration.
-            'converged': bool
-            'n_iter': int
-        """
-        n_examinees, n_items = responses.shape
-        mask = np.isfinite(responses) & (responses >= 0)  # administered mask
-
-        # Quadrature setup
-        nodes, weights = np.polynomial.hermite.hermgauss(self.n_quad)
-        nodes = nodes * np.sqrt(2)          # scale to N(0,1)
-        weights = weights / np.sqrt(np.pi)  # normalize for N(0,1)
-
-        # Initialize parameters
-        a = np.ones(n_items)
-        b = np.zeros(n_items)
-        # Simple initial b: inverse-logit of proportion correct
-        p_obs = np.nanmean(np.where(mask, responses, np.nan), axis=0)
-        p_obs = np.clip(p_obs, 0.01, 0.99)
-        b = -np.log(p_obs / (1 - p_obs))  # logit transform
-
-        log_likelihoods = []
-
-        for iteration in range(self.max_iter):
-            items = np.column_stack([a, b, np.zeros(n_items), np.ones(n_items)])
-
-            # === E-step ===
-            r_bar, f_bar, marginal_ll = self._e_step(
-                responses, mask, items, nodes, weights
-            )
-            log_likelihoods.append(marginal_ll)
-
-            # === M-step ===
-            a_new, b_new = self._m_step(items, nodes, r_bar, f_bar)
-
-            # Check convergence
-            if self.model == "1PL":
-                max_change = np.max(np.abs(b_new - b))
-            else:
-                max_change = max(np.max(np.abs(a_new - a)), np.max(np.abs(b_new - b)))
-
-            a, b = a_new, b_new
-
-            if max_change < self.tol:
-                break
-
-        items_final = np.column_stack([a, b, np.zeros(n_items), np.ones(n_items)])
-        return {
-            "items": items_final,
-            "log_likelihood": log_likelihoods,
-            "converged": max_change < self.tol,
-            "n_iter": iteration + 1,
-        }
-
-    def _e_step(self, responses, mask, items, nodes, weights):
-        """Compute expected counts and marginal log-likelihood."""
-        n_examinees, n_items = responses.shape
-        n_quad = len(nodes)
-
-        # P(X_q) for all items at all nodes: (n_quad, n_items)
-        P = irt.icc(nodes[:, np.newaxis], items)  # broadcast
-
-        r_bar = np.zeros((n_quad, n_items))
-        f_bar = np.zeros(n_quad)
-        marginal_ll = 0.0
-
-        for j in range(n_examinees):
-            admin = mask[j]
-            u_j = responses[j, admin]
-
-            # log-likelihood at each node: sum over administered items
-            log_lik = np.sum(
-                u_j * np.log(P[:, admin] + 1e-30)
-                + (1 - u_j) * np.log(1 - P[:, admin] + 1e-30),
-                axis=1,
-            )  # (n_quad,)
-
-            log_post = log_lik + np.log(weights + 1e-30)
-            log_norm = np.logaddexp.reduce(log_post)
-            w_j = np.exp(log_post - log_norm)  # (n_quad,) posterior weights
-
-            marginal_ll += log_norm
-
-            r_bar[:, admin] += w_j[:, np.newaxis] * u_j
-            f_bar += w_j
-
-        return r_bar, f_bar, marginal_ll
-
-    def _m_step(self, items, nodes, r_bar, f_bar):
-        """Optimize item parameters given expected counts."""
-        n_items = items.shape[0]
-        a_new = items[:, 0].copy()
-        b_new = items[:, 1].copy()
-
-        for i in range(n_items):
-            if self.model == "1PL":
-                # Only optimize b, keep a = 1
-                x0 = [b_new[i]]
-                bounds = [(-6.0, 6.0)]
-            else:
-                x0 = [a_new[i], b_new[i]]
-                bounds = [(0.1, 5.0), (-6.0, 6.0)]
-
-            result = optimize.minimize(
-                self._neg_expected_ll_item,
-                x0,
-                args=(i, nodes, r_bar, f_bar, self.model),
-                method="L-BFGS-B",
-                bounds=bounds,
-                jac=True,  # function returns (value, gradient)
-            )
-
-            if self.model == "1PL":
-                b_new[i] = result.x[0]
-            else:
-                a_new[i], b_new[i] = result.x
-
-        return a_new, b_new
-
-    @staticmethod
-    def _neg_expected_ll_item(params, item_idx, nodes, r_bar, f_bar, model):
-        """Negative expected log-likelihood and gradient for a single item."""
-        if model == "1PL":
-            a, b = 1.0, params[0]
-        else:
-            a, b = params
-
-        z = np.exp(-a * (nodes - b))
-        psi = 1.0 / (1.0 + z)
-        P = psi  # c=0, d=1
-        Q = 1.0 - P
-
-        r_i = r_bar[:, item_idx]
-        f_q = f_bar
-
-        # log-likelihood
-        ll = np.sum(r_i * np.log(P + 1e-30) + (f_q - r_i) * np.log(Q + 1e-30))
-
-        # gradients
-        residual = (r_i - f_q * P) / (P * Q + 1e-30)
-        psi_deriv = psi * (1.0 - psi)
-
-        if model == "1PL":
-            grad_b = np.sum(residual * (-a * psi_deriv))
-            return -ll, np.array([-grad_b])
-        else:
-            grad_a = np.sum(residual * (nodes - b) * psi_deriv)
-            grad_b = np.sum(residual * (-a * psi_deriv))
-            return -ll, np.array([-grad_a, -grad_b])
-```
-
-## Proposed location
-
-Modules in `src/pyitemcal/`:
-- `__init__.py` — re-export `MMLEMCalibrator`
-- `mml_em.py` — the calibrator class
+# Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm
+
+## Problem
+
+pyitemcal estimates no item parameters yet. Marginal maximum likelihood (MML) with the EM algorithm
+of Bock and Aitkin (1981) is the method mirt uses by default and the one the other estimation cards
+build on: the 3PL and 4PL cards extend its M-step, and the standard-errors card works on its
+solution. The 1PL and 2PL come first because their M-step is the simplest.
+
+## Evidence
+
+- The research pass (2026-11-27) checked the card carried over from catsim against Bock and Aitkin
+  (1981), Baker (1987), Thissen (1982) and mirt 1.48, and found:
+  - its E-step applied the $N(0, 1)$ density twice, through Gauss-Hermite weights already rescaled to
+    the normal (Bock & Aitkin, 1981, p. 446) and again through $g(X_q)$;
+  - its bounds $a \in [0.1, 5]$ and $b \in [-6, 6]$ and its 40 Gauss-Hermite nodes had no source;
+    mirt leaves the slope and intercept unbounded and uses 61 equally spaced nodes (below);
+  - its "1PL" fixed every slope at 1 without saying how the scale is identified (below);
+  - its tests expected the gradient to vanish at the generating parameters, which holds only at the
+    maximum likelihood estimate.
+- A measurement on mirt 1.48 (2026-11-27), on its `LSAT6` data, which are Thissen's (1982, p. 179,
+  Table 1) 1,000 examinees: the two equivalent forms of the 1PL below converge at different speeds,
+  and mirt's default stopping rule halts the slower one short of the maximum.
+
+  | mirt call | `TOL` | EM cycles | $\hat a$ or $\hat\sigma$ | $\hat b_1$ | log-likelihood |
+  |---|---|---|---|---|---|
+  | 2PL, slopes constrained equal | 1e-4 (default) | 12 | 0.75541 | −3.6146 | −2466.937614 |
+  | `itemtype = "Rasch"` (slopes 1, variance free) | 1e-4 (default) | 80 | 0.75618 | −3.6111 | −2466.937714 |
+  | 2PL, slopes constrained equal | 1e-8 | 37 | 0.75513 | −3.6153 | −2466.937600 |
+  | `itemtype = "Rasch"` | 1e-8 | 168 | 0.75514 | −3.6152 | −2466.937600 |
+
+  For the Rasch form, $\hat b = -\hat d/\hat\sigma$. The equal-slope fit reproduces Thissen's (1982,
+  p. 180, Table 2) estimates to the three decimals printed.
+
+## What pyitemcal and catsim have now
+
+- catsim: `catsim.estimation.QuadratureGrid` (any nodes and positive weights; `uniform()` gives
+  equally spaced nodes with equal weights, 121 on $[-6, 6]$ by default), `normal_log_prior`, and a
+  posterior over a grid for one examinee, with no missing responses; `catsim.irt.icc` and
+  `log_response_probabilities`.
+- pyitemcal: nothing; the derivatives with respect to item parameters are
+  [the ICC-gradients card](../irt/icc-gradients.md).
+
+## Proposal
+
+MML-EM for the 2PL and for the 1PL with a common, estimated slope, from a response matrix with
+missing entries, on an equally spaced grid with a normal prior, with standard errors from
+[the standard-errors card](standard-errors.md). The open questions below are the choices the
+requirements card settles; the card assumes the recommendation of each until then.
 
 ## Tests
 
-1. **Recovery test (2PL)**: Generate a response matrix from known 2PL parameters (20 items, 500 examinees). Run `MMLEMCalibrator(model="2PL")`. Assert recovered `a` and `b` correlate $r > 0.95$ with true values, and RMSE(b) < 0.3.
-2. **Recovery test (1PL)**: Generate from Rasch parameters (a=1 for all). Run with `model="1PL"`. Assert RMSE(b) < 0.2.
-3. **Convergence**: Verify `converged=True` and that `log_likelihood` is monotonically non-decreasing (EM guarantee).
-4. **Sparse data**: Pass a response matrix with ~30% NaN (not-administered). Verify calibration still converges and parameters are reasonable.
-5. **Known stationary point**: At the true parameters, the gradient should be near zero. Verify numerically.
-6. **1PL vs 2PL**: When data is generated from a 1PL model, fitting 2PL should recover `a` values close to 1.0 for all items.
-7. **Quadrature sensitivity**: Run with `n_quad=20` and `n_quad=40`. Results should agree within 0.05 on parameter estimates.
+- **Published values:**
+  - Thissen (1982, p. 180, Table 2), LSAT-6 (Table 1, p. 179), 1PL with a common slope and $N(0, 1)$:
+    $\hat a = 0.755$, $\hat b = (-3.615, -1.322, -0.318, -1.730, -2.780)$, to the three decimals printed.
+  - Bock and Aitkin (1981, p. 455, Table 3), LSAT-6 and LSAT-7, the same model with difficulties
+    centred to sum to zero, labelled "10-pt. normal prior": the MML column. Their scale is the logit
+    with slope 1 (p. 454), so the comparison is with $\hat a(\hat b_j - \bar b)$, which is Thissen's
+    (1982, p. 180) "Standardized MML" column; for LSAT-6 the two tables agree within 0.001.
+- **Parity with mirt 1.48** (fixtures recorded with `TOL = 1e-8`, since the default stops short,
+  as measured above): 2PL and equal-slope 2PL on `LSAT6` and `LSAT7`, and on a simulated matrix with
+  missing entries; estimates, log-likelihood, and the log-likelihood at fixed parameters.
+- **Recovery** (ADR-0003): responses drawn from known 1PL and 2PL parameters with a fixed seed;
+  every estimate within a multiple of its standard error, set by the sample size.
+- **Monotone likelihood:** without acceleration, the marginal log-likelihood never decreases between
+  iterations (Dempster, Laird & Rubin, 1977, p. 7, Theorem 1).
+- **Missing responses:** on a 3-item, 4-examinee matrix with one missing entry, the marginal
+  log-likelihood at fixed parameters equals the brute-force sum over the grid of the product over
+  answered items only.
 
-## Notes
+## Open Questions
 
-- The E-step loops over examinees, which is $O(J \cdot Q \cdot I)$. For large datasets this is the bottleneck. A vectorized version (building a full $J \times Q$ posterior matrix) uses $O(J \cdot Q)$ memory but is much faster. Start with the loop; optimize in a follow-up if needed.
-- The quadrature nodes from `hermgauss` integrate w.r.t. $\exp(-x^2)$, not $N(0,1)$. The scaling $x \to x\sqrt{2}$ and $w \to w/\sqrt{\pi}$ is essential — getting this wrong shifts all difficulty estimates.
-- `c=0, d=1` are fixed for 1PL/2PL. The 3PL extension (mml-em-3pl) will relax the c constraint.
+1. **How the 1PL fixes its scale.**
+   - Options: a common slope estimated with $N(0, 1)$ (Thissen, 1982, p. 175); slopes fixed at 1
+     with the variance estimated (mirt's `"Rasch"`, mirt 1.48 manual, p. 123); slopes fixed at 1
+     with $N(0, 1)$, a more restrictive model (mirt's `"1PL"`, same page).
+   - The first two are the same model: "the square of the estimated slope is the same as the variance
+     of the population distribution" (Thissen, 1982, p. 175), and they reach the same maximum
+     (Evidence).
+   - The common slope converged in about a fifth of the EM cycles in the measurement, and acceleration
+     helps less when the variance is estimated (Beisemann, Wartlick & Doebler, 2020, p. 232).
+   - Assumed: the common slope, with the fixed-slope model expressed as a fixed parameter
+     (requirements question 8).
+2. **The grid.**
+   - Gauss-Hermite and equally spaced points both appear in Bock and Aitkin (1981, pp. 445, 449);
+     Thissen (1982, p. 179) finds 11 points on $[-5, 5]$ adequate for the 1PL; Woodruff and Hanson
+     (1996, p. 21) give about 20 as the minimum for the 2PL and 3PL; mirt uses 61 on $[-6, 6]$.
+   - Assumed: `QuadratureGrid.uniform(61)`, mirt's grid, so parity needs no setting.
+3. **The stopping rule.**
+   - Bock and Aitkin (1981, p. 447) stop when the estimates are "stable to the required number of
+     places"; mirt stops when every parameter changes by less than `TOL` = 1e-4.
+   - EM converges linearly, at the rate of the largest eigenvalue of its Jacobian (Dempster et al.,
+     1977, p. 10). A small change per cycle therefore does not bound the distance to the maximum when
+     that rate is close to 1, as the measurement shows.
+   - Options: a parameter-change rule with a tighter tolerance; a log-likelihood-change rule; or a
+     rule on the gradient of the marginal log-likelihood, which is zero at the maximum.
+   - Not assumed: the requirements card decides, with measurements.
+4. **Acceleration.**
+   - mirt applies Ramsay's acceleration every third cycle by default (manual p. 128). Thissen
+     (1982, p. 181) reports it doubling or tripling the speed, but in its exact form it
+     over-accelerates and diverges, so he limits the parameter to about −2 to −4. Ramsay's paper is
+     not on the shelf, so the method is known here only through Thissen and mirt's source.
+   - SQUAREM is fully documented (Du & Varadhan, 2020). Beisemann et al. (2020, p. 232) find
+     acceleration pays most for long tests and when the variance is fixed.
+   - Assumed: no acceleration in the first version, measured before adding any (YAGNI). The fixed
+     point does not depend on it, so parity holds either way.
+5. **The M-step solver and parameterization.** Newton or Fisher scoring per item in the
+   intercept-slope form (Baker, 1987, p. 114, Equation 8), or a general optimizer (mirt uses BFGS
+   without bounds, manual p. 126). See the ICC-gradients card's first open question.
+6. **Starting values.** Bock and Aitkin (1981, p. 458) start intercepts from the inverse normal of
+   the item's proportion correct, as mirt does (below); Thissen (1982, p. 178) started at $b = 0$,
+   $a = 1$. Assumed: mirt's, for comparable iteration counts.
+7. **Items no estimate exists for.** An item answered correctly by everyone or by no one has no
+   finite estimate, and MML does not prevent diverging slopes (Baker, 1987, p. 133, quoting
+   Swaminathan & Gifford). mirt's manual advises removing items with a mean above .95, or using
+   priors (p. 132). Options: an error, a warning with the item flagged, or priors (the 3PL card).
+8. **The latent distribution.** Bock and Aitkin (1981, p. 449, Equation 15) estimate it as a
+   histogram on the grid; mirt offers it as `dentype = "empiricalhist"` (manual p. 126). Assumed:
+   out of the first version; a card of its own if wanted.
+
+---
+
+**Module:** decided by the requirements card (planned)
+**Reference:** Bock & Aitkin (1981); Thissen (1982)
+**Last validated:** 2026-11-27, against Bock & Aitkin (1981), Baker (1987), Thissen (1982),
+Dempster, Laird & Rubin (1977), Beisemann, Wartlick & Doebler (2020), Woodruff & Hanson (1996) and
+Engelen (1987) on the paper shelf, and mirt 1.48 (reference manual and source).
+**Implementation guidance:** not yet written; it waits for the requirements card.
+
+## Motivation
+
+Calibration has to estimate item parameters without knowing the examinees' abilities. Estimating
+each ability jointly with the items is not generally possible, "because the number of parameters
+increases with the number of subjects and standard limit theorems do not apply" (Bock & Aitkin,
+1981, p. 443). Marginal maximum likelihood instead integrates the abilities out over a population
+distribution and maximizes the likelihood of the item parameters alone (p. 444). Bock and Aitkin
+reformulated its likelihood equations into a solution feasible "for both small and large numbers of
+items" (p. 444), in which each cycle solves one small problem per item (p. 447).
+
+For the 1PL, MML and conditional maximum likelihood give nearly the same estimates when the model
+fits; neither has the bias of joint estimation for this model (Bock & Aitkin, 1981, p. 454), and MML
+keeps examinees with every item right or every item wrong (Engelen, 1987, p. 25).
+
+## Definition
+
+Let examinee $j$'s responses be $u_{ij} \in \{0, 1\}$ for the items $i$ they answered, and $P_i$
+catsim's response function with $c = 0$ and $d = 1$. Ability has density $g$, approximated on nodes
+$X_q$ with prior masses $A_q$ that sum to 1, $q = 1, \dots, Q$ (Bock & Aitkin, 1981, pp. 445,
+449). The marginal probability of examinee $j$'s responses is
+
+$$
+\tilde P_j = \sum_{q=1}^{Q} L_j(X_q)\,A_q, \qquad
+L_j(X_q) = \prod_{i \text{ answered by } j} P_i(X_q)^{u_{ij}}\bigl(1 - P_i(X_q)\bigr)^{1 - u_{ij}},
+$$
+
+and the marginal log-likelihood is $\sum_j \log \tilde P_j$ (Bock & Aitkin, 1981, pp. 445-446,
+Equations 6 and 8, written per examinee rather than per response pattern). $A_q$ carries the prior
+once: with Gauss-Hermite points it is the rescaled weight (p. 446), with equally spaced points the
+normalized density (p. 449). Bock and Aitkin's model is the normal ogive; they state that the logit
+model works the same way (p. 448), and Baker (1987, p. 132) gives it in logistic form.
+
+**E-step.** With the current item parameters, accumulate for each item $i$ and node $q$
+
+$$
+\bar r_{iq} = \sum_{j \text{ answered } i} \frac{u_{ij}\,L_j(X_q)\,A_q}{\tilde P_j}, \qquad
+\bar N_{iq} = \sum_{j \text{ answered } i} \frac{L_j(X_q)\,A_q}{\tilde P_j},
+$$
+
+the expected number of correct responses and the expected number of examinees answering item $i$ at
+$X_q$ (Baker, 1987, p. 132, Equations 42-44; Bock & Aitkin, 1981, p. 447).
+
+Departure: both sources define the counts over complete response patterns, with one expected
+sample size per node shared by every item. With missing responses, the product and the sums run over answered items only,
+so the expected sample size is per item. Beisemann et al. (2020, p. 211, Equation 5) define it that
+way, as the persons at a level "attempting item $j$", and mirt treats a missing response as
+contributing no factor (mirt 1.48 source, `R/04-PrepData.R:107`).
+
+**M-step.** For each item, maximize
+
+$$
+\ell_i = \sum_q \left[\bar r_{iq}\log P_i(X_q) + (\bar N_{iq} - \bar r_{iq})\log\bigl(1 - P_i(X_q)\bigr)\right],
+$$
+
+whose likelihood equations in the intercept-slope form are $\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]
+= 0$ and $\sum_q [\bar r_{iq} - \bar N_{iq}P_i(X_q)]X_q = 0$ (Baker, 1987, p. 132, Equations 45-46;
+Equation 46's $P_j$ is a misprint for $P_i$). The prior mass enters only through $\bar r$ and $\bar N$.
+Bock and Aitkin's (1981, p. 447) description of the M-step says to weight each term by its
+prior mass as well; their Equation 12 (p. 446) and definitions (ii)-(iii) (p. 447) apply it once, which this card
+follows.
+
+**The 1PL with a common slope.** All items share one slope $a$ and ability is $N(0, 1)$ (Thissen,
+1982, pp. 175-176, Equation 1). The location equations stay per item; the slope's equation sums over
+all items (p. 180, Equations 8-9). Thissen solves each location, then the slope, by one-dimensional
+Newton steps within each cycle (p. 181).
+
+**Convergence.** Each cycle that does not decrease the expected complete-data log-likelihood does not
+decrease the marginal likelihood (Dempster et al., 1977, p. 7, Theorem 1). Convergence is linear,
+at the rate of the largest eigenvalue of the algorithm's Jacobian at the maximum (p. 10), and becomes
+very slow near the solution (Bock & Aitkin, 1981, p. 447). Bock and Aitkin's procedure substitutes
+expected counts rather than taking the expected log-likelihood, and they note that it coincides with
+Dempster et al.'s EM only within the exponential family (p. 448). Beisemann et al. (2020, p. 211)
+derive the same expected counts from Dempster et al.'s expected complete-data log-likelihood for the
+1PL and 2PL.
+
+## Parameters
+
+```{eval-rst}
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 60
+
+   * - Parameter
+     - Default
+     - Description
+   * - ``model``
+     - none
+     - 1PL (common slope) or 2PL, as catsim's ``IrtModel``.
+   * - ``grid``
+     - Open Question 2
+     - Nodes and prior masses of the ability distribution; mirt 1.48 uses 61 equally spaced nodes on
+       [-6, 6] (manual pp. 127, 129).
+   * - ``tolerance``, ``max_iter``
+     - Open Question 3
+     - When to stop; mirt 1.48 stops when every parameter changes by less than 1e-4, or after 500
+       cycles (manual pp. 127, 129).
+   * - starting values
+     - Open Question 6
+     - Where the iterations start.
+```
+
+## Behavior and Comparison
+
+The estimates depend little on the shape of the assumed ability distribution: normal, rectangular
+and empirical priors give nearly the same LSAT estimates (Bock & Aitkin, 1981, p. 449; Table 1,
+p. 451). A flat prior can make the posterior heavy-tailed when many examinees answer every item
+right or every item wrong (p. 450). EM converges slowly near the solution (p. 447), and MML does not
+protect against slope estimates diverging (Baker, 1987, p. 133). An item answered correctly by every
+examinee, or by none, has no finite estimate.
+
+mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `method = "EM"`:
+
+- It estimates the intercept-slope form, which its manual writes $a_1\theta + d$ with $d$ the
+  intercept, not catsim's upper asymptote (manual p. 133); slope and intercept have no bounds.
+- Its grid is 61 equally spaced points on $[-6, 6]$, the normal density at them divided by its sum
+  (source `R/03-estimation.R:663`, `R/utils.R:542-543`).
+- It solves each M-step with BFGS (manual p. 126).
+- It stops when every parameter changes by less than `TOL` = 1e-4, or after 500 cycles (manual
+  pp. 127, 129; source `R/utils.R:2929-2941`), and applies Ramsay acceleration every third cycle
+  (manual p. 128; source `R/EMstep.group.R:347-357`).
+- It starts slopes at 0.851 and intercepts at the inverse normal of the proportion correct, rescaled
+  (source `R/05-model.elements.R:42-64`).
+- Its `"1PL"` fixes every slope at 1 with $N(0, 1)$; its `"Rasch"` fixes every slope at 1 and
+  estimates the variance (manual p. 123). The common-slope 1PL is the 2PL with the slopes constrained
+  equal.
+
+Where pyitemcal's defaults differ, each difference gets a setting that reproduces mirt for the parity
+tests (ADR-0003); which differences there are is the requirements card's to decide.
+
+## Guarantees
+
+1. Without acceleration, the marginal log-likelihood never decreases from one iteration to the next.
+2. An examinee's missing response changes nothing but that response's own factor: an examinee who
+   answered no item leaves the estimates unchanged.
+3. The result says whether the stopping rule was met.
+4. The 1PL's estimates are on the scale where ability has mean 0 and variance 1.
+
+## References
+
+Baker, F. B. (1987). Methodology review: Item parameter estimation under the one-, two-, and
+three-parameter logistic models. *Applied Psychological Measurement, 11*(2), 111-141.
+https://doi.org/10.1177/014662168701100201. Open copy: https://hdl.handle.net/11299/103398
+
+Beisemann, M., Wartlick, O., & Doebler, P. (2020). Comparison of recent acceleration techniques for
+the EM algorithm in one- and two-parameter logistic IRT models. *Psych, 2*(4), 209-252.
+https://doi.org/10.3390/psych2040018. Open access.
+
+Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters:
+Application of an EM algorithm. *Psychometrika, 46*(4), 443-459. https://doi.org/10.1007/BF02293801.
+Not openly available; Baker (1987, pp. 131-132) describes the method.
+
+Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
+[Reference manual and source]. https://cran.r-project.org/package=mirt
+
+Dempster, A. P., Laird, N. M., & Rubin, D. B. (1977). Maximum likelihood from incomplete data via
+the EM algorithm. *Journal of the Royal Statistical Society: Series B, 39*(1), 1-22.
+https://doi.org/10.1111/j.2517-6161.1977.tb01600.x. Not openly available; Woodruff and Hanson
+(1996, pp. 3-8) describe the algorithm.
+
+Du, Y., & Varadhan, R. (2020). SQUAREM: An R package for off-the-shelf acceleration of EM, MM and
+other EM-like monotone algorithms. *Journal of Statistical Software, 92*(7), 1-41.
+https://doi.org/10.18637/jss.v092.i07. Open access.
+
+Engelen, R. J. H. (1987). *A review of different estimation procedures in the Rasch model* (Research
+Report 87-6). University of Twente. Open copy: https://files.eric.ed.gov/fulltext/ED310126.pdf
+
+Thissen, D. (1982). Marginal maximum likelihood estimation for the one-parameter logistic model.
+*Psychometrika, 47*(2), 175-186. https://doi.org/10.1007/BF02296273. Not openly available; Baker
+(1987, pp. 133-134) describes the method.
+
+Woodruff, D. J., & Hanson, B. A. (1996). *Estimation of item response models using the EM algorithm
+for finite mixtures* (ACT Research Report 96-6). ACT. Open copy:
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf
+
+## Implementation Guidance
+
+Waits for the requirements card (`discovery/requirements.md`), which settles the open questions above
+against the calibrator contract.

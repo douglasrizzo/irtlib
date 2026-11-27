@@ -1,164 +1,196 @@
 ---
-title: ICC analytic gradients w.r.t. item parameters
+title: Differentiate the item response function with respect to the item parameters
 kind: technique
-status: needs-research
+status: blocked
 priority: 1
 effort: S
-blocked_by: [discovery/research-pass]
+blocked_by: [discovery/requirements]
 raised_by: [moved from catsim's backlog]
 ---
 
-# ICC analytic gradients w.r.t. item parameters
+# Differentiate the item response function with respect to the item parameters
 
-> **Carried over from catsim's backlog on 2026-11-26, unverified.** Its equations, claims, sources and
-> sketch were never checked against the literature. [The research pass](../discovery/research-pass.md)
-> keeps only what the sources verify and deletes what is wrong or misleading, or deletes the card.
+## Problem
 
-> Background: [the literature review §3](../discovery/literature-review.md)
+Every calibration method solves likelihood equations in the item parameters: the M-step of
+marginal maximum likelihood ([the MML-EM card](../estimation/mml-em.md)) and the item stage of joint
+maximum likelihood ([the JML card](../estimation/jml.md)) each need the derivatives of the
+probability of a correct response with respect to $a$, $b$, $c$ and $d$, and the information they
+carry. catsim differentiates the item response function only with respect to ability.
 
-## Reference
+## Evidence
 
-Baker, F. B., & Kim, S.-H. (2004). *Item Response Theory: Parameter Estimation Techniques* (2nd ed.). Marcel Dekker. Chapter 5 (MLE derivatives) and Appendix.
+- ADR-0004 lists "derivatives with respect to item parameters" among what pyitemcal implements and
+  catsim lacks.
+- The research pass (2026-11-27) checked the card carried over from catsim against its sources. Its
+  first derivatives with respect to $a$, $b$ and $c$ match Barton and Lord (1981, p. A3) once their
+  scaling constant is set to 1; its derivative with respect to $d$ had no source; two of its tests
+  were wrong: the gradient of the log-likelihood vanishes at the maximum likelihood estimate, not at
+  the generating parameters, and the expected information is not the second derivative of the
+  log-likelihood of an observed sample.
 
-## Theory
+## What pyitemcal and catsim have now
 
-The 4PL ICC is:
+- catsim: `catsim.irt.icc` (the response function, items as rows `[a, b, c, d]`, broadcasting
+  abilities against items), `catsim.irt.log_response_probabilities` and `catsim.irt.information`
+  (Fisher information about ability). No derivative with respect to item parameters.
+- pyitemcal: nothing.
 
-$$P(\theta) = c + \frac{d - c}{1 + \exp(-a(\theta - b))}$$
+## Proposal
 
-Let $z = \exp(-a(\theta - b))$ and $Q = 1 - P$. The logistic kernel is $\psi = \frac{1}{1 + z}$, so $P = c + (d - c)\psi$.
-
-### First derivatives w.r.t. item parameters
-
-$$\frac{\partial P}{\partial a} = (d - c) \cdot (\theta - b) \cdot \psi(1 - \psi)$$
-
-$$\frac{\partial P}{\partial b} = -(d - c) \cdot a \cdot \psi(1 - \psi)$$
-
-$$\frac{\partial P}{\partial c} = 1 - \psi$$
-
-$$\frac{\partial P}{\partial d} = \psi$$
-
-### Log-likelihood derivatives
-
-For a single observation $u \in \{0, 1\}$:
-
-$$\frac{\partial \log L}{\partial \xi} = \frac{u - P}{P \cdot Q} \cdot \frac{\partial P}{\partial \xi}$$
-
-where $\xi \in \{a, b, c, d\}$.
-
-### Second derivatives (Hessian diagonal)
-
-For Newton-Raphson in the M-step, we need the observed or expected second derivatives. The expected information for parameter $\xi$ is:
-
-$$\mathbb{E}\left[-\frac{\partial^2 \log L}{\partial \xi^2}\right] = \frac{1}{P \cdot Q} \left(\frac{\partial P}{\partial \xi}\right)^2$$
-
-This is the Fisher information for a single item w.r.t. its own parameter — not to be confused with the Fisher information for $\theta$.
-
-## Mock implementation
-
-```python
-# src/pyitemcal/irt.py  (derivatives of catsim.irt.icc with respect to the item parameters, ADR-0004)
-
-import numpy as np
-import numpy.typing as npt
-from typing import Any
-
-
-def icc_derivatives(
-    theta: npt.NDArray[np.floating[Any]],
-    items: npt.NDArray[np.floating[Any]],
-) -> dict[str, npt.NDArray[np.floating[Any]]]:
-    """Analytic first derivatives of the 4PL ICC w.r.t. item parameters.
-
-    Parameters
-    ----------
-    theta : numpy.ndarray, shape (n_quad,) or (n_examinees,)
-        Ability values (quadrature nodes or examinee estimates).
-    items : numpy.ndarray, shape (n_items, 4+)
-        Item parameter matrix [a, b, c, d, ...].
-
-    Returns
-    -------
-    dict with keys 'P', 'dP_da', 'dP_db', 'dP_dc', 'dP_dd'
-        Each value has shape (n_theta, n_items) via broadcasting.
-    """
-    a, b, c, d = items[:, 0], items[:, 1], items[:, 2], items[:, 3]
-    # theta is (n_theta,), params are (n_items,) → broadcast to (n_theta, n_items)
-    theta_2d = theta[:, np.newaxis]  # (n_theta, 1)
-
-    z = np.exp(-a * (theta_2d - b))               # (n_theta, n_items)
-    psi = 1.0 / (1.0 + z)                         # logistic kernel
-    psi_deriv = psi * (1.0 - psi)                  # ψ(1 - ψ)
-
-    P = c + (d - c) * psi
-    dP_da = (d - c) * (theta_2d - b) * psi_deriv
-    dP_db = -(d - c) * a * psi_deriv
-    dP_dc = 1.0 - psi
-    dP_dd = psi
-
-    return {"P": P, "dP_da": dP_da, "dP_db": dP_db, "dP_dc": dP_dc, "dP_dd": dP_dd}
-
-
-def icc_log_likelihood_gradient(
-    theta: npt.NDArray[np.floating[Any]],
-    items: npt.NDArray[np.floating[Any]],
-    r_bar: npt.NDArray[np.floating[Any]],
-    f_bar: npt.NDArray[np.floating[Any]],
-) -> dict[str, npt.NDArray[np.floating[Any]]]:
-    """Gradient of the expected log-likelihood for MML-EM M-step.
-
-    After the E-step, the expected counts r̄_iq and f̄_q summarize the data.
-    The gradient for item i at quadrature node q is:
-
-        (r̄_iq - f̄_q * P_iq) / (P_iq * Q_iq) * dP/dξ
-
-    summed over quadrature nodes.
-
-    Parameters
-    ----------
-    theta : numpy.ndarray, shape (n_quad,)
-        Quadrature nodes.
-    items : numpy.ndarray, shape (n_items, 4+)
-        Current item parameter estimates.
-    r_bar : numpy.ndarray, shape (n_quad, n_items)
-        Expected number of correct responses at each node for each item.
-    f_bar : numpy.ndarray, shape (n_quad,)
-        Expected frequency (total posterior weight) at each node.
-
-    Returns
-    -------
-    dict with keys 'grad_a', 'grad_b', 'grad_c', 'grad_d'
-        Each has shape (n_items,) — gradient summed over quadrature nodes.
-    """
-    derivs = icc_derivatives(theta, items)
-    P = derivs["P"]                               # (n_quad, n_items)
-    Q = 1.0 - P
-
-    # residual weight: (r̄_iq - f̄_q * P_iq) / (P_iq * Q_iq)
-    f_bar_2d = f_bar[:, np.newaxis]                # (n_quad, 1)
-    residual = (r_bar - f_bar_2d * P) / (P * Q + 1e-30)
-
-    grad = {}
-    for param in ("a", "b", "c", "d"):
-        grad[f"grad_{param}"] = np.sum(residual * derivs[f"dP_d{param}"], axis=0)
-
-    return grad
-```
-
-## Proposed location
-
-`src/pyitemcal/irt.py`; the response functions themselves stay in catsim's `catsim.irt` (ADR-0004). These are pure IRT functions, not tied to any calibration method.
+Functions that return, for every ability against every item, the four derivatives of the response
+probability below; the gradient of an item's log-likelihood from counts of correct responses at
+given abilities (the M-step's data); and the expected information matrix of an item's parameters.
+Their signatures and module follow the requirements card.
 
 ## Tests
 
-1. **Numerical gradient check**: For each parameter ξ ∈ {a, b, c, d}, compute `(P(ξ+ε) - P(ξ-ε)) / (2ε)` with `ε = 1e-5` and compare against the analytic derivative. Assert `|analytic - numerical| < 1e-6` across a grid of θ values and diverse item parameters.
-2. **Shape consistency**: Verify output shapes are `(n_theta, n_items)` for various input sizes.
-3. **Boundary behavior**: Items with `c=0, d=1` (2PL) should have `dP_dc = 1 - ψ` and `dP_dd = ψ`. Items with `a=1` (1PL) should have `dP_da = (θ - b) * ψ(1-ψ)`.
-4. **Log-likelihood gradient**: Construct a small synthetic dataset where the true parameters are known. Verify the gradient is near zero at the true parameters (stationary point).
-5. **Hessian diagonal**: Verify `1/(P*Q) * (dP/dξ)^2` against numerical second derivative of the log-likelihood.
+- **Hand-worked values** from the closed form below:
 
-## Notes
+  | Item $[a, b, c, d]$ | $\theta$ | $P$ | $\partial P/\partial a$ | $\partial P/\partial b$ | $\partial P/\partial c$ | $\partial P/\partial d$ |
+  |---|---|---|---|---|---|---|
+  | $[1, 0, 0, 1]$ | 0 | 0.5 | 0 | −0.25 | 0.5 | 0.5 |
+  | $[1.5, 1, 0.2, 1]$ | 0 | 0.3459404190 | −0.1193171617 | −0.1789757425 | 0.8175744762 | 0.1824255238 |
+  | $[0.8, −0.5, 0.25, 0.95]$ | 1.2 | 0.8070317884 | 0.1934061794 | −0.0910146727 | 0.2042403023 | 0.7957596977 |
 
-- Use pure numpy (not numexpr) for gradients — the overhead of `numexpr.evaluate` is not worth it for the M-step, which runs once per EM iteration, not per examinee.
-- The `1e-30` floor in the residual denominator prevents division by zero at extreme θ values where `P ≈ 0` or `P ≈ 1`.
-- These functions will be consumed by both MML-EM (mml-em) and JML (jml).
+  The second row's $P$ is also the value in `catsim.irt.icc`'s own example.
+- **Finite differences:** each derivative agrees with the central difference of `catsim.irt.icc`
+  over a grid of abilities and items spanning the bank bounds, to the step's $O(h^2)$ error.
+- **Log-likelihood gradient:** the gradient from counts agrees with central differences of the
+  grouped log-likelihood below.
+- **Expected information:** equals the average over the two outcomes $u = 1$ (weight $P$) and
+  $u = 0$ (weight $1 - P$) of the negative second derivative of $u \log P + (1 - u)\log(1 - P)$,
+  computed by finite differences.
+- **Identity:** $\partial P/\partial c + \partial P/\partial d = 1$ at every ability, since $P$ is
+  linear in $c$ and $d$.
+
+## Open Questions
+
+1. **The parameterization inside the M-step.** The sources solve for the intercept and slope,
+   $\zeta + \lambda\theta$ (Bock & Aitkin, 1981, p. 445, Equation 3; Baker, 1987, p. 114, Equation 5),
+   and mirt estimates in that form (mirt 1.48 manual, p. 133). In it, the 2PL's second derivatives
+   contain no data (Baker, 1987, p. 116); in catsim's $a(\theta - b)$ they do (below). Solving in
+   $(\zeta, \lambda)$ and converting to $(a, b)$ gives simpler Newton steps and direct parity with
+   mirt's estimates; solving in $(a, b)$ avoids the conversion of standard errors. The card assumes
+   the requirements card chooses; both need the derivatives here.
+2. **Observed or expected information in the M-step's Newton steps.** Bock and Aitkin (1981, p. 446)
+   and Baker (1987, p. 116) use the expected information (Fisher scoring) where the second derivatives
+   contain data. Assumed: expected, unless the requirements card finds a reason otherwise.
+
+---
+
+**Module:** decided by the requirements card (planned)
+**Reference:** Barton & Lord (1981); Baker (1987)
+**Last validated:** 2026-11-27, against Barton & Lord (1981), Baker (1987) and Bock & Aitkin (1981)
+on the paper shelf, and the mirt 1.48 reference manual.
+**Implementation guidance:** not yet written; it waits for the requirements card.
+
+## Motivation
+
+Calibration fits each item's response function to the responses, one item at a time once the
+abilities are known or integrated out. The equations it solves and the standard errors it reports
+both come from the derivatives of the response probability with respect to the item's own
+parameters. They are closed forms of the logistic function, shared by every method that estimates
+items.
+
+## Definition
+
+catsim's response function, with $\psi_i(\theta) = 1 / (1 + e^{-a_i(\theta - b_i)})$, is
+$P_i(\theta) = c_i + (d_i - c_i)\,\psi_i(\theta)$ (the formula lives in `catsim.irt.icc`'s
+docstring). Its derivatives with respect to the item parameters are
+
+$$
+\frac{\partial P}{\partial a} = (d - c)(\theta - b)\,\psi(1 - \psi), \qquad
+\frac{\partial P}{\partial b} = -(d - c)\,a\,\psi(1 - \psi),
+$$
+
+$$
+\frac{\partial P}{\partial c} = 1 - \psi, \qquad
+\frac{\partial P}{\partial d} = \psi .
+$$
+
+Barton and Lord (1981, p. A3) give the first three for $P = c + (\delta - c)/(1 + e^{-DL})$ with
+$L = a(\theta - b)$ and $D = 1.7$ (p. A1), writing $\psi(1 - \psi)$ as
+$1/(e^{DL} + 2 + e^{-DL})$. This card departs from them in two ways:
+
+- $D = 1$, catsim's parameterization (ADR-0001); Baker (1987, p. 114) recommends abandoning the
+  1.702 multiplier.
+- Barton and Lord fix one upper asymptote $\delta$, the same for every item (p. 3), and give no
+  derivative with respect to it. The derivative with respect to $d$ above is this card's, by differentiating
+  their model equation (p. A1) with respect to $\delta$.
+
+For an item answered by $N_q$ examinees at ability $X_q$, $r_{iq}$ of them correctly, the
+log-likelihood is
+
+$$
+\ell_i = \sum_q \left[ r_{iq} \log P_i(X_q) + (N_q - r_{iq}) \log\bigl(1 - P_i(X_q)\bigr) \right],
+$$
+
+the grouped form of Baker (1987, p. 112, Equation 3), and its derivative with respect to a
+parameter $\chi$ of item $i$ is
+
+$$
+\frac{\partial \ell_i}{\partial \chi} = \sum_q \frac{r_{iq} - N_q P_i(X_q)}{P_i(X_q)\,\bigl(1 - P_i(X_q)\bigr)} \, \frac{\partial P_i(X_q)}{\partial \chi},
+$$
+
+the per-response form of Barton and Lord (1981, p. A2), $\sum (u - P)(\partial P/\partial\chi)/(PQ)$,
+summed within each group. Written in the intercept-slope form $\zeta + \lambda\theta$, it reduces
+to Baker's (1987, p. 114) Equations 6 and 7 when $c = 0$ and $d = 1$, and to his Equations 14-16
+(p. 116) for the 3PL when $d = 1$.
+
+Barton and Lord (1981, p. A2) give the second derivative
+
+$$
+\frac{\partial^2 \ell}{\partial\chi\,\partial\phi} = \sum \left[ -\frac{\partial P}{\partial\phi}\frac{\partial P}{\partial\chi}\frac{1}{PQ}
++ (u - P)\left( \frac{\partial^2 P/\partial\chi\,\partial\phi}{PQ} + \frac{\partial P}{\partial\chi}\frac{\partial P}{\partial\phi}\frac{P - Q}{P^2Q^2} \right) \right].
+$$
+
+Since $E[u] = P$, the terms in $u - P$ have expectation zero, and the expected information of one
+response is $(\partial P/\partial\chi)(\partial P/\partial\phi)/(PQ)$. This is the card's own step
+from their formula. The observed second derivative equals it only where the $(u - P)$ terms vanish
+identically: Baker (1987, p. 116) states that this holds for the one- and two-parameter models, in
+the intercept-slope form he uses, and not for the three-parameter model. In catsim's $a(\theta - b)$
+form it does not hold even for the 2PL, because $\partial^2 P/\partial a\,\partial b \neq 0$ (Barton
+& Lord, 1981, p. A3).
+
+## Parameters
+
+None: the functions take abilities and items.
+
+## Behavior and Comparison
+
+The derivatives are exact closed forms. Where $P$ is close to 0 or 1 the factor $1/(PQ)$ grows, and
+for $c = 0$ or $d = 1$ the products $(\partial P/\partial\chi)/(PQ)$ simplify by cancellation; a
+numerically careful implementation forms them from $\psi$ rather than dividing.
+
+mirt estimates in the intercept-slope form $a_1\theta + d$ (mirt 1.48 manual, p. 133). Agreement
+with mirt is checked at the level of the calibrator ([the MML-EM card](../estimation/mml-em.md)).
+
+## Guarantees
+
+1. Each derivative equals the limit of the difference quotient of `catsim.irt.icc` in that parameter.
+2. The derivatives with respect to $c$ and $d$ sum to 1 at every ability.
+3. The expected information matrix of an item's parameters is symmetric and positive semidefinite.
+
+## References
+
+Baker, F. B. (1987). Methodology review: Item parameter estimation under the one-, two-, and
+three-parameter logistic models. *Applied Psychological Measurement, 11*(2), 111-141.
+https://doi.org/10.1177/014662168701100201. Open copy: https://hdl.handle.net/11299/103398
+
+Barton, M. A., & Lord, F. M. (1981). *An upper asymptote for the three-parameter logistic
+item-response model* (Research Report RR-81-20). Educational Testing Service.
+https://doi.org/10.1002/j.2333-8504.1981.tb01255.x. Open copy:
+https://files.eric.ed.gov/fulltext/ED207996.pdf
+
+Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters:
+Application of an EM algorithm. *Psychometrika, 46*(4), 443-459. https://doi.org/10.1007/BF02293801.
+Not openly available; Baker (1987, pp. 131-132) describes the method.
+
+Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
+[Reference manual]. https://cran.r-project.org/package=mirt
+
+## Implementation Guidance
+
+Waits for the requirements card (`discovery/requirements.md`), which sets the calibrator contract
+these functions serve and the parameterization of Open Question 1.

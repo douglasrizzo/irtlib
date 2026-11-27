@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-24 cards: 1 ready, 8 needs-research, 1 needs-decision, 10 blocked, 4 parked.
+25 cards: 1 ready, 6 needs-research, 1 needs-decision, 13 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -53,8 +53,9 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Build the parity harness that checks pyitemcal against mirt](discovery/mirt-parity-harness.md) | discovery | feature | blocked | M | [requirements](discovery/requirements.md) | ADR-0003 |
 | [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | decision | blocked | L | [research-pass](discovery/research-pass.md) | setup of pyitemcal |
 | [Rebuild the research behind calibration from primary sources](discovery/research-pass.md) | discovery | research | ready | XL |  | setup review of the cards carried over from catsim |
-| [MML-EM calibrator for 1PL and 2PL](estimation/mml-em.md) | estimation | technique | needs-research | M | [research-pass](discovery/research-pass.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
-| [ICC analytic gradients w.r.t. item parameters](irt/icc-gradients.md) | irt | technique | needs-research | S | [research-pass](discovery/research-pass.md) | moved from catsim's backlog |
+| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
+| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | research pass |
+| [Differentiate the item response function with respect to the item parameters](irt/icc-gradients.md) | irt | technique | blocked | S | [requirements](discovery/requirements.md) | moved from catsim's backlog |
 
 ## Priority 2
 
@@ -97,7 +98,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 ## Background
 
-- [Literature Review: Item Parameter Estimation (Calibration)](discovery/literature-review.md)
+- [Literature Review: Item Calibration](discovery/literature-review.md)
 
 <!-- backlog-index:end -->
 
