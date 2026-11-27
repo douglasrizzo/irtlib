@@ -107,7 +107,7 @@ a prior, mirt put four of five guessing estimates at 0; with a logit-normal prio
 
 ## The 4PL
 
-**Card:** [estimation/mml-em-4pl.md](../estimation/mml-em-4pl.md).
+**Implemented:** the 4PL of `pyitemcal.mml`, whose module docstring holds the design.
 
 Barton and Lord (1981, p. 2) proposed an upper asymptote below 1 for high-ability examinees who make
 a clerical error, fixed it at one value for all items (p. 3), and found "no compelling reason to urge

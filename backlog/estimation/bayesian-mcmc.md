@@ -66,7 +66,7 @@ reduction as its convergence check. It uses NumPy only (ADR-0002).
 1. **Whether to build it.** Its estimates matched BILOG's (Patz & Junker, 1999a, p. 163; Kim & Bolt,
    2007, p. 46); its advantage is the posterior itself: for highly discriminating items, Albert's
    (1992, p. 262) posterior standard deviations were 20% to 60% larger than the EM standard errors.
-   Assumed: last in the build order, revisited after the 4PL card (YAGNI).
+   Assumed: last in the build order, revisited once the 4PL is in use (YAGNI).
 2. **The sampler.** Albert's (1992, pp. 258-259) data-augmentation Gibbs sampler and Culpepper's
    (2016, Section 2) need the normal-ogive model, outside ADR-0001's logistic models; Patz and
    Junker's (1999a, p. 159) random-walk Metropolis steps work for the logistic models, tuned to the

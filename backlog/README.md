@@ -31,14 +31,14 @@ The folders:
 | `status` | `ready` (enough to start), `needs-research` (claims to verify, or a design to write, before work), `needs-decision` (the maintainer chooses first), `blocked` (by the cards in `blocked_by`, or by what the card says), `parked` (outside the scope an ADR sets; moving it into scope needs that ADR changed) |
 | `priority` | `1` blocks the first calibration method · `2` needed before a release · `3` useful, though nothing is blocked · `4` a later phase or a scope change |
 | `effort` | `XS`, `S`, `M`, `L`, `XL` |
-| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[estimation/mml-em-4pl]` |
+| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[estimation/cml-rasch]` |
 | `raised_by` | What surfaced the card: a review, a measurement or a PR, as short text without commas |
 
 Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-19 cards: 9 ready, 0 needs-research, 2 needs-decision, 4 blocked, 4 parked.
+18 cards: 9 ready, 0 needs-research, 2 needs-decision, 3 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -59,10 +59,9 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | needs-decision | M |  | maintainer during setup |
-| [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
-| [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | blocked | S | [mml-em-4pl](estimation/mml-em-4pl.md) | ADR-0007 |
+| [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |

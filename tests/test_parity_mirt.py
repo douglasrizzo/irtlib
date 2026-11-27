@@ -16,6 +16,7 @@ range give the same log-likelihood within the tolerance.
 
 from __future__ import annotations
 
+import functools
 import operator
 from typing import TYPE_CHECKING, Any
 
@@ -211,12 +212,12 @@ def test_collapse_matches_mirt(table: int) -> None:
 
 
 # mirt's parameter names in its PRIOR syntax, and the Priors field and parameter column of each.
-_PRIOR_ARGUMENTS = {"a1": ("slope", 0), "d": ("intercept", 1), "g": ("guessing", 2)}
+_PRIOR_ARGUMENTS = {"a1": ("slope", 0), "d": ("intercept", 1), "g": ("guessing", 2), "u": ("upper", 3)}
 
 _STOPS_SHORT = (
-  "mirt 1.48 reports convergence with these priors after the same number of cycles at TOL = 1e-8 and 1e-11, where the "
-  "gradient of the marginal log-posterior is still 1e-4 to 7e-4 in size; pyitemcal's estimates bring it below 1e-6, "
-  "at a higher log-posterior, and differ from mirt's by up to 1.8e-4 (measured 2026-11-27)"
+  "mirt 1.48 reports convergence with these priors where the gradient of the marginal log-posterior is still 6.6e-5 to "
+  "7.4e-4 in size; pyitemcal's estimates bring it below 1e-6, at a higher log-posterior, and differ from mirt's by up "
+  "to 1.7e-4, and by 1.6e-2 on the 4PL, whose likelihood is nearly flat along a ridge (measured 2026-11-27)"
 )
 _LOGNORMAL_HESSIAN = (
   "mirt 1.48's Hessian of the lognormal prior has the opposite sign on its last term (source R/utils.R:1430), which "
@@ -227,7 +228,15 @@ _LOGNORMAL_HESSIAN = (
 def _prior_settings(case: dict[str, Any]) -> dict[str, Any]:
   """Return the calibrator arguments that give a fixture case's model and priors."""
   priors = Priors(**{_PRIOR_ARGUMENTS[prior["parameter"]][0]: (prior["mean"], prior["sd"]) for prior in case["priors"]})
-  return {"model": case["model"], "priors": priors, "tolerance": _MML_PRIORS["settings"]["tol"]}
+  settings = _MML_PRIORS["settings"]
+  return {"model": case["model"], "priors": priors, "tolerance": settings["tol"], "max_cycles": settings["max_cycles"]}
+
+
+@functools.cache
+def _prior_calibration(case_id: str) -> Calibration:
+  """Return the calibration of a prior fixture case, computed once for the estimate and standard-error tests."""
+  case = next(case for case in _MML_PRIORS["cases"] if case["id"] == case_id)
+  return MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
 
 
 def _marked(case: dict[str, Any], *reasons: tuple[str, str]) -> Any:
@@ -246,7 +255,7 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
     case["slope"],
     case["intercept"],
     case.get("guessing", np.full(n_items, -np.inf)),
-    np.full(n_items, np.inf),
+    case.get("upper", np.full(n_items, np.inf)),
   ])
   priors = tuple(
     _PriorTerm(_PRIOR_ARGUMENTS[prior["parameter"]][1], prior["mean"], prior["sd"]) for prior in case["priors"]
@@ -261,19 +270,24 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
 @pytest.mark.parametrize(
   "case",
   [
-    _marked(case, ("simulated_3pl/3pl_priors", _STOPS_SHORT), ("simulated/2pl_priors", _STOPS_SHORT))
+    _marked(
+      case,
+      ("simulated_3pl/3pl_priors", _STOPS_SHORT),
+      ("simulated/2pl_priors", _STOPS_SHORT),
+      ("simulated_4pl/4pl_priors", _STOPS_SHORT),
+    )
     for case in _MML_PRIORS["cases"]
   ],
 )
 def test_mml_priors_estimates(case: dict[str, Any]) -> None:
-  """Bayes modal estimates of the 3PL with a prior on the logit of c, and of the 2PL with priors, match mirt's."""
-  calibration = MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's."""
+  calibration = _prior_calibration(case["id"])
   slope = calibration.items.discrimination
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(-slope * calibration.items.difficulty, case["intercept"], atol=_ESTIMATE_ATOL)
-  if "guessing" in case:
-    guessing = calibration.items.pseudo_guessing
-    np.testing.assert_allclose(np.log(guessing / (1 - guessing)), case["guessing"], atol=_ESTIMATE_ATOL)
+  for key, asymptote in [("guessing", calibration.items.pseudo_guessing), ("upper", calibration.items.upper_asymptote)]:
+    if key in case:
+      np.testing.assert_allclose(np.log(asymptote / (1 - asymptote)), case[key], atol=_ESTIMATE_ATOL)
 
 
 @pytest.mark.parametrize(
@@ -284,19 +298,21 @@ def test_mml_priors_estimates(case: dict[str, Any]) -> None:
       ("simulated_3pl/3pl_priors", _STOPS_SHORT),
       ("simulated/2pl_priors", _LOGNORMAL_HESSIAN),
       ("lsat7/1pl_priors", _LOGNORMAL_HESSIAN),
+      ("simulated_4pl/4pl_priors", _STOPS_SHORT),
     )
     for case in _MML_PRIORS["cases"]
   ],
 )
 def test_mml_priors_standard_errors(case: dict[str, Any]) -> None:
-  """The standard errors of a, b and c under priors match mirt's Oakes standard errors."""
-  calibration = MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  """The standard errors of a, b, c and d under priors match mirt's Oakes standard errors."""
+  calibration = _prior_calibration(case["id"])
   standard_errors = calibration.standard_errors
   assert standard_errors is not None
   np.testing.assert_allclose(standard_errors[:, 0], case["a_se"], rtol=_STANDARD_ERROR_RTOL)
   np.testing.assert_allclose(standard_errors[:, 1], case["b_se"], rtol=_STANDARD_ERROR_RTOL)
-  if "c_se" in case:
-    np.testing.assert_allclose(standard_errors[:, 2], case["c_se"], rtol=_STANDARD_ERROR_RTOL)
+  for column, key in [(2, "c_se"), (3, "d_se")]:
+    if key in case:
+      np.testing.assert_allclose(standard_errors[:, column], case[key], rtol=_STANDARD_ERROR_RTOL)
 
 
 @pytest.mark.parametrize("case", _COMPARISON["cases"], ids=operator.itemgetter("data"))
@@ -323,3 +339,16 @@ def test_model_comparison(case: dict[str, Any]) -> None:
   assert test.df == case["likelihood_ratio"]["df"]
   np.testing.assert_allclose(test.statistic, case["likelihood_ratio"]["statistic"], atol=1e-6)
   np.testing.assert_allclose(test.p_value, case["likelihood_ratio"]["p_value"], atol=1e-6)
+
+
+def test_mml_four_pl_asymptote_standard_errors() -> None:
+  """The 4PL's standard errors of c and d match mirt's within 2e-3, though its estimates stop short of the mode.
+
+  mirt's estimates differ from the mode (the expected failures above), which moves these standard errors by up to
+  6.3e-4; a wrong delta method, missing the c(1 - c) or d(1 - d) factor of about 0.1 to 0.2, misses by far more.
+  """
+  case = next(case for case in _MML_PRIORS["cases"] if case["id"] == "simulated_4pl/4pl_priors")
+  standard_errors = _prior_calibration(case["id"]).standard_errors
+  assert standard_errors is not None
+  np.testing.assert_allclose(standard_errors[:, 2], case["c_se"], rtol=2e-3)
+  np.testing.assert_allclose(standard_errors[:, 3], case["d_se"], rtol=2e-3)
