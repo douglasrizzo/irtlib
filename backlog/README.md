@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-22 cards: 10 ready, 0 needs-research, 1 needs-decision, 7 blocked, 4 parked.
+21 cards: 9 ready, 0 needs-research, 1 needs-decision, 7 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -50,12 +50,11 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | blocked | L | [response-functions](irt/response-functions.md), [quadrature](irt/quadrature.md) | ADR-0004 as decided on 2026-11-27 |
+| [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | blocked | L | [response-functions](irt/response-functions.md) | ADR-0004 as decided on 2026-11-27 |
 | [Bring the model names, the item bank and response drawing from catsim into irtlib](irt/item-bank.md) | irt | feature | blocked | M | [response-functions](irt/response-functions.md) | ADR-0004 as decided on 2026-11-27 |
-| [Bring the quadrature grid, the ability priors and the posterior from catsim into irtlib](irt/quadrature.md) | irt | feature | ready | S |  | ADR-0004 as decided on 2026-11-27 |
 | [Bring the response functions and their quantities from catsim into irtlib.irt](irt/response-functions.md) | irt | feature | ready | M |  | ADR-0004 as decided on 2026-11-27 |
 | [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
-| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [response-functions](irt/response-functions.md), [quadrature](irt/quadrature.md), [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
+| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [response-functions](irt/response-functions.md), [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
 
 ## Priority 3
 

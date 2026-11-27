@@ -4,7 +4,7 @@ kind: feature
 status: blocked
 priority: 2
 effort: L
-blocked_by: [irt/response-functions, irt/quadrature]
+blocked_by: [irt/response-functions]
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 
