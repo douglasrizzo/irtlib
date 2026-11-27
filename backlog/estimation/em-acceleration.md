@@ -1,10 +1,10 @@
 ---
 title: Measure EM acceleration on the 3PL and 4PL and add it if it pays
 kind: feature
-status: blocked
+status: ready
 priority: 3
 effort: S
-blocked_by: [estimation/mml-em-4pl]
+blocked_by: []
 raised_by: [ADR-0007]
 ---
 
@@ -15,7 +15,8 @@ raised_by: [ADR-0007]
 `pyitemcal.mml` runs plain EM, which converges linearly and slowly near the solution (Dempster, Laird
 & Rubin, 1977, p. 10; Bock & Aitkin, 1981, p. 447). ADR-0007 leaves acceleration out of the first
 version, since the 2PL fits took under 0.1 seconds, and has it measured again on the 3PL and 4PL,
-whose fits took hundreds to thousands of cycles in mirt (the 3PL and 4PL cards).
+whose fits took hundreds to thousands of cycles in mirt, and 936 in `pyitemcal.mml` for a 4PL of 5,000
+examinees with priors (2026-11-27).
 
 ## Evidence
 

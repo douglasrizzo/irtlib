@@ -28,6 +28,8 @@ from tests.mirt_fixtures import load, responses
 if TYPE_CHECKING:
   from collections.abc import Callable
 
+  from catsim.typing import FloatArray
+
 _MML_EM = load("mml_em")
 _LSAT6 = responses(_MML_EM["data"]["lsat6"])
 _LSAT7 = responses(_MML_EM["data"]["lsat7"])
@@ -263,8 +265,9 @@ def test_a_reverse_keyed_item_is_refused() -> None:
 @pytest.mark.parametrize(
   ("arguments", "message"),
   [
-    ({"model": "4PL"}, "1PL to the 3PL"),
-    ({"priors": Priors(guessing=(-1.4, 0.5))}, "guessing prior needs the 3PL"),
+    ({"model": "5PL"}, "not a valid IrtModel"),
+    ({"priors": Priors(guessing=(-1.4, 0.5))}, "guessing prior needs the 3PL or 4PL"),
+    ({"model": "3PL", "priors": Priors(upper=(2.2, 0.5))}, "upper prior needs the 4PL"),
     ({"fixed_slope": 1.0, "priors": Priors(slope=(0.0, 0.5))}, "slope prior needs an estimated slope"),
     ({"fixed_slope": 0.0}, "fixed_slope"),
     ({"tolerance": 0.0}, "tolerance"),
@@ -397,3 +400,45 @@ def test_a_shared_slope_carries_its_prior_once() -> None:
   step = 1e-5
   derivative = (log_posterior(slope + step) - log_posterior(slope - step)) / (2 * step)
   assert abs(derivative) < 1e-3
+
+
+def test_four_pl_estimates_are_the_posterior_mode() -> None:
+  """4PL estimates with priors on the logits of c and d make the log-posterior's gradient in those logits vanish.
+
+  mirt 1.48 stops short of this mode (the parity tests' expected failures), so the check is independent: central
+  differences of the public marginal log-likelihood plus scipy's normal log-densities of the priors.
+  """
+  data = load("mml_priors")["data"]["simulated_4pl"]
+  matrix = responses(data)
+  center_c, center_d = float(logit(0.2)), float(logit(0.9))
+  priors = Priors(guessing=(center_c, 0.2), upper=(center_d, 0.2))
+  calibration = MMLCalibrator("4PL", priors=priors, tolerance=1e-8, max_cycles=5000).calibrate(matrix)
+  items = calibration.items.items.copy()
+
+  def log_posterior(candidate: FloatArray) -> float:
+    prior = np.sum(norm.logpdf(logit(candidate[:, 2]), center_c, 0.2)) + np.sum(
+      norm.logpdf(logit(candidate[:, 3]), center_d, 0.2)
+    )
+    return marginal_log_likelihood(matrix, candidate) + prior
+
+  step = 1e-5
+  gradient = []
+  for item in range(items.shape[0]):
+    for column in (2, 3):
+      shifted = []
+      for sign in (1.0, -1.0):
+        candidate = items.copy()
+        candidate[item, column] = expit(logit(items[item, column]) + sign * step)
+        shifted.append(log_posterior(candidate))
+      gradient.append((shifted[0] - shifted[1]) / (2 * step))
+  np.testing.assert_allclose(gradient, 0.0, atol=1e-3)
+
+
+def test_a_start_with_guessing_above_the_upper_asymptote_is_refused() -> None:
+  """A 4PL start whose items keep a guessing parameter at or above the upper asymptote is refused, naming the start.
+
+  A start's c of 0 becomes mirt's 0.15, which exceeds an upper asymptote of 0.1.
+  """
+  start = ItemBank(np.tile([1.0, 0.0, 0.0, 0.1], (5, 1)))
+  with pytest.raises(ValueError, match="start must leave every item's guessing parameter below"):
+    MMLCalibrator("4PL").calibrate(_LSAT7, start=start)

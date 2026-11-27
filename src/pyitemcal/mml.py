@@ -1,4 +1,4 @@
-r"""Marginal maximum likelihood calibration of the 1PL to 3PL with the EM algorithm, with optional priors.
+r"""Marginal maximum likelihood calibration of the 1PL to 4PL with the EM algorithm, with optional priors.
 
 Calibration has to estimate item parameters without the examinees' abilities. Marginal maximum likelihood
 integrates the abilities out over a population distribution and maximizes the likelihood of the item parameters
@@ -38,7 +38,9 @@ the slope, whose log-density keeps the :math:`-\log a` term, normal on the inter
 :math:`c`, which keeps :math:`c` inside :math:`(0, 1)` (:cite:t:`Mislevy1986`, p. 183). In the M-step's scoring
 information, a log-prior's negative second derivative counts only where it is positive, so the system stays positive
 definite. The 3PL's likelihood is "nearly flat along one or more dimensions" (:cite:t:`Mislevy1986`, p. 189), which a
-prior on the logit of :math:`c` remedies.
+prior on the logit of :math:`c` remedies. The 4PL adds an upper asymptote :math:`d < 1`, for examinees of high ability
+who still miss an item (:cite:t:`Barton1981`, p. 2), estimated on its logit with a normal prior there; recovering it
+takes thousands of examinees (:cite:t:`Waller2017`, p. 19; :cite:t:`Culpepper2016`, Section 5).
 
 The standard errors are the square roots of the inverse observed information at the estimates, by Oakes's identity
 :cite:p:`Oakes1999` (p. 480): the score of the marginal log-likelihood is the M-step's gradient at the E-step's own
@@ -48,13 +50,13 @@ centrally with step :math:`10^{-5}`, the E-step recomputed at each shifted point
 the log-prior's second derivative (:cite:t:`Mislevy1986`, p. 182, Equations 15-17); the result is symmetrized, which
 :cite:t:`Chalmers2018` (p. 17) finds improves it (ADR-0007). Chalmers (pp. 5-7), as mirt, differences only the missing
 information and takes the complete-data Hessian analytically; differencing the whole score keeps one path for every
-model and prior. The standard errors of :math:`a`, :math:`b = -\zeta / \lambda` and :math:`c` follow by the delta
-method.
+model and prior. The standard errors of :math:`a`, :math:`b = -\zeta / \lambda`, :math:`c` and :math:`d` follow by
+the delta method.
 
 Starting values are the slope 0.851, the intercept :math:`\Phi^{-1}(p_i) \cdot 1.702 / \sqrt{0.75}`, or 2 where
-:math:`p_i` is 0 or 1, and the guessing parameter 0.15, where :math:`p_i` is item :math:`i`'s proportion correct among
-the examinees who answered it: mirt's starting values, computed over answered responses only (ADR-0007);
-:cite:t:`Bock1981` (p. 458) name the inverse normal of the proportion correct as a starting intercept.
+:math:`p_i` is 0 or 1, the guessing parameter 0.15 and the upper asymptote 0.85, where :math:`p_i` is item :math:`i`'s
+proportion correct among the examinees who answered it: mirt's starting values, computed over answered responses only
+(ADR-0007); :cite:t:`Bock1981` (p. 458) name the inverse normal of the proportion correct as a starting intercept.
 """
 
 import math
@@ -75,9 +77,10 @@ from .irt import log_likelihood_gradient, parameter_information
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
 _START_SLOPE = 0.5 * 1.702
 _START_INTERCEPT_SCALE = 1.702 / math.sqrt(0.75)
-# mirt's starting guessing parameter (source R/04-PrepData.R:70) and its starting intercept where the proportion
-# correct is 0 or 1 (R/05-model.elements.R:63-64)
+# mirt's starting guessing parameter and upper asymptote (source R/04-PrepData.R:70-71), and its starting intercept
+# where the proportion correct is 0 or 1 (R/05-model.elements.R:63-64)
 _START_GUESSING = 0.15
+_START_UPPER = 0.85
 _START_EXTREME_INTERCEPT = 2.0
 # The M-step's Fisher scoring stops when no parameter moves by more than this, or after the iterations below.
 _M_STEP_TOLERANCE = 1e-12
@@ -86,7 +89,7 @@ _STEP_HALVINGS = 30
 # mirt's central-difference step for Oakes's identity (ADR-0007)
 _OAKES_STEP = 1e-5
 _N_PARAMETERS = 4
-_SLOPE, _INTERCEPT, _GUESSING = 0, 1, 2
+_SLOPE, _INTERCEPT, _GUESSING, _UPPER = 0, 1, 2, 3
 
 
 @dataclass(frozen=True, slots=True)
@@ -156,7 +159,10 @@ class Priors:
       The mean and standard deviation of a normal prior on every intercept, ``-a * b``. It keeps the estimates of
       items answered correctly by everyone or by no one finite.
   guessing : tuple[float, float] or None
-      The mean and standard deviation of a normal prior on the logit of every guessing parameter; for the 3PL.
+      The mean and standard deviation of a normal prior on the logit of every guessing parameter; for the 3PL and
+      4PL.
+  upper : tuple[float, float] or None
+      The mean and standard deviation of a normal prior on the logit of every upper asymptote; for the 4PL.
 
   Raises
   ------
@@ -172,10 +178,16 @@ class Priors:
   slope: tuple[float, float] | None = None
   intercept: tuple[float, float] | None = None
   guessing: tuple[float, float] | None = None
+  upper: tuple[float, float] | None = None
 
   def __post_init__(self) -> None:
     """Check each prior's mean and standard deviation."""
-    for name, prior in [("slope", self.slope), ("intercept", self.intercept), ("guessing", self.guessing)]:
+    for name, prior in [
+      ("slope", self.slope),
+      ("intercept", self.intercept),
+      ("guessing", self.guessing),
+      ("upper", self.upper),
+    ]:
       if prior is None:
         continue
       if len(prior) != 2:  # noqa: PLR2004 - a mean and a standard deviation
@@ -191,7 +203,12 @@ def _prior_terms_of(priors: Priors) -> tuple[_PriorTerm, ...]:
   """Return priors as terms of the M-step's objective, one per parameter column."""
   return tuple(
     _PriorTerm(column, float(prior[0]), float(prior[1]))
-    for column, prior in [(_SLOPE, priors.slope), (_INTERCEPT, priors.intercept), (_GUESSING, priors.guessing)]
+    for column, prior in [
+      (_SLOPE, priors.slope),
+      (_INTERCEPT, priors.intercept),
+      (_GUESSING, priors.guessing),
+      (_UPPER, priors.upper),
+    ]
     if prior is not None
   )
 
@@ -248,7 +265,7 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
 
 
 class MMLCalibrator:
-  """Calibrate the 1PL, 2PL or 3PL by marginal maximum likelihood with the EM algorithm, with optional priors.
+  """Calibrate the 1PL to 4PL by marginal maximum likelihood with the EM algorithm, with optional priors.
 
   Each call to :py:meth:`calibrate` estimates the items of one response matrix, which may have missing responses.
   Abilities are normal with mean 0 and variance 1. With priors on the item parameters, the estimates are Bayes modal:
@@ -258,11 +275,12 @@ class MMLCalibrator:
   ----------
   model : catsim.IrtModel or str, optional
       ``"2PL"``, the default, estimates a slope per item; ``"1PL"`` one slope shared by every item; ``"3PL"`` also a
-      guessing parameter per item, best with a guessing prior.
+      guessing parameter per item, best with a guessing prior; ``"4PL"`` also an upper asymptote per item, best with
+      priors on both asymptotes and thousands of examinees.
   fixed_slope : float, optional
       A slope every item keeps instead of estimating it, with any model.
   priors : Priors, optional
-      Priors on the slope, the intercept and the logit of the guessing parameter of every item.
+      Priors on the slope, the intercept and the logits of the guessing parameter and upper asymptote of every item.
   tolerance : float, optional
       The stopping rule: calibration stops when no estimated parameter changes by more than this in a cycle.
       Default is 1e-6.
@@ -274,9 +292,9 @@ class MMLCalibrator:
   Raises
   ------
   ValueError
-      If ``model`` is not the 1PL, 2PL or 3PL; ``fixed_slope`` is not finite and positive; a slope prior comes with
-      ``fixed_slope``, or a guessing prior with a model other than the 3PL; ``tolerance`` is not positive; or
-      ``max_cycles`` is less than 1.
+      If ``fixed_slope`` is not finite and positive; a slope prior comes with ``fixed_slope``, a guessing prior with
+      a model other than the 3PL and 4PL, or an upper prior with a model other than the 4PL; ``tolerance`` is not
+      positive; or ``max_cycles`` is less than 1.
 
   Examples
   --------
@@ -299,10 +317,10 @@ class MMLCalibrator:
   ) -> None:
     self._model = IrtModel(model)
     match self._model:
-      case IrtModel.PL1 | IrtModel.PL2 | IrtModel.PL3:
+      case IrtModel.PL1 | IrtModel.PL2 | IrtModel.PL3 | IrtModel.PL4:
         pass
       case _:
-        msg = f"MMLCalibrator calibrates the 1PL to the 3PL, got {self._model}"
+        msg = f"MMLCalibrator calibrates the 1PL to the 4PL, got {self._model}"
         raise ValueError(msg)
     if fixed_slope is not None and not (math.isfinite(fixed_slope) and fixed_slope > 0):
       msg = f"fixed_slope must be finite and positive, got {fixed_slope}"
@@ -317,8 +335,11 @@ class MMLCalibrator:
     if priors.slope is not None and fixed_slope is not None:
       msg = "a slope prior needs an estimated slope, not fixed_slope"
       raise ValueError(msg)
-    if priors.guessing is not None and self._model is not IrtModel.PL3:
-      msg = f"a guessing prior needs the 3PL, got {self._model}"
+    if priors.guessing is not None and self._model not in {IrtModel.PL3, IrtModel.PL4}:
+      msg = f"a guessing prior needs the 3PL or 4PL, got {self._model}"
+      raise ValueError(msg)
+    if priors.upper is not None and self._model is not IrtModel.PL4:
+      msg = f"an upper prior needs the 4PL, got {self._model}"
       raise ValueError(msg)
     self._priors = _prior_terms_of(priors)
     self._fixed_slope = fixed_slope
@@ -351,7 +372,8 @@ class MMLCalibrator:
         If the responses fail :py:func:`pyitemcal.calibration.validate_responses`; an item was answered correctly by
         every examinee who answered it or by none, which leaves it no finite estimate; an item's slope estimate is
         not positive, which a catsim item bank cannot hold; the expected information of the parameters is singular;
-        or ``start`` has a different number of items.
+        or ``start`` has a different number of items, or leaves an item's guessing parameter at or above its upper
+        asymptote.
     """
     matrix = validate_responses(responses)
     proportion = _proportion_correct(matrix)
@@ -431,6 +453,11 @@ class MMLCalibrator:
     tuple[numpy.ndarray, numpy.ndarray]
         The index of each item's slope, intercept and logits of c and d in the free parameters, -1 for a fixed
         parameter, the 1PL's slopes sharing one; and each item's starting slope, intercept and logits of c and d.
+
+    Raises
+    ------
+    ValueError
+        If the start leaves an item's guessing parameter at or above its upper asymptote.
     """
     n_items = proportion.size
     values = numpy.empty((n_items, _N_PARAMETERS))
@@ -448,10 +475,13 @@ class MMLCalibrator:
       # the start's difficulties are kept whatever slope the items start from
       values[:, 1] = -values[:, 0] * b
     values[:, 2] = -numpy.inf  # c = 0
-    if self._model is IrtModel.PL3:
+    if self._model in {IrtModel.PL3, IrtModel.PL4}:
       guessing = start.pseudo_guessing if start is not None else numpy.zeros(n_items)
       values[:, 2] = logit(numpy.where(guessing > 0, guessing, _START_GUESSING))
     values[:, 3] = numpy.inf  # d = 1
+    if self._model is IrtModel.PL4:
+      upper = start.upper_asymptote if start is not None else numpy.ones(n_items)
+      values[:, 3] = logit(numpy.where(upper < 1, upper, _START_UPPER))
     index = numpy.full((n_items, _N_PARAMETERS), -1)
     if self._fixed_slope is not None:
       values[:, 0] = self._fixed_slope
@@ -462,8 +492,13 @@ class MMLCalibrator:
     else:
       index[:, 0] = numpy.arange(n_items)
       index[:, 1] = numpy.arange(n_items, 2 * n_items)
-    if self._model is IrtModel.PL3:
+    if not numpy.all(values[:, 2] < values[:, 3]):
+      msg = "start must leave every item's guessing parameter below its upper asymptote, with c = 0 taken as 0.15"
+      raise ValueError(msg)
+    if self._model in {IrtModel.PL3, IrtModel.PL4}:
       index[:, 2] = numpy.arange(index.max() + 1, index.max() + 1 + n_items)
+    if self._model is IrtModel.PL4:
+      index[:, 3] = numpy.arange(index.max() + 1, index.max() + 1 + n_items)
     return index, values
 
 
@@ -598,7 +633,7 @@ def _observed_information(
 
 
 def _standard_errors(values: FloatArray, index: IntArray, information: FloatArray) -> FloatArray | None:
-  """Return the standard errors of each item's a, b and c by the delta method.
+  """Return the standard errors of each item's a, b, c and d by the delta method.
 
   Returns
   -------
@@ -622,17 +657,20 @@ def _standard_errors(values: FloatArray, index: IntArray, information: FloatArra
   difficulty_jacobian[rows, index[:, 1]] = -1.0 / slope
   slope_variance = numpy.einsum("nk,kl,nl->n", slope_jacobian, covariance, slope_jacobian)[free_slope]
   difficulty_variance = numpy.einsum("nk,kl,nl->n", difficulty_jacobian, covariance, difficulty_jacobian)
-  # c is the logistic function of its logit, whose derivative is c (1 - c)
-  free_guessing = index[:, _GUESSING] >= 0
-  guessing = expit(values[free_guessing, _GUESSING])
-  guessing_variance = (guessing * (1 - guessing)) ** 2 * covariance[
-    index[free_guessing, _GUESSING], index[free_guessing, _GUESSING]
-  ]
-  variances = numpy.concatenate([slope_variance, difficulty_variance, guessing_variance])
+  # c and d are the logistic function of their logits, whose derivative is c (1 - c), or d (1 - d)
+  free_asymptotes = [index[:, column] >= 0 for column in (_GUESSING, _UPPER)]
+  asymptote_variances = []
+  for column, free in zip((_GUESSING, _UPPER), free_asymptotes, strict=True):
+    asymptote = expit(values[free, column])
+    asymptote_variances.append(
+      (asymptote * (1 - asymptote)) ** 2 * covariance[index[free, column], index[free, column]]
+    )
+  variances = numpy.concatenate([slope_variance, difficulty_variance, *asymptote_variances])
   if not numpy.all(numpy.isfinite(variances) & (variances > 0)):
     return None
   standard_errors = numpy.full((n_items, _N_PARAMETERS), numpy.nan)
   standard_errors[free_slope, 0] = numpy.sqrt(slope_variance)
   standard_errors[:, 1] = numpy.sqrt(difficulty_variance)
-  standard_errors[free_guessing, 2] = numpy.sqrt(guessing_variance)
+  for column, free, variance in zip((_GUESSING, _UPPER), free_asymptotes, asymptote_variances, strict=True):
+    standard_errors[free, column] = numpy.sqrt(variance)
   return standard_errors
