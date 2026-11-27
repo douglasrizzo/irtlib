@@ -11,7 +11,9 @@ The fixtures are checked against an independent reference before any method uses
 summed by brute force over mirt's grid, at the parameters a fixture records must equal the log-likelihood mirt reports
 there. A fixture recorded on a grid of another range, read with the slope and intercept confused, or with missing
 responses counted, fails. The number of nodes cannot be checked this way: 41 or more equally spaced nodes on the same
-range give the same log-likelihood within the tolerance.
+range give the same log-likelihood within the tolerance. The response-function fixture holds items with fixed
+parameters instead of responses, and is checked against the 4PL information of Magis (2013, p. 307, Equation 6),
+written out.
 """
 
 from __future__ import annotations
@@ -23,8 +25,10 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 from catsim import ItemBank
+from scipy.integrate import quad
 from scipy.special import expit, logsumexp
 
+from irtlib import irt
 from irtlib.calibration import Calibration, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
@@ -58,6 +62,7 @@ _MML_EM = load("mml_em")
 _ITEM_FIT = load("item_fit")
 _MML_PRIORS = load("mml_priors")
 _COMPARISON = load("comparison")
+_RESPONSE_FUNCTIONS = load("response_functions")
 
 # The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
 # "1PL", whose slopes are fixed at 1.
@@ -352,3 +357,68 @@ def test_mml_four_pl_asymptote_standard_errors() -> None:
   assert standard_errors is not None
   np.testing.assert_allclose(standard_errors[:, 2], case["c_se"], rtol=2e-3)
   np.testing.assert_allclose(standard_errors[:, 3], case["d_se"], rtol=2e-3)
+
+
+def _four_pl_information(theta: FloatArray, items: FloatArray) -> FloatArray:
+  """Return the 4PL item information of Magis (2013, p. 307, Equation 6), written out, every ability by every item."""
+  a, b, c, d = items.T
+  p = c + (d - c) * expit(a * (theta[..., np.newaxis] - b))
+  return a**2 * (p - c) ** 2 * (d - p) ** 2 / ((d - c) ** 2 * p * (1 - p))
+
+
+@pytest.mark.parametrize("case", _RESPONSE_FUNCTIONS["reliability"], ids=operator.itemgetter("id"))
+def test_reliability_fixture_is_the_information_over_the_information_plus_one(case: dict[str, Any]) -> None:
+  """mirt's rxx curve is I / (I + 1) of the recorded items, by Magis's Equation 6 written out.
+
+  Fails if the curve was recorded on another grid, for other items, or with the abilities' variance other than 1.
+  """
+  information = np.sum(_four_pl_information(np.array(case["thetas"]), np.array(case["items"])), axis=-1)
+  np.testing.assert_allclose(case["reliability"], information / (information + 1), rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("case", _RESPONSE_FUNCTIONS["reliability"], ids=operator.itemgetter("id"))
+def test_reliability(case: dict[str, Any]) -> None:
+  """irtlib's reliability matches mirt's rxx curve for 2PL, 3PL and 4PL items; 1 - 1/I or a per-item ratio misses."""
+  items = np.array(case["items"])
+  values = [irt.reliability(theta, items) for theta in case["thetas"]]
+  np.testing.assert_allclose(values, case["reliability"], rtol=_CLOSED_FORM_RTOL)
+
+
+def _area(lower: float, upper: float, item: FloatArray) -> float:
+  """Return the integral of an item's information by quadrature of Equation 6, up to 30 logits beyond its difficulty."""
+  a, b = item[0], item[1]
+  value, _ = quad(
+    lambda theta: float(_four_pl_information(np.array(theta), item[np.newaxis, :])[0]),
+    max(lower, b - 30 / a),
+    min(upper, b + 30 / a),
+    points=[b],
+    limit=200,
+    epsabs=1e-13,
+    epsrel=1e-12,
+  )
+  return value
+
+
+@pytest.mark.parametrize("case", _RESPONSE_FUNCTIONS["info_integral"], ids=operator.itemgetter("id"))
+def test_info_integral_fixture_is_the_integral_of_the_information(case: dict[str, Any]) -> None:
+  """mirt's areainfo equals SciPy's quadrature of Equation 6 written out, within 1e-10.
+
+  Fails if the fixture's bounds or items are recorded out of place, or mirt integrated to a looser tolerance. The
+  quadrature stops 30 logits beyond the difficulty, where the information left is below 2e-13.
+  """
+  items = np.array(_RESPONSE_FUNCTIONS["items"])
+  lower, upper = float(case["lower"]), float(case["upper"])
+  expected = [_area(lower, upper, item) for item in items]
+  np.testing.assert_allclose(case["info"], expected, rtol=_CLOSED_FORM_RTOL, atol=1e-12)
+
+
+@pytest.mark.parametrize("case", _RESPONSE_FUNCTIONS["info_integral"], ids=operator.itemgetter("id"))
+def test_info_integral(case: dict[str, Any]) -> None:
+  """irtlib's closed-form integral matches mirt's areainfo, a numerical integration to a relative 1e-12.
+
+  The bounds are finite, half-infinite and the whole scale, for 2PL, 3PL and 4PL items, so a wrong weight on log P or
+  log Q, or a log term not dropped at an infinite bound, misses.
+  """
+  items = np.array(_RESPONSE_FUNCTIONS["items"])
+  values = irt.info_integral(float(case["lower"]), float(case["upper"]), items)
+  np.testing.assert_allclose(values, case["info"], rtol=_CLOSED_FORM_RTOL)

@@ -1,10 +1,10 @@
 ---
 title: Should the item response plots move from catsim into irtlib?
 kind: decision
-status: blocked
+status: needs-decision
 priority: 4
 effort: S
-blocked_by: [irt/response-functions]
+blocked_by: []
 raised_by: [maintainer during the rescope of 2026-11-27]
 ---
 
@@ -29,7 +29,7 @@ studies. The maintainer deferred the decision until the response functions are i
 
 ## Proposal
 
-Options, to weigh once `irt/response-functions` has landed:
+Options, to weigh now that the response functions are in `irtlib.irt`:
 
 1. Move the item response plots into irtlib behind an optional extra with matplotlib, which
    changes ADR-0002.

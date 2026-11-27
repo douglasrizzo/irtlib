@@ -116,8 +116,9 @@ repos:
       - id: pretty-format-json
         args:
           - "--autofix"
-        # the mirt parity data (ADR-0003): its R scripts write 17 significant digits, which this hook would shorten
-        exclude: ^tests/parity/mirt/.*\.json$
+        # the mirt and catR parity data (ADR-0003): their R scripts write 17 significant digits, which this hook would
+        # shorten
+        exclude: ^tests/parity/.*\.json$
       - id: requirements-txt-fixer
 
   - repo: https://github.com/hukkin/mdformat

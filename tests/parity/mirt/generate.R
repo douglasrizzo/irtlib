@@ -10,7 +10,8 @@
 # pinned version from CRAN's source archive over it.
 #
 # Each case script builds the cases of one JSON file beside it: the response data, mirt's settings
-# and mirt's outputs. A rerun with the same mirt version writes the same bytes.
+# and mirt's outputs. The JSON writer, tests/parity/json.R, is shared with the catR generator. A
+# rerun with the same mirt version writes the same bytes.
 
 MIRT_VERSION <- "1.48"
 CRAN <- "https://cloud.r-project.org"
@@ -59,7 +60,8 @@ suppressPackageStartupMessages(library(mirt, lib.loc = lib))
 stopifnot(as.character(getNamespaceVersion("mirt")) == MIRT_VERSION)
 
 here <- script_dir()
-for (helper in c("json.R", "mml_em.R", "item_fit.R", "mml_priors.R", "comparison.R")) {
+source(file.path(dirname(here), "json.R"))
+for (helper in c("mml_em.R", "item_fit.R", "mml_priors.R", "comparison.R", "response_functions.R")) {
   source(file.path(here, helper))
 }
 
@@ -68,7 +70,8 @@ outputs <- list(
   mml_em = mml_em_cases(),
   item_fit = item_fit_cases(),
   mml_priors = mml_priors_cases(),
-  comparison = comparison_cases()
+  comparison = comparison_cases(),
+  response_functions = response_function_cases()
 )
 for (name in names(outputs)) {
   path <- file.path(here, paste0(name, ".json"))

@@ -1,10 +1,10 @@
 ---
 title: Estimate the abilities of many examinees by ML, MAP, EAP and WLE
 kind: feature
-status: blocked
+status: ready
 priority: 2
 effort: L
-blocked_by: [irt/response-functions]
+blocked_by: []
 raised_by: [ADR-0004 as decided on 2026-11-27]
 ---
 
