@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-24 cards: 3 ready, 0 needs-research, 1 needs-decision, 16 blocked, 4 parked.
+23 cards: 2 ready, 0 needs-research, 1 needs-decision, 16 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -50,8 +50,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Build the parity harness that checks pyitemcal against mirt](discovery/mirt-parity-harness.md) | discovery | feature | ready | M |  | ADR-0003 |
-| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [icc-gradients](irt/icc-gradients.md), [mirt-parity-harness](discovery/mirt-parity-harness.md) | moved from catsim's backlog |
+| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
 | [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [mml-em](estimation/mml-em.md) | research pass |
 | [Differentiate the item response function with respect to the item parameters](irt/icc-gradients.md) | irt | technique | ready | S |  | moved from catsim's backlog |
 

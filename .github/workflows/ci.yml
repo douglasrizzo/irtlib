@@ -102,12 +102,10 @@ jobs:
           uv sync --group dev
           uv pip list
 
-      # pytest exits with 5 when it collects no tests, as it does until the first module and its tests
-      # land. That pull request removes the `|| [ $? -eq 5 ]` here and in test-wheel, and adds
-      # --cov=pyitemcal here, which turns on the coverage gate (AGENTS.md).
+      # --cov turns on the coverage gate (fail_under in pyproject.toml).
       - name: Run tests
         shell: bash
-        run: uv run pytest --verbose || [ $? -eq 5 ]
+        run: uv run pytest --verbose --cov=pyitemcal
 
   build:
     name: Build package
@@ -179,4 +177,4 @@ jobs:
       - name: Run tests against the installed wheel
         run: |
           "$RUNNER_TEMP/wheel-venv/bin/python" -c "import pyitemcal; assert 'site-packages' in pyitemcal.__file__, pyitemcal.__file__"
-          "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests || [ $? -eq 5 ]
+          "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests
