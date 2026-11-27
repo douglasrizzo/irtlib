@@ -33,13 +33,20 @@ fit_with_priors <- function(x, model, priors) {
   }, "")
   constrain <- if (model == "1PL") sprintf("CONSTRAIN = (1-%d, a1)\n", n_items) else ""
   spec <- mirt.model(paste0(sprintf("F = 1-%d\n", n_items), constrain, "PRIOR = ", paste(tuples, collapse = ", ")))
-  mirt(
+  # mirt's M-step uses BFGS, whose tolerance is reltol, or nlminb when a prior bounds a parameter, whose tolerance
+  # is rel.tol; each warns of the other's name ("unknown names in control", "unrecognized control elements"), and
+  # only those warnings are muffled
+  withCallingHandlers(mirt(
     x, spec,
     itemtype = if (model == "1PL") "2PL" else model, quadpts = MML_EM_SETTINGS$quadrature_points, TOL = MML_EM_SETTINGS$tol,
     SE = TRUE, SE.type = "Oakes", verbose = FALSE,
     technical = list(NCYCLES = MML_EM_SETTINGS$max_cycles, theta_lim = MML_EM_SETTINGS$theta_limits),
-    control = list(rel.tol = MML_EM_SETTINGS$reltol)
-  )
+    control = list(reltol = MML_EM_SETTINGS$reltol, rel.tol = MML_EM_SETTINGS$reltol)
+  ), warning = function(w) {
+    if (grepl("unknown names in control|unrecognized control elements", conditionMessage(w))) {
+      invokeRestart("muffleWarning")
+    }
+  })
 }
 
 priors_case <- function(name, x, itemtype, priors) {

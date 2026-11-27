@@ -214,9 +214,9 @@ def test_collapse_matches_mirt(table: int) -> None:
 _PRIOR_ARGUMENTS = {"a1": ("slope", 0), "d": ("intercept", 1), "g": ("guessing", 2)}
 
 _STOPS_SHORT = (
-  "mirt 1.48 reports convergence with these priors after the same number of cycles at TOL = 1e-8 and 1e-11, where the "
-  "gradient of the marginal log-posterior is still 1e-4 to 7e-4 in size; pyitemcal's estimates bring it below 1e-6, "
-  "at a higher log-posterior, and differ from mirt's by up to 1.8e-4 (measured 2026-11-27)"
+  "mirt 1.48 reports convergence with these priors where the gradient of the marginal log-posterior is still 6.6e-5 to "
+  "7.4e-4 in size; pyitemcal's estimates bring it below 1e-6, at a higher log-posterior, and differ from mirt's by up "
+  "to 1.7e-4 (measured 2026-11-27)"
 )
 _LOGNORMAL_HESSIAN = (
   "mirt 1.48's Hessian of the lognormal prior has the opposite sign on its last term (source R/utils.R:1430), which "
