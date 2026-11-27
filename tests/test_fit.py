@@ -7,6 +7,7 @@ on data from the fitted model.
 from __future__ import annotations
 
 import itertools
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -19,6 +20,10 @@ from irtlib.fit import (
 )
 from irtlib.mml import MMLCalibrator
 from tests.mirt_fixtures import load, responses
+
+if TYPE_CHECKING:
+  from irtlib.calibration import Calibration
+  from irtlib.typing import FloatArray
 
 _LSAT7 = responses(load("mml_em")["data"]["lsat7"])
 
@@ -104,4 +109,26 @@ def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
     calibration = MMLCalibrator().calibrate(matrix)
   fit = s_x2(calibration, matrix)
   assert fit.statistic.shape == (4,)
-  assert np.all(fit.df > 0)
+  assert fit.df[2] == 1  # three score groups less the item's two parameters: nothing collapsed
+  np.testing.assert_allclose(fit.statistic[2], _enumerated_s_x2(calibration, matrix, 2), rtol=1e-10)
+
+
+def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) -> float:
+  """Return an item's S-X² by enumerating every response pattern, for four items and no collapsed score group.
+
+  Equations 12 and 13 of Orlando and Thissen (2000), with the 4PL written out and the grid's normal masses.
+  """
+  a, b, c, d = calibration.estimates.T
+  nodes = calibration.grid.nodes
+  masses = calibration.grid.weights * np.exp(-(nodes**2) / 2)
+  probability = c + (d - c) / (1 + np.exp(-a * (nodes[:, np.newaxis] - b)))  # nodes x items
+  joint = np.zeros((5, 2))  # score 0 to 4, the item incorrect or correct
+  for pattern in itertools.product((0, 1), repeat=4):
+    likelihood = np.prod(np.where(np.array(pattern) == 1, probability, 1 - probability), axis=1)
+    joint[sum(pattern), pattern[item]] += likelihood @ (masses / masses.sum())
+  expected = joint[1:4, 1] / joint[1:4].sum(axis=1)
+  scores = matrix.sum(axis=1)
+  groups = [matrix[scores == k, item] for k in (1, 2, 3)]
+  counts = np.array([group.size for group in groups])
+  observed = np.array([group.mean() for group in groups])
+  return float(np.sum(counts * (observed - expected) ** 2 / (expected * (1 - expected))))

@@ -15,7 +15,7 @@ raised_by: [benchmarks against catsim on 2026-11-27]
 catsim calls the log-likelihood and the posterior once or more per step of every simulated adaptive
 test, for one examinee. On that shape, irtlib's versions take 1.3 to 1.5 times catsim's time, above
 the 1.2 times the maintainer set for a faster version (ADR-0004). catsim's simulations will feel it
-once catsim builds on irtlib, and so do irtlib's EAP estimate, which calls both
+once catsim builds on irtlib, and so does irtlib's EAP estimate, which calls both
 (`estimation/faster-ability-estimation`).
 
 ## Evidence
@@ -29,7 +29,7 @@ once catsim builds on irtlib, and so do irtlib's EAP estimate, which calls both
 | `quadrature.posterior`, with `irt.log_likelihood` | 20 responses, 121 nodes | 51.3-53.7 µs | 77.2-78.5 µs | 1.44-1.53 |
 | `quadrature.posterior_mean` | 121 nodes | 0.85-0.91 µs | 1.19-1.25 µs | 1.35-1.39 |
 | `quadrature.posterior_variance` | 121 nodes | 2.15-2.28 µs | 2.89-2.98 µs | 1.29-1.34 |
-| `irt.log_likelihood_function`, a call | 20 responses, 1 ability | 2.88-3.06 µs | 3.49-3.60 µs | 1.16-1.21 |
+| `irt.log_likelihood_function`, a call (at the threshold, not a target) | 20 responses, 1 ability | 2.88-3.06 µs | 3.49-3.60 µs | 1.16-1.21 |
 
 For the log-likelihood, building the function takes 12.2 µs against catsim's 6.4 µs, and its call at
 the 121 nodes 45.5 µs against 37.3 µs (a scratch script on the same day). The build checks the
@@ -39,7 +39,7 @@ log-likelihood for NaN and +inf and for rows with no mass (10.3 µs from a given
 `posterior_mean` and `posterior_variance` sum along an axis of a one-row matrix, where catsim sums
 a vector.
 
-The response functions and information run at 1.00 to 1.18 times catsim's time on one ability
+The response functions and information run at 0.98 to 1.19 times catsim's time on one ability
 against 500 items, under the threshold; `information` and its sums are the slowest of them.
 
 ## Proposal

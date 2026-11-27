@@ -120,7 +120,12 @@ def _bank_cases(bank: irtlib.ItemBank, theta: float) -> list[Case]:
       "irt.theta_to_scale", "1 ability", lambda: catsim_irt.theta_to_scale(theta), lambda: irt.theta_to_scale(theta)
     ),
     Case("irt.scale_to_theta", "1 score", lambda: catsim_irt.scale_to_theta(58.75), lambda: irt.scale_to_theta(58.75)),
-    Case("ItemBank", f"{_N_BANK} items", lambda: catsim.ItemBank(items), lambda: irtlib.ItemBank(items)),
+    Case(
+      "ItemBank, with its peaks",
+      f"{_N_BANK} items",
+      lambda: catsim.ItemBank(items).max_info_values,
+      lambda: irtlib.ItemBank(items).max_info_values,
+    ),
     Case(
       "ItemBank.generate",
       f"{_N_BANK} items",

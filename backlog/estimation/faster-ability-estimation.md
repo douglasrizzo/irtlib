@@ -13,8 +13,8 @@ raised_by: [timing of the ability-estimation PR on 2026-11-27]
 ## Problem
 
 catsim calls an ability estimator once per step of every simulated adaptive test, and will call
-irtlib's once it builds on irtlib (ADR-0004). irtlib's four estimators take 1.3 to 2.5 times
-catsim's time for one examinee, above the maintainer's threshold of 1.2 times, beyond which a
+irtlib's once it builds on irtlib (ADR-0004). irtlib's four estimators take 1.3 to 2.4 times
+catsim's time for one examinee (2.5 for maximum likelihood without bounds), above the maintainer's threshold of 1.2 times, beyond which a
 slowdown gets a card for a faster version (ADR-0004).
 
 ## Evidence
