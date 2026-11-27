@@ -31,5 +31,5 @@ Python stack use, a copyleft license, or another permissive one.
 
 ## Open Questions
 
-1. Whether fixtures that record mirt's outputs need any notice. The research pass or the parity
-   harness card can check mirt's license terms on that point.
+1. Whether fixtures that record mirt's outputs need any notice. The parity harness card can check
+   mirt's license terms on that point.

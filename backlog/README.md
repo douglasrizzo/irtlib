@@ -110,9 +110,8 @@ sections of [`_template.md`](_template.md). The cards are MyST Markdown, ready f
 site; GitHub does not render MyST roles and directives. mdformat is kept off this folder
 (`.pre-commit-config.yaml`), because it rewrites that syntax and breaks the `$$` math.
 
-The research pass of 2026-11-26 and 27 rebuilt every technique card carried over from catsim's
-backlog from its sources, keeping only what the literature verifies; each card's "Last validated"
-line says against which sources.
+Every technique card keeps only what its sources verify, and its "Last validated" line says against
+which sources and when it was last checked.
 
 ### Workflow
 

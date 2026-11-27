@@ -54,5 +54,5 @@ packages share.
   that change only with the cases or the pinned version.
 - Recovery tests alone: they cannot tell a method's own bias from an implementation error.
 - Several reference packages: two references can disagree, and each doubles the fixtures.
-- mirt's defaults everywhere: a default that the research pass finds poorly founded need not be
+- mirt's defaults everywhere: a default that its sources show to be poorly founded need not be
   copied, as long as a setting reproduces mirt for the parity tests.

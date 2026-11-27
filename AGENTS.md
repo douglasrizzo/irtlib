@@ -44,6 +44,17 @@ methods in the review's build order.
 - Performance is not a requirement. When a change makes pyitemcal slower, say so to the maintainer
   when it happens, with measurements.
 
+## Choosing Techniques
+
+The maintainer's guidance for choosing which techniques, papers and equations pyitemcal implements:
+
+- Compare what the papers teach with what the R packages implement, mirt first; depart from them only
+  where the alternative has a measured upside, and record the measurement where the choice is made.
+- Weigh the trade-offs of new dependencies, matching mirt and speed; scratch implementations may
+  decide between techniques.
+- YAGNI and DRY: build for what the code needs today, and share code between techniques where they
+  share steps.
+
 ## Research Rules
 
 - Every formula, claim about a method and default rests on a source on the paper shelf, read at the

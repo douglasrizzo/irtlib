@@ -56,5 +56,5 @@ last catsim release, 0.21.0, predates them.
   tests catch it after.
 - A third package for the kernel: three packages to release in step for about a hundred lines of
   code.
-- Moving the kernel into pyitemcal now: it commits to a dependency direction before the research
-  pass and the requirements show what the kernel must offer.
+- Moving the kernel into pyitemcal before the requirements show what the kernel must offer: it
+  commits to a dependency direction without knowing what it serves.
