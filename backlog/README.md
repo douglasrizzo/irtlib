@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-21 cards: 10 ready, 1 needs-research, 2 needs-decision, 4 blocked, 4 parked.
+21 cards: 11 ready, 1 needs-research, 2 needs-decision, 3 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -52,9 +52,8 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Estimate the abilities of many examinees by ML, MAP, EAP and WLE](estimation/ability-estimation.md) | estimation | feature | ready | L |  | ADR-0004 as decided on 2026-11-27 |
-| [Bring the model names, the item bank and response drawing from catsim into irtlib](irt/item-bank.md) | irt | feature | ready | M |  | ADR-0004 as decided on 2026-11-27 |
 | [Choose irtlib's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
-| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | blocked | M | [item-bank](irt/item-bank.md) | ADR-0004 as decided on 2026-11-27 |
+| [Drop catsim as a runtime dependency, and benchmark the moved code against it](maintenance/drop-catsim.md) | maintenance | maintenance | ready | M |  | ADR-0004 as decided on 2026-11-27 |
 
 ## Priority 3
 
@@ -65,6 +64,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | blocked | M | [ability-estimation](estimation/ability-estimation.md) | moved from catsim's backlog |
+| [Reject the out-of-range inputs that the code moved from catsim accepts](irt/inherited-input-checks.md) | irt | fix | ready | XS |  | reviews of the moves on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
