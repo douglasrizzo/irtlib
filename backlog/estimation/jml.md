@@ -1,10 +1,10 @@
 ---
 title: Estimate items by joint maximum likelihood, for comparison studies
 kind: technique
-status: blocked
+status: ready
 priority: 3
 effort: S
-blocked_by: [irt/icc-gradients]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -38,7 +38,7 @@ The research pass (2026-11-27) checked the card carried over from catsim:
 
 - catsim: ability estimators for one examinee at a time.
 - pyitemcal: nothing; ADR-0004 assigns pyitemcal ability estimation for many examinees at once, and
-  the item step's derivatives are [the ICC-gradients card](../irt/icc-gradients.md).
+  the item step's derivatives are `pyitemcal.irt`'s.
 
 ## Proposal
 
@@ -91,7 +91,7 @@ length (Bock & Aitkin, 1981, p. 443; Baker, 1987, p. 117).
 
 The likelihood of the item responses is maximized jointly over the abilities and the item parameters.
 Each cycle estimates every examinee's ability with the items fixed, then every item's parameters
-with the abilities fixed; the item step is the grouped likelihood of the ICC-gradients card with the
+with the abilities fixed; the item step is the grouped likelihood of `pyitemcal.irt` with the
 estimated abilities as the groups (Baker, 1987, pp. 112-114). The scale is identified by fixing the
 abilities' mean and standard deviation, or for the Rasch model the mean difficulty (pp. 112, 115).
 Examinees with every item right or wrong have no finite estimate and are removed, as are items

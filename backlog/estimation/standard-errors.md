@@ -28,8 +28,9 @@ tolerances.
 ## What pyitemcal and catsim have now
 
 - catsim: standard errors of ability estimates (`catsim.irt.see`).
-- pyitemcal: nothing; the E-step and the per-item gradients this card builds on are
-  [the MML-EM card](mml-em.md) and [the ICC-gradients card](../irt/icc-gradients.md).
+- pyitemcal: the per-item gradients this card builds on (`pyitemcal.irt`), and mirt's Oakes and
+  Louis standard errors for the MML-EM cases (`tests/parity/mirt/mml_em.json`); the E-step is
+  [the MML-EM card](mml-em.md).
 
 ## Proposal
 
