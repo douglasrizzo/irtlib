@@ -1,261 +1,165 @@
 ---
-title: Joint Maximum Likelihood (JML) estimator
+title: Estimate items by joint maximum likelihood, for comparison studies
 kind: technique
-status: needs-research
+status: blocked
 priority: 3
 effort: S
-blocked_by: [discovery/research-pass, irt/icc-gradients]
+blocked_by: [discovery/requirements, irt/icc-gradients]
 raised_by: [moved from catsim's backlog]
 ---
 
-# Joint Maximum Likelihood (JML) estimator
+# Estimate items by joint maximum likelihood, for comparison studies
 
-> **Carried over from catsim's backlog on 2026-11-26, unverified.** Its equations, claims, sources and
-> sketch were never checked against the literature. [The research pass](../discovery/research-pass.md)
-> keeps only what the sources verify and deletes what is wrong or misleading, or deletes the card.
+## Problem
 
-> Background: [the literature review, not yet reviewed](../discovery/literature-review.md#not-yet-reviewed)
+Joint maximum likelihood (JML) estimates every examinee's ability alongside the item parameters. It
+is the method of LOGIST and of the Rasch programs BICAL and UCON (Baker, 1987, pp. 112, 115), so
+researchers comparing calibration methods, the first audience ADR-0001 names, need it as a
+reference point. Its estimates are not consistent when the test length is fixed, so pyitemcal offers
+it for comparison and preliminary estimates, not as a default.
 
-## Reference
+## Evidence
 
-Birnbaum, A. (1968). Some latent trait models and their use in inferring an examinee's ability. In F. M. Lord & M. R. Novick (Eds.), *Statistical Theories of Mental Test Scores*. Addison-Wesley.
+The research pass (2026-11-27) checked the card carried over from catsim:
 
-Lord, F. M. (1980). *Applications of Item Response Theory to Practical Testing Problems*. Erlbaum.
+- "difficulty variance is underestimated (difficulties shrunk toward the mean)" is the opposite of
+  what the sources find for the Rasch model: JML spreads the difficulties outward, the estimate being
+  the CML value times $1 + c$ with $c > 0$ (Wright & Douglas, 1977, p. 286, Equations 26-27), and with
+  two items it is exactly twice the conditional estimate (p. 288);
+- "the Wright-Douglas correction divides each $b_i$ by $(I-1)/I$" has it backwards: the correction
+  multiplies by $(L - 1)/L$ (p. 287, Equation 35);
+- "fence $\theta$ at $\pm K$ (e.g. $K = 4$)" has no source; LOGIST gives examinees whose ability
+  estimate diverges "default boundary values", unnumbered (Mislevy & Stocking, 1989, p. 65);
+- "discrimination $a$ is overestimated" rests only on secondary reports (Baker, 1987, p. 118) and is
+  dropped.
 
-Baker, F. B., & Kim, S.-H. (2004). *Item Response Theory: Parameter Estimation Techniques* (2nd ed.). Chapters 3–6.
+## What pyitemcal and catsim have now
 
-## Theory
+- catsim: ability estimators for one examinee at a time.
+- pyitemcal: nothing; ADR-0004 assigns pyitemcal ability estimation for many examinees at once, and
+  the item step's derivatives are [the ICC-gradients card](../irt/icc-gradients.md).
 
-JML treats both item parameters and examinee abilities as fixed unknowns and alternates between two optimization steps:
+## Proposal
 
-### Step 1: Estimate abilities (fix items)
-
-For each examinee $j$, maximize the individual log-likelihood:
-
-$$\hat\theta_j = \arg\max_\theta \sum_{i \in \mathcal{A}_j} \left[u_{ij} \log P_i(\theta) + (1 - u_{ij}) \log(1 - P_i(\theta))\right]$$
-
-catsim's estimators take one examinee per `StepContext`, so this step uses pyitemcal's own batch ability estimation (ADR-0004).
-
-### Step 2: Estimate item parameters (fix abilities)
-
-For each item $i$, maximize the per-item log-likelihood:
-
-$$(\hat{a}_i, \hat{b}_i) = \arg\max_{a_i, b_i} \sum_{j} \left[u_{ij} \log P_i(\hat\theta_j) + (1 - u_{ij}) \log(1 - P_i(\hat\theta_j))\right]$$
-
-Use `scipy.optimize.minimize(method='L-BFGS-B')` with analytic gradients from icc-gradients.
-
-### Iteration
-
-Alternate Steps 1 and 2 until convergence (max parameter change < tolerance or max iterations).
-
-### The Neyman-Scott problem
-
-JML estimates are **inconsistent** for fixed test length as the number of examinees grows. The number of nuisance parameters (one $\theta_j$ per examinee) grows with sample size, violating the regularity conditions for MLE consistency. Consequences:
-- Discrimination $a$ is **overestimated**.
-- Difficulty variance is **underestimated** (difficulty parameters are shrunk toward the mean).
-- The bias does not vanish as $N \to \infty$ (it depends on test length, not sample size).
-
-### Bias correction (optional)
-
-The Wright-Douglas correction divides each $b_i$ by a factor $(I-1)/I$ where $I$ is the test length. More sophisticated corrections exist but are beyond scope for a baseline implementation.
-
-### Perfect/zero scores
-
-Examinees with all-correct or all-incorrect responses have undefined MLE $\theta$ (the likelihood is monotonic). Options:
-- Exclude them from the item step (standard approach).
-- Fence $\theta$ at $\pm K$ (e.g., $K = 4$).
-
-## Mock implementation
-
-```python
-# src/pyitemcal/jml.py
-"""Joint Maximum Likelihood estimation (Birnbaum, 1968)."""
-
-import numpy as np
-import numpy.typing as npt
-from scipy import optimize
-
-from catsim import ItemBank, irt
-
-
-class JMLCalibrator:
-    """Estimate item parameters via Joint Maximum Likelihood.
-
-    Parameters
-    ----------
-    model : {"1PL", "2PL"}
-        Which IRT model to fit. 3PL is not recommended with JML.
-    max_iter : int
-        Maximum number of alternation cycles. Default 100.
-    tol : float
-        Convergence tolerance on max absolute parameter change. Default 0.001.
-    theta_bounds : tuple[float, float]
-        Bounds for ability estimation. Default (-6, 6).
-    """
-
-    def __init__(
-        self,
-        model: str = "2PL",
-        max_iter: int = 100,
-        tol: float = 1e-3,
-        theta_bounds: tuple[float, float] = (-6.0, 6.0),
-    ) -> None:
-        self.model = model
-        self.max_iter = max_iter
-        self.tol = tol
-        self.theta_bounds = theta_bounds
-
-    def calibrate(
-        self,
-        responses: npt.NDArray[np.integer],
-    ) -> dict:
-        """Estimate item parameters from a binary response matrix.
-
-        Parameters
-        ----------
-        responses : numpy.ndarray, shape (n_examinees, n_items)
-            Binary response matrix.
-
-        Returns
-        -------
-        dict with keys:
-            'items': numpy.ndarray, shape (n_items, 4)
-            'theta': numpy.ndarray, shape (n_examinees,)
-            'converged': bool
-            'n_iter': int
-        """
-        n_examinees, n_items = responses.shape
-        mask = np.isfinite(responses) & (responses >= 0)
-
-        # Initialize
-        a = np.ones(n_items)
-        b = np.zeros(n_items)
-        p_obs = np.nanmean(np.where(mask, responses, np.nan), axis=0)
-        p_obs = np.clip(p_obs, 0.01, 0.99)
-        b = -np.log(p_obs / (1.0 - p_obs))
-
-        theta = np.zeros(n_examinees)
-
-        for iteration in range(self.max_iter):
-            items = np.column_stack([a, b, np.zeros(n_items), np.ones(n_items)])
-
-            # Step 1: estimate abilities (pyitemcal's batch ability estimation)
-            theta_new = self._estimate_abilities(responses, mask, items, theta)
-
-            # Fence perfect/zero scores
-            scores = np.nansum(np.where(mask, responses, 0), axis=1)
-            n_admin = np.sum(mask, axis=1)
-            perfect = scores >= n_admin
-            zero = scores <= 0
-            theta_new[perfect] = self.theta_bounds[1]
-            theta_new[zero] = self.theta_bounds[0]
-
-            # Step 2: estimate item parameters
-            a_new, b_new = self._estimate_items(
-                responses, mask, items, theta_new
-            )
-
-            # Convergence check
-            if self.model == "1PL":
-                max_change = np.max(np.abs(b_new - b))
-            else:
-                max_change = max(
-                    np.max(np.abs(a_new - a)), np.max(np.abs(b_new - b))
-                )
-
-            a, b, theta = a_new, b_new, theta_new
-            if max_change < self.tol:
-                break
-
-        items_final = np.column_stack([a, b, np.zeros(n_items), np.ones(n_items)])
-        return {
-            "items": items_final,
-            "theta": theta,
-            "converged": max_change < self.tol,
-            "n_iter": iteration + 1,
-        }
-
-    def _estimate_abilities(self, responses, mask, items, theta_init):
-        """Estimate theta for each examinee via MLE."""
-        n_examinees = responses.shape[0]
-        theta_new = theta_init.copy()
-
-        for j in range(n_examinees):
-            admin = np.where(mask[j])[0]
-            if len(admin) == 0:
-                continue
-            u_j = responses[j, admin]
-            items_j = items[admin]
-
-            def neg_ll(th):
-                p = irt.icc(th[0], items_j)
-                p = np.clip(p, 1e-10, 1 - 1e-10)
-                return -np.sum(u_j * np.log(p) + (1 - u_j) * np.log(1 - p))
-
-            result = optimize.minimize_scalar(
-                lambda th: neg_ll([th]),
-                bounds=self.theta_bounds,
-                method="bounded",
-            )
-            theta_new[j] = result.x
-
-        return theta_new
-
-    def _estimate_items(self, responses, mask, items, theta):
-        """Estimate item parameters given fixed abilities."""
-        n_items = items.shape[0]
-        a_new = items[:, 0].copy()
-        b_new = items[:, 1].copy()
-
-        for i in range(n_items):
-            admin = np.where(mask[:, i])[0]
-            if len(admin) < 2:
-                continue
-            u_i = responses[admin, i]
-            th_i = theta[admin]
-
-            if self.model == "1PL":
-                x0 = [b_new[i]]
-                bounds = [(-6.0, 6.0)]
-            else:
-                x0 = [a_new[i], b_new[i]]
-                bounds = [(0.1, 5.0), (-6.0, 6.0)]
-
-            def neg_ll(params, _u=u_i, _th=th_i):
-                if self.model == "1PL":
-                    _a, _b = 1.0, params[0]
-                else:
-                    _a, _b = params
-                p = irt.icc(_th, _a, _b)  # scalar calls in loop — fine for JML
-                p = np.clip(p, 1e-10, 1 - 1e-10)
-                return -np.sum(_u * np.log(p) + (1 - _u) * np.log(1 - p))
-
-            result = optimize.minimize(neg_ll, x0, method="L-BFGS-B", bounds=bounds)
-
-            if self.model == "1PL":
-                b_new[i] = result.x[0]
-            else:
-                a_new[i], b_new[i] = result.x
-
-        return a_new, b_new
-```
-
-## Proposed location
-
-`src/pyitemcal/jml.py`. Re-export from `src/pyitemcal/__init__.py`.
+JML for the 1PL and 2PL, alternating an ability step and an item step, with examinees and items that
+have no finite estimate removed first, and the Rasch correction available. It comes after the methods
+of the build order in [the literature review](../discovery/literature-review.md), for comparison
+studies.
 
 ## Tests
 
-1. **Recovery test (2PL)**: Generate 20 items, 1000 examinees. Assert recovered parameters correlate $r > 0.90$ with true values (lower bar than MML-EM due to JML bias).
-2. **JML bias**: Compare JML-estimated discrimination against true values. Mean estimated $a$ should be higher than mean true $a$ (demonstrating the known upward bias).
-3. **JML vs MML-EM**: On the same simulated data, MML-EM (mml-em) should produce lower RMSE than JML.
-4. **Perfect/zero scores**: Examinees with all-correct/all-incorrect should get fenced theta, not crash.
-5. **Convergence**: Verify `converged=True` within 100 iterations for well-behaved data.
-6. **1PL mode**: With `model="1PL"`, all estimated `a` values should be 1.0.
+- **Closed form:** with two Rasch items, the JML difference of difficulties is exactly twice the CML
+  one, $\log \#(1,0) - \log \#(0,1)$ (Wright & Douglas, 1977, p. 288; Andersen, 1970, p. 299).
+- **Bias in the expected direction:** on Rasch data with $L$ items, the uncorrected difficulties' spread
+  exceeds the generating one by about $1/(L - 1)$ (Wright & Douglas, 1977, p. 287, Table 1), and the
+  corrected estimates agree with CML within the residual bias of their Table 2 (p. 288).
+- **Editing:** examinees with zero or perfect scores, and items answered by all or none, are removed
+  before estimation (Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294).
 
-## Notes
+## Open Questions
 
-- JML is **not recommended** for production calibration. Its value in pyitemcal is as a didactic baseline and for comparison against MML-EM.
-- The `_estimate_abilities` step could reuse `NumericalSearchEstimator` directly, but the interface expects `ItemBank` and `administered_items` as lists, so it's simpler to use `scipy.optimize.minimize_scalar` directly on the log-likelihood.
-- 3PL is not supported because JML's c-parameter estimates are even more biased than MML-EM's. Use MML-EM for 3PL.
-- Computational cost: $O(K \cdot (J + I))$ per iteration where $K$ is the number of alternations, $J$ is examinees, $I$ is items. Much slower than MML-EM for large datasets because the ability step loops over all examinees.
+1. **Which JML.** Robitzsch (2021, p. 827) finds penalized JML and JML with an $\varepsilon$
+   adjustment better than the usual variants, and than CML and MML in some conditions, and suggests
+   them instead. Assumed: the usual JML with the Rasch correction, for comparison with the
+   literature; the variants as a later card if wanted (YAGNI).
+2. **Identification.** LOGIST fixes the mean and standard deviation of the abilities at 0 and 1, and
+   BICAL the mean difficulty at 0 (Baker, 1987, pp. 112, 115). Assumed: as LOGIST for the 2PL and as
+   BICAL for the Rasch model; the requirements card's question 5.
+
+---
+
+**Module:** decided by the requirements card (planned)
+**Reference:** Wright & Douglas (1977); Haberman (2004)
+**Last validated:** 2026-11-27, against Wright & Douglas (1977), Haberman (2004), Andersen (1970),
+Baker (1987), Mislevy & Stocking (1989) and Robitzsch (2021) on the paper shelf.
+**Implementation guidance:** not yet written; it waits for the requirements card.
+
+## Motivation
+
+JML treats every ability as a parameter and maximizes the likelihood of all of them with the items,
+alternating between the two (Baker, 1987, p. 112). It needs no assumption about the distribution of
+ability. Its drawback is that the number of parameters grows with the number of examinees, so the
+item estimates do not converge to the item parameters as examinees are added to a test of fixed
+length (Bock & Aitkin, 1981, p. 443; Baker, 1987, p. 117).
+
+## Definition
+
+The likelihood of the item responses is maximized jointly over the abilities and the item parameters.
+Each cycle estimates every examinee's ability with the items fixed, then every item's parameters
+with the abilities fixed; the item step is the grouped likelihood of the ICC-gradients card with the
+estimated abilities as the groups (Baker, 1987, pp. 112-114). The scale is identified by fixing the
+abilities' mean and standard deviation, or for the Rasch model the mean difficulty (pp. 112, 115).
+Examinees with every item right or wrong have no finite estimate and are removed, as are items
+answered by all or none (Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294).
+
+**Bias and its correction for the Rasch model.** With $q$ items fixed, the JML difficulties converge
+to a limit that differs from the parameters by a term of order $1/q$ (Haberman, 2004, p. 13). Wright
+and Douglas (1977, p. 287, Equations 34-35) find the relative bias close to $1/(L - 1)$ for $L$ items,
+whatever the spread of the difficulties, and multiply the estimates by $(L - 1)/L$. The correction
+brings the estimates close to the conditional ones, which "is not the same as" removing the bias
+with respect to the parameters (Baker, 1987, p. 118).
+
+## Parameters
+
+```{eval-rst}
+.. list-table::
+   :header-rows: 1
+   :widths: 20 20 60
+
+   * - Parameter
+     - Default
+     - Description
+   * - ``correct``
+     - on, Rasch model only
+     - Multiply the difficulties by (L - 1)/L.
+```
+
+## Behavior and Comparison
+
+For the Rasch model with 2 items, the JML estimates are exactly twice the conditional ones (Wright &
+Douglas, 1977, p. 288). On two SAT tests of 78 and 60 items, the largest difference between JML and
+CML difficulties was 0.097 and 0.126, against CML standard errors of at most 0.008 (Haberman, 2004,
+pp. 44-45). Haberman (2004, p. 35) finds it "difficult to advocate use of JMLE except for preliminary
+estimation". In Robitzsch's (2021, p. 823, Table 2) simulations, the usual JML had acceptable bias in
+54.2% of the conditions, against 100% for CML.
+
+## Guarantees
+
+1. Examinees and items without a finite estimate are reported, not estimated.
+2. With the correction off, the Rasch estimates are the unconditional maximum likelihood estimates.
+
+## References
+
+Andersen, E. B. (1970). Asymptotic properties of conditional maximum-likelihood estimators. *Journal
+of the Royal Statistical Society: Series B, 32*(2), 283-301.
+https://doi.org/10.1111/j.2517-6161.1970.tb00842.x. Not openly available; Haberman (2004, §2)
+describes conditional estimation.
+
+Baker, F. B. (1987). Methodology review: Item parameter estimation under the one-, two-, and
+three-parameter logistic models. *Applied Psychological Measurement, 11*(2), 111-141.
+https://doi.org/10.1177/014662168701100201. Open copy: https://hdl.handle.net/11299/103398
+
+Bock, R. D., & Aitkin, M. (1981). Marginal maximum likelihood estimation of item parameters:
+Application of an EM algorithm. *Psychometrika, 46*(4), 443-459. https://doi.org/10.1007/BF02293801.
+Not openly available; Baker (1987, pp. 131-132) describes the method.
+
+Haberman, S. J. (2004). *Joint and conditional maximum likelihood estimation for the Rasch model for
+binary responses* (Research Report RR-04-20). Educational Testing Service.
+https://doi.org/10.1002/j.2333-8504.2004.tb01947.x. Open copy:
+https://files.eric.ed.gov/fulltext/EJ1110899.pdf
+
+Mislevy, R. J., & Stocking, M. L. (1989). A consumer's guide to LOGIST and BILOG. *Applied
+Psychological Measurement, 13*(1), 57-75. https://doi.org/10.1177/014662168901300106. Open copy:
+https://hdl.handle.net/11299/107035
+
+Robitzsch, A. (2021). A comprehensive simulation study of estimation methods for the Rasch model.
+*Stats, 4*(4), 814-836. https://doi.org/10.3390/stats4040048. Open access.
+
+Wright, B. D., & Douglas, G. A. (1977). Best procedures for sample-free item analysis. *Applied
+Psychological Measurement, 1*(2), 281-295. https://doi.org/10.1177/014662167700100216. Open copy:
+https://hdl.handle.net/11299/98553
+
+## Implementation Guidance
+
+Waits for the requirements card (`discovery/requirements.md`). The item step shares the M-step's
+per-item solver (MML-EM card), with estimated abilities in place of quadrature nodes.
