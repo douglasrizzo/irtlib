@@ -45,10 +45,16 @@ their 1PL MML estimates; Bock and Aitkin (1981, p. 451, Table 1; p. 455, Table 3
 and 1PL estimates for LSAT-6 and LSAT-7. mirt 1.48 reproduces Thissen's estimates to the three
 decimals printed (the MML-EM card's measurement).
 
-**Acceleration.** Ramsay's acceleration, as Thissen (1982, p. 181) applies it, doubles or triples the
-speed, but in its exact form "frequently leads to over-acceleration and divergence", so he limits it. Among the newer methods compared for the 1PL and 2PL, acceleration
-paid most for long tests and when the ability variance was fixed (Beisemann, Wartlick & Doebler, 2020,
-p. 232). SQUAREM is documented in full by Du and Varadhan (2020, pp. 3-4).
+**Acceleration.** Ramsay (1975, pp. 340-341, Equations 5 and 10) extrapolates a slow fixed-point
+iteration along its last step, by a factor set from the norms of the iterates' first and second
+differences and updated every third iteration (p. 345). As Thissen (1982, p. 181) applies it to MML,
+it doubles or triples the speed, but in its exact form "frequently leads to over-acceleration and
+divergence", so he limits it; mirt bounds it too, and departs from Ramsay's rule in three other ways
+(the MML-EM card). In the card's measurement, mirt's variant cut the cycles by 1.7 to 2.7 times
+without changing the estimates, and Ramsay's unbounded rule diverged on a slow case. Among the newer
+methods compared for the 1PL and 2PL, acceleration paid most for long tests and when the ability
+variance was fixed (Beisemann, Wartlick & Doebler, 2020, p. 232). SQUAREM is documented in full by
+Du and Varadhan (2020, pp. 3-4).
 
 **mirt.** mirt 1.48 estimates by this method by default, on 61 equally spaced nodes, and stops when
 every parameter changes by less than $10^{-4}$; for the 1PL above, that rule stopped the
@@ -63,8 +69,10 @@ The EM algorithm does not give standard errors (Bock & Aitkin, 1981, p. 447). Th
 is the complete-data information less the missing information (Louis, 1982, p. 227, Equation 3.3;
 Meng & Rubin, 1991, p. 901, Equation 2.4.2), and the methods differ in how they obtain the missing
 part: Louis's exact form, the supplemented EM algorithm from the EM iteration history (Meng & Rubin,
-1991, pp. 901-902), or Oakes's identity, approximated numerically from E-steps at perturbed parameters
-(Chalmers, 2018, pp. 3-6). Oakes's approximation beat every supplemented-EM variant in accuracy and
+1991, pp. 901-902), or Oakes's identity, which writes the observed-data Hessian, at any parameter
+value, as the complete-data Hessian of the M-step plus the derivative of the M-step gradient with
+respect to the E-step's parameters (Oakes, 1999, p. 480, Equation 6), the latter approximated
+numerically from E-steps at perturbed parameters (Chalmers, 2018, pp. 3-6). Oakes's approximation beat every supplemented-EM variant in accuracy and
 speed (Pritikin, 2017, p. 7); with central differences it matched Louis's exact form to a mean
 relative difference of $2.5 \times 10^{-11}$, at 3% of the time (Chalmers, 2018, p. 13). mirt 1.48 uses it by default.
 
@@ -309,6 +317,10 @@ Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory
 Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
 Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
 
+Oakes, D. (1999). Direct calculation of the information matrix via the EM algorithm. *Journal of
+the Royal Statistical Society: Series B, 61*(2), 479-482. https://doi.org/10.1111/1467-9868.00188.
+Not openly available; Chalmers (2018, pp. 3-6) describes the method.
+
 Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response
 theory models. *Applied Psychological Measurement, 24*(1), 50-64.
 https://doi.org/10.1177/01466216000241003. Not openly available; Kang and Chen (2007, pp. 4-5)
@@ -331,6 +343,9 @@ item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open
 Pritikin, J. N. (2017). A comparison of parameter covariance estimation methods for item response
 models in an expectation-maximization framework. *Cogent Psychology, 4*(1), 1279435.
 https://doi.org/10.1080/23311908.2017.1279435. Open access.
+
+Ramsay, J. O. (1975). Solving implicit equations in psychometric data analysis. *Psychometrika,
+40*(3), 337-360. https://doi.org/10.1007/BF02291762. Not openly available.
 
 Robitzsch, A. (2021). A comprehensive simulation study of estimation methods for the Rasch model.
 *Stats, 4*(4), 814-836. https://doi.org/10.3390/stats4040048. Open access.

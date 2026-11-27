@@ -87,10 +87,10 @@ requirements card's to settle; the card assumes the recommendation of each until
 ---
 
 **Module:** decided by the requirements card (planned)
-**Reference:** Louis (1982); Chalmers (2018)
-**Last validated:** 2026-11-27, against Bock & Aitkin (1981), Louis (1982), Meng & Rubin (1991),
-Chalmers (2018), Pritikin (2017) and Zeileis (2006) on the paper shelf, and mirt 1.48 (reference
-manual and source).
+**Reference:** Louis (1982); Oakes (1999); Chalmers (2018)
+**Last validated:** 2026-11-27, against Bock & Aitkin (1981), Louis (1982), Oakes (1999), Meng &
+Rubin (1991), Chalmers (2018), Pritikin (2017) and Zeileis (2006) on the paper shelf, and mirt 1.48
+(reference manual and source).
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -115,8 +115,12 @@ complete-data observed information, less the conditional covariance of the compl
 (p. 227, Equation 3.2); in MML the complete data are the responses with the abilities on the grid,
 and the conditional expectations are the E-step's posterior weights.
 
-**Oakes's identity.** With $Q(\psi' \mid \psi)$ the expected complete-data log-likelihood of the
-E-step at $\psi$ (here $Q$ is Dempster et al.'s function, not the number of quadrature nodes),
+**Oakes's identity.** With $L(\psi; y)$ the observed-data log-likelihood and
+$Q(\psi' \mid \psi) = E_{X \mid Y; \psi}\{L_0(\psi', x)\}$ the expectation, under the parameters
+$\psi$ of the E-step, of the complete-data log-likelihood at $\psi'$ (Oakes, 1999, p. 479; here $Q$
+is Dempster et al.'s function, not the number of quadrature nodes), the score is
+$\partial L / \partial\psi = \{\partial Q(\psi' \mid \psi) / \partial\psi'\}_{\psi' = \psi}$
+(p. 480, Equation 5), and the Hessian is
 
 $$
 \frac{\partial^2 L(\psi; y)}{\partial\psi\,\partial\psi^\top}
@@ -124,9 +128,15 @@ $$
 + \frac{\partial^2 Q(\psi' \mid \psi)}{\partial\psi'\,\partial\psi^\top} \right\}_{\psi' = \psi}
 $$
 
-(Chalmers, 2018, p. 3, Equation 1, who attributes the identity to Oakes). The first term is the complete-data Hessian,
-the M-step's own; the second differentiates the M-step gradient with respect to the parameters of
-the E-step. It holds at any $\psi$, not only at the maximum (Chalmers, 2018, p. 7).
+(p. 480, Equation 6; Chalmers, 2018, p. 3, Equation 1, in this notation). The first term is the
+complete-data Hessian, the M-step's own. The second, which Oakes calls the "missing information"
+(p. 480), differentiates the M-step gradient with respect to the parameters of the E-step. For
+complete data from an exponential family it is the sensitivity of the E-step's imputed sufficient
+statistics to those parameters (p. 481); in MML-EM the M-step gradient depends on the E-step's
+parameters only through the expected counts $\bar r_{iq}$ and $\bar N_{iq}$ of the MML-EM card (the card's own
+algebra). The identity is "valid for all" $\psi$, not only at the maximum (p. 480), and Oakes suggests
+that "in some problems" it gives "the shortest and simplest route to the calculation of valid standard
+errors" for estimates obtained by EM (p. 482).
 
 **Numerical approximation.** The second term is approximated by recomputing the E-step at perturbed
 parameters and differencing the complete-data gradient: forward differences have $O(\Delta)$ error,
@@ -215,6 +225,10 @@ describes the method.
 Monroe, S., & Cai, L. (2013). *Estimation of a Ramsay-curve item response theory model by the
 Metropolis-Hastings Robbins-Monro algorithm* (CRESST Report 834). University of California, Los
 Angeles. Open copy: https://files.eric.ed.gov/fulltext/ED555725.pdf
+
+Oakes, D. (1999). Direct calculation of the information matrix via the EM algorithm. *Journal of
+the Royal Statistical Society: Series B, 61*(2), 479-482. https://doi.org/10.1111/1467-9868.00188.
+Not openly available; Chalmers (2018, pp. 3-6) describes the method.
 
 Pritikin, J. N. (2016). *A computational note on the application of the supplemented EM algorithm to
 item response models* (arXiv:1605.00860). https://arxiv.org/abs/1605.00860. Open access.

@@ -47,7 +47,11 @@ unless `CATSIM_CATR_LIB` overrides it, and writes one JSON file per family), and
 
 1. The tolerances: the requirements card's question 18 recommends fixtures recorded with mirt at
    `TOL = 1e-8`, estimates compared within `1e-5` and closed forms within a relative $10^{-10}$, as
-   catsim's catR tests do.
+   catsim's catR tests do. mirt's M-step is inexact by default, so the fixtures also set
+   `control = list(reltol = 1e-14)`: on `LSAT7` at `TOL = 1e-8` it brought mirt's 2PL estimate
+   within $7.1 \times 10^{-7}$ of an exact-M-step EM's converged estimate, against
+   $2.3 \times 10^{-6}$ without it (measured 2026-11-27 with the scratch EM of the MML-EM card's
+   acceleration measurement).
 2. The standard-error method the fixtures record: Oakes's identity with central differences, mirt's
    default, with `SE.type = "Louis"` as a cross-check
    ([the standard-errors card](../estimation/standard-errors.md)).
