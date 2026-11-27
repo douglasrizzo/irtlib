@@ -28,6 +28,9 @@ packages share.
     installed;
   - one documented command regenerates the files, when the cases change or the pinned mirt version
     moves. It needs R and mirt.
+- The response functions and the ability estimators that come from catsim (ADR-0004) keep
+  catsim's parity cases against the R package catR, in `tests/parity/catr/`, built in the same three
+  parts: catR is their second reference implementation.
 - Every method also has parameter-recovery tests: responses drawn from known parameters, with a
   fixed seed, and the estimates compared with the generating values within a tolerance that the
   sample size justifies.

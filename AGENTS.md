@@ -8,17 +8,17 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 
 ## Project Summary
 
-`irtlib` calibrates items: it estimates the parameters of the unidimensional dichotomous 1PL to
-4PL models, with their standard errors, from a response matrix with missing entries, and evaluates
-item fit (ADR-0001). Its estimates use catsim's parameterization and bank format, and it builds on
-catsim's public item response functions (ADR-0004).
+`irtlib` implements item response theory for the unidimensional dichotomous 1PL to 4PL models:
+the response functions and their quantities, calibration of item parameters with their standard
+errors from a response matrix with missing entries, ability estimation, item and model fit, and the
+item bank format (ADR-0001). What is meaningful for a fixed-form test belongs here; what only makes
+sense for adaptive testing belongs to catsim, which builds on irtlib (ADR-0004).
 
-The project is in its design phase: its methods are reviewed from their primary sources
-(`backlog/discovery/literature-review.md`), the calibrator contract and settings are decided
-(ADR-0006 to ADR-0008), and the mirt parity harness is in place (`tests/parity/mirt/`). The first
-method, MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), S-X² item fit
-(`irtlib.fit`) and model comparison (`irtlib.comparison`) are implemented; the order of work is
-the rest of the review's build order.
+MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), S-X² item fit
+(`irtlib.fit`) and model comparison (`irtlib.comparison`) are implemented and checked against mirt
+(`tests/parity/mirt/`). The item response code that catsim holds is moving here in parts, each a
+card in `backlog/irt/` or `backlog/estimation/`; the calibration methods follow the build order of
+`backlog/discovery/literature-review.md`.
 
 ## Repository Layout
 
@@ -34,10 +34,17 @@ the rest of the review's build order.
 - Scope is ADR-0001: dichotomous, unidimensional, 1PL to 4PL. Work outside it is a parked card in
   `backlog/scope/` until the ADR changes.
 - Runtime dependencies are NumPy, SciPy and catsim only (ADR-0002); a new one needs an ADR.
-- Use catsim only through the names ADR-0004 lists, each imported from its public path. Using
-  another catsim name changes ADR-0004 first. irtlib follows catsim's changes; catsim knows
-  nothing of irtlib, so never propose a catsim change for irtlib's sake without the
+  catsim leaves the list when the moves of ADR-0004 are done (`backlog/maintenance/drop-catsim.md`).
+- Until then, irtlib imports from catsim only the names it imports today: `catsim.irt.icc` and
+  `log_response_probabilities`, `catsim.estimation.QuadratureGrid` and `normal_log_prior`, and
+  `catsim.IrtModel` and `ItemBank`. Code moved from catsim imports nothing from it. catsim stays
+  as it is until irtlib's first release, so never change catsim for irtlib's sake without the
   maintainer.
+- When moving code from catsim, follow ADR-0001's line: what is meaningful for a fixed-form test
+  moves, what only makes sense for adaptive testing stays. Moved functions take many examinees at
+  once, as float response matrices with NaN for a missing response, keep catsim's names for shared
+  concepts, carry their reference cases, and have their tests rewritten to the rules below; a test
+  against catsim's original is a migration check, not a reference value.
 - Every method that mirt implements is checked against mirt by parity tests with recorded fixtures,
   and every method has parameter-recovery tests (ADR-0003).
 - Every random draw comes from an `rng: int | numpy.random.Generator | None` argument, passed through
