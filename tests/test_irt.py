@@ -83,7 +83,7 @@ def test_probability_gradient_is_the_limit_of_differences() -> None:
 
 
 def test_probability_gradient_shape() -> None:
-  """Every ability against every item, with the four parameters last, as catsim's shapes go."""
+  """Every ability against every item, the four parameters last: ``shape(theta) + items.shape[:-1] + (4,)``."""
   assert probability_gradient(_THETAS, _INTERIOR).shape == (9, 3, 4)
   assert probability_gradient(0.5, _INTERIOR[0]).shape == (4,)
 

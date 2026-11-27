@@ -1,5 +1,5 @@
 # A JSON writer in base R, which the generators of tests/parity/mirt/ and tests/parity/catr/ share,
-# so each needs no package besides the one it records. It is catsim's tests/parity/catr/json.R.
+# so each needs no package besides the one it records.
 #
 # The layout is Python's json.dumps with indent 2 and sorted keys. Numbers have 17 significant
 # digits, which a correctly rounding parser, such as Python's, reads back as the same double. Fewer

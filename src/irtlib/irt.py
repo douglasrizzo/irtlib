@@ -617,9 +617,9 @@ def info_integral(lower: float, upper: float, items: FloatArray) -> FloatArray:
 def log_response_probabilities(theta: float | FloatArray, items: FloatArray) -> tuple[FloatArray, FloatArray]:
   r"""Return the log-probabilities of a correct and of an incorrect response to each item.
 
-  They stay finite at any finite distance from the difficulty, and each is accurate to about :math:`10^{-16}` in
-  absolute terms. Far below the difficulty the first tends to ``log(c)``, far above it the second to ``log(1 - d)``,
-  and without guessing or slipping they keep falling linearly in ``theta``.
+  They stay finite at any finite distance from the difficulty. Far below the difficulty the first tends to
+  ``log(c)``, far above it the second to ``log(1 - d)``, and without guessing or slipping they keep falling linearly
+  in ``theta``.
 
   Parameters
   ----------
@@ -663,7 +663,7 @@ def log_likelihood(theta: float | FloatArray, responses: npt.ArrayLike, items: F
   r"""Return the log-likelihood of each examinee's responses at each ability.
 
   Each examinee's log-likelihood sums the log-probabilities of :py:func:`log_response_probabilities` over the items
-  the examinee answered, so it has their accuracy, and an examinee who answered no item has log-likelihood 0.
+  the examinee answered, and an examinee who answered no item has log-likelihood 0.
   :py:func:`log_likelihood_function` computes the same values for many abilities, one call at a time.
 
   Parameters

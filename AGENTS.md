@@ -139,8 +139,8 @@ Hard rules:
 - Parity tests with mirt (ADR-0003) read the JSON fixtures in `tests/parity/mirt/`, which
   `tests/parity/mirt/generate.R` writes; a fixture is never edited by hand. A case script per
   method family sits beside `generate.R`, and `CONTRIBUTING.md` says how to regenerate them. The
-  catR parity tests of the code moved from catsim work the same way in `tests/parity/catr/`, and
-  both generators write through `tests/parity/json.R`.
+  catR parity tests work the same way in `tests/parity/catr/`, and both generators write through
+  `tests/parity/json.R`.
 
 ## Pre-commit And CI Expectations
 
