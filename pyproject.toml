@@ -225,6 +225,7 @@ type = "layers"
 containers = ["pyitemcal"]
 exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
+  "comparison",
   "fit | mml",  # "|": siblings that never import each other
   "calibration | irt",
 ]

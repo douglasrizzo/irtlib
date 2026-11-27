@@ -176,7 +176,7 @@ pp. 705, 714, Table 3).
 
 ## Model comparison
 
-**Card:** [fit/model-comparison.md](../fit/model-comparison.md).
+**Implemented:** `pyitemcal.comparison`, whose module docstring holds the design.
 
 Nested models are compared by $-2$ times the difference of their log-likelihoods, "distributed as
 $\chi^2$" (Orlando & Thissen, 2000, p. 51), as Thissen (1982, p. 178) compares the 1PL and 2PL; any
