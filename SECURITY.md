@@ -7,5 +7,5 @@ Please report security vulnerabilities privately, through GitHub's
 (the repository's **Security** tab, then **Report a vulnerability**). Do not open a public issue or
 pull request for them.
 
-Include the irtlib and catsim versions you used, a description of the problem and, if you can, the steps or a
+Include the irtlib version you used, a description of the problem and, if you can, the steps or a
 short script that reproduce it.

@@ -10,22 +10,31 @@ import math
 
 import numpy as np
 import pytest
-from catsim import ItemBank
 
+from irtlib import ItemBank
 from irtlib.calibration import Calibration, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
+from irtlib.drawing import draw_responses
 from irtlib.mml import MMLCalibrator
 from tests.mirt_fixtures import load, responses
 
 _COMPARISON = load("comparison")
 _LSAT6 = responses(_COMPARISON["data"]["lsat6"])
 _LSAT7 = responses(_COMPARISON["data"]["lsat7"])
+# 2PL responses whose third item is miskeyed: its slope is negative, so the 2PL's bank leaves it out
+_MISKEYED = draw_responses(
+  np.random.default_rng(3).normal(size=2000),
+  np.array([[1.0, 0.0, 0.0, 1.0], [1.5, 0.5, 0.0, 1.0], [-1.0, 0.0, 0.0, 1.0], [1.2, -0.5, 0.0, 1.0]]),
+  rng=4,
+)
 
 
 def _calibration(log_likelihood: float, n_parameters: int, n_items: int = 2) -> Calibration:
   """Return a calibration result with a given log-likelihood and number of parameters."""
+  estimates = np.tile([1.0, 0.0, 0.0, 1.0], (n_items, 1))
   return Calibration(
-    items=ItemBank(np.tile([1.0, 0.0, 0.0, 1.0], (n_items, 1))),
+    estimates=estimates,
+    items=ItemBank(estimates),
     standard_errors=None,
     log_likelihood=log_likelihood,
     n_parameters=n_parameters,
@@ -94,3 +103,35 @@ def test_g2_refuses_incomplete_or_mismatched_responses_and_saturated_models() ->
     g2(calibration, _LSAT7[:, :4])
   with pytest.raises(ValueError, match="no degrees of freedom"):
     g2(MMLCalibrator().calibrate(_LSAT7[:, :2]), _LSAT7[:, :2])
+
+
+def test_g2_of_a_miskeyed_item_equals_g2_with_its_scoring_reversed() -> None:
+  """G² of a calibration whose bank leaves out a miskeyed item equals G² with that item's scoring reversed.
+
+  Reversing an item's scoring maps its slope to its opposite and keeps the likelihood of every pattern, so the two
+  statistics are equal. Fails if G² reads the bank, which leaves the miskeyed item out, rather than the estimates.
+  """
+  reversed_scoring = _MISKEYED.copy()
+  reversed_scoring[:, 2] = 1 - reversed_scoring[:, 2]
+  calibrator = MMLCalibrator(tolerance=1e-10)
+  with pytest.warns(RuntimeWarning, match="miskeyed"):
+    miskeyed = calibrator.calibrate(_MISKEYED)
+  expected = g2(calibrator.calibrate(reversed_scoring), reversed_scoring).statistic
+  assert g2(miskeyed, _MISKEYED).statistic == pytest.approx(expected, rel=1e-6)
+
+
+def test_likelihood_ratio_counts_the_items_a_bank_leaves_out() -> None:
+  """The 1PL's bank of four items and the 2PL's bank of three, without the miskeyed item, are still nested models.
+
+  The test has 8 - 5 = 3 degrees of freedom. Fails if it counts the items of the banks, which differ, rather than
+  those of the estimates.
+  """
+  restricted = MMLCalibrator("1PL").calibrate(_MISKEYED)
+  with pytest.warns(RuntimeWarning, match="miskeyed"):
+    general = MMLCalibrator("2PL").calibrate(_MISKEYED)
+  assert restricted.items is not None
+  assert general.items is not None
+  assert (restricted.items.n_items, general.items.n_items) == (4, 3)
+  test = likelihood_ratio(restricted, general)
+  assert test.df == 3
+  assert test.statistic == pytest.approx(2 * (general.log_likelihood - restricted.log_likelihood), rel=1e-15)

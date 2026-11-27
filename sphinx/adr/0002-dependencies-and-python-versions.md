@@ -1,15 +1,17 @@
-# ADR-0002: NumPy, SciPy and catsim Are the Only Runtime Dependencies, on Python 3.12 and Later
+# ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later
 
 ## Status
 
-Accepted 2026-11-26
+Accepted 2026-11-26; catsim removed 2026-11-27
 
 ## Context
 
 Every package a library requires is one more version range that the projects installing it must
-reconcile with their own, and one more range the tests must cover at both ends. Calibration is
-array arithmetic and numerical optimization, which NumPy and SciPy provide, and it shares its item
-response functions with catsim (ADR-0004), whose own runtime dependencies are NumPy and SciPy.
+reconcile with their own, and one more range the tests must cover at both ends. Item response
+theory is array arithmetic and numerical optimization, which NumPy and SciPy provide. The package
+began by importing its item response functions, grid, priors and item bank from catsim, whose own
+runtime dependencies are NumPy and SciPy; that code moved into irtlib, and catsim builds on irtlib
+(ADR-0004).
 
 catsim supports Python 3.11 and later. A measurement made when this package was set up, on
 2026-11-26, compared the floors 3.11 to 3.14 for a representative EM iteration and for the
@@ -26,20 +28,23 @@ development lock file:
 
 ## Decision
 
-- irtlib's runtime dependencies are NumPy, SciPy and catsim.
+- irtlib's runtime dependencies are NumPy and SciPy, with catsim's floors.
+- catsim, at a fixed commit, is a development dependency of the benchmarks alone (ADR-0004), in a
+  dependency group of its own that neither the tests nor CI install.
 - It supports Python 3.12 and later. Its development lock and local tools use 3.13, as catsim's do.
 - A new runtime dependency needs an ADR of its own.
 
 ## Consequences
 
-- An environment that installs irtlib gets nothing beyond what catsim already brings.
+- An environment that installs catsim gets nothing more when it installs irtlib.
+- `import irtlib` works without catsim installed, which the CI job that tests the built wheel shows.
 - Every supported Python resolves to the same NumPy and SciPy releases, so a failure on one Python
   is never a different library in disguise; the declared floors are tested in CI entries of their
   own.
 - The code uses the Python 3.12 type-parameter syntax, and imports `override` from `typing`, with no
   compatibility module.
 - A catsim user on Python 3.11 cannot install irtlib.
-- Data-frame libraries, plotting libraries and file formats other than catsim's CSV stay out of
+- Data-frame libraries, plotting libraries and file formats other than the bank's CSV stay out of
   irtlib; its results are NumPy arrays that those libraries read.
 
 ## Alternatives Considered
@@ -51,3 +56,5 @@ development lock file:
 - Python 3.14, for free threading: a thread-parallel M-step gains on free-threaded builds under any
   floor (`backlog/estimation/free-threaded-m-step.md`), so the floor need not exclude 3.12 and 3.13.
 - An optional dependency for plotting or data frames: no feature needs one yet.
+- catsim as an optional extra for the benchmarks: it would be part of the published package's
+  metadata, offered to users, for code that only contributors run.

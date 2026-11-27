@@ -24,6 +24,7 @@ card in `backlog/irt/` or `backlog/estimation/`; the calibration methods follow 
 
 - `src/irtlib/`: package source code
 - `tests/`: automated test suite
+- `benchmarks/`: timings of the code moved from catsim against catsim's, run on demand
 - `backlog/`: every piece of planned work, as cards with frontmatter, and the citation rules
 - `sphinx/adr/`: Architecture Decision Records
 - `sphinx/references.bib`: the bibliography
@@ -33,12 +34,10 @@ card in `backlog/irt/` or `backlog/estimation/`; the calibration methods follow 
 
 - Scope is ADR-0001: dichotomous, unidimensional, 1PL to 4PL. Work outside it is a parked card in
   `backlog/scope/` until the ADR changes.
-- Runtime dependencies are NumPy, SciPy and catsim only (ADR-0002); a new one needs an ADR.
-  catsim leaves the list when the moves of ADR-0004 are done (`backlog/maintenance/drop-catsim.md`).
-- Until then, irtlib imports from catsim only the names it imports today: `catsim.irt.icc` and
-  `log_response_probabilities`, `catsim.estimation.QuadratureGrid` and `normal_log_prior`, and
-  `catsim.IrtModel` and `ItemBank`. Code moved from catsim imports nothing from it. catsim stays
-  as it is until irtlib's first release, so never change catsim for irtlib's sake without the
+- Runtime dependencies are NumPy and SciPy only (ADR-0002); a new one needs an ADR.
+- irtlib imports nothing from catsim, and code moved from catsim imports nothing from it (ADR-0004).
+  Only the benchmarks in `benchmarks/` import catsim, at the commit their dependency group pins. catsim
+  stays as it is until irtlib's first release, so never change catsim for irtlib's sake without the
   maintainer.
 - When moving code from catsim, follow ADR-0001's line: what is meaningful for a fixed-form test
   moves, what only makes sense for adaptive testing stays. Moved functions take many examinees at
@@ -51,7 +50,9 @@ card in `backlog/irt/` or `backlog/estimation/`; the calibration methods follow 
   `numpy.random.default_rng`, where None draws fresh entropy (ADR-0005). No global NumPy random
   state, no stdlib `random`.
 - Performance is not a requirement. When a change makes irtlib slower, say so to the maintainer
-  when it happens, with measurements.
+  when it happens, with measurements. A function that catsim also has is timed against catsim's by
+  the benchmarks (`CONTRIBUTING.md`); slower than catsim's by more than 1.2 times on catsim's shapes,
+  it gets a card for a faster version (ADR-0004).
 
 ## Choosing Techniques
 
@@ -184,4 +185,4 @@ Hard rules:
 - Run every pre-commit hook: `uv run pre-commit run --all-files`
 - Run type checks: `uv run ty check`
 - Regenerate the backlog index: `uv run --no-project python backlog/_index.py`
-- Move catsim's pinned `dev` commit forward: `uv lock --upgrade-package catsim`
+- Run the benchmarks against catsim: `uv run --group benchmarks python benchmarks/catsim_baseline.py`

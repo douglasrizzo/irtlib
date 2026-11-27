@@ -121,8 +121,9 @@ def likelihood_ratio(restricted: Calibration, general: Calibration) -> ChiSquare
   ValueError
       If the two calibrations have different numbers of items, or the general model does not have more parameters.
   """
-  if restricted.items.n_items != general.items.n_items:
-    msg = f"the calibrations have {restricted.items.n_items} and {general.items.n_items} items"
+  restricted_items, general_items = restricted.estimates.shape[0], general.estimates.shape[0]
+  if restricted_items != general_items:
+    msg = f"the calibrations have {restricted_items} and {general_items} items"
     raise ValueError(msg)
   df = general.n_parameters - restricted.n_parameters
   if df < 1:
@@ -137,6 +138,9 @@ def likelihood_ratio(restricted: Calibration, general: Calibration) -> ChiSquare
 
 def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
   """Return the :math:`G^2` statistic of a calibration against the general multinomial over response patterns.
+
+  The patterns' probabilities are those of every item at its estimates, including the items the calibration's bank
+  leaves out.
 
   Parameters
   ----------
@@ -153,6 +157,8 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
 
   Raises
   ------
+  TypeError
+      If the responses are neither Booleans, integers nor floats.
   ValueError
       If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not
       have one column per item; or the model leaves no degrees of freedom.
@@ -161,7 +167,7 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
   if numpy.isnan(matrix).any():
     msg = "G2 needs complete responses; the multinomial over patterns is not defined with missing responses"
     raise ValueError(msg)
-  n_items = calibration.items.n_items
+  n_items = calibration.estimates.shape[0]
   if matrix.shape[1] != n_items:
     msg = f"the responses have {matrix.shape[1]} items, the calibration {n_items}"
     raise ValueError(msg)
@@ -172,6 +178,6 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
     )
     raise ValueError(msg)
   _, counts = numpy.unique(matrix, axis=0, return_counts=True)
-  log_likelihood = marginal_log_likelihood(matrix, calibration.items.items, calibration.grid)
+  log_likelihood = marginal_log_likelihood(matrix, calibration.estimates, calibration.grid)
   statistic = 2 * (float(numpy.sum(counts * numpy.log(counts / matrix.shape[0]))) - log_likelihood)
   return ChiSquareTest(statistic=statistic, df=df, p_value=float(chi2.sf(statistic, df)))

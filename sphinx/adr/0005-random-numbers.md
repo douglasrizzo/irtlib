@@ -29,8 +29,8 @@ uses both packages can control them the same way.
 
 ## Consequences
 
-- The same seed, data and settings give the same estimates, on the same versions of irtlib,
-  catsim, NumPy and SciPy. Across platforms results agree up to floating-point rounding.
+- The same seed, data and settings give the same estimates, on the same versions of irtlib, NumPy
+  and SciPy. Across platforms results agree up to floating-point rounding.
 - A recovery study can draw its responses and its estimator's random numbers from separate seeds,
   and compare methods on the same responses.
 - A deterministic method, such as EM from fixed starting values, takes no `rng`.

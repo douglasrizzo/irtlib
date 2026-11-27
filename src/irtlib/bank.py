@@ -817,9 +817,28 @@ def _validate(items: FloatArray, names: tuple[str, ...]) -> None:
   if items.shape[0] == 0:
     msg = "Item matrix has no items"
     raise ValueError(msg)
+  errors = [f"There are items with {rule}: {_listed(rows, names)}" for rule, rows in _violations(items)]
+  if errors:
+    raise ValueError("; ".join(errors))
 
+
+def _violations(items: FloatArray) -> list[tuple[str, IntArray]]:
+  r"""Return each rule of a valid item that rows of an :math:`n \times 4` matrix break, with the rows that break it.
+
+  Parameters
+  ----------
+  items : numpy.ndarray
+      The item matrix.
+
+  Returns
+  -------
+  list[tuple[str, numpy.ndarray]]
+      Each rule of :py:class:`ItemBank` that some row breaks: every parameter finite, with :math:`a > 0` and
+      :math:`0 \leq c < d \leq 1`, as the text of the violation, with the indices of the rows that break it. A matrix
+      of valid items gives an empty list.
+  """
   a, c, d = items[:, 0], items[:, 2], items[:, 3]
-  violations = (
+  rules = (
     (~numpy.isfinite(items).all(axis=1), "NaN or infinite parameters"),
     (a <= 0, "discrimination <= 0"),
     (c < 0, "pseudo-guessing < 0"),
@@ -828,13 +847,7 @@ def _validate(items: FloatArray, names: tuple[str, ...]) -> None:
     (d < 0, "upper asymptote < 0"),
     (c >= d, "pseudo-guessing >= upper asymptote"),
   )
-  errors = [
-    f"There are items with {rule}: {_listed(numpy.flatnonzero(violated), names)}"
-    for violated, rule in violations
-    if violated.any()
-  ]
-  if errors:
-    raise ValueError("; ".join(errors))
+  return [(rule, numpy.flatnonzero(violated)) for violated, rule in rules if violated.any()]
 
 
 def _named(item: int, names: Sequence[str]) -> str:

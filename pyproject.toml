@@ -35,9 +35,6 @@ description = "Item parameter calibration for item response theory"
 dependencies = [
     "numpy>=2.3.1",
     "scipy>=1.16",
-    # No version: the API irtlib uses is on catsim's dev branch only, which [tool.uv.sources] names
-    # (ADR-0004). backlog/maintenance/released-catsim.md pins a released range.
-    "catsim",
 ]
 requires-python = ">=3.12"
 readme = "README.md"
@@ -48,9 +45,6 @@ Issues = "https://github.com/douglasrizzo/irtlib/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-
-[tool.uv.sources]
-catsim = { git = "https://github.com/douglasrizzo/catsim", branch = "dev" }
 
 [tool.ruff]
 line-length = 120
@@ -194,6 +188,11 @@ dev = [
     "pytest-cov>=7.0.0",
     "ruff>=0.15.9",
     "ty>=0.0.28",
+]
+# catsim at a fixed commit, the baseline the benchmarks time the code moved from it against (ADR-0004). Neither the
+# tests nor CI install it; CONTRIBUTING.md says how to run the benchmarks.
+benchmarks = [
+    "catsim @ git+https://github.com/douglasrizzo/catsim@97b89f5023871391ba213e3e3c95f4ec8af8f20b",
 ]
 
 [tool.pytest.ini_options]

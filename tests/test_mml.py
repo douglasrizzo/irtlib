@@ -10,12 +10,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-from catsim import ItemBank
-from catsim.irt import icc
 from scipy.special import expit, logit
 from scipy.stats import lognorm, norm
 
+from irtlib import ItemBank
 from irtlib.calibration import ConvergenceWarning
+from irtlib.drawing import draw_responses
 from irtlib.mml import (
   MMLCalibrator,
   Priors,
@@ -23,6 +23,7 @@ from irtlib.mml import (
   _PriorTerm,  # noqa: PLC2701 - the prior's derivatives are checked against scipy's densities
   marginal_log_likelihood,
 )
+from irtlib.quadrature import QuadratureGrid
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
@@ -35,14 +36,19 @@ _LSAT6 = responses(_MML_EM["data"]["lsat6"])
 _LSAT7 = responses(_MML_EM["data"]["lsat7"])
 
 
+def _two_pl_items(slopes: FloatArray, difficulties: FloatArray) -> FloatArray:
+  """Return 2PL items [a, b, 0, 1]."""
+  return np.column_stack([slopes, difficulties, np.zeros_like(slopes), np.ones_like(slopes)])
+
+
 def test_thissen_published_estimates() -> None:
   """The 1PL with a common slope reproduces Thissen's (1982, p. 180, Table 2) LSAT-6 estimates to the decimals printed.
 
   LSAT-6 is Thissen's (1982, p. 179, Table 1) data; a wrong scale identification or prior moves the slope.
   """
   calibration = MMLCalibrator("1PL", tolerance=1e-8).calibrate(_LSAT6)
-  np.testing.assert_allclose(calibration.items.discrimination, 0.755, atol=5e-4)
-  np.testing.assert_allclose(calibration.items.difficulty, [-3.615, -1.322, -0.318, -1.730, -2.780], atol=5e-4)
+  np.testing.assert_allclose(calibration.estimates[:, 0], 0.755, atol=5e-4)
+  np.testing.assert_allclose(calibration.estimates[:, 1], [-3.615, -1.322, -0.318, -1.730, -2.780], atol=5e-4)
 
 
 def test_recovery_of_two_pl_parameters() -> None:
@@ -55,11 +61,11 @@ def test_recovery_of_two_pl_parameters() -> None:
   slopes = rng.uniform(0.7, 2.0, 10)
   difficulties = rng.uniform(-1.5, 1.5, 10)
   theta = rng.normal(size=20_000)
-  matrix = (rng.random((20_000, 10)) < expit(slopes * (theta[:, np.newaxis] - difficulties))).astype(float)
+  matrix = draw_responses(theta, _two_pl_items(slopes, difficulties), rng=rng)
   matrix[rng.random(matrix.shape) < 0.1] = np.nan
   calibration = MMLCalibrator().calibrate(matrix)
-  np.testing.assert_allclose(calibration.items.discrimination, slopes, rtol=0.15)
-  np.testing.assert_allclose(calibration.items.difficulty, difficulties, atol=0.15)
+  np.testing.assert_allclose(calibration.estimates[:, 0], slopes, rtol=0.15)
+  np.testing.assert_allclose(calibration.estimates[:, 1], difficulties, atol=0.15)
 
 
 def test_likelihood_never_decreases() -> None:
@@ -109,8 +115,8 @@ def test_standard_errors_match_louis_exact_form() -> None:
   the missing information has the wrong sign or scale, or the delta method to a and b is wrong.
   """
   calibration = MMLCalibrator(tolerance=1e-10).calibrate(_LSAT7)
-  slope = calibration.items.discrimination
-  intercept = -slope * calibration.items.difficulty
+  slope = calibration.estimates[:, 0]
+  intercept = -slope * calibration.estimates[:, 1]
   covariance = np.linalg.inv(_louis_information(_LSAT7, slope, intercept))
   n_items = slope.size
   jacobian = np.zeros((n_items, 2 * n_items))
@@ -152,10 +158,10 @@ def test_standard_errors_cover_the_generating_parameters() -> None:
   estimates, standard_errors = [], []
   for _ in range(60):
     theta = rng.normal(size=1000)
-    matrix = (rng.random((1000, 5)) < expit(slopes * (theta[:, np.newaxis] - difficulties))).astype(float)
+    matrix = draw_responses(theta, _two_pl_items(slopes, difficulties), rng=rng)
     calibration = MMLCalibrator().calibrate(matrix)
     assert calibration.standard_errors is not None
-    estimates.append(np.concatenate([calibration.items.discrimination, calibration.items.difficulty]))
+    estimates.append(np.concatenate([calibration.estimates[:, 0], calibration.estimates[:, 1]]))
     standard_errors.append(np.concatenate([calibration.standard_errors[:, 0], calibration.standard_errors[:, 1]]))
   estimates, standard_errors = np.array(estimates), np.array(standard_errors)
   ratio = standard_errors.mean(axis=0) / estimates.std(axis=0, ddof=1)
@@ -164,17 +170,19 @@ def test_standard_errors_cover_the_generating_parameters() -> None:
   assert 0.91 <= coverage <= 0.98, coverage
 
 
-def test_marginal_log_likelihood_with_a_missing_response() -> None:
+@pytest.mark.parametrize(("n_nodes", "bound"), [(61, 6.0), (81, 40.0)], ids=["default grid", "wide grid"])
+def test_marginal_log_likelihood_with_a_missing_response(n_nodes: int, bound: float) -> None:
   """The marginal log-likelihood equals a brute-force sum that leaves a missing response out of its examinee's product.
 
-  Four examinees, three items, one response missing; normal masses at 61 equally spaced nodes on [-6, 6].
+  Four examinees, three items, one response missing; normal masses at 61 equally spaced nodes on [-6, 6], the default
+  grid, and at 81 on [-40, 40], whose outer masses underflow to 0, which a log of the masses would warn about.
   """
   matrix = np.array([[1.0, 0.0, 1.0], [0.0, np.nan, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]])
   items = np.array([[1.2, -0.4, 0.0, 1.0], [0.7, 0.9, 0.0, 1.0], [1.6, 0.1, 0.0, 1.0]])
-  nodes = np.linspace(-6.0, 6.0, 61)
+  nodes = np.linspace(-bound, bound, n_nodes)
   masses = np.exp(-(nodes**2) / 2)
   masses /= masses.sum()
-  probability = icc(nodes, items)  # nodes x items
+  probability = expit(items[:, 0] * (nodes[:, np.newaxis] - items[:, 1]))  # the 2PL, nodes x items
   expected = 0.0
   for row in matrix:
     likelihood = np.ones_like(nodes)
@@ -182,7 +190,8 @@ def test_marginal_log_likelihood_with_a_missing_response() -> None:
       if not np.isnan(response):
         likelihood *= probability[:, item] if response == 1 else 1 - probability[:, item]
     expected += np.log(np.sum(masses * likelihood))
-  np.testing.assert_allclose(marginal_log_likelihood(matrix, items), expected, rtol=1e-12)
+  grid = QuadratureGrid.uniform(n_nodes, -bound, bound)
+  np.testing.assert_allclose(marginal_log_likelihood(matrix, items, grid), expected, rtol=1e-12)
 
 
 def test_an_examinee_who_answered_nothing_changes_nothing() -> None:
@@ -190,7 +199,7 @@ def test_an_examinee_who_answered_nothing_changes_nothing() -> None:
   with_blank = np.vstack([_LSAT7, np.full(5, np.nan)])
   calibrator = MMLCalibrator(tolerance=1e-8)
   before, after = calibrator.calibrate(_LSAT7), calibrator.calibrate(with_blank)
-  np.testing.assert_allclose(after.items.items, before.items.items, atol=1e-12)
+  np.testing.assert_allclose(after.estimates, before.estimates, atol=1e-12)
   np.testing.assert_allclose(after.log_likelihood, before.log_likelihood, rtol=1e-13)
 
 
@@ -207,7 +216,7 @@ def test_parameter_count(calibrator: MMLCalibrator, n_parameters: int) -> None:
 def test_fixed_slope_is_kept() -> None:
   """Every item keeps the fixed slope exactly; only the difficulties move."""
   calibration = MMLCalibrator("2PL", fixed_slope=1.3).calibrate(_LSAT7)
-  assert np.all(calibration.items.discrimination == 1.3)
+  assert np.all(calibration.estimates[:, 0] == 1.3)
 
 
 def test_running_out_of_cycles_is_flagged() -> None:
@@ -229,37 +238,51 @@ def test_start_does_not_change_the_maximum(settings: dict[str, object]) -> None:
   )
   calibrator = MMLCalibrator(**settings, tolerance=1e-10)  # ty: ignore[invalid-argument-type]
   default, started = calibrator.calibrate(_LSAT7), calibrator.calibrate(_LSAT7, start=start)
-  np.testing.assert_allclose(started.items.items, default.items.items, atol=1e-7)
+  np.testing.assert_allclose(started.estimates, default.estimates, atol=1e-7)
 
 
 @pytest.mark.parametrize(
   ("matrix", "message"),
   [
-    (np.array([1.0, 0.0]), "matrix of examinees by items"),
-    (np.array([[1.0, 2.0], [0.0, 1.0]]), "1, 0 or NaN"),
-    (np.array([[1.0, np.inf], [0.0, 1.0]]), "1, 0 or NaN"),
+    (np.array([1.0, 0.0]), "must be a matrix"),
+    (np.empty((3, 0)), "at least one examinee and one item"),
+    (np.array([[1.0, 2.0], [0.0, 1.0]]), r"responses\[0, 1\] is 2.0"),
+    (np.array([[1.0, np.inf], [0.0, 1.0]]), r"responses\[0, 1\] is inf"),
     (np.array([[1.0, np.nan], [0.0, np.nan]]), r"columns \[1\]"),
     (np.array([[1.0, 1.0], [0.0, 1.0]]), r"columns \[1\] were answered correctly by every examinee"),
   ],
-  ids=["one-dimensional", "value 2", "infinite", "unanswered item", "all correct"],
+  ids=["one-dimensional", "no items", "value 2", "infinite", "unanswered item", "all correct"],
 )
 def test_invalid_responses(matrix: np.ndarray, message: str) -> None:
-  """A matrix not of 0, 1 and NaN, or with an item no one answered or with no finite estimate, is refused."""
+  """A matrix not of 0, 1 and NaN, with no item, or with an item no one answered or none can estimate, is refused."""
   with pytest.raises(ValueError, match=message):
     MMLCalibrator().calibrate(matrix)
 
 
-def test_a_reverse_keyed_item_is_refused() -> None:
-  """An item whose correct answers fall as ability rises gets a clear error, not catsim's item-bank error at the end.
+def test_responses_that_are_not_numbers_are_refused() -> None:
+  """A matrix of strings is refused with a TypeError, rather than read as the numbers it spells."""
+  with pytest.raises(TypeError, match="responses must be Booleans"):
+    MMLCalibrator().calibrate(np.array([["1", "0"], ["0", "1"]]))
 
-  Its slope estimate is negative, which a catsim item bank cannot hold.
+
+def test_a_miskeyed_item_is_reported_and_left_out_of_the_bank() -> None:
+  """An item whose correct answers fall as ability rises keeps its negative slope estimate, and the bank leaves it out.
+
+  A warning names the item and points at the caller of ``calibrate``, and the bank's items keep the names of their
+  columns, so a bank that renumbered them, an error that discarded the estimates, a bank holding the miskeyed item,
+  or a warning pointing inside irtlib fails.
   """
   rng = np.random.default_rng(3)
-  slopes = np.array([1.0, 1.5, -1.0, 1.2])
-  theta = rng.normal(size=2000)
-  matrix = (rng.random((2000, 4)) < expit(slopes * theta[:, np.newaxis])).astype(float)
-  with pytest.raises(ValueError, match=r"columns \[2\] have slope estimates that are not positive"):
-    MMLCalibrator().calibrate(matrix)
+  items = _two_pl_items(np.array([1.0, 1.5, -1.0, 1.2]), np.zeros(4))
+  matrix = draw_responses(rng.normal(size=2000), items, rng=rng)
+  with pytest.warns(RuntimeWarning, match=r"discrimination <= 0 for 2 \('item_2'\).*miskeyed item") as caught:
+    calibration = MMLCalibrator().calibrate(matrix)
+  assert caught[0].filename == __file__
+  assert calibration.estimates.shape == (4, 4)
+  assert -1.3 < calibration.estimates[2, 0] < -0.7
+  assert calibration.items is not None
+  assert calibration.items.names == ("item_0", "item_1", "item_3")
+  np.testing.assert_array_equal(calibration.items.items, calibration.estimates[[0, 1, 3]])
 
 
 @pytest.mark.parametrize(
@@ -285,7 +308,7 @@ def test_mismatched_items_are_refused() -> None:
   three_items = ItemBank(np.array([[1.0, 0.0, 0.0, 1.0]] * 3))
   with pytest.raises(ValueError, match="start has 3 items"):
     MMLCalibrator().calibrate(_LSAT7, start=three_items)
-  with pytest.raises(ValueError, match="one row"):
+  with pytest.raises(ValueError, match="one item per column"):
     marginal_log_likelihood(_LSAT7, three_items.items)
 
 
@@ -324,8 +347,8 @@ def test_estimates_are_the_posterior_mode() -> None:
   matrix = responses(_MML_EM["data"]["simulated"])
   priors = Priors(slope=(0.0, 0.5), intercept=(0.0, 2.0))
   calibration = MMLCalibrator(priors=priors, tolerance=1e-10).calibrate(matrix)
-  slope = calibration.items.discrimination
-  intercept = -slope * calibration.items.difficulty
+  slope = calibration.estimates[:, 0]
+  intercept = -slope * calibration.estimates[:, 1]
 
   def log_posterior(slope: np.ndarray, intercept: np.ndarray) -> float:
     items = np.column_stack([slope, -intercept / slope, np.zeros_like(slope), np.ones_like(slope)])
@@ -351,8 +374,8 @@ def test_intercept_prior_keeps_an_extreme_item_finite() -> None:
   with pytest.raises(ValueError, match="no finite estimate"):
     MMLCalibrator().calibrate(matrix)
   calibration = MMLCalibrator(priors=Priors(intercept=(0.0, 2.0))).calibrate(matrix)
-  assert np.all(np.isfinite(calibration.items.items))
-  assert calibration.items.difficulty[0] < calibration.items.difficulty[1:].min()
+  assert np.all(np.isfinite(calibration.estimates))
+  assert calibration.estimates[0, 1] < calibration.estimates[1:, 1].min()
 
 
 def test_recovery_of_three_pl_parameters() -> None:
@@ -366,12 +389,11 @@ def test_recovery_of_three_pl_parameters() -> None:
   difficulties = rng.uniform(-1.0, 1.5, 8)
   guessing = rng.uniform(0.1, 0.3, 8)
   theta = rng.normal(size=10_000)
-  probability = guessing + (1 - guessing) * expit(slopes * (theta[:, np.newaxis] - difficulties))
-  matrix = (rng.random(probability.shape) < probability).astype(float)
+  matrix = draw_responses(theta, np.column_stack([slopes, difficulties, guessing, np.ones(8)]), rng=rng)
   calibration = MMLCalibrator("3PL", priors=Priors(guessing=(float(logit(0.2)), 0.5))).calibrate(matrix)
-  np.testing.assert_allclose(calibration.items.discrimination, slopes, rtol=0.25)
-  np.testing.assert_allclose(calibration.items.difficulty, difficulties, atol=0.25)
-  np.testing.assert_allclose(calibration.items.pseudo_guessing, guessing, atol=0.08)
+  np.testing.assert_allclose(calibration.estimates[:, 0], slopes, rtol=0.25)
+  np.testing.assert_allclose(calibration.estimates[:, 1], difficulties, atol=0.25)
+  np.testing.assert_allclose(calibration.estimates[:, 2], guessing, atol=0.08)
 
 
 @pytest.mark.parametrize(
@@ -390,8 +412,8 @@ def test_a_shared_slope_carries_its_prior_once() -> None:
   log-likelihood plus one lognormal log-density, found here by a one-dimensional search.
   """
   calibration = MMLCalibrator("1PL", priors=Priors(slope=(0.5, 0.3)), tolerance=1e-10).calibrate(_LSAT7)
-  slope = calibration.items.discrimination[0]
-  intercept = -slope * calibration.items.difficulty
+  slope = calibration.estimates[0, 0]
+  intercept = -slope * calibration.estimates[:, 1]
 
   def log_posterior(candidate: float) -> float:
     items = np.column_stack([np.full(5, candidate), -intercept / candidate, np.zeros(5), np.ones(5)])
@@ -413,7 +435,7 @@ def test_four_pl_estimates_are_the_posterior_mode() -> None:
   center_c, center_d = float(logit(0.2)), float(logit(0.9))
   priors = Priors(guessing=(center_c, 0.2), upper=(center_d, 0.2))
   calibration = MMLCalibrator("4PL", priors=priors, tolerance=1e-8, max_cycles=5000).calibrate(matrix)
-  items = calibration.items.items.copy()
+  items = calibration.estimates.copy()
 
   def log_posterior(candidate: FloatArray) -> float:
     prior = np.sum(norm.logpdf(logit(candidate[:, 2]), center_c, 0.2)) + np.sum(

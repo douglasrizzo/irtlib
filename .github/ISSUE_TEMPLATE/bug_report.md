@@ -23,7 +23,7 @@ If applicable, add screenshots to help explain your problem.
 
 - Python: [e.g. 3.13.1, from `python --version`]
 - irtlib: [e.g. 0.1.0, from `pip show irtlib`]
-- catsim: [from `pip show catsim`]
+- NumPy and SciPy: [from `pip show numpy scipy`]
 
 **Additional context**
 Add any other context about the problem here.

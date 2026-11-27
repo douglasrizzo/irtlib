@@ -13,26 +13,30 @@ raised_by: [timing of the ability-estimation PR on 2026-11-27]
 ## Problem
 
 catsim calls an ability estimator once per step of every simulated adaptive test, and will call
-irtlib's once it builds on irtlib (ADR-0004). irtlib's four estimators take 1.3 to 2.5 times
-catsim's time for one examinee, above the maintainer's threshold of 1.2 times, beyond which a
-slowdown gets a card for a faster version (ADR-0004; `maintenance/drop-catsim`).
+irtlib's once it builds on irtlib (ADR-0004). irtlib's four estimators take 1.3 to 2.4 times
+catsim's time for one examinee (2.5 for maximum likelihood without bounds), above the maintainer's threshold of 1.2 times, beyond which a
+slowdown gets a card for a faster version (ADR-0004).
 
 ## Evidence
 
-A scratch script, 2026-11-27, on the ability-estimation PR: one examinee's 20 responses, 14
-correct, on a random 4PL bank, as in one step of an adaptive test; the best of 7 runs of 200 calls,
-catsim at its pinned commit. Every estimate agreed with catsim's to 1e-6.
+`benchmarks/catsim_baseline.py`, three runs on 2026-11-27 (Apple M4 Pro, Python 3.13.6, NumPy
+2.5.5, SciPy 1.18.1, catsim at `97b89f5`): one examinee's 20 responses, 14 correct, to the first
+items of a random 4PL bank of 500, against catsim's estimators on a step's context built
+beforehand, with the range of each time over the runs. Every estimate and standard error agreed
+with catsim's: EAP's and the WLE's within a relative 1e-12, MAP's and ML's within the search
+tolerance of 1e-6.
 
 | Estimator | catsim | irtlib | Ratio |
 |---|---|---|---|
-| EAP | 57.9 µs | 92.5 µs | 1.60 |
-| MAP | 144.6 µs | 191.0 µs | 1.32 |
-| ML, bounds (-6, 6) | 75.6 µs | 166.8 µs | 2.21 |
-| ML, no bounds | 78.0 µs | 191.5 µs | 2.45 |
-| WLE | 136.3 µs | 253.3 µs | 1.86 |
+| EAP | 57.9-60.0 µs | 88.8-92.3 µs | 1.48-1.59 |
+| MAP | 148.0-153.3 µs | 194.5-197.3 µs | 1.27-1.33 |
+| ML, bounds (-6, 6) | 71.0-72.2 µs | 166.0-167.3 µs | 2.30-2.36 |
+| WLE | 135.0-138.4 µs | 243.7-250.7 µs | 1.80-1.81 |
 
-The benchmarks of `maintenance/drop-catsim` time the estimators again, against catsim's, and
-replace these numbers.
+All four are above 1.2. EAP's time is mostly that of `irt.log_likelihood` and `quadrature.posterior`
+on the grid, 1.44 to 1.53 times catsim's in the same runs (`irt/one-examinee-speed`). The ML
+estimate without bounds was timed by the scratch script of the ability-estimation PR only: 191.5 µs
+against catsim's 78.0 µs, 2.45 times.
 
 ## What irtlib and catsim have now
 
@@ -57,8 +61,8 @@ rounds off.
 ## Tests
 
 - The estimators' tests and parity cases pass unchanged.
-- The benchmarks of `maintenance/drop-catsim` show each estimator within 1.2 times catsim's time,
-  or the card records why one cannot be.
+- `benchmarks/catsim_baseline.py` shows each estimator within 1.2 times catsim's time, or the card
+  records why one cannot be.
 
 ## Open Questions
 
