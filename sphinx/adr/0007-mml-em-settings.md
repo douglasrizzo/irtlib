@@ -47,7 +47,7 @@ $1.4 \times 10^{-6}$, and measurements on 2026-11-27 showed:
 
 - Departures from mirt: the default tolerance, the starting values over answered responses, and the
   solver. None changes the maximum, which the parity tests compare, with mirt's fixtures recorded
-  at a tight tolerance (`backlog/discovery/mirt-parity-harness.md`).
+  at a tight tolerance (ADR-0003).
 - Priors are defined on the parameters the M-step estimates, so mirt's priors apply unchanged
   (ADR-0008).
 - A fit takes up to three times mirt's cycles. Performance is not a requirement (`AGENTS.md`);

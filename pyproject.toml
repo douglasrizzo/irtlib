@@ -211,7 +211,7 @@ source = ["pyitemcal"]
 [tool.coverage.report]
 # Input-validation raises stay measured, so an untested check shows up as missed.
 exclude_also = ["if TYPE_CHECKING:", "if __name__ == .__main__.:", "raise NotImplementedError"]
-# The CI test job measures coverage from the first pull request that adds tests (AGENTS.md).
+# The CI test job measures coverage (AGENTS.md).
 fail_under = 90
 show_missing = true
 

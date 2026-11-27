@@ -35,8 +35,11 @@ packages share.
   mirt, which the parity tests use, or is stated where the method is documented, with its reason,
   and kept in the parity tests as a strict expected failure with that reason, so a departure that
   closes fails the run until it is removed from the list.
-- The tolerances of each comparison are set by the parity-harness card
-  (`backlog/discovery/mirt-parity-harness.md`).
+- mirt's estimates are recorded at `TOL = 1e-8` with an exact M-step
+  (`control = list(reltol = 1e-14)`), since its defaults stop short of the maximum (ADR-0007).
+  Estimates are compared within `1e-5`, which the measured 2PL agreement of about $10^{-6}$ leaves
+  room for; closed forms and sums on the same grid within a relative $10^{-10}$. Each tolerance is a
+  constant of the parity test module, with its reason.
 
 ## Consequences
 

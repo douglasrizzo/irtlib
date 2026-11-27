@@ -1,6 +1,6 @@
 # Contributing
 
-pyitemcal is in its research phase: the planned work, and the order it comes in, is in the
+pyitemcal is in its design phase: the planned work, and the order it comes in, is in the
 [backlog](backlog/README.md). Pick a card, do its work in a pull request into `dev`, and delete the
 card in that pull request.
 
@@ -31,6 +31,23 @@ uv run pre-commit run --all-files
 
 pytest also runs the docstring examples in `src/pyitemcal`, and turns warnings into errors. The hooks
 run Ruff, ty, pylint, vulture, typos and the check of the backlog's index.
+
+## Parity tests with mirt
+
+`tests/test_parity_mirt.py` compares pyitemcal with the R package mirt, its reference implementation
+(ADR-0003), on outputs recorded in the JSON files of `tests/parity/mirt/`. The tests need no R.
+
+The files are regenerated, never edited, when a case script beside them changes or the pinned mirt
+version moves. That needs R and a C++ compiler, since mirt is built from source:
+
+```bash
+Rscript tests/parity/mirt/generate.R
+```
+
+The first run installs mirt, at the version `generate.R` pins, with its dependencies, into
+`~/.cache/pyitemcal-parity/R-lib`, outside your own R library; set `PYITEMCAL_MIRT_LIB` to use
+another folder. A rerun with the same mirt version writes the same bytes, so `git diff` shows only
+what a change to the cases or the version moved.
 
 ## Sources
 

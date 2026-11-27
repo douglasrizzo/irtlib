@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 1
 effort: M
-blocked_by: [irt/icc-gradients, discovery/mirt-parity-harness]
+blocked_by: [irt/icc-gradients]
 raised_by: [moved from catsim's backlog]
 ---
 

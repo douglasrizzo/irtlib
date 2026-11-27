@@ -15,8 +15,8 @@ catsim's public item response functions (ADR-0004).
 
 The project is in its design phase: its methods are reviewed from their primary sources
 (`backlog/discovery/literature-review.md`), the calibrator contract and settings are decided
-(ADR-0006 to ADR-0008), and no calibration method is implemented yet. The order of work is the mirt
-parity harness (`backlog/discovery/mirt-parity-harness.md`), then the methods in the review's build
+(ADR-0006 to ADR-0008), the mirt parity harness is in place (`tests/parity/mirt/`), and no
+calibration method is implemented yet. The order of work is the methods in the review's build
 order.
 
 ## Repository Layout
@@ -124,10 +124,10 @@ Hard rules:
   output or a brute-force reference, never from the code under test.
 - ty checks `tests/` too. A test double subclasses the base class it stands in for; a line that
   passes a deliberately wrong type carries `# ty: ignore[<rule>]`.
-- The CI test and test-wheel jobs accept "no tests collected" (pytest's exit status 5) until the
-  first module lands. The PR that adds the first tests removes that tolerance from both jobs and
-  adds `--cov=pyitemcal` to the CI test command, which turns on the coverage gate (`fail_under` in
-  `pyproject.toml`).
+- CI's test job measures coverage of `pyitemcal` and fails below `fail_under` in `pyproject.toml`.
+- Parity tests with mirt (ADR-0003) read the JSON fixtures in `tests/parity/mirt/`, which
+  `tests/parity/mirt/generate.R` writes; a fixture is never edited by hand. A case script per
+  method family sits beside `generate.R`, and `CONTRIBUTING.md` says how to regenerate them.
 
 ## Pre-commit And CI Expectations
 
