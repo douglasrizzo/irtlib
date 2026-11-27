@@ -59,7 +59,7 @@ suppressPackageStartupMessages(library(mirt, lib.loc = lib))
 stopifnot(as.character(getNamespaceVersion("mirt")) == MIRT_VERSION)
 
 here <- script_dir()
-for (helper in c("json.R", "mml_em.R", "item_fit.R", "mml_priors.R")) {
+for (helper in c("json.R", "mml_em.R", "item_fit.R", "mml_priors.R", "comparison.R")) {
   source(file.path(here, helper))
 }
 
@@ -67,7 +67,8 @@ versions <- list(mirt_version = MIRT_VERSION, r_version = R.version.string)
 outputs <- list(
   mml_em = mml_em_cases(),
   item_fit = item_fit_cases(),
-  mml_priors = mml_priors_cases()
+  mml_priors = mml_priors_cases(),
+  comparison = comparison_cases()
 )
 for (name in names(outputs)) {
   path <- file.path(here, paste0(name, ".json"))

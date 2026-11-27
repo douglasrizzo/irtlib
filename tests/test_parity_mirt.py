@@ -25,6 +25,7 @@ from catsim import ItemBank
 from scipy.special import expit, logsumexp
 
 from pyitemcal.calibration import Calibration, default_grid
+from pyitemcal.comparison import aic, bic, g2, likelihood_ratio
 from pyitemcal.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
   s_x2,
@@ -55,6 +56,7 @@ _S_X2_RTOL = 1e-4
 _MML_EM = load("mml_em")
 _ITEM_FIT = load("item_fit")
 _MML_PRIORS = load("mml_priors")
+_COMPARISON = load("comparison")
 
 # The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
 # "1PL", whose slopes are fixed at 1.
@@ -295,3 +297,29 @@ def test_mml_priors_standard_errors(case: dict[str, Any]) -> None:
   np.testing.assert_allclose(standard_errors[:, 1], case["b_se"], rtol=_STANDARD_ERROR_RTOL)
   if "c_se" in case:
     np.testing.assert_allclose(standard_errors[:, 2], case["c_se"], rtol=_STANDARD_ERROR_RTOL)
+
+
+@pytest.mark.parametrize("case", _COMPARISON["cases"], ids=operator.itemgetter("data"))
+def test_model_comparison(case: dict[str, Any]) -> None:
+  """The log-likelihoods, parameter counts, AIC, BIC, G² and likelihood-ratio test of the 1PL and 2PL match mirt's.
+
+  G² and the likelihood ratio are differences of log-likelihoods that agree within a relative 1e-10, so they agree
+  within about 1e-8 in absolute terms.
+  """
+  matrix = responses(_COMPARISON["data"][case["data"]])
+  tolerance = _COMPARISON["settings"]["tol"]
+  restricted = MMLCalibrator("1PL", tolerance=tolerance).calibrate(matrix)
+  general = MMLCalibrator("2PL", tolerance=tolerance).calibrate(matrix)
+  for calibration, expected in [(restricted, case["restricted"]), (general, case["general"])]:
+    assert calibration.n_parameters == expected["n_parameters"]
+    np.testing.assert_allclose(calibration.log_likelihood, expected["log_likelihood"], rtol=_CLOSED_FORM_RTOL)
+    np.testing.assert_allclose(aic(calibration), expected["aic"], rtol=_CLOSED_FORM_RTOL)
+    np.testing.assert_allclose(bic(calibration, case["n_examinees"]), expected["bic"], rtol=_CLOSED_FORM_RTOL)
+    fit = g2(calibration, matrix)
+    assert fit.df == expected["df"]
+    np.testing.assert_allclose(fit.statistic, expected["g2"], atol=1e-6)
+    np.testing.assert_allclose(fit.p_value, expected["p_value"], rtol=1e-6)
+  test = likelihood_ratio(restricted, general)
+  assert test.df == case["likelihood_ratio"]["df"]
+  np.testing.assert_allclose(test.statistic, case["likelihood_ratio"]["statistic"], atol=1e-6)
+  np.testing.assert_allclose(test.p_value, case["likelihood_ratio"]["p_value"], atol=1e-6)

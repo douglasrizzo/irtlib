@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 10 ready, 0 needs-research, 2 needs-decision, 4 blocked, 4 parked.
+19 cards: 9 ready, 0 needs-research, 2 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -63,7 +63,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | blocked | S | [mml-em-4pl](estimation/mml-em-4pl.md) | ADR-0007 |
-| [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | ready | S |  | research pass |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
