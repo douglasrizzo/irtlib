@@ -35,8 +35,9 @@ correct response's probability is at most its value at the end, since it rises w
 at most :math:`1 - c_i`; beyond the upper end, a correct one's is at most :math:`d_i` and an incorrect one's at most its
 value at the end. While these bounds leave room beyond an end for a log-likelihood above both the best found and the two
 limits, that end moves out, twice as far each time, and the new stretch is searched the same way. The estimate is then
-the infinity of the larger limit if that limit is at least the best value found, within a relative :math:`10^{-12}`, and
-the best ability found otherwise.
+the infinity of the larger limit, :math:`-\infty` of two equal ones, if that limit is at least the best value found,
+within a relative :math:`10^{-12}`, and the best ability found otherwise. After 64 moves of an end, which only items of
+a vanishing discrimination need, the search stops at the best ability found and warns.
 
 mirt 1.48 also gives :math:`+\infty` or :math:`-\infty` to responses all correct or all incorrect
 (``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`. It searches the
@@ -99,9 +100,11 @@ Hessian of that weighted log-likelihood (``R/fscores.internal.R:1103-1119``).
 
 import math
 import operator
+import os
 import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy
 import numpy.typing as npt
@@ -124,8 +127,10 @@ _CURVATURE_STEP = 1e-4
 # Points on which Warm's modified score is scanned to bracket its roots: 0.1 apart on [-6, 6].
 _SCAN_POINTS = 121
 # How often the maximum likelihood search without bounds may move an end of its range out, doubling the distance each
-# time; the bound on the likelihood beyond an end reaches its limit long before.
+# time: past 6 * 2**64, about 1e20, only items of a vanishing discrimination still change the likelihood.
 _MAX_EXTENSIONS = 64
+# The package's directory, whose frames a warning skips, so that it points at the caller's line.
+_PACKAGE = str(Path(__file__).parent) + os.sep
 # Log-likelihoods closer than this, relative to their size, count as equal: the rounding of a sum over the items.
 _RELATIVE_SLACK = 1e-12
 
@@ -239,6 +244,7 @@ def _maximum(objective: _Objective, bounds: _Bounds, tol: float) -> tuple[float,
   nodes = numpy.linspace(bounds[0], bounds[1], _SEARCH_POINTS)
   values = objective(nodes)
   peak = float(numpy.max(values))
+  # the log-likelihood is finite at every finite ability, so only a prior can leave no finite point
   if not math.isfinite(peak):
     msg = (
       f"the log-posterior is not finite at any of the {nodes.size} search points in {bounds}; the prior's support "
@@ -281,7 +287,7 @@ def expected_a_posteriori(
   Parameters
   ----------
   items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``.
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
@@ -340,7 +346,7 @@ def maximum_a_posteriori(
   Parameters
   ----------
   items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``.
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
@@ -422,12 +428,13 @@ def maximum_likelihood(
   Without ``bounds`` the estimate maximizes the likelihood over the whole ability scale, infinities included: it is
   ``inf`` or ``-inf`` where the likelihood comes closest to its supremum only in that limit, as it does for responses
   all correct or all incorrect, and its standard error is then ``inf``. With ``bounds`` it maximizes the likelihood
-  within them, and is finite. An examinee who answered no item has no estimate, NaN, and no standard error, NaN.
+  within them, and is finite. An examinee who answered no item has no estimate, NaN, and no standard error, NaN. A
+  ``fallback`` replaces every estimate that is not finite, infinite or NaN.
 
   Parameters
   ----------
   items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``.
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
@@ -457,7 +464,6 @@ def maximum_likelihood(
 
   Examples
   --------
-  >>> import functools
   >>> import numpy
   >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
   >>> responses = numpy.array([[1, 0, numpy.nan], [1, 1, 1]])
@@ -465,7 +471,7 @@ def maximum_likelihood(
   array([-0.6463,     inf])
   >>> maximum_likelihood(items, responses, bounds=(-4.0, 4.0)).theta.round(4)
   array([-0.6463,  4.    ])
-  >>> estimates = maximum_likelihood(items, responses, fallback=functools.partial(expected_a_posteriori))
+  >>> estimates = maximum_likelihood(items, responses, fallback=expected_a_posteriori)
   >>> estimates.theta.round(4), estimates.from_fallback
   (array([-0.6463,  0.8555]), array([False,  True]))
   """
@@ -519,8 +525,11 @@ class _End:
   direction: float
   """-1 for the lower end, 1 for the upper one."""
   theta: float
+  """The ability at the end."""
   ceiling: float
+  """The largest log-likelihood any ability beyond the end can have."""
   limit: float
+  """The log-likelihood's limit as the ability goes to infinity in the end's direction."""
 
 
 def _end(theta: float, direction: float, items: FloatArray, responses: FloatArray) -> _End:
@@ -562,6 +571,12 @@ def _supremum(log_likelihood: _Objective, items: FloatArray, responses: FloatArr
       if found_value > value:
         theta, value = found, found_value
     step *= 2
+  warnings.warn(
+    f"the maximum likelihood search reached [{low:.3g}, {high:.3g}] without settling whether a larger likelihood lies "
+    "beyond; the estimate is the best ability found",
+    RuntimeWarning,
+    skip_file_prefixes=(_PACKAGE,),
+  )
   return theta, evaluations
 
 
@@ -582,7 +597,7 @@ def weighted_likelihood(
   Parameters
   ----------
   items : numpy.ndarray
-      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``.
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
   responses : array_like
       The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
       False for an incorrect one, and NaN for a missing one.
@@ -615,7 +630,7 @@ def weighted_likelihood(
   bounds = _check_bounds(bounds)
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
-  rows = []
+  rows: list[tuple[float, float, int]] = []
   for row, (row_items, row_responses) in enumerate(_answered(items, matrix)):
     theta, se, evaluations, messages = _weighted_likelihood_root(row_items, row_responses, bounds, tol)
     rows.append((theta, se, evaluations))

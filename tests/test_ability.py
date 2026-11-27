@@ -322,6 +322,24 @@ class TestMaximumLikelihood:
       math.inf if infinite else pytest.approx(_information(estimate.theta[0], item_matrix) ** -0.5, rel=1e-12)
     )
 
+  def test_a_search_that_cannot_settle_warns_from_the_callers_line(self) -> None:
+    """Items of discrimination 1e-21 put the maximum near -6.9e20, beyond the reach of 64 moves; the search warns.
+
+    The two items act as one, so the likelihood P (1 - P) peaks where P = 1/2, at a logit of -ln 2. A search that ran
+    out of moves returned a point short of it, -2.2e20, as if it were the maximum.
+    """
+    items = np.array([[1e-21, -1.0, 0.25, 1.0], [1e-21, 1.0, 0.25, 1.0]])
+
+    def estimate() -> AbilityEstimates:
+      return maximum_likelihood(items, _rows([0.0, 1.0]))
+
+    with pytest.warns(RuntimeWarning, match="without settling") as caught:
+      estimates = estimate()
+
+    call_line = estimate.__code__.co_firstlineno + 1
+    assert {(warning.filename, warning.lineno) for warning in caught} == {(__file__, call_line)}
+    assert -6.9e20 < estimates.theta[0] < -1e20
+
   @pytest.mark.parametrize(("correct", "expected"), [(1.0, math.inf), (0.0, -math.inf)], ids=["correct", "incorrect"])
   def test_a_constant_pattern_is_estimated_at_its_infinity(self, correct: float, expected: float) -> None:
     """Responses all correct get +inf and all incorrect -inf, with an infinite standard error and no evaluation.
