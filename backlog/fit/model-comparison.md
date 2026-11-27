@@ -40,7 +40,8 @@ complete data.
 ## Tests
 
 - **Published values:** the Rasch $G^2$ of Bock and Aitkin (1981, p. 455, Table 3), 21.80 for
-  LSAT-6 and 43.90 for LSAT-7 on 25 degrees of freedom, which mirt reproduces (Evidence); and
+  LSAT-6 and 43.90 for LSAT-7 on 25 degrees of freedom, against mirt's 21.80 and 43.89 (Evidence);
+  and
   Thissen's (1982, p. 178) $G^2 = 21.8$ for the 1PL and 21.2 for the 2PL on LSAT-6, a difference of
   0.6 on 4 degrees of freedom.
 - **Parity with mirt 1.48:** `anova()` on `LSAT7`, the values above.
@@ -56,15 +57,21 @@ complete data.
 2. **Which criteria.** mirt also reports a sample-size adjusted BIC and Hannan-Quinn's criterion
    (source `R/03-estimation.R:1053-1056`). Assumed: AIC and BIC only (YAGNI).
 3. **$G^2$ with missing responses.** The multinomial over response patterns is not defined when
-   responses are missing. Assumed: reported for complete data only.
+   responses are missing; mirt reports no $G^2$ then (source `R/03-estimation.R:1076-1077`).
+   Assumed: reported for complete data only.
+4. **The degrees of freedom of $G^2$.** Bock and Aitkin's (1981, p. 450) count depends on how many
+   patterns were observed (Definition), but their LSAT-6 value, where only 30 of the 32 patterns occur
+   (Thissen, 1982, p. 179, Table 1), is on 25 degrees of freedom (p. 455, Table 3), as are Thissen's
+   (1982, p. 178) and mirt's, which uses $2^M - 1 - k$ whatever the patterns observed (source
+   `R/03-estimation.R:538-539, 583`). Assumed: $2^M - 1 - k$, as the published values and mirt.
 
 ---
 
 **Module:** decided by the requirements card (planned)
 **Reference:** Akaike (1974); Schwarz (1978)
 **Last validated:** 2026-11-27, against Akaike (1974), Schwarz (1978), Vrieze (2012), Bock & Aitkin
-(1981), Thissen (1982) and Robitzsch (2022) on the paper shelf, and mirt 1.48 (reference manual and
-source).
+(1981), Thissen (1982), Orlando & Thissen (2000), Baker (1987) and Robitzsch (2022) on the paper
+shelf, and mirt 1.48 (reference manual and source).
 **Implementation guidance:** not yet written; it waits for the requirements card.
 
 ## Motivation
@@ -75,17 +82,20 @@ criteria rank any set of models, and differ in what they reward.
 
 ## Definition
 
-- **Likelihood ratio.** For nested models, twice the difference of their maximized log-likelihoods,
-  referred to a chi-square distribution with the difference in the number of parameters; Thissen
-  (1982, p. 178) compares the 1PL and 2PL on LSAT-6 this way.
+- **Likelihood ratio.** For nested models, $-2$ times the difference of their maximized
+  log-likelihoods, "distributed as $\chi^2$" with the difference in the number of parameters as its
+  degrees of freedom (Orlando & Thissen, 2000, p. 51). Thissen (1982, p. 178) compares the 1PL and 2PL
+  on LSAT-6 by the difference of their $G^2$ statistics, which equals it (the card's arithmetic).
 - **AIC** $= -2\log(\text{maximum likelihood}) + 2k$, for $k$ estimated parameters (Akaike, 1974,
   p. 719).
 - **BIC.** Schwarz (1978, p. 461) chooses "the model for which $\log M_j(X_1, \dots, X_n) - \frac12 k_j
-  \log n$ is largest"; multiplied by −2, it is $-2\log L + k\log n$ (the card's arithmetic), with $n$
-  the number of examinees.
-- **$G^2$ against the general multinomial** over the observed response patterns, on $s - 2n$
-  degrees of freedom for $s$ observed patterns and $n$ items in the 2PL (Bock & Aitkin, 1981, p. 450,
-  Equation 16).
+  \log n$ is largest", for $n$ independent observations from an exponential family (p. 462);
+  multiplied by −2, it is $-2\log L + k\log N$ (the card's arithmetic) for $N$ examinees, the sample
+  size Vrieze (2012, Page 10) uses.
+- **$G^2$ against the general multinomial** over the observed response patterns, for the 2PL with
+  $M$ items and $s$ observed patterns, on $s - 2M$ degrees of freedom when $2M < s < 2^M$ and
+  $s - 2M - 1$ when $s = 2^M$ (Bock & Aitkin, 1981, p. 450, Equation 16); Open Question 4 says which
+  count pyitemcal uses.
 
 ## Parameters
 
@@ -123,6 +133,15 @@ Not openly available; Baker (1987, pp. 131-132) describes the method.
 
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
 [Reference manual and source]. https://cran.r-project.org/package=mirt
+
+Kang, T., & Chen, T. T. (2007). *An investigation of the performance of the generalized S-X²
+item-fit index for polytomous IRT models* (ACT Research Report 2007-1). ACT. Open copy:
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR2007-1.pdf
+
+Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response
+theory models. *Applied Psychological Measurement, 24*(1), 50-64.
+https://doi.org/10.1177/01466216000241003. Not openly available; Kang and Chen (2007, pp. 4-5)
+describe the method.
 
 Robitzsch, A. (2022). Four-parameter guessing model and related item response models. *Mathematical
 and Computational Applications, 27*(6), 95. https://doi.org/10.3390/mca27060095. Open access.

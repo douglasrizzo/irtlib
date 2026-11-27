@@ -154,30 +154,33 @@ sampling for maximum likelihood, with a cost that grows linearly in the number o
 
 Orlando and Thissen's (2000) S-X² groups examinees by their number-correct score and computes the
 expected proportions from the model by a recursion over items (pp. 53-54); on data from the fitted
-model it rejected at .04 to .07, where Yen's (1981) $Q_1$, which groups by estimated ability,
-rejected at .95 to .96 on a 10-item test (Orlando & Thissen, 2000, p. 57, Table 1). The weighted and
-unweighted mean squares of Wright and Masters (1982, p. 99) apply to the Rasch family (p. 10). No
-source on the shelf gives the 0.7 to 1.3 bands often quoted for them, and "there is no clear basis"
-for a point-biserial cutoff (Wright & Stone, 1979, p. 26). S-X² is defined on complete data; with
-missing responses its unadapted form rejects far too often (Zhang & Wang, 2022, p. 714, Table 3).
+model it rejected at .04 to .07, where their $Q_1$-$X^2$, an index similar to Yen's (1981) $Q_1$
+that groups by estimated ability, rejected at .95 to .96 on a 10-item test and .06 to .15 on an
+80-item test (Orlando & Thissen, 2000, pp. 55, 57, Table 1). The weighted and unweighted mean squares
+of Wright and Masters (1982, p. 99) apply to the Rasch family (p. 10); no source on the shelf gives
+interpretation bands for them, such as 0.7 to 1.3, and "there is no clear basis" for a point-biserial
+cutoff (Wright & Stone, 1979, p. 26). S-X² "cannot handle incomplete data directly"; on 40-item tests
+with 10% or 20% of responses missing, the unadapted index rejected far too often (Zhang & Wang, 2022,
+pp. 705, 714, Table 3).
 
 ## Model comparison
 
 **Card:** [fit/model-comparison.md](../fit/model-comparison.md).
 
-Nested models are compared by twice the difference of their log-likelihoods (Thissen, 1982, p. 178),
-any models by AIC (Akaike, 1974, p. 719) or BIC (Schwarz, 1978, p. 461). BIC is consistent when the
+Nested models are compared by $-2$ times the difference of their log-likelihoods, "distributed as
+$\chi^2$" (Orlando & Thissen, 2000, p. 51), as Thissen (1982, p. 178) compares the 1PL and 2PL; any
+models by AIC (Akaike, 1974, p. 719) or BIC (Schwarz, 1978, p. 461). BIC is consistent when the
 true model is a candidate and AIC is efficient when none is (Vrieze, 2012, Pages 10-11); for the 4PL
-and related models, "AIC should be preferred over BIC" (Robitzsch, 2022, p. 11). mirt 1.48
-reproduces Bock and Aitkin's (1981, p. 455, Table 3) $G^2$ for the Rasch model on LSAT-6 and LSAT-7
-(the card's measurement).
+and related models, "AIC should be preferred over BIC" (Robitzsch, 2022, p. 11). For the Rasch
+model, mirt 1.48 gives $G^2$ of 21.80 on LSAT-6 and 43.89 on LSAT-7, against Bock and Aitkin's
+(1981, p. 455, Table 3) 21.80 and 43.90 (the card's measurement).
 
 ## Build order
 
 1. The derivatives, which the M-steps and the standard errors share.
 2. MML-EM for the 1PL and 2PL.
 3. Standard errors.
-4. Item fit by S-X², which ADR-0001 requires of every calibration.
+4. Item fit, which ADR-0001 requires, by S-X².
 5. Priors on item parameters and the 3PL, one M-step addition that the 2PL shares.
 6. Model comparison, from the log-likelihoods the methods above report.
 7. The 4PL, for banks that need an upper asymptote, with samples of several thousand.
@@ -272,6 +275,10 @@ https://files.eric.ed.gov/fulltext/EJ1110899.pdf
 Harwell, M. R., & Baker, F. B. (1991). The use of prior distributions in marginalized Bayesian item
 parameter estimation: A didactic. *Applied Psychological Measurement, 15*(4), 375-389.
 https://doi.org/10.1177/014662169101500409. Open copy: https://hdl.handle.net/11299/114468
+
+Kang, T., & Chen, T. T. (2007). *An investigation of the performance of the generalized S-X²
+item-fit index for polytomous IRT models* (ACT Research Report 2007-1). ACT. Open copy:
+https://www.act.org/content/dam/act/unsecured/documents/ACT_RR2007-1.pdf
 
 Kim, J.-S., & Bolt, D. M. (2007). Estimating item response theory models using Markov chain Monte
 Carlo methods. *Educational Measurement: Issues and Practice, 26*(4), 38-51.
