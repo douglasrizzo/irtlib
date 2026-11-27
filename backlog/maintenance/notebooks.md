@@ -17,7 +17,8 @@ calibrates a bank, reads the result and checks the fit is the fastest way in.
 
 ## Proposal
 
-- A first notebook: draw responses from a known bank (catsim's `ItemBank.generate`), calibrate it,
+- A first notebook: draw responses from a known bank (`irtlib.ItemBank.generate` and
+  `irtlib.drawing.draw_responses`), calibrate it,
   compare the estimates with the generating parameters, and simulate adaptive tests in catsim with
   the estimated bank.
 - Add catsim's notebook tooling: nbstripout and the nbmake pre-commit hook, the Ruff hooks over
