@@ -4,7 +4,7 @@ kind: decision
 status: blocked
 priority: 3
 effort: M
-blocked_by: [discovery/requirements]
+blocked_by: [estimation/mml-em]
 raised_by: [maintainer during setup]
 ---
 
@@ -24,7 +24,9 @@ validation and CSV format. pyitemcal imports exactly those names (ADR-0004).
 
 ## Proposal
 
-Decide once the requirements card has shaped pyitemcal's own kernel, weighing:
+Decide once the first method, MML-EM, has shaped pyitemcal's own kernel: the contract is set
+(ADR-0006), but the batched, masked functions the first weighing point compares exist only once a
+method uses them. Weigh:
 
 - what pyitemcal's batched, masked functions look like next to catsim's one-examinee ones, and
   whether catsim would use them;

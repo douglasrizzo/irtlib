@@ -1,10 +1,10 @@
 ---
 title: Differentiate the item response function with respect to the item parameters
 kind: technique
-status: blocked
+status: ready
 priority: 1
 effort: S
-blocked_by: [discovery/requirements]
+blocked_by: []
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -37,10 +37,11 @@ carry. pyitemcal adds these derivatives to the response functions it takes from 
 
 ## Proposal
 
-Functions that return, for every ability against every item, the four derivatives of the response
-probability below; the gradient of an item's log-likelihood from counts of correct responses at
-given abilities (the M-step's data); and the expected information matrix of an item's parameters.
-Their signatures and module follow the requirements card.
+Functions that return, for every ability against every item, the derivatives of the response
+probability with respect to the parameters the M-step estimates (ADR-0007): the intercept, the
+slope, and the logits of $c$ and $d$ (Definition); the gradient of an item's log-likelihood from
+counts of correct responses at given abilities (the M-step's data); and the expected information
+matrix of an item's parameters. They sit in the lowest layer of ADR-0006.
 
 ## Tests
 
@@ -52,7 +53,17 @@ Their signatures and module follow the requirements card.
   | $[1.5, 1, 0.2, 1]$ | 0 | 0.3459404190 | −0.1193171617 | −0.1789757425 | 0.8175744762 | 0.1824255238 |
   | $[0.8, −0.5, 0.25, 0.95]$ | 1.2 | 0.8070317884 | 0.1934061794 | −0.0910146727 | 0.2042403023 | 0.7957596977 |
 
-  The second row's $P$ is also the value in `catsim.irt.icc`'s own example.
+  The second row's $P$ is also the value in `catsim.irt.icc`'s own example. In the M-step's
+  parameters, with intercept $\zeta = -ab$, slope $\lambda = a$, $\gamma = \operatorname{logit} c$
+  and $\delta = \operatorname{logit} d$:
+
+  | Item $[a, b, c, d]$ | $\theta$ | $\partial P/\partial\zeta$ | $\partial P/\partial\lambda$ | $\partial P/\partial\gamma$ | $\partial P/\partial\delta$ |
+  |---|---|---|---|---|---|
+  | $[1.5, 1, 0.2, 1]$ | 0 | 0.1193171617 | 0 | 0.1308119162 | none: $d = 1$ is fixed |
+  | $[0.8, −0.5, 0.25, 0.95]$ | 1.2 | 0.1137683408 | 0.1365220090 | 0.0382950567 | 0.0377985856 |
+
+  Each agrees with a central difference of $P$ in that parameter to $10^{-19}$ at 30 digits, and
+  with the first table through the chain rule.
 - **Finite differences:** each derivative agrees with the central difference of `catsim.irt.icc`
   over a grid of abilities and items spanning the bank bounds, to the step's $O(h^2)$ error.
 - **Log-likelihood gradient:** the gradient from counts agrees with central differences of the
@@ -68,21 +79,20 @@ Their signatures and module follow the requirements card.
 1. **The parameterization inside the M-step.** The sources solve for the intercept and slope,
    $\zeta + \lambda\theta$ (Bock & Aitkin, 1981, p. 445, Equation 3; Baker, 1987, p. 114, Equation 5),
    and mirt estimates in that form (mirt 1.48 manual, p. 133). In it, the 2PL's second derivatives
-   contain no data (Baker, 1987, p. 116); in catsim's $a(\theta - b)$ they do (below). Solving in
-   $(\zeta, \lambda)$ and converting to $(a, b)$ gives simpler Newton steps and direct parity with
-   mirt's estimates; solving in $(a, b)$ avoids the conversion of standard errors. The card assumes
-   the requirements card chooses; both need the derivatives here.
+   contain no data (Baker, 1987, p. 116); in catsim's $a(\theta - b)$ they do (below).
+   **Decided** (ADR-0007): mirt's intercept, slope and logits of $c$ and $d$, converted to
+   $(a, b, c, d)$ at the end.
 2. **Observed or expected information in the M-step's Newton steps.** Bock and Aitkin (1981, p. 446)
    and Baker (1987, p. 116) use the expected information (Fisher scoring) where the second derivatives
-   contain data. Assumed: expected, unless the requirements card finds a reason otherwise.
+   contain data. **Decided** (ADR-0007): Fisher scoring, the expected information.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the derivatives layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Barton & Lord (1981); Baker (1987)
-**Last validated:** 2026-11-27, against Barton & Lord (1981), Baker (1987) and Bock & Aitkin (1981)
-on the paper shelf, and the mirt 1.48 reference manual.
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Last validated:** 2026-11-27, against Barton & Lord (1981), Baker (1987), Bock & Aitkin (1981) and
+Mislevy (1986) on the paper shelf, and the mirt 1.48 reference manual.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -118,6 +128,25 @@ $1/(e^{DL} + 2 + e^{-DL})$. This card departs from them in two ways:
 - Barton and Lord fix one upper asymptote $\delta$, the same for every item (p. 3), and give no
   derivative with respect to it. The derivative with respect to $d$ above is this card's, by differentiating
   their model equation (p. A1) with respect to $\delta$.
+
+**In the M-step's parameters** (ADR-0007), the intercept $\zeta$ and slope $\lambda$ give
+$F = 1/(1 + e^{-(\zeta + \lambda\theta)})$, so $a = \lambda$ and $b = -\zeta/\lambda$, and
+$c = 1/(1 + e^{-\gamma})$ and $d = 1/(1 + e^{-\delta})$. By the chain rule (the card's own algebra),
+
+$$
+\frac{\partial P}{\partial \zeta} = (d - c)\,F(1 - F), \qquad
+\frac{\partial P}{\partial \lambda} = (d - c)\,\theta\,F(1 - F),
+$$
+
+$$
+\frac{\partial P}{\partial \gamma} = c(1 - c)(1 - F), \qquad
+\frac{\partial P}{\partial \delta} = d(1 - d)\,F .
+$$
+
+With $d = 1$, where $1 - P = (1 - c)(1 - F)$, the gradient below gives
+$\partial\ell/\partial\gamma = c\sum_q [r_{iq} - N_q P_i(X_q)]/P_i(X_q)$, Mislevy's (1986, p. 184,
+Equation 22) equation for the logit of $c$. A parameter fixed for every item (ADR-0008), such as
+$d = 1$ in the 3PL, has no derivative taken.
 
 For an item answered by $N_q$ examinees at ability $X_q$, $r_{iq}$ of them correctly, the
 log-likelihood is
@@ -190,7 +219,10 @@ Not openly available; Baker (1987, pp. 131-132) describes the method.
 Chalmers, R. P. (2026). *mirt: Multidimensional item response theory* (R package version 1.48)
 [Reference manual]. https://cran.r-project.org/package=mirt
 
+Mislevy, R. J. (1986). Bayes modal estimation in item response models. *Psychometrika, 51*(2),
+177-195. https://doi.org/10.1007/BF02293979. Not openly available; Harwell and Baker (1991,
+pp. 377-387) describe the method.
+
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`), which sets the calibrator contract
-these functions serve and the parameterization of Open Question 1.
+Follows ADR-0006 (the layers) and ADR-0007 (the M-step's parameters and Fisher scoring).

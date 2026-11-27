@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 3
 effort: S
-blocked_by: [discovery/requirements, irt/icc-gradients]
+blocked_by: [irt/icc-gradients]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -67,17 +67,17 @@ studies.
    them instead. Assumed: the usual JML with the Rasch correction, for comparison with the
    literature; the variants as a later card if wanted (YAGNI).
 2. **Identification.** LOGIST fixes the mean and standard deviation of the abilities at 0 and 1, and
-   BICAL the mean difficulty at 0 (Baker, 1987, pp. 112, 115). Assumed: as LOGIST for the 2PL and as
-   BICAL for the Rasch model; the requirements card's question 5.
+   BICAL the mean difficulty at 0 (Baker, 1987, pp. 112, 115). **Decided** (ADR-0008): as LOGIST for
+   the 2PL and as BICAL for the Rasch model.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Wright & Douglas (1977); Haberman (2004)
 **Last validated:** 2026-11-27, against Wright & Douglas (1977), Haberman (2004), Andersen (1970),
 Baker (1987), Bock & Aitkin (1981), Mislevy & Stocking (1989) and Robitzsch (2021) on the paper
 shelf.
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -169,5 +169,6 @@ https://hdl.handle.net/11299/98553
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`). The item step shares the M-step's
-per-item solver (MML-EM card), with estimated abilities in place of quadrature nodes.
+Follows ADR-0006 to ADR-0008; items with no finite estimate are removed and reported (ADR-0008).
+The item step shares the M-step's per-item solver (MML-EM card), with estimated abilities in place
+of quadrature nodes.

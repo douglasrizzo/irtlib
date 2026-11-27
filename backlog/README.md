@@ -14,8 +14,8 @@ regenerated README with the card.
 
 The folders:
 
-- `discovery/`: the literature review, the requirements and the parity harness, which come before
-  any method;
+- `discovery/`: the literature review and the parity harness, which come before any method, and
+  open decisions;
 - `irt/`: item response functions and their derivatives;
 - `estimation/`: calibration methods;
 - `fit/`: item fit;
@@ -31,38 +31,36 @@ The folders:
 | `status` | `ready` (enough to start), `needs-research` (claims to verify, or a design to write, before work), `needs-decision` (the maintainer chooses first), `blocked` (by the cards in `blocked_by`, or by what the card says), `parked` (outside the scope an ADR sets; moving it into scope needs that ADR changed) |
 | `priority` | `1` blocks the first calibration method · `2` needed before a release · `3` useful, though nothing is blocked · `4` a later phase or a scope change |
 | `effort` | `XS`, `S`, `M`, `L`, `XL` |
-| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[discovery/requirements]` |
+| `blocked_by` | Paths of other cards, relative to this folder and without `.md`, such as `[estimation/mml-em]` |
 | `raised_by` | What surfaced the card: a review, a measurement or a PR, as short text without commas |
 
 Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-25 cards: 0 ready, 0 needs-research, 2 needs-decision, 19 blocked, 4 parked.
+24 cards: 3 ready, 0 needs-research, 1 needs-decision, 16 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
-| [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | 1 |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | 2 |
 
 ## Priority 1
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Build the parity harness that checks pyitemcal against mirt](discovery/mirt-parity-harness.md) | discovery | feature | blocked | M | [requirements](discovery/requirements.md) | ADR-0003 |
-| [Decide the calibrator contract and the shape of pyitemcal's API](discovery/requirements.md) | discovery | decision | needs-decision | L |  | setup of pyitemcal |
-| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
-| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | research pass |
-| [Differentiate the item response function with respect to the item parameters](irt/icc-gradients.md) | irt | technique | blocked | S | [requirements](discovery/requirements.md) | moved from catsim's backlog |
+| [Build the parity harness that checks pyitemcal against mirt](discovery/mirt-parity-harness.md) | discovery | feature | ready | M |  | ADR-0003 |
+| [Calibrate the 1PL and 2PL by marginal maximum likelihood with the EM algorithm](estimation/mml-em.md) | estimation | technique | blocked | M | [icc-gradients](irt/icc-gradients.md), [mirt-parity-harness](discovery/mirt-parity-harness.md) | moved from catsim's backlog |
+| [Compute the standard errors of item estimates from the observed information](estimation/standard-errors.md) | estimation | technique | blocked | M | [mml-em](estimation/mml-em.md) | research pass |
+| [Differentiate the item response function with respect to the item parameters](irt/icc-gradients.md) | irt | technique | ready | S |  | moved from catsim's backlog |
 
 ## Priority 2
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
-| [Evaluate item fit with S-X² and the mean-square statistics](fit/item-fit.md) | fit | technique | blocked | M | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
+| [Calibrate the 3PL by Bayes modal estimation with priors on the item parameters](estimation/mml-em-3pl.md) | estimation | technique | blocked | M | [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
+| [Evaluate item fit with S-X² and the mean-square statistics](fit/item-fit.md) | fit | technique | blocked | M | [mml-em](estimation/mml-em.md) | moved from catsim's backlog |
 | [Choose pyitemcal's license](maintenance/license.md) | maintenance | decision | needs-decision | XS |  | maintainer during setup |
 | [Depend on a released catsim, and follow its releases](maintenance/released-catsim.md) | maintenance | maintenance | blocked | S |  | ADR-0004 |
 
@@ -70,11 +68,11 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | blocked | M | [requirements](discovery/requirements.md) | maintainer during setup |
-| [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
-| [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md) | moved from catsim's backlog |
-| [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | blocked | S | [requirements](discovery/requirements.md), [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
-| [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | blocked | S | [requirements](discovery/requirements.md), [mml-em](estimation/mml-em.md) | research pass |
+| [Should the shared item response kernel move from catsim into pyitemcal?](discovery/invert-catsim-dependency.md) | discovery | decision | blocked | M | [mml-em](estimation/mml-em.md) | maintainer during setup |
+| [Calibrate the 4PL by Bayes modal estimation](estimation/mml-em-4pl.md) | estimation | technique | blocked | S | [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
+| [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
+| [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | blocked | S | [icc-gradients](irt/icc-gradients.md) | moved from catsim's backlog |
+| [Compare calibrated models by likelihood ratio, AIC and BIC](fit/model-comparison.md) | fit | technique | blocked | S | [mml-em](estimation/mml-em.md) | research pass |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [released-catsim](maintenance/released-catsim.md), [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of pyitemcal |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | blocked | M | [mml-em](estimation/mml-em.md) | setup of pyitemcal |
@@ -83,7 +81,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
-| [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | blocked | L | [requirements](discovery/requirements.md), [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
+| [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | blocked | L | [mml-em-3pl](estimation/mml-em-3pl.md) | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | blocked | S | [mml-em](estimation/mml-em.md) | Python-floor measurement of 2026-11-26 |
 | [Make pyitemcal citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of pyitemcal |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | blocked | XS | [icc-gradients](irt/icc-gradients.md) | setup of pyitemcal |
@@ -168,6 +166,6 @@ fetch.
 4. **mirt** is the reference implementation where it implements the method (ADR-0003). The card
    says where it agrees and where it departs, with the mirt version, and its tests name the parity
    cases the implementation adds. A card never says what mirt lacks.
-5. **Implementation guidance** follows the calibrator contract that the requirements card sets
-   (`discovery/requirements.md`), and uses catsim only through the names ADR-0004 lists.
+5. **Implementation guidance** follows the calibrator contract and settings of ADR-0006 to
+   ADR-0008, and uses catsim only through the names ADR-0004 lists.
 6. **Status.** The top of the card says when it was last validated and against which sources.

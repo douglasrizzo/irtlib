@@ -4,7 +4,7 @@ kind: technique
 status: blocked
 priority: 1
 effort: M
-blocked_by: [discovery/requirements, irt/icc-gradients]
+blocked_by: [irt/icc-gradients, discovery/mirt-parity-harness]
 raised_by: [moved from catsim's backlog]
 ---
 
@@ -56,8 +56,8 @@ solution. The 1PL and 2PL come first because their M-step is the simplest.
 
 MML-EM for the 2PL and for the 1PL with a common, estimated slope, from a response matrix with
 missing entries, on an equally spaced grid with a normal prior, with standard errors from
-[the standard-errors card](standard-errors.md). The open questions below are the choices the
-requirements card settles; the card assumes the recommendation of each until then.
+[the standard-errors card](standard-errors.md). The open questions below record the answers of
+ADR-0006 to ADR-0008, accepted 2026-11-27, where they give one.
 
 ## Tests
 
@@ -93,14 +93,15 @@ requirements card settles; the card assumes the recommendation of each until the
      conventionally standardized CML estimates".
    - The common slope converged in about a fifth of the EM cycles in the measurement, and acceleration
      helps less when the variance is estimated (Beisemann, Wartlick & Doebler, 2020, p. 232).
-   - Assumed: the common slope, with the fixed-slope model expressed as a fixed parameter
-     (requirements question 8).
+   - **Decided** (ADR-0008): the common slope; mirt's `"1PL"` is the fixed-slope model, slopes fixed
+     at 1 for every item.
 2. **The grid.**
    - Gauss-Hermite and equally spaced points both appear in Bock and Aitkin (1981, pp. 445, 449);
      Thissen (1982, p. 179) finds 11 points on $[-5, 5]$ adequate for the 1PL; Woodruff and Hanson
      (1996, p. 21) give about 20 as the minimum for the 2PL and 3PL; mirt uses 61 on $[-6, 6]$.
-   - Assumed: mirt's grid, 61 equally spaced nodes on $[-6, 6]$ (`QuadratureGrid.uniform(61)`), with
-     `normal_log_prior()` giving the nodes their normal masses, so parity needs no setting.
+   - **Decided** (ADR-0007): mirt's grid, 61 equally spaced nodes on $[-6, 6]$
+     (`QuadratureGrid.uniform(61)`), with `normal_log_prior()` giving the nodes their normal masses,
+     so parity needs no setting.
 3. **The stopping rule.**
    - Bock and Aitkin (1981, p. 447) stop when the estimates are "stable to the required number of
      places"; mirt stops when every parameter changes by less than `TOL` = 1e-4.
@@ -109,7 +110,9 @@ requirements card settles; the card assumes the recommendation of each until the
      that rate is close to 1, as the measurement shows.
    - Options: a parameter-change rule with a tighter tolerance; a log-likelihood-change rule; or a
      rule on the gradient of the marginal log-likelihood, which is zero at the maximum.
-   - Not assumed: the requirements card decides, with measurements.
+   - **Decided** (ADR-0007): mirt's rule with a default tolerance of `1e-6`, measured to cut the
+     error about a hundredfold for 1.6 to 3 times the cycles, and mirt's 500 cycles; a fit that runs
+     out of cycles is returned flagged as not converged, with a warning (ADR-0006).
 4. **Acceleration.**
    - Ramsay (1975) writes a fixed-point iteration $X = G(X)$ as $X = \theta X + (1 - \theta)G(X)$,
      where $0 < \theta < 1$ damps oscillation and $\theta < 0$ accelerates slow convergence (p. 340,
@@ -135,31 +138,36 @@ requirements card settles; the card assumes the recommendation of each until the
      and mirt's bounded variant cut the cycles by 1.7 to 2.7 times without changing the estimates.
    - SQUAREM is fully documented (Du & Varadhan, 2020, pp. 3-4). Beisemann et al. (2020, p. 232) find
      acceleration pays most for long tests and when the variance is fixed.
-   - Assumed: no acceleration in the first version, measured before adding any (YAGNI). The fixed
-     point does not depend on it, so parity holds either way.
+   - **Decided** (ADR-0007): no acceleration in the first version, measured again with the 3PL and
+     4PL. The fixed point does not depend on it, so parity holds either way. If it is added, the
+     measurement below favours mirt's bounded variant over Ramsay's unbounded rule.
 5. **The M-step solver and parameterization.** Newton or Fisher scoring per item in the
    intercept-slope form (Baker, 1987, p. 114, Equation 8), or a general optimizer (mirt uses BFGS
-   without bounds: manual p. 126; source `R/utils.R:1848`, `R/06-LoadPars.R:364-365`). See the ICC-gradients card's first open question.
+   without bounds: manual p. 126; source `R/utils.R:1848`, `R/06-LoadPars.R:364-365`).
+   **Decided** (ADR-0007): Fisher scoring per item with step halving, in mirt's intercept, slope and
+   logits of $c$ and $d$, converted to $(a, b, c, d)$ at the end.
 6. **Starting values.** Bock and Aitkin (1981, p. 458) name the inverse normal of the item's
    proportion correct as a suitable starting intercept, which mirt uses (Behavior and Comparison); Thissen (1982, p. 178) started at $b = 0$,
-   $a = 1$. Assumed: mirt's, for comparable iteration counts.
+   $a = 1$. **Decided** (ADR-0007): mirt's formula on the answered responses only, which converged
+   in 38 cycles against mirt's 50 with 10% of responses missing; a caller may pass starting items.
 7. **Items no estimate exists for.** An item answered correctly by everyone or by no one has no
    finite estimate, and MML does not prevent diverging slopes (Baker, 1987, p. 133, quoting
    Swaminathan & Gifford). mirt's manual advises removing items with a mean above .95, or using
    priors (p. 132). Options: an error, a warning with the item flagged, or priors (the 3PL card).
+   **Decided** (ADR-0008): an error listing the items, unless priors are given.
 8. **The latent distribution.** Bock and Aitkin (1981, p. 449, Equation 15) estimate it as a
    histogram on the grid; mirt offers it as `dentype = "empiricalhist"` (manual p. 126). Assumed:
    out of the first version; a card of its own if wanted.
 
 ---
 
-**Module:** decided by the requirements card (planned)
+**Module:** the estimation layer of ADR-0006, named by the PR that implements it (planned)
 **Reference:** Bock & Aitkin (1981); Thissen (1982)
 **Last validated:** 2026-11-27, against Bock & Aitkin (1981), Baker (1987), Thissen (1982),
 Dempster, Laird & Rubin (1977), Ramsay (1975), Beisemann, Wartlick & Doebler (2020), Du & Varadhan
 (2020), Woodruff & Hanson (1996) and Engelen (1987) on the paper shelf, and mirt 1.48 (reference
 manual and source).
-**Implementation guidance:** not yet written; it waits for the requirements card.
+**Implementation guidance:** not yet written; written against ADR-0006 to ADR-0008 when implemented.
 
 ## Motivation
 
@@ -294,7 +302,8 @@ mirt 1.48 implements the method in `mirt(data, 1, itemtype = "2PL")` with `metho
   equal.
 
 Where pyitemcal's defaults differ, each difference gets a setting that reproduces mirt for the parity
-tests (ADR-0003); which differences there are is the requirements card's to decide.
+tests (ADR-0003). ADR-0007 lists them: the default tolerance, the starting values over answered
+responses, and the solver.
 
 **Measured: acceleration** (2026-11-27). A scratch NumPy 2PL following this card, with an exact
 M-step (Fisher scoring to $10^{-12}$), ran Ramsay's rule as published and as mirt applies it (the
@@ -366,5 +375,5 @@ https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf
 
 ## Implementation Guidance
 
-Waits for the requirements card (`discovery/requirements.md`), which settles the open questions above
-against the calibrator contract.
+Follows ADR-0006 (the calibrator, the responses and the result), ADR-0007 (the numerical settings)
+and ADR-0008 (the 1PL's scale, fixed parameters and items with no finite estimate).

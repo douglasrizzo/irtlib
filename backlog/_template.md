@@ -59,7 +59,7 @@ form, a published value or a brute-force reference, never from the code under te
 **Module:** `pyitemcal.<module>.<Name>` (planned)
 **Reference:** Author (Year)
 **Last validated:** YYYY-MM-DD, against \<the sources on the shelf and the mirt version checked>.
-**Implementation guidance:** written against the calibrator contract of the requirements card on YYYY-MM-DD.
+**Implementation guidance:** written against ADR-0006 to ADR-0008 on YYYY-MM-DD.
 
 ## Motivation
 
