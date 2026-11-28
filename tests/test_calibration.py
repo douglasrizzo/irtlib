@@ -48,7 +48,7 @@ def _calibration(
   return Calibration(
     estimates=np.tile([1.0, 0.0, 0.0, 1.0], (2, 1)),
     items=None,
-    standard_errors=None,
+    covariances=None,
     log_likelihood=-1.0,
     likelihood=likelihood,  # ty: ignore[invalid-argument-type]
     n_parameters=1,

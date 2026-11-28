@@ -36,7 +36,7 @@ def _calibration(log_likelihood: float, n_parameters: int, n_items: int = 2) -> 
   return Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
-    standard_errors=None,
+    covariances=None,
     log_likelihood=log_likelihood,
     likelihood=Likelihood.MARGINAL,
     n_parameters=n_parameters,
