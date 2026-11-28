@@ -138,7 +138,7 @@ def test_log_likelihoods_are_those_after_each_cycle(
 
   calibration = calibrate(8)
   expected = [marginal_log_likelihood(matrix, calibrate(cycles).estimates) for cycles in range(1, 9)]
-  np.testing.assert_allclose(calibration.log_likelihoods, expected, rtol=1e-15)
+  np.testing.assert_allclose(calibration.log_likelihoods, expected, rtol=1e-13)
   assert calibration.log_likelihoods[-1] == calibration.log_likelihood
 
 

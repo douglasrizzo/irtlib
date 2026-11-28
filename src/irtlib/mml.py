@@ -26,7 +26,7 @@ from ._responses import _N_COLUMNS
 from .bank import IrtModel, ItemBank
 from .calibration import Calibration, ConvergenceWarning, Likelihood, _valid_items, default_grid, validate_responses
 from .irt import log_likelihood
-from .quadrature import QuadratureGrid, _log_masses, normal_log_prior, posterior
+from .quadrature import QuadratureGrid, _log_masses, _posterior_and_log_sums, normal_log_prior
 from .typing import FloatArray, IntArray
 
 # mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept
@@ -428,14 +428,19 @@ def _proportion_correct(matrix: FloatArray) -> FloatArray:
 
 def _expected_counts(matrix: FloatArray, values: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
   """Return the E-step's expected numbers of correct responses and of responses, shape (nodes, items)."""
-  return _counts(matrix, log_likelihood(grid.nodes, matrix, _to_items(values)), grid)
+  return _e_step(matrix, values, grid)[0]
 
 
-def _counts(matrix: FloatArray, log_likelihoods: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
-  """Return the expected counts of the E-step from each examinee's log-likelihood at the grid's nodes."""
+def _e_step(
+  matrix: FloatArray, values: FloatArray, grid: QuadratureGrid
+) -> tuple[tuple[FloatArray, FloatArray], float]:
+  """Return the E-step's expected counts at ``values``, and the marginal log-likelihood there, from one posterior."""
+  log_masses = _log_masses(grid, _ABILITY_PRIOR)
+  posteriors, log_sums = _posterior_and_log_sums(log_likelihood(grid.nodes, matrix, _to_items(values)), log_masses)
   answered = ~numpy.isnan(matrix)
-  posteriors = posterior(log_likelihoods, grid, _ABILITY_PRIOR)
-  return posteriors.T @ numpy.where(answered, matrix, 0.0), posteriors.T @ answered.astype(float)
+  counts = posteriors.T @ numpy.where(answered, matrix, 0.0), posteriors.T @ answered.astype(float)
+  # each examinee's log-sum normalizes its posterior; the masses' own log-sum normalizes the prior
+  return counts, float(numpy.sum(log_sums)) - matrix.shape[0] * float(logsumexp(log_masses))
 
 
 @dataclass(slots=True)
@@ -470,15 +475,14 @@ class _Cycles:
     free = self.index >= 0
     self.change = float(numpy.max(numpy.abs(new_values[free] - values[free])))
     # the E-step at the new parameters, which the next cycle starts from, gives the marginal log-likelihood after this
-    # one, so recording it costs no evaluation of the likelihood
+    # one from the sums that normalize its posterior, so recording it costs no further pass over the examinees
     new_counts, marginal = self.expect(new_values)
     self.log_likelihoods.append(marginal)
     return new_values, new_counts
 
   def expect(self, values: FloatArray) -> tuple[tuple[FloatArray, FloatArray], float]:
     """Return the E-step's counts at ``values`` and the marginal log-likelihood there."""
-    log_likelihoods = log_likelihood(self.grid.nodes, self.matrix, _to_items(values))
-    return _counts(self.matrix, log_likelihoods, self.grid), _marginal(log_likelihoods, self.grid)
+    return _e_step(self.matrix, values, self.grid)
 
   def log_posterior(self, values: FloatArray, marginal: float) -> float:
     """Return the log-posterior at ``values``, the marginal log-likelihood there plus the log-prior."""

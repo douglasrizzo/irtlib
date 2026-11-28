@@ -320,8 +320,15 @@ def _log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
 
 def _normalized(log_masses: FloatArray) -> FloatArray:
   """Return the exponential of log-masses normalized along the last axis, each row shifted by its maximum first."""
-  masses = numpy.exp(log_masses - log_masses.max(axis=-1, keepdims=True))
-  return masses / masses.sum(axis=-1, keepdims=True)
+  return _normalized_and_log_sums(log_masses)[0]
+
+
+def _normalized_and_log_sums(log_masses: FloatArray) -> tuple[FloatArray, FloatArray]:
+  """Return :py:func:`_normalized`'s masses, and the log of each row's sum of the masses before it normalizes them."""
+  peak = log_masses.max(axis=-1, keepdims=True)
+  masses = numpy.exp(log_masses - peak)
+  sums = masses.sum(axis=-1, keepdims=True)
+  return masses / sums, (peak + numpy.log(sums))[..., 0]
 
 
 def prior_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
@@ -394,6 +401,11 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
 
 def _posterior(log_likelihood: FloatArray, log_masses: FloatArray) -> FloatArray:
   """Return each examinee's posterior from its log-likelihood at the nodes and the nodes' checked log-masses."""
+  return _posterior_and_log_sums(log_likelihood, log_masses)[0]
+
+
+def _posterior_and_log_sums(log_likelihood: FloatArray, log_masses: FloatArray) -> tuple[FloatArray, FloatArray]:
+  """Return each examinee's posterior, and the log of the sum over the nodes of its likelihood times the masses."""
   log_likelihood = numpy.asarray(log_likelihood, dtype=float)
   n_nodes = log_masses.size
   if log_likelihood.ndim != _POSTERIOR_NDIM or log_likelihood.shape[1] != n_nodes:
@@ -415,7 +427,7 @@ def _posterior(log_likelihood: FloatArray, log_masses: FloatArray) -> FloatArray
     if massless.any():
       msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
       raise ValueError(msg)
-  return _normalized(log_joint)
+  return _normalized_and_log_sums(log_joint)
 
 
 def posterior_mean(post: FloatArray, nodes: FloatArray) -> FloatArray:
