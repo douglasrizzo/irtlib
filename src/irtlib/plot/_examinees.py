@@ -94,8 +94,7 @@ def ability_histogram(
 ) -> Axes:
   r"""Plot how many examinees have each ability, as a histogram.
 
-  The bins are NumPy's ``"auto"`` bins of the abilities. On axes stacked over a plot of the test, sharing the ability
-  axis, it shows whether the test measures where the examinees are.
+  The bins are NumPy's ``"auto"`` bins of the abilities.
 
   .. plot::
       :filename-prefix: ability_histogram
@@ -152,10 +151,10 @@ def likelihood(  # noqa: PLR0913 - the responses and items, the two abilities ma
   r"""Plot the likelihood of one examinee's responses across abilities, relative to its maximum, with an estimate.
 
   The curve is the likelihood of the responses to the items answered, divided by its maximum, from -6 to 6. A dashed
-  line in the curve's colour marks the estimate: the maximum likelihood estimate within -6 and 6, or the ``estimate``
-  given. A dotted line marks the true ability, when it is given. Responses all correct, or all incorrect, have no
-  maximum inside the range, so their curve rises to its edge, where the maximum likelihood estimate sits. The
-  :doc:`/methods/ability/ml` page gives the estimate.
+  line in the curve's colour marks the estimate, and a dotted line the true ability. Responses whose likelihood is
+  highest at an infinity, such as all correct or all incorrect, rise to an edge of the range, where the maximum
+  likelihood estimate sits; the :doc:`/methods/ability/ml` page gives the estimate. A mark outside -6 to 6 widens the
+  axis past the curve.
 
   .. plot::
       :filename-prefix: likelihood
@@ -237,10 +236,9 @@ def prior_posterior(
 ) -> Axes:
   r"""Plot the prior, the likelihood and the posterior of one examinee's responses, each as a density over a grid.
 
-  Each curve is scaled to integrate to 1 over the grid's nodes, with their weights, so the three share one y scale:
-  the prior dotted, the likelihood dashed and the posterior solid, each labelled for a legend. An examinee who answered
-  no item has a flat likelihood and the prior as posterior. The posterior is the one whose mean and standard
-  deviation the :doc:`/methods/ability/eap` page defines.
+  Each curve integrates to 1 over the grid's nodes, with their weights: the prior dotted, the likelihood dashed and
+  the posterior solid, each labelled. With no item answered, the likelihood is flat and the posterior is the prior.
+  The posterior is the one the :doc:`/methods/ability/eap` estimate is the mean of.
 
   .. plot::
       :filename-prefix: prior_posterior
@@ -257,6 +255,7 @@ def prior_posterior(
       fig, (top, bottom) = plt.subplots(2, 1, sharex=True, layout="constrained")
       prior_posterior(responses[:2], items.items[:2], ax=top, title="2 items")
       prior_posterior(responses, items, ax=bottom, title="20 items")
+      top.label_outer()
       bottom.set_xlim(-4, 4)
       plt.show()
 
@@ -400,10 +399,9 @@ def precision(
   r"""Plot each examinee's standard error against their estimate, with the standard error of the test.
 
   Each examinee with a finite estimate and a finite standard error is an open circle; the others are left out. The
-  line, in the circles' colour, is the standard error at each ability of an examinee who answered every item: the
-  :doc:`/methods/ability/ml` standard error or, with ``prior_sd``, the :doc:`/methods/ability/map` standard error
-  under a normal prior of that standard deviation. It spans the estimates and half a unit of ability past them on each
-  side.
+  line is the standard error at each ability of an examinee who answered every item: the :doc:`/methods/ability/ml`
+  standard error or, with ``prior_sd``, the :doc:`/methods/ability/map` standard error under a normal prior of that
+  standard deviation. It spans the estimates and half a unit of ability past them on each side.
 
   .. plot::
       :filename-prefix: precision
@@ -427,11 +425,11 @@ def precision(
   estimates : irtlib.ability.AbilityEstimates
       The examinees' estimates and their standard errors, from any of :py:mod:`irtlib.ability`'s estimators.
   items : irtlib.ItemBank or numpy.ndarray
-      The items of the test, as a bank or as an item matrix.
+      The items the estimates were computed from, as a bank or as an item matrix.
   prior_sd : float or None, optional
-      The standard deviation of the normal prior the estimates were made with, such as an EAP or MAP estimate's,
-      whose precision the line adds to the test's information. Default is None, the line of maximum likelihood
-      estimates.
+      The standard deviation of the normal prior the estimates were computed with, for MAP and EAP estimates only;
+      the line adds its precision to the test's information. Default is None, the line of maximum likelihood and
+      weighted likelihood estimates.
   ax : matplotlib.axes.Axes or None, optional
       The axes to draw on. Default is None, which draws on the axes of a new figure.
   title : str or None, optional

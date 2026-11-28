@@ -8,6 +8,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+import pytest
+
 import irtlib
 import irtlib.plot
 
@@ -67,15 +69,46 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
   )
 
 
-def test_every_docstring_figure_is_saved_under_its_functions_name() -> None:
-  """Each ``.. plot::`` figure in an irtlib.plot docstring sets ``:filename-prefix:`` to its function's name.
+def _figure_prefixes(docstring: str) -> list[str | None]:
+  """Return the ``:filename-prefix:`` of each ``.. plot::`` directive in a docstring, None for one that sets none."""
+  options = re.findall(r"^\.\. plot::\n((?:[ ]+:.*\n)*)", docstring, flags=re.MULTILINE)
+  return [match.group(1) if (match := re.search(r":filename-prefix: (\S+)", block)) else None for block in options]
 
-  The plot directive numbers the figures of each reST block from 1, and the API page renders each section's docstrings
-  in a block of its own, so two figures without a prefix in two sections share one file name. Fails if a figure has no
-  prefix, which shows one plot's figure under another's on the page without a warning, or a prefix not its own.
+
+@pytest.mark.parametrize("name", irtlib.plot.__all__)
+def test_every_plot_figure_is_saved_under_its_functions_name(name: str) -> None:
+  """Each plot function's docstring draws a figure, saved under the function's name.
+
+  The rule: a docstring with one ``.. plot::`` figure sets ``:filename-prefix:`` to the function's name; one with
+  several sets each to the name, a hyphen and a suffix, all different. The plot directive numbers the figures of each
+  reST block from 1, and the API page renders each section in a block of its own, so figures without a prefix in two
+  sections share one file, and the page shows one plot's figure under another's without a warning. Fails if a plot
+  function has no figure, or a figure has no prefix, another function's, or one its docstring repeats.
   """
-  for name in irtlib.plot.__all__:
-    docstring = inspect.getdoc(getattr(irtlib.plot, name)) or ""
-    directives = re.findall(r"^\.\. plot::\n((?:[ ]+:.*\n)*)", docstring, flags=re.MULTILINE)
+  plot = getattr(irtlib.plot, name)
+  prefixes = _figure_prefixes(inspect.getdoc(plot) or "")
 
-    assert all(f":filename-prefix: {name}\n" in options for options in directives), name
+  if inspect.isfunction(plot):
+    assert prefixes, f"{name} draws no figure in its docstring"
+  if len(prefixes) == 1:
+    assert prefixes == [name]
+  else:
+    assert all(prefix is not None and prefix.startswith(f"{name}-") for prefix in prefixes), prefixes
+    assert len(set(prefixes)) == len(prefixes), prefixes
+
+
+@pytest.mark.parametrize(
+  ("docstring", "prefixes"),
+  [
+    ("Draw.\n\n.. plot::\n    :caption: A figure.\n\n    plot()\n", [None]),
+    ("Draw.\n\n.. plot::\n    :filename-prefix: a\n    :caption: A.\n\n.. plot::\n    :caption: B.\n", ["a", None]),
+    ("Draw.\n", []),
+  ],
+  ids=["no-prefix", "two-figures", "no-figure"],
+)
+def test_figure_prefixes_reads_each_directives_prefix(docstring: str, prefixes: list[str | None]) -> None:
+  """The prefix reader finds every ``.. plot::`` directive and its prefix, or None where it has none.
+
+  Fails if a directive without a prefix is skipped, which would let the rule above pass a figure that has none.
+  """
+  assert _figure_prefixes(docstring) == prefixes

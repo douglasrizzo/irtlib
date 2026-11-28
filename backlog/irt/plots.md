@@ -22,8 +22,8 @@ curves. The plots below remain; catsim deletes its copy of a plot once irtlib ha
 - `irtlib.plot.item_curve`, with the calling conventions of ADR-0011.
 - `irtlib.plot.item_person_map`, `likelihood` (of one examinee's responses), `ability_histogram`,
   `prior_posterior`, `population_posterior` and `precision`: the examinees on the scale.
-- catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error)
-  and `expected_score`, which move here.
+- catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
+  `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
 
 ## Proposal
@@ -56,7 +56,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Targeting (`targeting`) | The examinees' abilities above, the test information below with a tick at each item's location: `ability_histogram` stacked over `test_information`, as a figure in `ability_histogram`'s docstring. |  | `test_information` with the items' locations marked | Wright & Stone 1979, p. 138, Fig. 6.7.1; PP 1.0.0, pp-plots 'precision' |
+| Targeting (a figure in `ability_histogram`) | The examinees' abilities above, the test information below with a tick at each item's location: `ability_histogram` stacked over `bank_information` with its `locations=`, drawn in `ability_histogram`'s docstring once `bank_information` is on `dev`. |  |  | Wright & Stone 1979, p. 138, Fig. 6.7.1; PP 1.0.0, pp-plots 'precision' |
 | Sum score to θ (`sum_score_conversion`) | The EAP estimate of each sum score, with a band of one posterior standard deviation. |  | EAP estimates for sum scores | mirt 1.48 manual, p. 74, fscores method 'EAPsum' |
 
 ### Fit

@@ -227,6 +227,27 @@ class TestPriorPosterior:
       assert line.get_linestyle() == linestyle
     assert ax.get_legend() is not None
 
+  @pytest.mark.parametrize("plot", [prior_posterior, population_posterior], ids=["one", "population"])
+  def test_density_divides_each_nodes_mass_by_its_own_weight(self, plot: Callable[..., Axes]) -> None:
+    """On unevenly spaced nodes, each curve is f(x_k) / sum_j w_j f(x_j), with f = phi, P or phi P, and integrates to 1.
+
+    One correct response to a Rasch item at 0, on nodes -3, -1, -0.2, 0, 0.3, 1.5 and 3 weighing their numpy.gradient.
+    Fails if the masses are divided by one weight for every node or by the mean spacing, which on a uniform grid give
+    the same curves, or if a curve is left as masses.
+    """
+    nodes = np.array([-3.0, -1.0, -0.2, 0.0, 0.3, 1.5, 3.0])
+    weights = np.gradient(nodes)
+    responses = [1] if plot is prior_posterior else [[1]]
+    ax = plot(responses, RASCH_ITEM, grid=QuadratureGrid(nodes, weights), log_prior=normal_log_prior())
+    phi, p = np.exp(-(nodes**2) / 2), _logistic(nodes)
+    expected = {"Prior": phi, "Likelihood": p, "Posterior": phi * p, "Mean posterior": phi * p}
+
+    for line in ax.get_lines():
+      values = expected[str(line.get_label())]
+      y = np.asarray(line.get_ydata(), dtype=float)
+      np.testing.assert_allclose(y, values / (weights * values).sum())
+      assert (y * weights).sum() == pytest.approx(1.0)
+
   def test_prior_posterior_of_no_answer_has_a_flat_likelihood_and_the_prior_as_posterior(self) -> None:
     """An examinee who answered no item has a likelihood of 1 / 2, flat over a grid 2 wide, and the prior as posterior.
 
