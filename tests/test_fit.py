@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
+from irtlib.cml import CMLCalibrator
 from irtlib.drawing import draw_responses
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
@@ -97,6 +98,12 @@ def test_incomplete_or_mismatched_responses_are_refused() -> None:
     s_x2(calibration, _LSAT7, min_expected=-1.0)
 
 
+def test_a_conditional_calibration_is_refused() -> None:
+  """S-X² refuses a calibration by conditional maximum likelihood, which integrated over no grid of abilities."""
+  with pytest.raises(ValueError, match=r"S-X² needs a calibration of the marginal likelihood.*conditional"):
+    s_x2(CMLCalibrator().calibrate(_LSAT7), _LSAT7)
+
+
 def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
   """S-X² evaluates every item at its estimates, the miskeyed one the calibration's bank leaves out included.
 
@@ -119,8 +126,10 @@ def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) ->
   Equations 12 and 13 of Orlando and Thissen (2000), with the 4PL written out and the grid's normal masses.
   """
   a, b, c, d = calibration.estimates.T
-  nodes = calibration.grid.nodes
-  masses = calibration.grid.weights * np.exp(-(nodes**2) / 2)
+  grid = calibration.grid
+  assert grid is not None
+  nodes = grid.nodes
+  masses = grid.weights * np.exp(-(nodes**2) / 2)
   probability = c + (d - c) / (1 + np.exp(-a * (nodes[:, np.newaxis] - b)))  # nodes x items
   joint = np.zeros((5, 2))  # score 0 to 4, the item incorrect or correct
   for pattern in itertools.product((0, 1), repeat=4):

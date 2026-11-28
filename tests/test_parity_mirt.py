@@ -36,7 +36,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.calibration import Calibration, default_grid
+from irtlib.calibration import Calibration, Likelihood, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
@@ -187,6 +187,7 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
     items=ItemBank(estimates),
     standard_errors=None,
     log_likelihood=0.0,
+    likelihood=Likelihood.MARGINAL,
     n_parameters=0,
     item_parameters=np.full(slope.size, _ITEM_PARAMETERS[case["model"]]),
     cycles=0,

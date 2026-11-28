@@ -226,7 +226,7 @@ containers = ["irtlib"]
 exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
   "comparison",
-  "ability | fit | mml",  # "|": siblings that never import each other
+  "ability | cml | fit | mml",  # "|": siblings that never import each other
   "calibration",
   "quadrature | bank | drawing",
   "irt",

@@ -39,7 +39,7 @@ from dataclasses import dataclass
 import numpy
 from scipy.stats import chi2
 
-from .calibration import Calibration, validate_responses
+from .calibration import Calibration, _check_marginal, validate_responses
 from .irt import icc
 from .quadrature import normal_log_prior, prior_masses
 from .typing import FloatArray, IntArray
@@ -72,7 +72,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Parameters
   ----------
   calibration : Calibration
-      The calibration whose items are evaluated.
+      The calibration whose items are evaluated, of the marginal likelihood, whose grid the expected counts are
+      integrated over.
   responses : numpy.ndarray
       The complete response matrix the calibration estimated its items from: one row per examinee, one column per
       item, 1 or 0.
@@ -91,7 +92,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
       If the responses are neither Booleans, integers nor floats.
   ValueError
       If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do
-      not have one column per item of the calibration, or ``min_expected`` is negative.
+      not have one column per item of the calibration; ``min_expected`` is negative; or the calibration's
+      likelihood is not marginal, so that it has no grid.
   """
   if not min_expected >= 0:
     msg = f"min_expected must be at least 0, got {min_expected}"
@@ -104,7 +106,7 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   if matrix.shape[1] != items.shape[0]:
     msg = f"the responses have {matrix.shape[1]} items, the calibration {items.shape[0]}"
     raise ValueError(msg)
-  grid = calibration.grid
+  grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
   probability = icc(grid.nodes, items).T  # items x nodes
   expected = _expected_proportions(probability, masses)

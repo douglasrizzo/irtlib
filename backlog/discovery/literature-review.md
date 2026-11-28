@@ -120,7 +120,7 @@ Carlo on the normal-ogive model about 2,500 for educational items (Culpepper, 20
 
 ## Conditional maximum likelihood
 
-**Card:** [estimation/cml-rasch.md](../estimation/cml-rasch.md).
+**Implemented:** `irtlib.cml`, whose module docstring holds the design and its sources.
 
 For the Rasch model, conditioning on each examinee's number correct, a sufficient statistic, removes
 the abilities from the likelihood (Bock & Aitkin, 1981, p. 443). The conditional estimates are
@@ -128,8 +128,17 @@ consistent (Andersen, 1970, p. 286, Theorem 1), though "not in general ... effic
 elementary symmetric functions they need are computed by the summation algorithm, since the faster
 difference algorithm "breaks down when there are more than 20-50 items" (Gustafsson, 1980,
 pp. 381-382). With data missing at random, ordinary CML "will likely fail" and MML or JML is
-preferred (Robitzsch, 2021, p. 827), and irtlib's response matrices may have missing entries
-(ADR-0001).
+preferred (Robitzsch, 2021, p. 827), so irtlib's CML takes complete responses only (ADR-0006).
+
+**Published values.** Bock and Aitkin (1981, p. 455, Table 3) give CML difficulties for LSAT-6 and
+LSAT-7, and Baker and Harwell (1996, p. 171) the LSAT-6 easiness values, with the symmetric functions
+and their first derivatives at them (p. 173, Table 3). `irtlib.cml` reproduces the LSAT-6 values to
+the digits printed (`tests/test_cml.py`). Bock and Aitkin's LSAT-7 column is not the conditional
+maximum of mirt's `LSAT7`, Bock and Lieberman's data, whose MML column mirt reproduces: the
+conditional log-likelihood there is 1.62 below the maximum. Their CML $G^2$ on 12 degrees of freedom
+matches, on LSAT-6, twice the gain in conditional log-likelihood from estimating the difficulties
+within each number-correct group, 3.14 against their 3.1, but not on LSAT-7, 31.3 against their 35.9
+(2026-11-27's measurement).
 
 ## Joint maximum likelihood
 

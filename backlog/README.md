@@ -38,13 +38,14 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-21 cards: 12 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+21 cards: 11 ready, 1 needs-research, 3 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
+| [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
 
 ## Priority 2
@@ -59,10 +60,10 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
-| [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
+| [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Make the log-likelihood and the posterior of one examinee as fast as catsim's](irt/one-examinee-speed.md) | irt | fix | ready | S |  | benchmarks against catsim on 2026-11-27 |
 | [Reject the out-of-range inputs that the code moved from catsim accepts](irt/inherited-input-checks.md) | irt | fix | ready | XS |  | reviews of the moves on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |

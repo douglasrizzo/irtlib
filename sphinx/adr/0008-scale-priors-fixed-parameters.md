@@ -38,9 +38,9 @@ priors (p. 132).
   the normal ability distribution give mirt's `"1PL"` (manual pp. 123, 133); $d$ fixed at 1 gives the
   3PL as a special case of the 4PL.
 - **Items with no finite estimate.** Marginal maximum likelihood raises an error listing them,
-  unless priors are given, which keep their estimates finite. Joint maximum likelihood removes and
-  reports them, as its sources do (Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977,
-  p. 294).
+  unless priors are given, which keep their estimates finite. Conditional and joint maximum
+  likelihood leave them out with no estimate and report them, as their sources do (Gustafsson, 1980,
+  p. 379; Mislevy & Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294).
 
 ## Consequences
 
