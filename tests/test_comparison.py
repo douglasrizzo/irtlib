@@ -121,7 +121,9 @@ def test_g2_refuses_incomplete_or_mismatched_responses_and_saturated_models() ->
   calibration = MMLCalibrator().calibrate(_LSAT7)
   with_missing = _LSAT7.copy()
   with_missing[0, 0] = np.nan
-  with pytest.raises(ValueError, match="complete responses"):
+  with pytest.raises(
+    ValueError, match=r"^complete responses are needed for G2; the multinomial over patterns is not defined"
+  ):
     g2(calibration, with_missing)
   with pytest.raises(ValueError, match="4 items, the calibration 5"):
     g2(calibration, _LSAT7[:, :4])
