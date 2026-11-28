@@ -9,7 +9,9 @@ per examinee and one column per item, holding 1, 0 or NaN where the examinee did
 and the items, one row `[a, b, c, d]` per column, with its settings as keyword arguments
 ({doc}`ADR-0010 </adr/0010-ability-estimation-contract>`). It returns an
 {class}`~irtlib.ability.AbilityEstimates`: for each examinee an estimate, its standard error and the
-number of evaluations of the estimator's objective or of its derivatives.
+number of evaluations of the estimator's objective or of its derivatives. The
+{doc}`number-correct-eap` takes the items alone and returns one estimate per number correct, which
+every examinee who answered every item reads by its number correct.
 
 An examinee's estimate depends only on the items it answered, so its row gives the same estimate
 alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a sum
@@ -26,6 +28,7 @@ the items $i$ it answered, and $I(\theta)$ the test information of those items, 
 | {doc}`map` | $1/\sqrt{I(\hat\theta) - (\log\pi)''(\hat\theta)}$ | finite, within the bounds | the prior's mode |
 | {doc}`eap` | the posterior standard deviation | finite | the prior's mean |
 | {doc}`wle` | $1/\sqrt{I(\hat\theta)}$ | finite, within the bounds | NaN |
+| {doc}`number-correct-eap` | the posterior standard deviation given the number correct | finite | the prior's mean |
 
 ```{eval-rst}
 .. autoclass:: irtlib.ability.AbilityEstimates
@@ -38,4 +41,5 @@ ml
 map
 eap
 wle
+number-correct-eap
 ```

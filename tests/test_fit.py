@@ -19,7 +19,6 @@ from irtlib.drawing import draw_responses
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
   _mean_squares,  # noqa: PLC2701 - the mean squares are checked on hand-worked probabilities
-  _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
   mean_squares,
   person_mean_squares,
   s_x2,
@@ -34,19 +33,6 @@ if TYPE_CHECKING:
   from irtlib.typing import FloatArray
 
 _LSAT7 = responses(load("mml_em")["data"]["lsat7"])
-
-
-def test_summed_score_likelihoods_enumerate_the_patterns() -> None:
-  """For four items, each score's likelihood is the sum of the probabilities of the patterns with that score.
-
-  Lord and Wingersky's recursion (Orlando & Thissen, 2000, p. 53, Equations 6-11) at three abilities.
-  """
-  probability = np.array([[0.2, 0.5, 0.9], [0.7, 0.4, 0.3], [0.55, 0.6, 0.65], [0.1, 0.8, 0.95]])
-  expected = np.zeros((5, 3))
-  for pattern in itertools.product((0, 1), repeat=4):
-    answers = np.array(pattern)[:, np.newaxis]
-    expected[sum(pattern)] += np.prod(np.where(answers == 1, probability, 1 - probability), axis=0)
-  np.testing.assert_allclose(_summed_score_likelihoods(probability), expected, rtol=1e-14)
 
 
 def test_collapse_merges_empty_single_and_small_rows() -> None:

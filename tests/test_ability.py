@@ -1,8 +1,9 @@
 """Tests of the ability estimators of irtlib.ability.
 
 Expected values come from hand-worked cases, closed forms and brute-force references written out here: the 4PL
-likelihood and information, Warm's modified score, the posterior on a grid, dense grids searched for their maximum, and
-the exact bias of an estimator by enumerating every response pattern.
+likelihood and information, Warm's modified score, the posterior on a grid, dense grids searched for their maximum, the
+exact bias of an estimator and the posterior of each number correct by enumerating every response pattern, and the
+abilities of simulated examinees.
 """
 
 from __future__ import annotations
@@ -28,8 +29,10 @@ from irtlib.ability import (
   expected_a_posteriori,
   maximum_a_posteriori,
   maximum_likelihood,
+  number_correct_eap,
   weighted_likelihood,
 )
+from irtlib.drawing import draw_responses
 from irtlib.quadrature import GridPrior, QuadratureGrid, normal_log_prior, uniform_log_prior
 
 if TYPE_CHECKING:
@@ -1172,6 +1175,86 @@ class TestExpectedAPosteriori:
     estimates = expected_a_posteriori(_RESPONSES, _ITEMS, grid=QuadratureGrid.uniform(n_nodes=31))
 
     np.testing.assert_array_equal(estimates.evaluations, np.full(len(_RESPONSES), 31))
+
+
+class TestNumberCorrectEap:
+  """The EAP estimate of each number correct, its posterior standard deviation and the number's probability."""
+
+  def test_a_number_correct_with_no_probability_on_the_grid_raises(self) -> None:
+    """On 400 steep items at b = 0, a prior on [3, 6] gives the low numbers correct probability 0, which raises.
+
+    At theta >= 3 each item is answered correctly with probability at least 1 / (1 + e^-6), so none correct has
+    probability below (e^-6)^400, far under the smallest double. Fails if the call returns NaN estimates for those
+    numbers with a RuntimeWarning, as a division by the probability would, instead of an error that says why.
+    """
+    items = np.tile([2.0, 0.0, 0.0, 1.0], (400, 1))
+    grid = QuadratureGrid.uniform(21, 3.0, 6.0)
+
+    with pytest.raises(ValueError, match=r"numbers correct, from 0, have probability 0 on the grid"):
+      number_correct_eap(items, grid=grid, log_prior=uniform_log_prior(3.0, 6.0))
+
+  def test_each_number_correct_pools_the_patterns_with_that_number(self) -> None:
+    """Each number correct's posterior pools the 16 patterns of _ITEMS with that number, enumerated here.
+
+    Thissen et al.'s brute-force method (1995, p. 41) for their Equations 1 and 4 to 8 (p. 40): a number's likelihood
+    sums its patterns' likelihoods, written out for the 4PL, on a 41-node grid under an N(0.5, 1.2^2) prior. Fails if
+    the probabilities are not normalized by the prior's masses, a number correct is shifted by one, the standard error
+    is the variance, or the default grid or prior replaces the given ones.
+    """
+    grid = QuadratureGrid.uniform(n_nodes=41, low=-4.0, high=4.0)
+    masses = grid.weights * np.exp(-0.5 * ((grid.nodes - 0.5) / 1.2) ** 2)
+    joint = np.zeros((5, grid.nodes.size))  # numbers correct x nodes
+    for pattern in product((0.0, 1.0), repeat=4):
+      joint[int(sum(pattern))] += np.exp(_log_likelihood(grid.nodes, _ITEMS, np.array(pattern))) * masses / masses.sum()
+    probability = joint.sum(axis=1)
+    mean = joint @ grid.nodes / probability
+    sd = np.sqrt(np.sum(joint * (grid.nodes - mean[:, np.newaxis]) ** 2, axis=1) / probability)
+
+    estimates = number_correct_eap(_ITEMS, grid=grid, log_prior=normal_log_prior(mean=0.5, sd=1.2))
+
+    np.testing.assert_allclose(estimates.probability, probability, rtol=1e-12)
+    np.testing.assert_allclose(estimates.theta, mean, rtol=1e-12)
+    np.testing.assert_allclose(estimates.standard_errors, sd, rtol=1e-12)
+
+  def test_recovers_the_mean_ability_and_the_frequency_of_each_number_correct(self) -> None:
+    """Among 200,000 examinees drawn from the prior, each number correct's mean ability is its estimate.
+
+    The EAP of a number correct is the mean ability of the examinees with that number, and its probability their
+    share (Thissen et al., 1995, p. 40, Equations 4 and 7). Each mean lies within four sampling errors, its posterior
+    standard deviation over the root of the group's size, and each share within four binomial standard errors; the
+    standard deviation of the abilities in each group is the standard error within 2%. Fails if the estimates come from
+    another prior, or the probabilities belong to the next number correct.
+    """
+    rng = np.random.default_rng(20261128)
+    theta = rng.normal(size=200_000)
+    scores = draw_responses(theta, _ITEMS, rng=rng).sum(axis=1).astype(int)
+    sizes = np.bincount(scores, minlength=5)
+    means = np.bincount(scores, weights=theta, minlength=5) / sizes
+    spreads = np.array([theta[scores == k].std() for k in range(5)])
+
+    estimates = number_correct_eap(_ITEMS)
+
+    assert np.all(np.abs(means - estimates.theta) < 4 * estimates.standard_errors / np.sqrt(sizes))
+    shares = sizes / theta.size
+    assert np.all(np.abs(shares - estimates.probability) < 4 * np.sqrt(shares * (1 - shares) / theta.size))
+    np.testing.assert_allclose(spreads, estimates.standard_errors, rtol=0.02)
+
+  def test_no_items_give_the_prior(self) -> None:
+    """With no items, the only number correct, 0, has probability 1 and the mean and spread of the prior's masses.
+
+    The masses of the N(0.5, 1.2^2) prior on the default grid, 121 nodes on [-6, 6], are written out here. Fails if the
+    given prior or the default grid is ignored.
+    """
+    nodes = np.linspace(-6.0, 6.0, 121)
+    masses = np.exp(-0.5 * ((nodes - 0.5) / 1.2) ** 2)
+    masses /= masses.sum()
+    mean = masses @ nodes
+
+    estimates = number_correct_eap(np.zeros((0, 4)), log_prior=normal_log_prior(mean=0.5, sd=1.2))
+
+    np.testing.assert_allclose(estimates.probability, [1.0], rtol=1e-15)
+    np.testing.assert_allclose(estimates.theta, [mean], rtol=1e-12)
+    np.testing.assert_allclose(estimates.standard_errors, [np.sqrt(masses @ (nodes - mean) ** 2)], rtol=1e-12)
 
 
 class TestWeightedLikelihood:

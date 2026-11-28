@@ -27,6 +27,9 @@ estimate. The maintainer decided the behaviour below on 2026-11-27.
   settings as keyword arguments with catsim's defaults. An estimator keeps no state.
 - **The result.** An immutable value with, per examinee, the estimate, its standard error, the
   number of objective evaluations, and whether a fallback (below) gave the estimate.
+- **Number-correct scoring,** the one exception: the EAP by number correct is a table of one
+  estimate per number correct, from the items and the prior alone, so it takes no response matrix:
+  an examinee who answers every item reads its entry.
 - **Maximum likelihood** is the maximizer over the extended real line: $+\infty$ or $-\infty$
   wherever the likelihood's supremum is reached only in the limit, with a standard error of
   $+\infty$, since the information tends to 0 there. An examinee who answered nothing has no
@@ -50,6 +53,8 @@ estimate. The maintainer decided the behaviour below on 2026-11-27.
 ## Alternatives Considered
 
 - Estimator classes, as catsim's: they hold only settings, which keyword arguments carry.
+- A response matrix for the EAP by number correct: one table serves every examinee who answered
+  every item, and there is no search to count.
 - A finite default, as catR's search range: an arbitrary bound enters every result.
 - A missing standard error for an infinite estimate, as mirt's: inconsistent with the inverse
   square root of the information, which grows without bound.

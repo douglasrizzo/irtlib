@@ -7,6 +7,11 @@
 # gradient tolerance is tightened to 1e-10 so that its estimates sit at the optimum. A missing value
 # that fscores returns, NA, is written as NaN. Patterns are strings, one character per item: "1"
 # correct, "0" incorrect and "." missing. fixed_items_model() comes from response_functions.R.
+#
+# The number-correct cases are fscores' EAP of each number correct (method = "EAPsum",
+# full.scores = FALSE) on each bank, on the same grid: the estimate and its standard error for each
+# number correct from 0 to 6, and the expected number of examinees with it, the model's probability
+# of the number correct times the rows of the model's data, its 64 response patterns.
 
 ABILITY_SETTINGS <- list(quadpts = 121L, theta_lim = c(-6, 6), gradtol = 1e-10)
 
@@ -81,5 +86,21 @@ ability_cases <- function() {
       )
     }
   }
-  list(settings = ABILITY_SETTINGS, banks = ABILITY_BANKS, cases = cases)
+  number_correct <- lapply(names(ABILITY_BANKS), function(bank) number_correct_case(bank, models[[bank]]))
+  list(settings = ABILITY_SETTINGS, banks = ABILITY_BANKS, cases = cases, number_correct = number_correct)
+}
+
+number_correct_case <- function(bank, model) {
+  table <- fscores(model,
+    method = "EAPsum", full.scores = FALSE, quadpts = ABILITY_SETTINGS$quadpts,
+    theta_lim = ABILITY_SETTINGS$theta_lim, verbose = FALSE
+  )
+  list(
+    id = paste0("eap_sum/", bank),
+    bank = bank,
+    n_examinees = nrow(extract.mirt(model, "data")),
+    theta = as_array(table$F1),
+    se = as_array(table$SE_F1),
+    expected = as_array(table$expected)
+  )
 }

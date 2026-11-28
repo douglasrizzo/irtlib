@@ -1,12 +1,13 @@
 """Tests of the item response functions, the quantities derived from them and their parameter derivatives.
 
-Expected values come from hand-worked cases, closed forms, the published example of Magis (2013, p. 311), the 4PL
-written out in the tests, brute-force sums, searches, integrals and central differences over it, and Baker's (1987,
-p. 116) identity for the 2PL.
+Expected values come from hand-worked cases, closed forms, the published examples of Magis (2013, p. 311) and Thissen
+et al. (1995, p. 44), the 4PL written out in the tests, brute-force sums, searches, integrals and central differences
+over it, and Baker's (1987, p. 116) identity for the 2PL.
 """
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 import subprocess
@@ -902,6 +903,64 @@ class TestLogLikelihood:
     values = irt.log_likelihood(0.5, np.array([[1.0, 0.0]]), items)  # ty: ignore[invalid-argument-type]
 
     assert values[0] == pytest.approx(expected, rel=1e-12)
+
+
+class TestNumberCorrectProbabilities:
+  """The probability of each number correct at an ability, by Lord and Wingersky's recursion."""
+
+  def test_reproduces_the_published_three_item_example(self) -> None:
+    """The three 2PL items of Thissen et al. (1995, p. 43) give their Table 1 (p. 44) at its seven abilities.
+
+    The items are a = .5, 1, 1.5 and b = -1, 0, 1, and the table prints L_j(theta) for j = 0 to 3 to five decimals.
+    Fails if a number correct is shifted by one, or an item is added with its P and Q swapped.
+    """
+    items = np.array([[0.5, -1.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0], [1.5, 1.0, 0.0, 1.0]])
+    table = np.array([
+      [0.69467, 0.54224, 0.34819, 0.15433, 0.03616, 0.00397, 0.00027],
+      [0.29186, 0.40829, 0.49362, 0.44322, 0.23278, 0.06487, 0.01275],
+      [0.01344, 0.04898, 0.15181, 0.34567, 0.46384, 0.34241, 0.18775],
+      [0.00003, 0.00049, 0.00638, 0.05678, 0.26722, 0.58875, 0.79923],
+    ])
+
+    values = irt.number_correct_probabilities(np.arange(-3.0, 4.0), items)
+
+    np.testing.assert_allclose(values, table.T, rtol=0.0, atol=5e-6)
+
+  def test_each_number_is_the_sum_of_its_response_patterns(self) -> None:
+    """For the four 4PL items of _ITEMS, each number correct's probability sums the 16 patterns' with that number.
+
+    Each pattern's probability is the product of the 4PL written out, P or 1 - P per item, at abilities from -3 to 3
+    and on a (2, 3) array of them. Fails if the recursion drops a pattern, or the abilities' axes are moved.
+    """
+    thetas = np.linspace(-3.0, 3.0, 6).reshape(2, 3)
+    a, b, c, d = _ITEMS.T
+    probability = c + (d - c) / (1 + np.exp(-a * (thetas[..., np.newaxis] - b)))  # abilities x items
+    expected = np.zeros((2, 3, 5))
+    for pattern in itertools.product((0, 1), repeat=4):
+      answers = np.array(pattern)
+      expected[..., answers.sum()] += np.prod(np.where(answers == 1, probability, 1 - probability), axis=-1)
+
+    values = irt.number_correct_probabilities(thetas, _ITEMS)
+
+    np.testing.assert_allclose(values, expected, rtol=1e-13)
+    np.testing.assert_allclose(irt.number_correct_probabilities(thetas[1, 0], _ITEMS), values[1, 0], rtol=1e-15)
+
+  def test_none_correct_stays_positive_far_above_the_difficulty(self) -> None:
+    """At theta = 6, two items of slope 10 at b = 0 leave no item correct with probability sigma(-60)^2, about 8e-53.
+
+    Fails if Q is computed as 1 - P, which rounds to 0 there.
+    """
+    items = np.array([[10.0, 0.0, 0.0, 1.0], [10.0, 0.0, 0.0, 1.0]])
+
+    values = irt.number_correct_probabilities(6.0, items)
+
+    assert values[0] == pytest.approx(expit(-60.0) ** 2, rel=1e-12, abs=0.0)
+
+  def test_no_items_give_none_correct_and_a_row_is_refused(self) -> None:
+    """No items give a number correct of 0 with probability 1; a single item's row of shape (4,) is not a matrix."""
+    np.testing.assert_array_equal(irt.number_correct_probabilities(np.zeros(3), np.zeros((0, 4))), np.ones((3, 1)))
+    with pytest.raises(ValueError, match=r"items must be an \(n, 4\) matrix"):
+      irt.number_correct_probabilities(0.0, _ITEMS[0])
 
 
 class TestScaleConversions:

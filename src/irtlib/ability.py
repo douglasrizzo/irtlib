@@ -2,7 +2,8 @@
 
 Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the
 examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column, and returns an
-:py:class:`AbilityEstimates`.
+:py:class:`AbilityEstimates`. :py:func:`number_correct_eap`, whose estimate depends on the number correct alone, takes
+the items only and returns a :py:class:`NumberCorrectEstimates`, one entry per number correct.
 """
 
 import functools
@@ -45,6 +46,7 @@ from .quadrature import (
   posterior,
   posterior_mean,
   posterior_variance,
+  prior_masses,
 )
 from .typing import BoolArray, FloatArray, IntArray
 
@@ -228,6 +230,86 @@ def expected_a_posteriori(
     standard_errors=numpy.sqrt(posterior_variance(post, nodes)),
     evaluations=numpy.full(n_examinees, nodes.size),
     from_fallback=numpy.zeros(n_examinees, dtype=bool),
+  )
+
+
+@dataclass(frozen=True, slots=True)
+class NumberCorrectEstimates:
+  """The EAP estimate of each number correct on a set of items, its standard error, and the number's probability.
+
+  Entry ``k`` of each array is that of the number correct ``k``, from 0 to the number of items.
+
+  Parameters
+  ----------
+  theta : numpy.ndarray
+      The mean of the ability's posterior given each number correct.
+  standard_errors : numpy.ndarray
+      The posterior standard deviations.
+  probability : numpy.ndarray
+      The probability of each number correct for an examinee whose ability is drawn from the prior, summing to 1.
+  """
+
+  theta: FloatArray
+  standard_errors: FloatArray
+  probability: FloatArray
+
+
+def number_correct_eap(
+  items: FloatArray, *, grid: QuadratureGrid | None = None, log_prior: LogPrior | None = None
+) -> NumberCorrectEstimates:
+  """Return the EAP estimate of every number correct on the items, the mean of the posterior given the number alone.
+
+  An examinee who answered every item, ``k`` of them correctly, has entry ``k``, whichever items those were. The
+  probabilities of the numbers correct are the distribution of number correct the items and the prior predict.
+
+  The :doc:`/methods/ability/number-correct-eap` page gives the method, its sources and the origin of each default.
+
+  Parameters
+  ----------
+  items : numpy.ndarray
+      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``.
+  grid : QuadratureGrid or None, optional
+      The nodes the posterior is computed on. Default is ``QuadratureGrid.uniform()``, 121 nodes on [-6, 6].
+  log_prior : LogPrior or None, optional
+      The prior's log-density. Default is ``normal_log_prior()``, the standard normal.
+
+  Returns
+  -------
+  NumberCorrectEstimates
+      The posterior mean and standard deviation, and the probability, of each number correct from 0 to ``n``.
+
+  Raises
+  ------
+  ValueError
+      If ``items`` is not an ``(n, 4)`` matrix, the log-prior is NaN or +inf at a node or has no mass on the grid, or a
+      number correct has probability 0 on the grid, as on a long test under a prior far from its items.
+
+  Examples
+  --------
+  >>> import numpy
+  >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])
+  >>> estimates = number_correct_eap(items)
+  >>> estimates.theta.round(4), estimates.standard_errors.round(4)
+  (array([-0.9932, -0.4077,  0.2652,  0.8555]), array([0.7846, 0.7986, 0.8274, 0.828 ]))
+  >>> round(float(estimates.probability.sum()), 12)
+  1.0
+  """
+  grid = _default_grid() if grid is None else grid
+  masses = prior_masses(grid, _default_prior() if log_prior is None else log_prior)
+  joint = irt.number_correct_probabilities(grid.nodes, items).T * masses  # numbers correct x nodes
+  probability = joint.sum(axis=1)
+  if not numpy.all(probability > 0):
+    empty = numpy.flatnonzero(~(probability > 0))
+    msg = (
+      f"{empty.size} numbers correct, from {empty[0]}, have probability 0 on the grid, so they have no posterior; "
+      "use a grid and prior that reach the abilities where they occur"
+    )
+    raise ValueError(msg)
+  post = joint / probability[:, numpy.newaxis]
+  return NumberCorrectEstimates(
+    theta=posterior_mean(post, grid.nodes),
+    standard_errors=numpy.sqrt(posterior_variance(post, grid.nodes)),
+    probability=probability,
   )
 
 
