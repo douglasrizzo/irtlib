@@ -244,6 +244,7 @@ lik = "lik"  # likelihood, in variable names
 nd = "nd"  # numpy's NDArray, in the sketches of the cards carried over from catsim
 LSAT = "LSAT"  # Law School Admission Test, the data of Bock & Aitkin (1981) and Thissen (1982)
 LOGIST = "LOGIST"  # ETS's joint maximum likelihood program (Mislevy & Stocking, 1989)
+writeable = "writeable"  # NumPy's spelling of the flag ndarray.flags.writeable
 
 [tool.ty.src]
 include = ["src/irtlib", "tests", "backlog"]

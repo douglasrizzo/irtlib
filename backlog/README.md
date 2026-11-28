@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-27 cards: 10 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
+26 cards: 9 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -62,7 +62,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Generate banks of a chosen shape, and document the scaling constant D where users look](discovery/bank-generation.md) | discovery | decision | needs-decision | S |  | catsim's research walkthrough of 2026-11-26 |
-| [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
 | [Choose the WLE's standard error (Warm's corrected SE, the sandwich SE)](estimation/wle-standard-errors.md) | estimation | technique | needs-research | S |  | catsim's Wang and Vispoel (1998) walkthrough |
 | [Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE](estimation/vectorized-ability-estimation.md) | estimation | feature | ready | M |  | joint maximum likelihood PR on 2026-11-27 |
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |

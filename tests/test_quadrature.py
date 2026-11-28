@@ -255,12 +255,15 @@ def test_uniform_grid_spaces_its_nodes_equally_and_weighs_each_by_the_spacing(
     (1, -6.0, 6.0, "at least 2"),
     (5, 1.0, 1.0, "high must be greater than low"),
     (5, 2.0, 1.0, "high must be greater than low"),
+    (5, -math.inf, 6.0, "must be finite"),
+    (5, -6.0, math.nan, "must be finite"),
+    (5, -1e308, 1e308, "must be finite"),
   ],
 )
 def test_uniform_grid_rejects_fewer_than_two_nodes_or_an_empty_range(
   n_nodes: int, low: float, high: float, match: str
 ) -> None:
-  """A grid of one node, or with bounds that are not increasing, is an error."""
+  """A grid of one node, or with bounds that are not finite, too far apart or not increasing, is an error."""
   with pytest.raises(ValueError, match=match):
     QuadratureGrid.uniform(n_nodes, low, high)
 
@@ -285,6 +288,46 @@ def test_quadrature_grid_rejects_invalid_arrays(nodes: FloatArray, weights: Floa
   """A grid built directly from arrays rejects shapes, nodes and weights that cannot integrate."""
   with pytest.raises(ValueError, match=match):
     QuadratureGrid(nodes=nodes, weights=weights)
+
+
+def test_a_grid_keeps_its_own_read_only_arrays() -> None:
+  """Changing the arrays a grid was built from changes neither the grid nor the masses already computed on it.
+
+  The masses of a grid under irtlib's priors are computed once per grid and prior. A grid that kept the caller's arrays
+  would let a later change to them reach both the grid and those masses; a grid whose own arrays were writable would
+  too.
+  """
+  nodes, weights = _NODES.copy(), _WEIGHTS.copy()
+  grid = QuadratureGrid(nodes=nodes, weights=weights)
+  prior = normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)
+  before = prior_masses(grid, prior)
+
+  nodes[0], weights[0] = 5.0, 10.0
+
+  np.testing.assert_array_equal(grid.nodes, _NODES)
+  np.testing.assert_array_equal(prior_masses(grid, prior), before)
+  with pytest.raises(ValueError, match="read-only"):
+    grid.weights[0] = 10.0
+
+
+def test_a_prior_that_is_any_callable_is_evaluated_on_every_call() -> None:
+  """A log-prior that is not one irtlib builds is evaluated each time, so its masses follow it when it changes.
+
+  The prior below doubles its slope after its first call. A cache of its masses, like the one kept for irtlib's
+  priors, would return the first masses twice.
+  """
+  grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
+  slopes = [1.0]
+
+  def changing_prior(theta: FloatArray) -> FloatArray:
+    slope = slopes[-1]
+    slopes.append(2.0 * slope)
+    return slope * theta
+
+  first, second = prior_masses(grid, changing_prior), prior_masses(grid, changing_prior)
+
+  np.testing.assert_allclose(first, np.exp(_NODES) * _WEIGHTS / np.sum(np.exp(_NODES) * _WEIGHTS), rtol=1e-13)
+  np.testing.assert_allclose(second, np.exp(2 * _NODES) * _WEIGHTS / np.sum(np.exp(2 * _NODES) * _WEIGHTS), rtol=1e-13)
 
 
 def test_prior_masses_are_the_weights_times_the_prior_density_normalized() -> None:

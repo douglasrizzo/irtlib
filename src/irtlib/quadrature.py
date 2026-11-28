@@ -37,6 +37,7 @@ node's weight and prior density, and shifts each examinee's row by its maximum b
 likelihood of a long response pattern does not underflow.
 """
 
+import functools
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -191,7 +192,9 @@ class QuadratureGrid:
 
   A node's mass is proportional to its weight times the prior density there, so the weights take part in the
   posterior itself; equal weights, as :py:meth:`uniform` builds, cancel in the normalization. Two grids are equal only
-  if they are the same object, and a grid can be a set member or a dictionary key.
+  if they are the same object, and a grid can be a set member or a dictionary key. The grid never changes: it keeps
+  read-only float copies of the arrays it is given, or the arrays themselves if they are read-only floats that own
+  their data.
 
   Parameters
   ----------
@@ -211,7 +214,15 @@ class QuadratureGrid:
   weights: FloatArray
 
   def __post_init__(self) -> None:
-    """Validate the nodes and weights."""
+    """Keep read-only float copies of the nodes and weights, and validate them."""
+    for name in ("nodes", "weights"):
+      values = getattr(self, name)
+      flags = getattr(values, "flags", None)
+      # a read-only array of floats that owns its data, as uniform builds them, cannot change under the grid
+      if flags is None or flags.writeable or not flags.owndata or values.dtype != float:
+        values = numpy.array(values, dtype=float)
+        values.flags.writeable = False
+      object.__setattr__(self, name, values)
     if self.nodes.ndim != 1 or self.weights.ndim != 1:
       msg = "nodes and weights must be one-dimensional"
       raise ValueError(msg)
@@ -249,7 +260,7 @@ class QuadratureGrid:
     Raises
     ------
     ValueError
-        If ``n_nodes < 2`` or ``high <= low``.
+        If ``n_nodes < 2``, ``low``, ``high`` or the distance between them is not finite, or ``high <= low``.
 
     Examples
     --------
@@ -260,15 +271,42 @@ class QuadratureGrid:
     if n_nodes < _MIN_NODES:
       msg = f"n_nodes must be at least {_MIN_NODES}, got {n_nodes}"
       raise ValueError(msg)
+    if not (math.isfinite(low) and math.isfinite(high) and math.isfinite(high - low)):
+      msg = f"low, high and the distance between them must be finite, got low={low}, high={high}"
+      raise ValueError(msg)
     if high <= low:
       msg = f"high must be greater than low, got low={low}, high={high}"
       raise ValueError(msg)
     nodes = numpy.linspace(low, high, n_nodes, dtype=float)
     weights = numpy.full(n_nodes, (high - low) / (n_nodes - 1), dtype=float)
-    return cls(nodes=nodes, weights=weights)
+    nodes.flags.writeable = weights.flags.writeable = False
+    # finite, increasing bounds and two or more nodes give valid read-only arrays, so the grid skips __post_init__'s
+    # copies and checks
+    grid = object.__new__(cls)
+    # a frozen dataclass's fields are set only through object.__setattr__
+    object.__setattr__(grid, "nodes", nodes)  # noqa: PLC2801
+    object.__setattr__(grid, "weights", weights)  # noqa: PLC2801
+    return grid
 
 
 def _log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
+  """Return the log of each node's weight times the prior density there, unnormalized, after checking it."""
+  # a grid never changes, and neither do the priors irtlib builds, so their masses are computed once per pair; another
+  # prior is any callable, which may not always give the same values
+  if isinstance(log_prior, _NormalLogPrior | _UniformLogPrior):
+    return _known_log_masses(grid, log_prior)
+  return _checked_log_masses(grid, log_prior)
+
+
+@functools.lru_cache(maxsize=64)
+def _known_log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
+  """Return the checked log-masses of a grid under one of irtlib's priors, read-only, computed once per pair."""
+  log_masses = _checked_log_masses(grid, log_prior)
+  log_masses.flags.writeable = False
+  return log_masses
+
+
+def _checked_log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
   """Return the log of each node's weight times the prior density there, unnormalized, after checking it."""
   log_masses = log_prior(grid.nodes) + numpy.log(grid.weights)
   if numpy.isnan(log_masses).any() or numpy.isposinf(log_masses).any():
