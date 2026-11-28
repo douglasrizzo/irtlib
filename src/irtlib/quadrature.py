@@ -343,7 +343,7 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
     )
     raise ValueError(msg)
   log_masses = _log_masses(grid, log_prior)
-  # A log-likelihood finite at every node passes the checks of the rows: the masses are finite at some node.
+  # the prior's check leaves mass at some node, so no row of a log-likelihood finite everywhere fails these checks
   if not numpy.isfinite(log_likelihood).all():
     undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
     if undefined.any():
@@ -377,7 +377,7 @@ def posterior_mean(post: FloatArray, nodes: FloatArray) -> FloatArray:
   >>> posterior_mean(numpy.array([[0.25, 0.5, 0.25], [0.0, 0.5, 0.5]]), numpy.array([-1.0, 0.0, 1.0]))
   array([0. , 0.5])
   """
-  return numpy.sum(post * nodes, axis=1)
+  return (post * nodes).sum(axis=1)
 
 
 def posterior_variance(post: FloatArray, nodes: FloatArray) -> FloatArray:
@@ -403,4 +403,4 @@ def posterior_variance(post: FloatArray, nodes: FloatArray) -> FloatArray:
   array([0.5 , 0.25])
   """
   mean = posterior_mean(post, nodes)
-  return numpy.sum(post * (nodes - mean[:, numpy.newaxis]) ** 2, axis=1)
+  return (post * (nodes - mean[:, numpy.newaxis]) ** 2).sum(axis=1)
