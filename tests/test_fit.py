@@ -90,13 +90,15 @@ def test_type_one_error_rate() -> None:
   assert 0.015 <= rejection_rate <= 0.10, rejection_rate
 
 
-@pytest.mark.parametrize("statistic", [s_x2, mean_squares])
-def test_incomplete_or_mismatched_responses_are_refused(statistic: Callable[[Calibration, FloatArray], object]) -> None:
-  """S-X² and the mean squares refuse responses with a missing entry or another number of items."""
+@pytest.mark.parametrize(("statistic", "name"), [(s_x2, "S-X²"), (mean_squares, "the mean squares")])
+def test_incomplete_or_mismatched_responses_are_refused(
+  statistic: Callable[[Calibration, FloatArray], object], name: str
+) -> None:
+  """S-X² and the mean squares refuse responses with a missing entry, naming themselves, or another number of items."""
   calibration = MMLCalibrator("1PL").calibrate(_LSAT7)
   with_missing = _LSAT7.copy()
   with_missing[0, 0] = np.nan
-  with pytest.raises(ValueError, match="complete responses"):
+  with pytest.raises(ValueError, match=rf"^complete responses are needed for {name}; remove the examinees"):
     statistic(calibration, with_missing)
   with pytest.raises(ValueError, match="4 items, the calibration 5"):
     statistic(calibration, _LSAT7[:, :4])

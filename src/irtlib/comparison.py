@@ -182,7 +182,7 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
   matrix = _complete_responses(
     calibration, responses, "G2", "the multinomial over patterns is not defined with missing responses"
   )
-  n_items = matrix.shape[1]
+  n_items = calibration.estimates.shape[0]
   df = 2**n_items - 1 - calibration.n_parameters
   if df < 1:
     msg = (

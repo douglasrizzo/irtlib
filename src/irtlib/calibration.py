@@ -193,8 +193,6 @@ def validate_responses(responses: npt.ArrayLike) -> FloatArray:
 def _complete_responses(calibration: Calibration, responses: npt.ArrayLike, statistic: str, reason: str) -> FloatArray:
   """Return the responses as a float matrix, after checking that they are complete and match the calibration's items.
 
-  Item fit and model comparison call it on the responses of every statistic that needs complete ones.
-
   Parameters
   ----------
   calibration : Calibration
