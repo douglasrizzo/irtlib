@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import math
+import tracemalloc
 from itertools import product
 from typing import TYPE_CHECKING
 
@@ -140,7 +141,8 @@ class TestEveryEstimator:
 
     Many rows are searched at once with the arithmetic of one, so a row that answered every item gets exactly its
     estimate alone, and one that left some out gets it to the rounding of a sum over more terms. MAP's standard error
-    takes the prior's curvature from a central difference of step 1e-4, which turns that rounding into a relative 1e-8.
+    takes the prior's curvature from a central difference of step 1e-4, which turns that rounding into up to a
+    relative 1e-7, for the prior's log-density near the bounds.
     The rows include responses all correct, all incorrect and unanswered, a likelihood nearly flat, maxima beyond
     [-6, 6] for the search without bounds, and, with slopes of 60, search points that split the rows into several
     chunks. A batched search that took another step, tie, bracket, end or count than one row's fails.
@@ -204,6 +206,80 @@ class TestEveryEstimator:
       alone = maximum_likelihood(matrix[row : row + 1], items, bounds=bounds)
       np.testing.assert_array_equal(together.theta[row], alone.theta[0])
       assert together.evaluations[row] == alone.evaluations[0], row
+
+  # NaN parameters make NumPy warn of invalid values, alone as together
+  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+  @pytest.mark.parametrize(
+    ("estimator", "options"),
+    [
+      pytest.param(maximum_likelihood, {"bounds": (-6.0, 6.0)}, id="ml"),
+      pytest.param(maximum_a_posteriori, {}, id="map"),
+    ],
+  )
+  def test_a_nan_slope_is_searched_as_each_examinee_alone(
+    self, estimator: Callable[..., AbilityEstimates], options: dict[str, object]
+  ) -> None:
+    """A NaN slope's NaN derivative goes on past the lower bound, together as alone.
+
+    The items are not checked for NaN. Alone, a derivative that is not at most 0 at the lower bound goes on to the
+    upper one and to Newton's method; a batch that stopped at the lower bound unless the derivative was positive gave
+    -6 after 2 evaluations, against -5.9999993 after 26.
+    """
+    items = np.array([[_NAN, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
+    matrix = np.array([[1.0, 0.0], [0.0, 1.0]])
+
+    together = estimator(matrix, items, **options)
+
+    for row in range(2):
+      alone = estimator(matrix[row : row + 1], items, **options)
+      np.testing.assert_array_equal(together.theta[row], alone.theta[0])
+      assert together.evaluations[row] == alone.evaluations[0]
+
+  def test_examinees_with_no_items_get_the_prior_mode_together(self) -> None:
+    """Several rows of a matrix with no items get the normal prior's mode and standard deviation, as one row does.
+
+    Under N(0.3, 1) with no item the log-posterior is -(theta - 0.3)^2 / 2: the derivative points inward at both
+    bounds, Newton's step from 0 lands on 0.3 and the next derivative, 0, ends it, and the posterior there is the fifth
+    evaluation; the standard error is 1 / sqrt(1 / sigma^2). A batch that took the steepest slope of no items raised
+    ValueError.
+    """
+    estimates = maximum_a_posteriori(np.zeros((2, 0)), np.zeros((0, 4)), log_prior=normal_log_prior(0.3, 1.0))
+
+    np.testing.assert_array_equal(estimates.theta, [0.3, 0.3])
+    np.testing.assert_allclose(estimates.standard_errors, [1.0, 1.0], rtol=1e-6)
+    np.testing.assert_array_equal(estimates.evaluations, [5, 5])
+
+  def test_a_batch_names_the_search_points_of_its_first_failing_row(self) -> None:
+    """A batch that finds no finite log-posterior raises the error its first failing row raises alone.
+
+    The first row answered an item of slope 60, searched on 2,401 points, the second only one of slope 1, on 101; a
+    prior of standard deviation 1e-154 centred at 100 has no mass at any of them. Searching the groups of rows from
+    the fewest points named 101.
+    """
+    items = np.array([[60.0, 0.0, 0.2, 1.0], [1.0, 0.0, 0.2, 1.0]])
+    matrix = np.array([[1.0, 0.0], [_NAN, 1.0]])
+
+    with pytest.raises(ValueError, match="any of the 2401 search points"):
+      maximum_a_posteriori(matrix, items, log_prior=normal_log_prior(100.0, 1e-154))
+
+  def test_a_batch_searches_its_points_a_chunk_of_rows_at_a_time(self) -> None:
+    """The memory of a batched search does not grow with its rows: 2,000 rows of steep items peak below 64 MB.
+
+    With slopes of 60, each row has 2,401 points. A search that held every row's points at once, with their ties and
+    their running count, peaked at 115 MB; a chunk of rows at a time peaks at about 34 MB.
+    """
+    rng = np.random.default_rng(1)
+    items = np.column_stack([np.full(10, 60.0), rng.normal(0.0, 1.0, 10), np.full(10, 0.2), np.ones(10)])
+    matrix = (rng.random((2000, 10)) < 0.5).astype(float)
+
+    tracemalloc.start()
+    try:
+      maximum_likelihood(matrix, items, bounds=(-6.0, 6.0))
+      peak = tracemalloc.get_traced_memory()[1]
+    finally:
+      tracemalloc.stop()
+
+    assert peak < 64 * 2**20
 
   @pytest.mark.parametrize("estimator", _ESTIMATORS.values(), ids=_ESTIMATORS.keys())
   def test_no_estimate_comes_from_a_fallback(self, estimator: Callable[..., AbilityEstimates]) -> None:

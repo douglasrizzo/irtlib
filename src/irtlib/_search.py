@@ -320,7 +320,7 @@ class _Rows:
   @property
   def search_points(self) -> IntArray:
     """For each row, :py:attr:`_Examinee.search_points`."""
-    steepest = numpy.where(self.answered, self.items[:, 0], -numpy.inf).max(axis=1)
+    steepest = numpy.where(self.answered, self.items[:, 0], -numpy.inf).max(axis=1, initial=-numpy.inf)
     finite = numpy.isfinite(steepest)
     spaced = numpy.ceil((_NEWTON_SEARCH_POINTS - 1) * numpy.where(finite, steepest, 0.0) / _STEEP_SLOPE) + 1
     points = numpy.minimum(_MAX_SEARCH_POINTS, numpy.maximum(_NEWTON_SEARCH_POINTS, spaced)).astype(int)
@@ -411,10 +411,21 @@ def _maxima(
   if concave.any():
     theta[concave], value[concave], evaluations[concave] = _concave_maxima(objective, rows[concave], bounds, tol)
   points = objective.batch.search_points[rows]
+  failed: list[tuple[int, int]] = []
   for n_points in numpy.unique(points[~concave]).tolist():
-    group = ~concave & (points == n_points)
-    found = _grid_maxima(objective, rows[group], _search_points(*bounds, n_points), bounds, tol)
+    group = numpy.flatnonzero(~concave & (points == n_points))
+    *found, finite = _grid_maxima(objective, rows[group], _search_points(*bounds, n_points), tol)
     theta[group], value[group], evaluations[group] = found
+    if not finite.all():
+      failed.append((int(group[~finite][0]), n_points))
+  if failed:
+    # the error of the first row to fail, as a search of one row at a time raises it
+    n_points = min(failed)[1]
+    msg = (
+      f"the log-posterior is not finite at any of the {n_points} search points in {bounds}; the prior's support "
+      "must contain at least one of them"
+    )
+    raise ValueError(msg)
   return theta, value, evaluations
 
 
@@ -431,7 +442,8 @@ def _concave_maxima(
   low, high = bounds
   theta = numpy.full(rows.size, low)
   evaluations = numpy.ones(rows.size, dtype=int)
-  above_low = objective.derivatives(theta, rows)[0] > 0.0
+  # not "> 0", so that a NaN derivative goes on to the upper bound as it does for one row
+  above_low = ~(objective.derivatives(theta, rows)[0] <= 0.0)
   at_high = numpy.zeros(rows.size, dtype=bool)
   at_high[above_low] = objective.derivatives(numpy.full(int(above_low.sum()), high), rows[above_low])[0] >= 0.0
   theta[at_high], evaluations[above_low] = high, 2
@@ -445,44 +457,60 @@ def _concave_maxima(
 
 
 def _grid_maxima(
-  objective: _BatchObjective, rows: IntArray, nodes: FloatArray, bounds: _Bounds, tol: float
-) -> tuple[FloatArray, FloatArray, IntArray]:
+  objective: _BatchObjective, rows: IntArray, nodes: FloatArray, tol: float
+) -> tuple[FloatArray, FloatArray, IntArray, BoolArray]:
   """Return what :py:func:`_maximum` returns, with Newton's refinement, for each row alone, from the given points.
+
+  The points are evaluated a chunk of rows at a time (:py:func:`_best_points`), so that memory grows with the points
+  of one chunk and not of every row.
 
   Returns
   -------
-  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
-      Each row's ability, the objective there, and its evaluations of the objective or of its derivatives.
-
-  Raises
-  ------
-  ValueError
-      If a row's objective is not finite at any of the points.
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each row's ability, the objective there, its evaluations of the objective or of its derivatives, and whether the
+      objective was finite at any point, without which the other three hold nothing.
   """
-  values = objective.grid(nodes, rows)
-  peak = values.max(axis=-1)
-  if not numpy.isfinite(peak).all():
-    msg = (
-      f"the log-posterior is not finite at any of the {nodes.size} search points in {bounds}; the prior's support "
-      "must contain at least one of them"
-    )
-    raise ValueError(msg)
-  best, n_ties = _middle_ties(values, peak)
+  peak, best, n_ties, start = _best_points(objective, rows, nodes)
+  finite = numpy.isfinite(peak)
   theta, value = nodes[best], peak.copy()
   evaluations = numpy.full(rows.size, nodes.size)
-  refined = numpy.flatnonzero(n_ties < _FLAT_MAXIMUM_POINTS)
+  refined = numpy.flatnonzero(finite & (n_ties < _FLAT_MAXIMUM_POINTS))
   if refined.size:
     centre = best[refined]
     bracket = nodes[numpy.maximum(centre - 1, 0)], nodes[numpy.minimum(centre + 1, nodes.size - 1)]
-    found, used = _newton_rows(
-      objective.derivatives, rows[refined], _vertices(nodes, values[refined], centre), bracket, tol=tol
-    )
+    found, used = _newton_rows(objective.derivatives, rows[refined], start[refined], bracket, tol=tol)
     found_value = objective(found, rows[refined])
     # kept only if no worse than the best point, as _maximum keeps it
     better = found_value >= peak[refined]
     theta[refined[better]], value[refined[better]] = found[better], found_value[better]
     evaluations[refined] += used + 1
-  return theta, value, evaluations
+  return theta, value, evaluations, finite
+
+
+def _best_points(
+  objective: _BatchObjective, rows: IntArray, nodes: FloatArray
+) -> tuple[FloatArray, IntArray, IntArray, FloatArray]:
+  """Return each row's peak over the points, its best point, how many points tie at the peak, and where to refine.
+
+  The points are evaluated a chunk of rows at a time. A row whose peak is not finite starts at its best point.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each row's peak, the index of its best point, the number of points at the peak, and the refinement's start.
+  """
+  peak, start = numpy.empty(rows.size), numpy.empty(rows.size)
+  best, n_ties = numpy.empty(rows.size, dtype=int), numpy.empty(rows.size, dtype=int)
+  chunk = max(1, _CHUNK_ELEMENTS // nodes.size)
+  for first in range(0, rows.size, chunk):
+    part = slice(first, first + chunk)
+    values = objective.grid(nodes, rows[part])
+    peak[part] = values.max(axis=-1)
+    best[part], n_ties[part] = _middle_ties(values, peak[part])
+    finite = numpy.isfinite(peak[part])
+    start[part] = nodes[best[part]]
+    start[part][finite] = _vertices(nodes, values[finite], best[part][finite])
+  return peak, best, n_ties, start
 
 
 def _middle_ties(values: FloatArray, peak: FloatArray) -> tuple[IntArray, IntArray]:

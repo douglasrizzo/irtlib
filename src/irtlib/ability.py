@@ -692,6 +692,7 @@ def _settle_ends(
   unresolved = (lower_ceiling > target + slack) | (upper_ceiling > target + slack)
   infinite = ~unresolved & (largest >= value - slack)
   theta[rows[infinite]] = numpy.where(upper[infinite], math.inf, -math.inf)
+  # few rows need a wider range, mostly those of a near-flat likelihood, so they are searched on one at a time
   for row in rows[unresolved].tolist():
     kept = batch.answered[row]
     responses = numpy.where(batch.correct[row, kept], 1.0, 0.0)
