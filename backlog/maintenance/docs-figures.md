@@ -4,7 +4,7 @@ kind: docs
 status: blocked
 priority: 4
 effort: M
-blocked_by: [discovery/irt-plots]
+blocked_by: [irt/plots]
 raised_by: [maintainer on 2026-11-28]
 ---
 
@@ -12,29 +12,31 @@ raised_by: [maintainer on 2026-11-28]
 
 ## Problem
 
-The site has no figures. Item response theory is taught with curves, and a page on a calibration or
-an estimator says more with one figure than with a paragraph. The maintainer deferred figures on
-2026-11-28 until the decision of `discovery/irt-plots` says which package keeps which plots.
+The site's pages have no figures. Item response theory is taught with curves, and a page on a
+calibration or an estimator says more with one figure than with a paragraph. On 2026-11-28 the
+maintainer decided that every item response plot belongs in `irtlib.plot` (ADR-0011), and will plan
+which figures go on which pages once the plots are implemented; until then each plot function's
+docstring carries one figure of its own.
 
 ## What irtlib and catsim have now
 
-- irtlib draws nothing and has no plotting dependency (ADR-0002); its docs build has no plot
-  directive.
-- catsim draws its documentation's figures with matplotlib's plot directive, as SVG, in the style of
-  its `sphinx/_static/figures.mplstyle`, and the figures call `catsim.plot`. irtlib's docs build
+- `irtlib.plot` draws one item's characteristic and information curves, with matplotlib as the
+  `plot` extra (ADR-0011); the rest of the plots the maintainer chose are listed in `irt/plots`.
+  The docs build has matplotlib's plot directive, drawing SVG in the style of
+  `sphinx/_static/figures.mplstyle`, a copy of catsim's, not yet recolored.
+- catsim draws its documentation's figures the same way, calling `catsim.plot`. irtlib's docs build
   cannot import catsim (ADR-0004).
 
 ## Proposal
 
-Once the plots decision is made, add the plot directive with matplotlib in the `docs` dependency
-group, and a copy of catsim's `figures.mplstyle` recolored to irtlib's blues (`#03a9f4`, `#0277bd`)
-and slates. The figures, page by page:
+Recolor `figures.mplstyle` to irtlib's blues (`#03a9f4`, `#0277bd`) and slates, and draw the
+figures with `irtlib.plot`, page by page:
 
 - **Introduction:** the characteristic curves of a 1PL, 2PL, 3PL and 4PL item on one axis, with the
   roles of $a$, $b$, $c$ and $d$ marked; one item's curve with its information curve.
 - **Item response functions:** curves for several discriminations; the information of 4PL items,
   whose single maximum moves with the asymptotes (Magis, 2013, p. 307; p. 312); test information
-  with the standard error on a twin axis.
+  and its standard error on two axes that share the ability axis.
 - **Quadrature and ability priors:** the nodes of the default grid with their normal masses; one
   examinee's posterior over the grid, with the prior.
 - **MML:** the observed proportions correct at the nodes (the expected counts' ratio) with the fitted

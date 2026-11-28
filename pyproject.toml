@@ -39,6 +39,11 @@ dependencies = [
 requires-python = ">=3.12"
 readme = "README.md"
 
+[project.optional-dependencies]
+# irtlib.plot, the only module that imports matplotlib (ADR-0011). matplotlib before 3.10.7 warns about deprecated
+# pyparsing 3.3 names on import, which the tests turn into errors.
+plot = ["matplotlib>=3.10.7"]
+
 [project.urls]
 Source = "https://github.com/douglasrizzo/irtlib"
 Issues = "https://github.com/douglasrizzo/irtlib/issues"
@@ -182,6 +187,7 @@ line-ending = "auto"
 dev = [
     "hypothesis>=6.127.0",
     "import-linter>=2.17",
+    "matplotlib>=3.10.7",  # the plot extra: the tests of irtlib.plot
     "pre-commit>=4.5.1",
     "pylint>=4.0.5",
     "pytest>=8.4.2",
@@ -191,6 +197,7 @@ dev = [
 ]
 # The documentation site's build (CONTRIBUTING.md, "Building the documentation").
 docs = [
+    "matplotlib>=3.10.7",  # the plot directive, which draws the figures with irtlib.plot
     "myst-parser>=4.0.1",
     "numpydoc>=1.9.0",
     "pydata-sphinx-theme>=0.16.0",
@@ -226,6 +233,7 @@ show_missing = true
 
 [tool.importlinter]
 root_package = "irtlib"
+include_external_packages = true  # for the contracts that keep matplotlib in irtlib.plot
 
 [[tool.importlinter.contracts]]
 id = "layers"
@@ -234,6 +242,7 @@ type = "layers"
 containers = ["irtlib"]
 exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
+  "plot",  # draws every other module's results; nothing in irtlib imports it
   "comparison | fit",  # "|": siblings that never import each other
   "cml | jml | mml",
   "_m_step | calibration",
@@ -244,10 +253,43 @@ layers = [
   "typing",
 ]
 
+[[tool.importlinter.contracts]]
+id = "plot-only-matplotlib"
+name = "only irtlib.plot imports matplotlib (ADR-0011)"
+type = "forbidden"
+source_modules = [
+  "irtlib.ability",
+  "irtlib.bank",
+  "irtlib.calibration",
+  "irtlib.classical",
+  "irtlib.cml",
+  "irtlib.comparison",
+  "irtlib.drawing",
+  "irtlib.fit",
+  "irtlib.irt",
+  "irtlib.jml",
+  "irtlib.mml",
+  "irtlib.quadrature",
+  "irtlib.typing",
+  "irtlib._m_step",
+  "irtlib._responses",
+  "irtlib._search",
+]
+forbidden_modules = ["matplotlib", "mpl_toolkits"]
+
+[[tool.importlinter.contracts]]
+id = "root-without-plot"
+name = "importing irtlib does not load irtlib.plot or matplotlib (ADR-0011)"
+type = "forbidden"
+source_modules = ["irtlib"]
+forbidden_modules = ["irtlib.plot", "matplotlib", "mpl_toolkits"]
+as_packages = false  # the root __init__ alone; irtlib.plot itself is a descendant of irtlib
+
 [tool.vulture]
 # src and tests together: on its own, src's public API reads as unused.
 paths = ["src/irtlib", "tests"]
 min_confidence = 60
+ignore_names = ["close_figures"]  # an autouse fixture, which pytest calls by name
 
 [tool.typos.default.extend-words]
 lik = "lik"  # likelihood, in variable names
