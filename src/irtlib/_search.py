@@ -15,8 +15,9 @@ import numpy.typing as npt
 from scipy.optimize import minimize_scalar
 from scipy.special import expit
 
-from .irt import _log_terms, _LogTerms
-from .typing import FloatArray
+from . import irt
+from .irt import _log_asymptotes, _log_probability, _log_terms, _LogTerms
+from .typing import BoolArray, FloatArray, IntArray
 
 # Points on which a maximum is located before Newton's method refines it: 101, 0.12 apart on [-6, 6], while no item
 # answered is steeper than _STEEP_SLOPE, and above it 0.3 divided by the steepest slope apart (module docstring).
@@ -253,3 +254,300 @@ def _newton(derivatives: _Derivatives, theta: float, low: float, high: float, to
     if abs(step) < tol:
       return theta, evaluations
   return theta, _NEWTON_STEPS
+
+
+# The most floats a batch's grid evaluates at once, rows times points times items: 8 MB.
+_CHUNK_ELEMENTS = 2**20
+
+
+@dataclass(frozen=True, slots=True)
+class _PriorTerms:
+  """A normal prior's log-density, and the mean and precision its derivatives need."""
+
+  log_density: Callable[[FloatArray], FloatArray]
+  mean: float
+  precision: float
+
+
+@dataclass(frozen=True, slots=True)
+class _Rows:
+  """Examinees' responses to the same items, each signed as :py:class:`_Examinee` signs it, for searches of every row.
+
+  Each row's quantities sum over the items it answered, element by element as :py:class:`_Examinee`'s do, so a row
+  with no missing response gets exactly its quantities alone.
+  """
+
+  answered: BoolArray
+  """Which items each row answered, rows by items."""
+  correct: BoolArray
+  """Which it answered correctly."""
+  items: FloatArray
+  """The items, one row ``[a, b, c, d]`` per column of the responses."""
+  slope: FloatArray
+  """Each item's discrimination for each row, negated where the row answered it incorrectly."""
+  floor: FloatArray
+  """c where the row answered the item correctly, 1 - d elsewhere."""
+  log_floor: FloatArray
+  """The logarithm of ``floor``."""
+  dmc: FloatArray
+  """Each item's d - c."""
+  log_dmc: FloatArray
+  """The logarithm of ``dmc``."""
+
+  @classmethod
+  def of(cls, matrix: FloatArray, items: FloatArray) -> Self:
+    """Return the rows of a response matrix and its items, which the caller has checked."""
+    answered, correct = ~numpy.isnan(matrix), matrix == 1
+    a, _, c, d = items.T
+    log_c, log_1md, log_dmc = _log_asymptotes(items)
+    return cls(
+      answered,
+      correct,
+      items,
+      numpy.where(correct, a, -a),
+      numpy.where(correct, c, 1.0 - d),
+      numpy.where(correct, log_c, log_1md),
+      d - c,
+      log_dmc,
+    )
+
+  @property
+  def concave(self) -> BoolArray:
+    """For each row, whether every item it answered has c = 0 and d = 1."""
+    _, _, c, d = self.items.T
+    return ~(self.answered & (c.astype(bool) | (1.0 - d).astype(bool))).any(axis=1)
+
+  @property
+  def search_points(self) -> IntArray:
+    """For each row, :py:attr:`_Examinee.search_points`."""
+    steepest = numpy.where(self.answered, self.items[:, 0], -numpy.inf).max(axis=1)
+    finite = numpy.isfinite(steepest)
+    spaced = numpy.ceil((_NEWTON_SEARCH_POINTS - 1) * numpy.where(finite, steepest, 0.0) / _STEEP_SLOPE) + 1
+    points = numpy.minimum(_MAX_SEARCH_POINTS, numpy.maximum(_NEWTON_SEARCH_POINTS, spaced)).astype(int)
+    return numpy.where(finite, points, _NEWTON_SEARCH_POINTS)
+
+  def log_likelihood(self, theta: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' log-likelihood at its own ability, ``theta[i]`` for ``rows[i]``."""
+    z = self.slope[rows] * (theta[:, numpy.newaxis] - self.items[:, 1])
+    terms = _log_probability(z, self.log_floor[rows], self.log_dmc)
+    return numpy.where(self.answered[rows], terms, 0.0).sum(axis=-1)
+
+  def grid(self, nodes: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' log-likelihood at every node, rows by nodes."""
+    log_p, log_q = irt.log_response_probabilities(nodes, self.items)
+    values = numpy.empty((rows.size, nodes.size))
+    chunk = max(1, _CHUNK_ELEMENTS // (nodes.size * self.items.shape[0]))
+    for start in range(0, rows.size, chunk):
+      part = rows[start : start + chunk]
+      terms = numpy.where(self.correct[part][:, numpy.newaxis, :], log_p, log_q)
+      values[start : start + chunk] = numpy.where(self.answered[part][:, numpy.newaxis, :], terms, 0.0).sum(axis=-1)
+    return values
+
+  def derivatives(self, theta: FloatArray, rows: IntArray) -> tuple[FloatArray, FloatArray]:
+    """Return each of the rows' log-likelihood's first and second derivatives at its own ability."""
+    slope, floor = self.slope[rows], self.floor[rows]
+    z = slope * (theta[:, numpy.newaxis] - self.items[:, 1])
+    rising, falling = expit(z), expit(-z)
+    above = self.dmc * rising
+    probability = floor + above
+    share = numpy.divide(above, probability, out=numpy.ones_like(above), where=probability > 0.0)
+    rest = numpy.divide(floor, probability, out=numpy.zeros_like(above), where=probability > 0.0)
+    first = slope * share * falling
+    second = slope * first * (rest * falling - rising)
+    answered = self.answered[rows]
+    return numpy.where(answered, first, 0.0).sum(axis=-1), numpy.where(answered, second, 0.0).sum(axis=-1)
+
+  def total_information(self, theta: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' test information, over the items it answered, at its own ability."""
+    return numpy.where(self.answered[rows], irt.information(theta, self.items), 0.0).sum(axis=-1)
+
+
+@dataclass(frozen=True, slots=True)
+class _BatchObjective:
+  """A batched search's objective: each row's log-likelihood, plus a normal prior's log-density if there is one."""
+
+  batch: _Rows
+  prior: _PriorTerms | None = None
+
+  def __call__(self, theta: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' objective at its own ability, ``theta[i]`` for ``rows[i]``."""
+    values = self.batch.log_likelihood(theta, rows)
+    return values if self.prior is None else values + self.prior.log_density(theta)
+
+  def derivatives(self, theta: FloatArray, rows: IntArray) -> tuple[FloatArray, FloatArray]:
+    """Return each of the rows' objective's first and second derivatives at its own ability."""
+    slope, curvature = self.batch.derivatives(theta, rows)
+    if self.prior is None:
+      return slope, curvature
+    return slope - self.prior.precision * (theta - self.prior.mean), curvature - self.prior.precision
+
+  def grid(self, nodes: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' objective at every node, rows by nodes."""
+    values = self.batch.grid(nodes, rows)
+    return values if self.prior is None else values + self.prior.log_density(nodes)
+
+
+def _maxima(
+  objective: _BatchObjective, rows: IntArray, bounds: _Bounds, tol: float
+) -> tuple[FloatArray, FloatArray, IntArray]:
+  """Return what :py:func:`_maximum` returns for each row alone, with Newton's refinement.
+
+  Rows whose items all have c = 0 and d = 1 skip the points, as :py:func:`_concave_maximum` does; the others are
+  searched on their own number of points, :py:attr:`_Rows.search_points`.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each row's ability, the objective there, and its evaluations of the objective or of its derivatives.
+
+  Raises
+  ------
+  ValueError
+      If a row's objective is not finite at any of its points.
+  """
+  theta, value = numpy.empty(rows.size), numpy.empty(rows.size)
+  evaluations = numpy.zeros(rows.size, dtype=int)
+  concave = objective.batch.concave[rows]
+  if concave.any():
+    theta[concave], value[concave], evaluations[concave] = _concave_maxima(objective, rows[concave], bounds, tol)
+  points = objective.batch.search_points[rows]
+  for n_points in numpy.unique(points[~concave]).tolist():
+    group = ~concave & (points == n_points)
+    found = _grid_maxima(objective, rows[group], _search_points(*bounds, n_points), bounds, tol)
+    theta[group], value[group], evaluations[group] = found
+  return theta, value, evaluations
+
+
+def _concave_maxima(
+  objective: _BatchObjective, rows: IntArray, bounds: _Bounds, tol: float
+) -> tuple[FloatArray, FloatArray, IntArray]:
+  """Return what :py:func:`_concave_maximum` returns for each row alone.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each row's ability, the objective there, and its evaluations of the objective or of its derivatives.
+  """
+  low, high = bounds
+  theta = numpy.full(rows.size, low)
+  evaluations = numpy.ones(rows.size, dtype=int)
+  above_low = objective.derivatives(theta, rows)[0] > 0.0
+  at_high = numpy.zeros(rows.size, dtype=bool)
+  at_high[above_low] = objective.derivatives(numpy.full(int(above_low.sum()), high), rows[above_low])[0] >= 0.0
+  theta[at_high], evaluations[above_low] = high, 2
+  inner = numpy.flatnonzero(above_low & ~at_high)
+  if inner.size:
+    start = numpy.full(inner.size, 0.5 * (low + high))
+    bracket = numpy.full(inner.size, low), numpy.full(inner.size, high)
+    theta[inner], used = _newton_rows(objective.derivatives, rows[inner], start, bracket, tol=tol)
+    evaluations[inner] = 2 + used
+  return theta, objective(theta, rows), evaluations + 1
+
+
+def _grid_maxima(
+  objective: _BatchObjective, rows: IntArray, nodes: FloatArray, bounds: _Bounds, tol: float
+) -> tuple[FloatArray, FloatArray, IntArray]:
+  """Return what :py:func:`_maximum` returns, with Newton's refinement, for each row alone, from the given points.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each row's ability, the objective there, and its evaluations of the objective or of its derivatives.
+
+  Raises
+  ------
+  ValueError
+      If a row's objective is not finite at any of the points.
+  """
+  values = objective.grid(nodes, rows)
+  peak = values.max(axis=-1)
+  if not numpy.isfinite(peak).all():
+    msg = (
+      f"the log-posterior is not finite at any of the {nodes.size} search points in {bounds}; the prior's support "
+      "must contain at least one of them"
+    )
+    raise ValueError(msg)
+  best, n_ties = _middle_ties(values, peak)
+  theta, value = nodes[best], peak.copy()
+  evaluations = numpy.full(rows.size, nodes.size)
+  refined = numpy.flatnonzero(n_ties < _FLAT_MAXIMUM_POINTS)
+  if refined.size:
+    centre = best[refined]
+    bracket = nodes[numpy.maximum(centre - 1, 0)], nodes[numpy.minimum(centre + 1, nodes.size - 1)]
+    found, used = _newton_rows(
+      objective.derivatives, rows[refined], _vertices(nodes, values[refined], centre), bracket, tol=tol
+    )
+    found_value = objective(found, rows[refined])
+    # kept only if no worse than the best point, as _maximum keeps it
+    better = found_value >= peak[refined]
+    theta[refined[better]], value[refined[better]] = found[better], found_value[better]
+    evaluations[refined] += used + 1
+  return theta, value, evaluations
+
+
+def _middle_ties(values: FloatArray, peak: FloatArray) -> tuple[IntArray, IntArray]:
+  """Return each row's middle point of those at its peak, as :py:func:`_maximum` takes it, and their number."""
+  ties = values == peak[:, numpy.newaxis]
+  n_ties = ties.sum(axis=-1)
+  return (ties & (ties.cumsum(axis=-1) == (n_ties // 2 + 1)[:, numpy.newaxis])).argmax(axis=-1), n_ties
+
+
+def _vertices(nodes: FloatArray, values: FloatArray, best: IntArray) -> FloatArray:
+  """Return what :py:func:`_vertex` returns for each row of values, with its best point."""
+  rows = numpy.arange(best.size)
+  left = values[rows, numpy.maximum(best - 1, 0)]
+  right = values[rows, numpy.minimum(best + 1, nodes.size - 1)]
+  curvature = left - 2.0 * values[rows, best] + right
+  vertex = (best > 0) & (best < nodes.size - 1) & (curvature < 0.0)
+  start = nodes[best].copy()
+  shift = 0.5 * (nodes[1] - nodes[0]) * (left[vertex] - right[vertex]) / curvature[vertex]
+  start[vertex] = nodes[best[vertex]] + shift
+  return start
+
+
+def _newton_rows(
+  derivatives: Callable[[FloatArray, IntArray], tuple[FloatArray, FloatArray]],
+  rows: IntArray,
+  theta: FloatArray,
+  bracket: tuple[FloatArray, FloatArray],
+  *,
+  tol: float,
+) -> tuple[FloatArray, IntArray]:
+  """Return what :py:func:`_newton` returns for each row alone, step by step the same arithmetic.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray]
+      Each row's zero, within ``tol``, and its evaluations of the derivatives.
+  """
+  theta, low, high = theta.astype(float), bracket[0].astype(float), bracket[1].astype(float)
+  last = high - low
+  before_last = last.copy()
+  evaluations = numpy.zeros(rows.size, dtype=int)
+  active = numpy.arange(rows.size)
+  for _ in range(_NEWTON_STEPS):
+    if not active.size:
+      break
+    current = theta[active]
+    slope, curvature = derivatives(current, rows[active])
+    evaluations[active] += 1
+    low[active] = numpy.where(slope > 0.0, current, low[active])
+    high[active] = numpy.where(slope > 0.0, high[active], current)
+    # a Newton step needs a finite negative curvature; any other bisects
+    newton = (curvature > -math.inf) & (curvature < 0.0)
+    step = numpy.full(active.size, math.inf)
+    step[newton] = -slope[newton] / curvature[newton]
+    # a Newton step within the tolerance ends the row's search before the bracket test, as in _newton
+    settled = numpy.abs(step) < tol
+    theta[active[settled]] = numpy.minimum(
+      high[active[settled]], numpy.maximum(low[active[settled]], current[settled] + step[settled])
+    )
+    active, current, step = active[~settled], current[~settled], step[~settled]
+    bisect = ~((low[active] < current + step) & (current + step < high[active])) | (
+      numpy.abs(step) > before_last[active] / 2.0
+    )
+    step[bisect] = 0.5 * (low[active][bisect] + high[active][bisect]) - current[bisect]
+    before_last[active], last[active] = last[active], numpy.abs(step)
+    theta[active] = current + step
+    active = active[numpy.abs(step) >= tol]
+  return theta, evaluations

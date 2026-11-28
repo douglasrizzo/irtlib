@@ -1,5 +1,5 @@
 ---
-title: Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE
+title: Estimate the abilities of many examinees in one vectorized search, by the WLE
 kind: feature
 status: ready
 priority: 3
@@ -8,7 +8,7 @@ blocked_by: []
 raised_by: [joint maximum likelihood PR on 2026-11-27]
 ---
 
-# Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE
+# Estimate the abilities of many examinees in one vectorized search, by the WLE
 
 ## Why this card exists
 
@@ -16,6 +16,11 @@ The joint maximum likelihood PR (#33) found that a 2PL calibration spends almost
 the ability step, one maximum likelihood search per response pattern per cycle. The maintainer then
 asked on 2026-11-28 what estimating many examinees at once would take. A scratch prototype
 (Evidence) answered it: 29 to 49 times faster, with the same estimates.
+
+The maximum likelihood and MAP searches, under a normal prior, search every row of a matrix at once since the
+batched-search PR of 2026-11-28 (15 to 28 times faster on 2,000 to 5,000 examinees, and a 2PL joint calibration 4 to 6
+times faster). What remains is the WLE, whose root search is `scipy.optimize.brentq` per examinee, and MAP under a
+prior other than the normal, whose refinement is SciPy's bounded search per examinee.
 
 ## Problem
 
@@ -74,68 +79,23 @@ How other packages estimate many examinees:
 
 ## What irtlib and catsim have now
 
-- `src/irtlib/ability.py`:
-  - `_answered` yields one examinee at a time.
-  - `_maximum` evaluates 101 points, more for slopes above 2.5, and refines the best between its
-    neighbours by a bracketed Newton's method, or skips the points where the log-likelihood is
-    concave (the 1PL and 2PL).
-    Under a prior other than the normal, MAP evaluates 201 points and refines the best with
-    `scipy.optimize.minimize_scalar`.
-  - Without bounds, the search moves a range end outward while the bounds on the log-likelihood
-    leave room beyond it. `maximum_likelihood`, `maximum_a_posteriori` and `weighted_likelihood`
-    (with `scipy.optimize.brentq`) all build one objective per examinee.
-- `expected_a_posteriori` already evaluates every examinee on the grid at once, through
-  `irt.log_likelihood_function` and `quadrature.posterior`.
-- `src/irtlib/jml.py`: `_Groups` estimates each response pattern once, which saves the repeated
-  patterns only.
-- catsim estimates one examinee per step of an adaptive test, a path `benchmarks/catsim_baseline.py`
-  times against catsim's own estimators.
+- `src/irtlib/_search.py`: `_Rows` holds a matrix's responses signed for the searches, and `_maxima` searches every row
+  at once with the arithmetic of `_Examinee`'s one-row search: the grid of each row's points in chunks, the bracketed
+  Newton's method of `_newton_rows`, and the concave search of the 1PL and 2PL. `irtlib.ability.maximum_likelihood`
+  and `maximum_a_posteriori`, under a normal prior, call it for two or more rows.
+- `src/irtlib/ability.py`: `weighted_likelihood` loops over the examinees: a scan of Warm's modified score at 121
+  points, `scipy.optimize.brentq` on each sign change, and `scipy.integrate.quad` to rank several roots. MAP under any
+  other prior loops too, with SciPy's bounded search.
+- catsim estimates one examinee per step of an adaptive test, which keeps the one-row search.
 
 ## Proposal
 
-What it takes:
-
-1. **The grid for every examinee at once.** One product of the response matrix with the log
-   probabilities at the search points, as the prototype does, with missing responses as zero
-   weights. Its memory is examinees × 101 floats: 4 MB for 5,000 examinees.
-2. **The refinement for every examinee at once.**
-   - ML and MAP: `scipy.optimize.elementwise.find_minimum` (Chandrupatla's bracketing
-     minimization), with each examinee's best point and its two neighbours as the bracket the
-     function requires, or a vectorized form of the one-examinee search's bracketed Newton's method
-     on the derivatives it already computes. It is in SciPy 1.16.0, irtlib's lowest supported version (checked
-     2026-11-28), so no dependency changes.
-   - WLE: `scipy.optimize.elementwise.find_root` replaces `brentq`.
-   - The objective takes an array of abilities, one per examinee, with the rows' indices as an
-     argument the function subsets alongside them.
-3. **Every behaviour of today's per-examinee search, vectorized by masks:**
-   - the rule that keeps a refinement only if it is no worse than the best point;
-   - flat maxima;
-   - responses all correct or all incorrect, and unanswered rows;
-   - the unbounded search's moving range ends, repeated for the rows whose best point lies at an
-     end, which are few;
-   - the fallback estimator;
-   - the evaluation counts, from the refinement's count for each element.
-4. **One examinee stays fast.** The vectorized path's fixed cost may slow catsim's single-examinee
-   calls. Measure it with `benchmarks/catsim_baseline.py`, and keep a one-row path if it does.
-
-TAM's damped Newton step for all persons is the alternative to point 2. It assumes one maximum,
-which the 1PL and 2PL have and the 3PL and 4PL need not. The grid followed by a bracketed
-refinement keeps irtlib's guard against a local maximum. On the 1PL and 2PL the one-examinee
-search already skips the points, the log-likelihood being concave, and the vectorized search can
-too.
-
-EAP needs none of this: it already scores every examinee on the grid at once.
-
-Where irtlib would use the vectorized estimators:
-
-- **ML:** the ability step of every cycle of `irtlib.jml`, where most of a 2PL calibration's time
-  goes.
-- **MAP and WLE:** the ability steps of penalized JML and of JML with Warm abilities, should
-  [estimation/jml-variants](jml-variants.md) add them.
-- **ML or WLE:** the mean squares of a conditional calibration, should
-  [fit/conditional-mean-squares](../fit/conditional-mean-squares.md) choose them.
-- **All three:** scoring a calibration sample and simulation studies, through `irtlib.ability`
-  directly.
+1. **The WLE's scan for every examinee at once,** through `_Rows`: the modified score's sums over each row's items at
+   the 121 points, as `_Examinee.modified_score` computes them.
+2. **Its roots for every examinee at once,** with the arithmetic of `brentq`, so that a row's estimate stays the same
+   alone and in a matrix; `scipy.optimize.elementwise.find_root` is the alternative, at the cost of that equality.
+3. **The ranking of several roots** stays one row at a time, as few rows have more than one.
+4. **MAP under other priors** stays one row at a time unless a use appears.
 
 ## Tests
 
