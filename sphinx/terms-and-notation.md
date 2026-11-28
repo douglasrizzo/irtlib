@@ -81,6 +81,17 @@ number correct
 : The number of items an examinee answered correctly. Also called the *raw score* or *number-correct
   score*.
 
+rest score
+: An examinee's number correct on the items other than the one in question.
+
+proportion correct
+: The share of the examinees who answered an item that answered it correctly. Also called the
+  item's *p-value*. In the API: {func}`~irtlib.classical.proportion_correct`.
+
+item-rest correlation
+: The correlation of an item's responses with the examinees' rest scores, a point-biserial
+  correlation. In the API: {func}`~irtlib.classical.item_rest_correlation`.
+
 ## Calibration
 
 calibration

@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted 2026-11-26; scope widened 2026-11-27
+Accepted 2026-11-26; scope widened 2026-11-27 and 2026-11-28
 
 ## Context
 
@@ -27,6 +27,8 @@ is written and checked twice.
     have missing entries;
   - ability estimation for many examinees at once;
   - the fit of a calibrated model, item by item and between models;
+  - the classical item statistics that screen responses before a calibration: each item's
+    proportion correct and item-rest correlation;
   - the item bank format, with its validation, its CSV file and random banks, and drawing responses
     from the model.
 - The line between irtlib and catsim is the fixed-form test. What is meaningful when every examinee

@@ -239,7 +239,7 @@ layers = [
   "_m_step | calibration",
   "ability",
   "_search | quadrature | bank | drawing",
-  "irt",
+  "irt | classical",
   "_responses",
   "typing",
 ]

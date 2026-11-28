@@ -15,7 +15,8 @@ range give the same log-likelihood within the tolerance. The response-function f
 parameters instead of responses, and is checked against the 4PL information of Magis (2013, p. 307, Equation 6),
 written out. The ability fixture holds items with fixed parameters and response patterns, and its EAP estimates are
 checked against the posterior mean and standard deviation written out on mirt's grid; the abilities of the
-mean-square cases are checked the same way, on irtlib's grid.
+mean-square cases are checked the same way, on irtlib's grid. The classical statistics' fixture holds the data sets of
+the MML fixture, and is checked against them.
 """
 
 from __future__ import annotations
@@ -40,6 +41,7 @@ from irtlib.ability import (
   weighted_likelihood,
 )
 from irtlib.calibration import Calibration, ConvergenceWarning, Likelihood, default_grid
+from irtlib.classical import item_rest_correlation, proportion_correct
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
@@ -75,6 +77,7 @@ _ITEM_FIT = load("item_fit")
 _MML_PRIORS = load("mml_priors")
 _COMPARISON = load("comparison")
 _RESPONSE_FUNCTIONS = load("response_functions")
+_CLASSICAL = load("classical")
 
 # The calibrator that fits each model of the fixture: mirt's 2PL, its 2PL with the slopes constrained equal, and its
 # "1PL", whose slopes are fixed at 1.
@@ -728,3 +731,26 @@ def test_ability_standard_errors(case: dict[str, Any]) -> None:
   estimates = _ability_estimates(case)
   rtol = _CLOSED_FORM_RTOL if case["method"] == "EAP" else _STANDARD_ERROR_RTOL
   np.testing.assert_allclose(estimates.standard_errors, _floats(case["se"]), rtol=rtol)
+
+
+@pytest.mark.parametrize("name", ["lsat6", "lsat7", "simulated"])
+def test_classical_fixture_data_are_the_calibration_fixtures(name: str) -> None:
+  """The classical statistics' data sets are those of the MML fixture, whose log-likelihoods are checked above.
+
+  Fails if the fixture's responses were drawn from another seed or with another share missing.
+  """
+  for key in ("patterns", "counts"):
+    assert _CLASSICAL["data"][name][key] == _MML_EM["data"][name][key], key
+
+
+@pytest.mark.parametrize("case", _CLASSICAL["cases"], ids=operator.itemgetter("data"))
+def test_classical_item_statistics(case: dict[str, Any]) -> None:
+  """Each item's proportion correct and item-rest correlation match mirt's itemstats, missing responses included.
+
+  On the simulated data, 10% of whose responses are missing, each item's statistics run over the examinees who
+  answered it, and the rest score over the other items each answered. Fails if a missing response counts as
+  incorrect, the rest score keeps the item, or the correlation runs over every examinee.
+  """
+  matrix = responses(_CLASSICAL["data"][case["data"]])
+  np.testing.assert_allclose(proportion_correct(matrix), case["proportion_correct"], rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(item_rest_correlation(matrix), case["item_rest_correlation"], rtol=_CLOSED_FORM_RTOL)

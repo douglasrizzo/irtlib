@@ -15,7 +15,8 @@ item bank format (ADR-0001). What is meaningful for a fixed-form test belongs he
 sense for adaptive testing belongs to catsim, which builds on irtlib (ADR-0004).
 
 MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), item fit by S-X² and the
-Rasch mean squares (`irtlib.fit`) and model comparison (`irtlib.comparison`) are implemented and
+Rasch mean squares (`irtlib.fit`) model comparison (`irtlib.comparison`) and the classical item statistics (`irtlib.classical`) are
+implemented and
 checked against mirt (`tests/parity/mirt/`), and conditional and joint maximum likelihood
 (`irtlib.cml`, `irtlib.jml`) against published values and closed forms. The item response code
 that catsim holds is moving here in parts, each a card in `backlog/irt/` or `backlog/estimation/`;
