@@ -68,6 +68,10 @@ def _zero_everywhere(theta: FloatArray) -> FloatArray:
   return np.full_like(theta, -np.inf)
 
 
+def _minus_1e308_everywhere(theta: FloatArray) -> FloatArray:
+  return np.full_like(theta, -1e308)
+
+
 @pytest.mark.parametrize(("mean", "sd"), [(0.0, 1.0), (0.5, 2.0), (-1.5, 0.3)])
 def test_normal_log_prior_is_the_normal_log_density(mean: float, sd: float) -> None:
   """The prior's values are SciPy's normal log-density; fails if the variance, the constant or the mean is wrong."""
@@ -475,13 +479,26 @@ def test_one_examinee_with_an_undefined_or_massless_posterior_is_an_error(
   """One examinee whose log-likelihood is NaN or +inf at a node, or -inf wherever the prior has mass, is an error.
 
   The prior is uniform on [-1, 1], 0 at the grid's ends. Skipping the checks for one examinee, or deciding them on a
-  log-likelihood finite at some node, returns NaN; adding the log-prior before checking +inf against its -inf warns of
-  an invalid value, which the test suite turns into an error.
+  log-likelihood finite at some node, returns NaN; adding +inf to the log-prior's -inf without silencing the invalid
+  value warns, which the test suite turns into an error.
   """
   grid = QuadratureGrid.uniform(5, -2.0, 2.0)
 
   with pytest.raises(ValueError, match=match):
     posterior(np.array([log_likelihood]), grid, uniform_log_prior(-1.0, 1.0))
+
+
+def test_a_log_joint_that_overflows_at_every_node_has_no_mass() -> None:
+  """A finite log-likelihood and log-prior whose sum overflows to -inf at every node leave no mass: an error.
+
+  Both are -1e308 at the three nodes of a grid with unit weights, so each passes its own check, and their sum is -inf.
+  Deciding the checks on the log-likelihood alone returns NaN after a warning of the overflow, which the test suite
+  turns into an error.
+  """
+  grid = QuadratureGrid.uniform(3, -1.0, 1.0)
+
+  with pytest.raises(ValueError, match=r"no mass at any node for the examinees in rows \[0\]"):
+    posterior(np.full((1, 3), -1e308), grid, _minus_1e308_everywhere)
 
 
 @pytest.mark.parametrize("shape", [(121,), (2, 120), (2, 121, 1)])

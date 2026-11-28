@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 10 ready, 2 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+21 cards: 11 ready, 2 needs-research, 2 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -62,6 +62,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
+| [Bring a call of the normal prior's log-density within 1.2 times catsim's time](irt/normal-prior-speed.md) | irt | fix | ready | XS |  | benchmarks against catsim on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Share the complete-response check of item fit and G²](maintenance/complete-responses-check.md) | maintenance | maintenance | ready | XS |  | mean-squares PR on 2026-11-27 |

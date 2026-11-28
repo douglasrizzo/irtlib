@@ -346,17 +346,20 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
     )
     raise ValueError(msg)
   log_masses = _log_masses(grid, log_prior)
-  # the prior's check leaves mass at some node, so no row of a log-likelihood finite everywhere fails these checks
-  if not numpy.isfinite(log_likelihood).all():
+  # finite terms can overflow to -inf, and +inf meets the prior's -inf as NaN: the checks below name both
+  with numpy.errstate(over="ignore", invalid="ignore"):
+    log_joint = log_likelihood + log_masses
+  # a log-joint finite at every node has mass in every row and no NaN or +inf log-likelihood, so it passes both checks
+  if not numpy.isfinite(log_joint).all():
     undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
     if undefined.any():
       msg = f"the log-likelihood is NaN or +inf for the examinees in rows {numpy.flatnonzero(undefined).tolist()}"
       raise ValueError(msg)
-    massless = ~numpy.isfinite(log_likelihood + log_masses).any(axis=1)
+    massless = ~numpy.isfinite(log_joint).any(axis=1)
     if massless.any():
       msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
       raise ValueError(msg)
-  return _normalized(log_likelihood + log_masses)
+  return _normalized(log_joint)
 
 
 def posterior_mean(post: FloatArray, nodes: FloatArray) -> FloatArray:

@@ -672,19 +672,21 @@ class TestLogLikelihood:
     """One examinee's value at an array of abilities, and at one ability, is the brute-force sum over its answers.
 
     Counting a missing response as incorrect, pairing an item with another item's response or asymptotes, or giving
-    one ability a shape other than (1,) changes a value or the shape; with no answers the value is 0.
+    one ability, a float or a 0-d array, a shape other than (1,) changes a value or the shape; with no answers the
+    value is 0.
     """
     responses = np.array([row])
     thetas = np.array([-2.5, -0.4, 0.0, 1.3, 2.8])
     expected = _brute_force_log_likelihood(thetas, responses, _ITEMS)
 
     values = irt.log_likelihood(thetas, responses, _ITEMS)
-    at_one = irt.log_likelihood(1.3, responses, _ITEMS)
 
     assert values.shape == (1, 5)
     np.testing.assert_allclose(values, expected, rtol=1e-12, atol=0.0)
-    assert at_one.shape == (1,)
-    np.testing.assert_allclose(at_one, expected[:, 3], rtol=1e-12, atol=0.0)
+    for one in (1.3, np.array(1.3)):
+      at_one = irt.log_likelihood(one, responses, _ITEMS)
+      assert at_one.shape == (1,)
+      np.testing.assert_allclose(at_one, expected[:, 3], rtol=1e-12, atol=0.0)
 
   def test_each_examinee_alone_gets_its_row_of_the_batch(self) -> None:
     """Each examinee's log-likelihood alone, at a (2, 3) array of abilities, is its row of the batch's.
