@@ -96,7 +96,7 @@ import numpy
 from scipy.stats import chi2
 
 from .ability import expected_a_posteriori
-from .calibration import Calibration, _check_marginal, validate_responses
+from .calibration import Calibration, _check_marginal, _complete_responses
 from .irt import icc, log_response_probabilities
 from .quadrature import normal_log_prior, prior_masses
 from .typing import FloatArray, IntArray
@@ -105,6 +105,8 @@ from .typing import FloatArray, IntArray
 _SQUARED_VARIANCE_FLOOR = 1e-5
 # mirt 1.48 caps the standard deviation of a mean square at this before standardizing it (R/itemfit.R:586, 591)
 _SD_CAP = 1.4142
+# what item fit's error for a missing response says to do
+_REMOVE_MISSING = "remove the examinees with missing responses"
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,7 +162,7 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   if not min_expected >= 0:
     msg = f"min_expected must be at least 0, got {min_expected}"
     raise ValueError(msg)
-  matrix = _complete_responses(calibration, responses, "S-X²")
+  matrix = _complete_responses(calibration, responses, "S-X²", _REMOVE_MISSING)
   items = calibration.estimates
   grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
@@ -321,7 +323,7 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
       "slope, c = 0 and d = 1; S-X² (s_x2) evaluates the fit of any model"
     )
     raise ValueError(msg)
-  matrix = _complete_responses(calibration, responses, "the mean squares")
+  matrix = _complete_responses(calibration, responses, "the mean squares", _REMOVE_MISSING)
   grid = _check_marginal(calibration, "the mean squares")
   theta = expected_a_posteriori(matrix, items, grid=grid).theta
   log_p, log_q = log_response_probabilities(theta, items)
@@ -356,28 +358,3 @@ def _standardized(mean_square: FloatArray, variance: FloatArray) -> FloatArray:
   # the floor on W can leave the variance negative, which has no square root, as in mirt
   sd = numpy.minimum(numpy.sqrt(numpy.where(variance > 0, variance, numpy.nan)), _SD_CAP)
   return (numpy.cbrt(mean_square) - 1) * (3 / sd) + sd / 3
-
-
-def _complete_responses(calibration: Calibration, responses: FloatArray, statistic: str) -> FloatArray:
-  """Return the responses as a float matrix, after checking that they are complete and match the calibration's items.
-
-  Returns
-  -------
-  numpy.ndarray
-      A float copy of the responses.
-
-  Raises
-  ------
-  ValueError
-      If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not have
-      one column per item of the calibration.
-  """
-  matrix = validate_responses(responses)
-  if numpy.isnan(matrix).any():
-    msg = f"complete responses are needed for {statistic}; remove the examinees with missing responses"
-    raise ValueError(msg)
-  n_items = calibration.estimates.shape[0]
-  if matrix.shape[1] != n_items:
-    msg = f"the responses have {matrix.shape[1]} items, the calibration {n_items}"
-    raise ValueError(msg)
-  return matrix
