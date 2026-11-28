@@ -1,7 +1,7 @@
 # Maximum Likelihood
 
 :API: {py:func}`irtlib.ability.maximum_likelihood`
-:Sources: {cite:t}`Magis2012`; {cite:t}`Warm1989`
+:Sources: {cite:t}`Magis2012`; {cite:t}`Warm1989`; {cite:t}`Chang1996`; {cite:t}`Veerkamp1994`
 
 ## Motivation
 
@@ -41,8 +41,9 @@ $\infty$, the information being 0.
   the `from_fallback` field of {class}`~irtlib.ability.AbilityEstimates` marks those rows.
 
 **The search.** Where an item answered has $c_i > 0$ or $d_i < 1$, the likelihood can have several
-maxima, and the search evaluates the log-likelihood at equally spaced abilities of the range: 101
-when no item answered has a slope $a_i$ above 2.5, 0.12 apart on $[-6, 6]$, and otherwise
+maxima: under the 3PL the likelihood equation may have several roots {cite:p}`Chang1996{p. 223}`, and
+the likelihood several local maxima {cite:p}`Veerkamp1994{p. 4}`. The search evaluates the
+log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope $a_i$ above 2.5, 0.12 apart on $[-6, 6]$, and otherwise
 $\lceil 40 \max_i a_i \rceil + 1$, 0.3 divided by the steepest slope apart on $[-6, 6]$, since a
 steep item can make a peak narrower than 0.12, up to 2,401 points, 0.005 apart, for slopes of 60 and
 above, so that a pathological slope cannot exhaust memory. It refines the best between its neighbours
