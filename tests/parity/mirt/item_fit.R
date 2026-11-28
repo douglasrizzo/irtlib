@@ -9,9 +9,26 @@
 # of incorrect and correct counts by score, with empty rows, rows of one examinee, ties, small
 # expected counts and expected counts of 0; an expected count of 0 is written as 0, where mirt marks
 # it NA.
+#
+# The mean-square cases are mirt's itemfit(fit_stats = "infit") of Rasch fits of LSAT6 and LSAT7:
+# slopes fixed at 1 and the ability variance estimated, irtlib's 1PL with its abilities multiplied
+# by their standard deviation. The abilities are fscores' EAP estimates on irtlib's grid, the 61
+# nodes on [-6, 6] multiplied by that standard deviation, where the posterior weights are irtlib's.
+# The Rasch M-step runs nlminb, whose tolerance is rel.tol. Each case records the standard
+# deviation, the intercepts, each pattern's ability and mirt's mean squares with their standardized
+# values.
+#
+# The mean-square guard case runs itemfit(fit_stats = "infit") on every response pattern of three
+# Rasch items of fixed parameters, with abilities passed in, five responses 7 or more logits from
+# their item: mirt raises their variance (R/personfit.R:200), and caps the standard deviation of each
+# unweighted mean square of the eight examinees (R/itemfit.R:586). fixed_items_model() comes from
+# response_functions.R.
 
 ITEM_FIT_SEED <- 20261128L
 COLLAPSE_SEED <- 20261129L
+# a, b, c, d
+MEAN_SQUARE_GUARD_ITEMS <- rbind(c(1, -1, 0, 1), c(1, 0, 0, 1), c(1, 1.5, 0, 1))
+MEAN_SQUARE_GUARD_THETA <- c(-8, -3, -1, 0, 0.5, 2, 4, 7)
 
 item_fit_case <- function(name, x, model) {
   fitted <- fit(x, model, "Oakes")
@@ -39,7 +56,54 @@ item_fit_cases <- function() {
       cases[[length(cases) + 1L]] <- item_fit_case(name, matrices[[name]], model)
     }
   }
-  list(settings = MML_EM_SETTINGS, data = data, cases = cases, collapse = collapse_cases())
+  mean_squares <- lapply(c("lsat6", "lsat7"), function(name) mean_square_case(name, data[[name]], matrices[[name]]))
+  list(
+    settings = MML_EM_SETTINGS, data = data, cases = cases, collapse = collapse_cases(), mean_squares = mean_squares,
+    mean_square_guards = mean_square_guard_case()
+  )
+}
+
+mean_square_guard_case <- function() {
+  model <- fixed_items_model(MEAN_SQUARE_GUARD_ITEMS)
+  statistics <- itemfit(model, fit_stats = "infit", Theta = matrix(MEAN_SQUARE_GUARD_THETA))
+  list(
+    items = MEAN_SQUARE_GUARD_ITEMS,
+    responses = unname(extract.mirt(model, "data")),
+    theta = as_array(MEAN_SQUARE_GUARD_THETA),
+    outfit = as_array(statistics$outfit),
+    z_outfit = as_array(statistics$z.outfit),
+    infit = as_array(statistics$infit),
+    z_infit = as_array(statistics$z.infit)
+  )
+}
+
+mean_square_case <- function(name, data, x) {
+  fitted <- mirt(
+    x, 1,
+    itemtype = "Rasch", quadpts = MML_EM_SETTINGS$quadrature_points, TOL = MML_EM_SETTINGS$tol, verbose = FALSE,
+    technical = list(NCYCLES = MML_EM_SETTINGS$max_cycles, theta_lim = MML_EM_SETTINGS$theta_limits),
+    control = list(rel.tol = MML_EM_SETTINGS$reltol)
+  )
+  stopifnot(extract.mirt(fitted, "converged"))
+  sd <- sqrt(coef(fitted, simplify = TRUE)$cov[1, 1])
+  limits <- MML_EM_SETTINGS$theta_limits
+  nodes <- seq(limits[1], limits[2], length.out = MML_EM_SETTINGS$quadrature_points)
+  theta <- fscores(fitted, method = "EAP", custom_theta = matrix(sd * nodes), full.scores = TRUE, verbose = FALSE)
+  statistics <- itemfit(fitted, fit_stats = "infit", Theta = theta)
+  # the rows of a pattern are adjacent in the expanded matrix, so its first row gives its ability
+  counts <- unlist(data$counts)
+  first <- cumsum(counts) - counts + 1L
+  list(
+    id = paste0(name, "/rasch"),
+    data = name,
+    sd = sd,
+    intercept = item_values(fitted, "par", "d"),
+    theta = as_array(theta[first, 1]),
+    outfit = as_array(statistics$outfit),
+    z_outfit = as_array(statistics$z.outfit),
+    infit = as_array(statistics$infit),
+    z_infit = as_array(statistics$z.infit)
+  )
 }
 
 collapse_cases <- function() {
