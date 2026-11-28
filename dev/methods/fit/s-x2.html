@@ -457,14 +457,14 @@
 <dd class="field-odd"><p><a class="reference internal" href="#irtlib.fit.s_x2" title="irtlib.fit.s_x2"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.s_x2()</span></code></a>; <a class="reference internal" href="#irtlib.fit.ItemFit" title="irtlib.fit.ItemFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.fit.ItemFit</span></code></a></p>
 </dd>
 <dt class="field-even">Sources<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="bibtex-citation" id="id1">Orlando and Thissen [<a class="reference internal" href="#id43" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">2000</a>]</span></p>
+<dd class="field-even"><p><span class="bibtex-citation" id="id1">Orlando and Thissen [<a class="reference internal" href="#id46" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">2000</a>]</span></p>
 </dd>
 </dl>
 <section id="motivation">
 <h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">#</a></h2>
 <p>Orlando and Thissen’s S-X² tests, item by item, whether a calibrated model predicts the responses
 observed. It groups examinees by their number-correct score, which is observed, rather than by an
-ability estimate, whose groups depend on the model <span class="bibtex-citation" id="id2">[<a class="reference internal" href="#id43" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 52]</span>, and it applies to
+ability estimate, whose groups depend on the model <span class="bibtex-citation" id="id2">[<a class="reference internal" href="#id46" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 52]</span>, and it applies to
 every model from the 1PL to the 4PL. For the Rasch model, <a class="reference internal" href="mean-squares.html"><span class="doc">Mean Squares</span></a> compare each response
 with its expectation instead.</p>
 </section>
@@ -474,7 +474,7 @@ with its expectation instead.</p>
 the observed proportion of them answering item <span class="math notranslate nohighlight">\(i\)</span> correctly,</p>
 <div class="math notranslate nohighlight">
 \[S\text{-}X^2_i = \sum_{k=1}^{M-1} N_k \frac{(O_{ik} - E_{ik})^2}{E_{ik}(1 - E_{ik})}\]</div>
-<p><span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id43" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 54, Equation 13]</span>. The expected proportion is</p>
+<p><span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id46" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 54, Equation 13]</span>. The expected proportion is</p>
 <div class="math notranslate nohighlight">
 \[E_{ik} = \frac{\sum_q P_i(X_q)\, S^{*i}_{k-1}(X_q)\, A_q}{\sum_q S_k(X_q)\, A_q}\]</div>
 <p>(p. 54, Equation 12), where <span class="math notranslate nohighlight">\(S_k(X_q)\)</span> is the likelihood of a score of <span class="math notranslate nohighlight">\(k\)</span> at ability <span class="math notranslate nohighlight">\(X_q\)</span> and
@@ -489,7 +489,7 @@ parameters estimated for the item (p. 56).</p>
 <p><strong>The grid.</strong> The nodes and their normal masses <span class="math notranslate nohighlight">\(A_q\)</span> are the calibration’s grid, so S-X² takes a
 calibration by <a class="reference internal" href="../calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a> (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>).</p>
 <p><strong>Collapsing the table.</strong> Orlando and Thissen collapse the rows from both ends toward the middle until
-every expected count is at least 1 <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id43" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 56]</span>. irtlib collapses the two cells of
+every expected count is at least 1 <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id46" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>, p. 56]</span>. irtlib collapses the two cells of
 each score row, incorrect and correct: rows no examinee reached are dropped, a row
 with one examinee is merged into the next, the last into the one before, and while an expected count
 is below <code class="docutils literal notranslate"><span class="pre">min_expected</span></code>, the first such row is merged into its neighbour, the first row into the
@@ -497,7 +497,7 @@ second, the last into the one before and any other into the neighbour with fewer
 degrees of freedom are floored at 0. An item whose collapsed table leaves no degrees of freedom,
 including one collapsed to a single row, has none and no statistic.</p>
 <p><strong>Complete responses.</strong> S-X² “cannot handle incomplete data directly”
-<span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id64" title="Xue Zhang and Chun Wang. Modified item-fit indices for dichotomous IRT models with missing data. Applied Psychological Measurement, 46(8):705–719, 2022. Open copy: https://files.eric.ed.gov/fulltext/ED628568.pdf. doi:10.1177/01466216221125176.">Zhang and Wang, 2022</a>, p. 705]</span>, so it needs complete responses
+<span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id70" title="Xue Zhang and Chun Wang. Modified item-fit indices for dichotomous IRT models with missing data. Applied Psychological Measurement, 46(8):705–719, 2022. Open copy: https://files.eric.ed.gov/fulltext/ED628568.pdf. doi:10.1177/01466216221125176.">Zhang and Wang, 2022</a>, p. 705]</span>, so it needs complete responses
 (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>).</p>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
@@ -533,7 +533,7 @@ freedom and no statistic.</p></li>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">min_expected</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1.0</span></code></p></td>
 <td><p>The smallest expected count a cell of the collapsed table may hold.</p></td>
-<td><p><span class="bibtex-citation" id="id6">Orlando and Thissen [<a class="reference internal" href="#id43" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">2000</a>, p. 56]</span></p></td>
+<td><p><span class="bibtex-citation" id="id6">Orlando and Thissen [<a class="reference internal" href="#id46" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">2000</a>, p. 56]</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -551,12 +551,12 @@ collapsed table leaves no degrees of freedom.</p></li>
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <div class="docutils container" id="id7">
 <div role="list" class="citation-list">
-<div class="citation" id="id43" role="doc-biblioentry">
+<div class="citation" id="id46" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>OT00<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>,<a role="doc-backlink" href="#id4">4</a>,<a role="doc-backlink" href="#id6">5</a>)</span>
 <p>Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. <em>Applied Psychological Measurement</em>, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. <a class="reference external" href="https://doi.org/10.1177/01466216000241003">doi:10.1177/01466216000241003</a>.</p>
 </div>
-<div class="citation" id="id64" role="doc-biblioentry">
+<div class="citation" id="id70" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">ZW22</a><span class="fn-bracket">]</span></span>
 <p>Xue Zhang and Chun Wang. Modified item-fit indices for dichotomous IRT models with missing data. <em>Applied Psychological Measurement</em>, 46(8):705–719, 2022. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED628568.pdf">https://files.eric.ed.gov/fulltext/ED628568.pdf</a>. <a class="reference external" href="https://doi.org/10.1177/01466216221125176">doi:10.1177/01466216221125176</a>.</p>
 </div>

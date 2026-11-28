@@ -459,7 +459,7 @@
 <dd class="field-odd"><p><a class="reference internal" href="#irtlib.ability.expected_a_posteriori" title="irtlib.ability.expected_a_posteriori"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.ability.expected_a_posteriori()</span></code></a></p>
 </dd>
 <dt class="field-even">Sources<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="bibtex-citation" id="id1">Bock and Mislevy [<a class="reference internal" href="#id18" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>]</span>; <span class="bibtex-citation" id="id2">Magis and Raîche [<a class="reference internal" href="#id34" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span></p>
+<dd class="field-even"><p><span class="bibtex-citation" id="id1">Bock and Mislevy [<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>]</span>; <span class="bibtex-citation" id="id2">Bock and Aitkin [<a class="reference internal" href="#id26" title="R. Darrell Bock and Murray Aitkin. Marginal maximum likelihood estimation of item parameters: application of an EM algorithm. Psychometrika, 46(4):443–459, 1981. Not openly available; Baker (1987) describes the method. doi:10.1007/BF02293801.">1981</a>]</span>; <span class="bibtex-citation" id="id3">Magis and Raîche [<a class="reference internal" href="#id44" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span></p>
 </dd>
 </dl>
 <section id="motivation">
@@ -468,20 +468,41 @@
 its responses times a prior density of ability, and its standard error is the posterior standard
 deviation. It needs no search, only sums over a grid of abilities, and it is finite whatever the
 responses. <a class="reference internal" href="map.html"><span class="doc">Maximum A Posteriori</span></a> takes the posterior’s mode instead.</p>
+<p>The posterior variance “serves as its error variance” <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 432]</span>, and in Bock and
+Mislevy’s simulations the posterior standard deviation came close to the standard error of
+measurement <span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 431]</span>.</p>
 </section>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
 <p>The EAP estimate is the mean of the examinee’s posterior over the grid of
 <a class="reference internal" href="../models/quadrature.html"><span class="doc">Quadrature and Ability Priors</span></a>, and its standard error the posterior standard deviation
-<span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id18" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 433, Equations 4 and 5]</span>; <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id34" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, pp. 5-6, Equations 10 and 11]</span>.</p>
+<span class="bibtex-citation" id="id6">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 433, Equations 4 and 5]</span>; <span class="bibtex-citation" id="id7">[<a class="reference internal" href="#id44" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, pp. 5-6, Equations 10 and 11]</span>.
+Bock and Mislevy credit these quadrature formulas to <span class="bibtex-citation" id="id8">Bock and Aitkin [<a class="reference internal" href="#id26" title="R. Darrell Bock and Murray Aitkin. Marginal maximum likelihood estimation of item parameters: application of an EM algorithm. Psychometrika, 46(4):443–459, 1981. Not openly available; Baker (1987) describes the method. doi:10.1007/BF02293801.">1981</a>]</span>
+<span class="bibtex-citation" id="id9">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 432]</span>.</p>
 </section>
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
 <p>The posterior is that of <a class="reference internal" href="../models/quadrature.html"><span class="doc">Quadrature and Ability Priors</span></a>: the masses of the prior on the grid,
-times the likelihood at each node, normalized, with no correction of the variance. It is finite
+times the likelihood at each node, normalized, with no correction of the variance, where Bock and
+Mislevy apply Sheppard’s correction <span class="bibtex-citation" id="id10">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 433]</span>. The nodes are evenly spaced, as
+theirs are: Gauss-Hermite quadrature is exact for a function “weighted by the Gaussian error
+function, that can be expressed as a polynomial of degree q”, and “this class does not include the
+likelihood functions in adaptive testing” <span class="bibtex-citation" id="id11">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 433]</span>. It is finite
 whatever the responses, and an examinee who answered no item gets the prior’s mean and standard
 deviation on the grid. A caller that estimates many matrices with the same grid and prior can pass a
 <a class="reference internal" href="../models/quadrature.html#irtlib.quadrature.GridPrior" title="irtlib.quadrature.GridPrior"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridPrior</span></code></a> built once instead of the two.</p>
+<p><strong>The grid’s accuracy.</strong> The grid is accurate while it resolves the posterior. Against a reference
+grid of 2,401 nodes on the same range, the default grid of 121 nodes, 0.1 apart, gives the
+posterior mean and standard deviation within 0.40% of the reference standard deviation while the
+posterior standard deviation is at least 0.065, which takes a test information of about 240. Below
+that it degrades: the error reaches 7.3% at a posterior standard deviation of 0.05 and 48% at 0.035.
+A grid of 41 nodes, 0.3 apart, is within 0.27% at 0.2, and reaches 7.3% at 0.15 and 41% at 0.11:
+the error depends on the ratio of the posterior standard deviation to the spacing. The errors are
+the worst over posterior means across <span class="math notranslate nohighlight">\([-3, 3]\)</span>, for a normal likelihood under the standard normal
+prior (measured 2026-11-28). The default’s spacing is that of the 80 points between <span class="math notranslate nohighlight">\(\pm 4\)</span>
+standard deviations that Bock and Mislevy suggest to keep precision down to a posterior standard
+deviation of 0.2 <span class="bibtex-citation" id="id12">[<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">Bock and Mislevy, 1982</a>, p. 433]</span>. A standard error below about 0.065 needs a finer grid
+than the default.</p>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Comparison with mirt and catR</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
@@ -516,7 +537,7 @@ them (<a class="reference internal" href="../../adr/0003-mirt-as-the-reference.h
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grid</span></code></p></td>
 <td><p>121 nodes on <span class="math notranslate nohighlight">\([-6, 6]\)</span></p></td>
 <td><p>The nodes the posterior is computed on.</p></td>
-<td><p>mirt’s (<code class="docutils literal notranslate"><span class="pre">R/fscores.R:302,</span> <span class="pre">318-319</span></code>); a spacing of 0.1, after <span class="bibtex-citation" id="id5">Bock and Mislevy [<a class="reference internal" href="#id18" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>, p. 433]</span></p></td>
+<td><p>mirt’s (<code class="docutils literal notranslate"><span class="pre">R/fscores.R:302,</span> <span class="pre">318-319</span></code>); a spacing of 0.1, after <span class="bibtex-citation" id="id13">Bock and Mislevy [<a class="reference internal" href="#id27" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>, p. 433]</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">log_prior</span></code></p></td>
 <td><p>the standard normal</p></td>
@@ -543,16 +564,21 @@ two.</p></td>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
-<div class="docutils container" id="id6">
+<div class="docutils container" id="id14">
 <div role="list" class="citation-list">
-<div class="citation" id="id18" role="doc-biblioentry">
+<div class="citation" id="id26" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BA81<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id8">2</a>)</span>
+<p>R. Darrell Bock and Murray Aitkin. Marginal maximum likelihood estimation of item parameters: application of an EM algorithm. <em>Psychometrika</em>, 46(4):443–459, 1981. Not openly available; Baker (1987) describes the method. <a class="reference external" href="https://doi.org/10.1007/BF02293801">doi:10.1007/BF02293801</a>.</p>
+</div>
+<div class="citation" id="id27" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>BM82<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id5">3</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>,<a role="doc-backlink" href="#id5">3</a>,<a role="doc-backlink" href="#id6">4</a>,<a role="doc-backlink" href="#id9">5</a>,<a role="doc-backlink" href="#id10">6</a>,<a role="doc-backlink" href="#id11">7</a>,<a role="doc-backlink" href="#id12">8</a>,<a role="doc-backlink" href="#id13">9</a>)</span>
 <p>R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. <em>Applied Psychological Measurement</em>, 6(4):431–444, 1982. Open copy: <a class="reference external" href="http://purl.umn.edu/93227">http://purl.umn.edu/93227</a>. <a class="reference external" href="https://doi.org/10.1177/014662168200600405">doi:10.1177/014662168200600405</a>.</p>
 </div>
-<div class="citation" id="id34" role="doc-biblioentry">
+<div class="citation" id="id44" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>MRaiche12<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id4">2</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
 <p>David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. <em>Journal of Statistical Software</em>, 48(8):1–31, 2012. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v048.i08">doi:10.18637/jss.v048.i08</a>.</p>
 </div>
 </div>
