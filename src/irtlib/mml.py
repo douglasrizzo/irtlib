@@ -15,11 +15,11 @@ from ._m_step import (
   _SLOPE,
   _UPPER,
   _counted,
+  _covariances,
   _free_gradient,
   _m_step,
   _prior_terms,
   _PriorTerm,
-  _standard_errors,
   _to_items,
 )
 from ._responses import _N_COLUMNS
@@ -277,13 +277,13 @@ class MMLCalibrator:
     Returns
     -------
     Calibration
-        The estimates, their standard errors and the log-likelihood at them, with the cycles run, which do not count
-        the extrapolations of an acceleration, and the largest change of a parameter in the last one. If the stopping
-        rule is not met within ``max_cycles``, the result says so and a
+        The estimates, the covariance of each item's estimates and the log-likelihood at them, with the cycles run,
+        which do not count the extrapolations of an acceleration, and the largest change of a parameter in the last
+        one. If the stopping rule is not met within ``max_cycles``, the result says so and a
         :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted,
-        the result has no standard errors and a ``RuntimeWarning`` is issued; if an item's estimates are not valid in
-        an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves the item out and
-        a ``RuntimeWarning`` names it.
+        the result has no covariances or standard errors and a ``RuntimeWarning`` is issued; if an item's estimates
+        are not valid in an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves
+        the item out and a ``RuntimeWarning`` names it.
 
     Raises
     ------
@@ -318,19 +318,18 @@ class MMLCalibrator:
         stacklevel=2,
       )
     estimates = _to_items(values)
-    information = _observed_information(matrix, values, index, self._grid, self._priors)
-    standard_errors = _standard_errors(values, index, information)
-    if standard_errors is None:
+    covariances = _covariances(values, index, _observed_information(matrix, values, index, self._grid, self._priors))
+    if covariances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no standard errors; the model "
-        "may not be identified by these responses",
+        "the information matrix could not be inverted, so the calibration reports no covariances or standard errors; "
+        "the model may not be identified by these responses",
         RuntimeWarning,
         stacklevel=2,
       )
     return Calibration(
       estimates=estimates,
       items=_valid_items(estimates),
-      standard_errors=standard_errors,
+      covariances=covariances,
       log_likelihood=marginal_log_likelihood(matrix, estimates, self._grid),
       likelihood=Likelihood.MARGINAL,
       n_parameters=int(index.max()) + 1,

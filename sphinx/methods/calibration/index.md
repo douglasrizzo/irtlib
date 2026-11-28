@@ -1,6 +1,7 @@
 # Calibration
 
-Calibration estimates the items' parameters, with their standard errors, from a response matrix.
+Calibration estimates the items' parameters, with the covariance of each item's estimates and their
+standard errors, from a response matrix.
 irtlib has three methods, each a calibrator configured at construction whose `calibrate` method
 returns a {class}`~irtlib.calibration.Calibration`
 ({doc}`ADR-0006 </adr/0006-calibrator-contract>`). They differ in what they do with the examinees'

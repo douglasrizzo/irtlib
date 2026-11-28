@@ -177,6 +177,37 @@ def test_mml_standard_errors(case: dict[str, Any]) -> None:
   assert np.all(np.isnan(standard_errors[:, 2:]))
 
 
+@pytest.mark.parametrize(
+  "case", [case for case in _MML_EM["cases"] if "slope_intercept_covariance" in case], ids=operator.itemgetter("id")
+)
+def test_mml_covariances(case: dict[str, Any]) -> None:
+  """MMLCalibrator's covariance of each item's a and b is mirt's covariance of its slope and intercept, taken to a and b
+  by the delta method.
+
+  mirt's covariance matrix holds a slope constrained equal across items once, and each item's covariance of its slope
+  and intercept is then the shared slope's, as in irtlib's matrix of each item. Fails if an item's matrix leaves out
+  the shared slope's covariance with its intercept, or the covariance of a and b has the wrong sign.
+  """
+  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  covariances = calibrator.calibrate(responses(_MML_EM["data"][case["data"]])).covariances
+  slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
+  slope_variance, intercept_variance = np.array(case["slope_se"]) ** 2, np.array(case["intercept_se"]) ** 2
+  covariance = np.array(case["slope_intercept_covariance"])
+  # b = -intercept / slope, whose derivatives in the slope and the intercept are intercept / slope^2 and -1 / slope
+  slope_derivative, intercept_derivative = intercept / slope**2, -1 / slope
+  expected = np.empty((slope.size, 2, 2))
+  expected[:, 0, 0] = slope_variance
+  expected[:, 0, 1] = expected[:, 1, 0] = slope_derivative * slope_variance + intercept_derivative * covariance
+  expected[:, 1, 1] = (
+    slope_derivative**2 * slope_variance
+    + 2 * slope_derivative * intercept_derivative * covariance
+    + intercept_derivative**2 * intercept_variance
+  )
+  assert covariances is not None
+  # a variance is a standard error squared, so it agrees within twice the standard errors' relative tolerance
+  np.testing.assert_allclose(covariances[:, :2, :2], expected, rtol=2 * _STANDARD_ERROR_RTOL)
+
+
 # The number of parameters mirt counts for each item of each model: a slope constrained equal across items counts for
 # each item, a fixed one not at all.
 _ITEM_PARAMETERS = {"2pl": 2, "equal_slopes": 2, "fixed_slopes": 1}
@@ -193,7 +224,7 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
   calibration = Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
-    standard_errors=None,
+    covariances=None,
     log_likelihood=0.0,
     likelihood=Likelihood.MARGINAL,
     n_parameters=0,
@@ -278,7 +309,7 @@ def test_mean_squares_at_mirts_estimates(case: dict[str, Any]) -> None:
   calibration = Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
-    standard_errors=None,
+    covariances=None,
     log_likelihood=0.0,
     likelihood=Likelihood.MARGINAL,
     n_parameters=0,

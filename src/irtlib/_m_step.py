@@ -169,45 +169,37 @@ def _m_step(
   return values
 
 
-def _standard_errors(values: FloatArray, index: IntArray, information: FloatArray) -> FloatArray | None:
-  """Return the standard errors of each item's a, b, c and d by the delta method.
+def _covariances(values: FloatArray, index: IntArray, information: FloatArray) -> FloatArray | None:
+  """Return the covariance of each item's a, b, c and d by the delta method.
 
   Returns
   -------
   numpy.ndarray or None
-      The standard errors in the shape of the items, NaN for the parameters not estimated; None if the information
+      One 4 x 4 matrix per item, a parameter shared by every item taking its variance and its covariances with the
+      item's own parameters, and NaN in the rows and columns of the parameters not estimated; None if the information
       cannot be inverted or gives a variance that is not positive.
   """
   try:
     covariance = numpy.linalg.inv(information)
   except numpy.linalg.LinAlgError:
     return None
-  n_items = values.shape[0]
-  rows = numpy.arange(n_items)
-  slope, intercept = values[:, 0], values[:, 1]
-  free_slope = index[:, 0] >= 0
-  # the derivatives of a = slope and b = -intercept / slope with respect to the free parameters
-  slope_jacobian = numpy.zeros((n_items, covariance.shape[0]))
-  difficulty_jacobian = numpy.zeros_like(slope_jacobian)
-  slope_jacobian[rows[free_slope], index[free_slope, 0]] = 1.0
-  difficulty_jacobian[rows[free_slope], index[free_slope, 0]] = intercept[free_slope] / slope[free_slope] ** 2
-  difficulty_jacobian[rows, index[:, 1]] = -1.0 / slope
-  slope_variance = numpy.einsum("nk,kl,nl->n", slope_jacobian, covariance, slope_jacobian)[free_slope]
-  difficulty_variance = numpy.einsum("nk,kl,nl->n", difficulty_jacobian, covariance, difficulty_jacobian)
-  # c and d are the logistic function of their logits, whose derivative is c (1 - c), or d (1 - d)
-  free_asymptotes = [index[:, column] >= 0 for column in (_GUESSING, _UPPER)]
-  asymptote_variances = []
-  for column, free in zip((_GUESSING, _UPPER), free_asymptotes, strict=True):
-    asymptote = expit(values[free, column])
-    asymptote_variances.append(
-      (asymptote * (1 - asymptote)) ** 2 * covariance[index[free, column], index[free, column]]
-    )
-  variances = numpy.concatenate([slope_variance, difficulty_variance, *asymptote_variances])
+  free = index >= 0
+  estimated = free[:, :, numpy.newaxis] & free[:, numpy.newaxis, :]
+  # each item's block of the covariance of the free parameters, a fixed parameter's row and column 0
+  rows = numpy.where(free, index, 0)
+  block = numpy.where(estimated, covariance[rows[:, :, numpy.newaxis], rows[:, numpy.newaxis, :]], 0.0)
+  # the derivatives of a = slope, b = -intercept / slope, and c and d, the logistic function of their logits, with
+  # respect to each item's slope, intercept and logits of c and d
+  slope, intercept = values[:, _SLOPE], values[:, _INTERCEPT]
+  asymptotes = expit(values[:, [_GUESSING, _UPPER]])
+  jacobian = numpy.zeros((values.shape[0], _N_COLUMNS, _N_COLUMNS))
+  jacobian[:, _SLOPE, _SLOPE] = 1.0
+  jacobian[:, _INTERCEPT, _SLOPE] = intercept / slope**2
+  jacobian[:, _INTERCEPT, _INTERCEPT] = -1.0 / slope
+  jacobian[:, [_GUESSING, _UPPER], [_GUESSING, _UPPER]] = asymptotes * (1 - asymptotes)
+  covariances = jacobian @ block @ jacobian.transpose(0, 2, 1)
+  covariances[~estimated] = numpy.nan
+  variances = numpy.diagonal(covariances, axis1=1, axis2=2)[free]
   if not numpy.all(numpy.isfinite(variances) & (variances > 0)):
     return None
-  standard_errors = numpy.full((n_items, _N_COLUMNS), numpy.nan)
-  standard_errors[free_slope, 0] = numpy.sqrt(slope_variance)
-  standard_errors[:, 1] = numpy.sqrt(difficulty_variance)
-  for column, free, variance in zip((_GUESSING, _UPPER), free_asymptotes, asymptote_variances, strict=True):
-    standard_errors[free, column] = numpy.sqrt(variance)
-  return standard_errors
+  return covariances
