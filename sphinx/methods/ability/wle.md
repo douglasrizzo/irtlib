@@ -1,7 +1,7 @@
 # Weighted Likelihood
 
 :API: {py:func}`irtlib.ability.weighted_likelihood`
-:Sources: {cite:t}`Warm1985`; {cite:t}`Warm1989`; {cite:t}`Magis2012`
+:Sources: {cite:t}`Warm1985`; {cite:t}`Warm1989`; {cite:t}`Magis2012`; {cite:t}`Magis2016`
 
 ## Motivation
 
@@ -48,8 +48,11 @@ none of 4,560 on 2PL tests (measured 2026-11-24).
 Against the WLE's spread at a known ability, over every set of responses to 5 and to 10 items and
 3,000 simulated ones to 20 and to 40, the standard error $1 / \sqrt{I}$ overestimates the error of
 short tests, by 10% under the 2PL and by 28% under the 3PL at 5 items: a stopping rule on the
-standard error runs a few items longer than needed. Equation 14 roughly halves that gap. From 20 items
-on, the two agree within about 3% (measured 2026-11-24).
+standard error runs a few items longer than needed. Equation 14 roughly halves that gap. The
+sandwich formula of {cite:t}`Magis2016{Section 3.1, Equations 19 and 20}`, $I^{1/2} / |I - F|$ with
+$F = (J'I - JI') / (2 I^2)$, is closest under the 3PL but underestimates the error under the 2PL, by
+8% at 5 items, which would stop tests too early. From 20 items on, the three agree within about 3%
+(measured 2026-11-24).
 
 **Not the approximation.** Expanding the modified score around the maximum likelihood estimate gives
 $\hat\theta_{\mathrm{WLE}} \approx \hat\theta_{\mathrm{ML}} + J / (2 I^2)$, which irtlib does not use: it
@@ -72,7 +75,8 @@ $\infty$, as under maximum likelihood ({doc}`ADR-0010 </adr/0010-ability-estimat
 - **mirt 1.48** maximizes $\log L_j + \tfrac12 \log I$ instead (`R/fscores.internal.R:705-738`),
   Warm's estimate when every answered item has $c_i = 0$ and $d_i = 1$, and takes its standard error
   from `nlm`'s numerical Hessian of that weighted log-likelihood (`R/fscores.internal.R:1103-1119`).
-- **catR 3.17** uses the same standard error by default (`R/semTheta.R:90-96`). Where Warm's modified
+- **catR 3.17** uses the same standard error by default (`R/semTheta.R:90-96`), and Magis's sandwich
+  formula with `sem.type = "new"` (`R/semTheta.R:90-94`). Where Warm's modified
   score has three roots in the range, two maxima of the weighted likelihood and a minimum, catR's
   `uniroot` can converge to the lower maximum, where irtlib returns the one of larger weighted
   likelihood: the parity tests keep that case as an expected failure
