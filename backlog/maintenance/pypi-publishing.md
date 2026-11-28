@@ -4,7 +4,7 @@ kind: maintenance
 status: blocked
 priority: 3
 effort: M
-blocked_by: [maintenance/license, maintenance/docs-site]
+blocked_by: [maintenance/license]
 raised_by: [setup of irtlib]
 ---
 
@@ -34,6 +34,11 @@ catsim's `.github/workflows/ci-cd.yml` is the model:
 Copy that path, adapted, with the version bumped by `uv version` only. Register the trusted publisher
 on PyPI and TestPyPI, and create the `pypi` and `testpypi` environments. Add a "Releasing" section to
 `CONTRIBUTING.md`. Reserve no name on PyPI before the first real release.
+
+The documentation's dev deploy (`deploy-docs-dev` in `.github/workflows/ci.yml`) owns the whole
+`gh-pages` branch until the first release, with a page at the site's root that redirects to `dev/`.
+The release adds catsim's production deploy, which publishes the release's documentation at the root
+and carries `dev/` along, and turns the dev deploy into one that replaces `dev/` alone.
 
 ## Tests
 

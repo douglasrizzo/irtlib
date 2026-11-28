@@ -180,3 +180,86 @@ jobs:
           # irtlib and its tests run without catsim, which this environment does not have (ADR-0002).
           "$RUNNER_TEMP/wheel-venv/bin/python" -c "import importlib.util; assert importlib.util.find_spec('catsim') is None"
           "$RUNNER_TEMP/wheel-venv/bin/python" -m pytest -q -p no:cacheprovider tests
+
+  build-docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --locked --group docs
+
+      - name: Build the documentation
+        working-directory: sphinx
+        # -W fails the build on any warning; --keep-going reports all of them before failing.
+        run: uv run sphinx-build -b html -W --keep-going . ../docs/build/html
+
+      - name: Store the documentation
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: html-docs-${{ github.sha }}
+          path: docs/build/html/
+          retention-days: 30
+
+  deploy-docs-dev:
+    name: Deploy documentation (dev)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    needs: [pre-commit, test, build, test-wheel, build-docs] # the docs go live only for a commit that passes every check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      # One gh-pages push at a time; a queued deploy waits for the running one.
+      group: gh-pages
+      cancel-in-progress: false
+    steps:
+      - name: Download the documentation
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: html-docs-${{ github.sha }}
+          path: site/dev/
+
+      - name: Send the site's root to the dev documentation
+        # Until irtlib's first release the site holds the dev documentation alone, under dev/, and its
+        # root is a page that redirects there.
+        run: |
+          cat > site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <title>irtlib documentation</title>
+          <meta http-equiv="refresh" content="0; url=dev/">
+          <link rel="canonical" href="dev/">
+          </head>
+          <body><p>The irtlib documentation is at <a href="dev/">dev/</a>.</p></body>
+          </html>
+          HTML
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          commit_message: "Deploy dev documentation from ${{ github.sha }}"
+          # Replace the whole branch, so that it holds the pages of this build alone. The action adds the
+          # .nojekyll file that keeps GitHub Pages from running Jekyll over the site.
+          keep_files: false
+
+      - name: Report the address
+        run: echo "Dev documentation deployed to https://douglasrizzo.com.br/irtlib/dev/" >> "$GITHUB_STEP_SUMMARY"

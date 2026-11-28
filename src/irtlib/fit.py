@@ -113,7 +113,7 @@ _REMOVE_MISSING = "remove the examinees with missing responses"
 class ItemFit:
   """The S-X² statistic of each item, with its degrees of freedom and p-value.
 
-  Attributes
+  Parameters
   ----------
   statistic : numpy.ndarray
       S-X² of each item; NaN where no degrees of freedom are left after collapsing.
@@ -253,7 +253,7 @@ class MeanSquares:
   Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
   from the same responses, as they are here.
 
-  Attributes
+  Parameters
   ----------
   outfit : numpy.ndarray
       The unweighted mean square of each item, Wright and Masters' :math:`u_i`: the mean, over examinees, of the

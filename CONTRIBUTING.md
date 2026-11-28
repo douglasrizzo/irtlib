@@ -1,8 +1,8 @@
 # Contributing
 
 irtlib is in its design phase: the planned work, and the order it comes in, is in the
-[backlog](backlog/README.md). Pick a card, do its work in a pull request into `dev`, and delete the
-card in that pull request.
+[backlog](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/README.md). Pick a card, do its
+work in a pull request into `dev`, and delete the card in that pull request.
 
 ## Development setup
 
@@ -30,6 +30,37 @@ uv run pre-commit run --all-files
 
 pytest also runs the docstring examples in `src/irtlib`, and turns warnings into errors. The hooks
 run Ruff, ty, pylint, vulture, typos and the check of the backlog's index.
+
+## Building the documentation
+
+The documentation site's sources are in `sphinx/`: its pages, the ADRs and `references.bib`, with
+the rules for each kind of page in `sphinx/AGENTS.md`. Build the HTML pages with the command below,
+which also installs Sphinx and its extensions (the `docs` dependency group):
+
+```bash
+uv run --group docs sphinx-build -b html -W --keep-going sphinx sphinx/_build/html
+```
+
+`-W` turns warnings into errors, and the build also fails on a cross-reference that does not
+resolve and on a public callable whose docstring leaves out a parameter. CI builds the site the same
+way on every pull request, and publishes the site built from `dev` at
+<https://douglasrizzo.com.br/irtlib/dev/>.
+
+External links are checked once a week by the "Link check" workflow
+(`.github/workflows/linkcheck.yml`), not in pull requests, and a broken link fails that run. To check
+them yourself:
+
+```bash
+uv run --group docs sphinx-build -b linkcheck sphinx sphinx/_build/linkcheck
+```
+
+Links to the Python, NumPy and SciPy documentation come from those projects' intersphinx
+inventories. The build downloads each inventory and, when a site cannot be reached, reads the copy
+stored in `sphinx/_inventories/`. Refresh the stored copies with:
+
+```bash
+cd sphinx && for p in python=https://docs.python.org/3/ numpy=https://numpy.org/doc/stable/ scipy=https://docs.scipy.org/doc/scipy/; do curl -fsSL -o "_inventories/${p%%=*}.inv" "${p#*=}objects.inv"; done
+```
 
 ## Parity tests with mirt
 
@@ -88,4 +119,4 @@ measured on.
 
 Every formula and every claim about a method cites a location in a source that its author has read.
 The citation convention, the paper shelf and the revalidation checklist are in
-[`backlog/README.md`](backlog/README.md).
+[`backlog/README.md`](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/README.md).

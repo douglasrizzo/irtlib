@@ -30,7 +30,7 @@ answered no item has a constant likelihood, which every ability maximizes: its e
   ``R/thetaEst.R:9-10, 100-109``).
 - ``fallback``: another estimator, called once on the rows whose estimate is not finite, the unanswered rows
   included, whose estimates, standard errors and evaluation counts replace theirs;
-  :py:attr:`AbilityEstimates.from_fallback` marks those rows.
+  the ``from_fallback`` field of :py:class:`AbilityEstimates` marks those rows.
 
 Where an item answered has :math:`c_i > 0` or :math:`d_i < 1`, the likelihood can have several maxima, and the search
 evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope :math:`a_i`
@@ -201,7 +201,7 @@ def _default_prior() -> LogPrior:
 class AbilityEstimates:
   """Each examinee's ability estimate, its standard error, and the evaluations of the estimator's objective it took.
 
-  Attributes
+  Parameters
   ----------
   theta : numpy.ndarray
       The estimates, one per row of the response matrix.
@@ -355,7 +355,7 @@ def maximum_a_posteriori(
   items: FloatArray,
   *,
   log_prior: LogPrior | None = None,
-  bounds: _Bounds = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
+  bounds: tuple[float, float] = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
   tol: float = 1e-6,
 ) -> AbilityEstimates:
   """Return each examinee's MAP estimate, the mode of its posterior within the bounds, with its standard error.
@@ -514,7 +514,7 @@ def maximum_likelihood(
   responses: npt.ArrayLike,
   items: FloatArray,
   *,
-  bounds: _Bounds | None = None,
+  bounds: tuple[float, float] | None = None,
   fallback: Callable[[FloatArray, FloatArray], AbilityEstimates] | None = None,
   tol: float = 1e-6,
 ) -> AbilityEstimates:
@@ -800,7 +800,7 @@ def weighted_likelihood(
   responses: npt.ArrayLike,
   items: FloatArray,
   *,
-  bounds: _Bounds = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
+  bounds: tuple[float, float] = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED),
   tol: float = 1e-6,
 ) -> AbilityEstimates:
   """Return each examinee's weighted likelihood estimate, Warm's, with its standard error.

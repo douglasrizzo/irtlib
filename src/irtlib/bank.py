@@ -5,11 +5,11 @@ A bank holds one row :math:`[a, b, c, d]` per item, the parameters of the four-p
 simplest that fits every item. The 3PL fixes :math:`d = 1`, the 2PL also :math:`c = 0`, and the 1PL also gives every
 item the same discrimination (:cite:t:`Magis2012`, p. 3).
 
-:py:meth:`ItemBank.generate` draws random banks. :cite:t:`Barrada2010` (p. 445) simulate banks of 500 items whose
-"parameter distributions were: a ~ N(1.2, .25), b ~ N(0, 1) and c ~ N(.25, .02)", with :math:`a` and :math:`b`
-uncorrelated or correlated at :math:`r_{ab} = .5`. The page does not say whether the second number is a standard
-deviation or a variance, nor how the correlation was induced, and it bounds neither :math:`a` nor :math:`c`. The rest
-is irtlib's choice:
+:py:meth:`ItemBank.generate <irtlib.ItemBank.generate>` draws random banks. :cite:t:`Barrada2010` (p. 445)
+simulate banks of 500 items whose "parameter distributions were: a ~ N(1.2, .25), b ~ N(0, 1) and c ~ N(.25,
+.02)", with :math:`a` and :math:`b` uncorrelated or correlated at :math:`r_{ab} = .5`. The page does not say whether
+the second number is a standard deviation or a variance, nor how the correlation was induced, and it bounds neither
+:math:`a` nor :math:`c`. The rest is irtlib's choice:
 
 - the second numbers are read as standard deviations;
 - :math:`a` and :math:`b` are drawn from a bivariate normal with correlation ``corr``, and an item whose :math:`a` is
