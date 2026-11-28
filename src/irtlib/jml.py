@@ -79,9 +79,9 @@ information at the last cycle (:cite:t:`Baker1987`, p. 119), for the Rasch model
 probability of a correct response to item :math:`i` (:cite:t:`Wright1977`, p. 285, Equation 16); the 2PL's difficulty
 takes its standard error by the delta method, as in :py:mod:`irtlib.mml`. They treat the abilities as known, and with
 the correction they are those of the estimates before it, unless ``correct_errors`` multiplies them by its factor too.
-For a fixed number of items, JML's estimates are not centred
-on the parameters and their asymptotic covariance is not the customary one, so "ordinary asymptotic confidence
-intervals" for the difficulties cannot be built from them (:cite:t:`Haberman2004`, pp. 26-27, Theorem 7; p. 29).
+For a fixed number of items, JML's estimates are not centred on the parameters and their asymptotic covariance is not
+the customary one, so "ordinary asymptotic confidence intervals" for the difficulties cannot be built from them
+(:cite:t:`Haberman2004`, pp. 26-27, Theorem 7; p. 29).
 
 Under the 2PL a slope can grow without bound, as large slopes and the abilities of the examinees who answer those items
 correctly feed each other from cycle to cycle, the Heywood case; LOGIST imposes upper limits on the slopes
@@ -101,10 +101,9 @@ and 30 items with 1,000 examinees (measured 2026-11-28). The authors of LOGIST a
 The result holds every examinee's ability (ADR-0006), from the cycle its item estimates come from and before any
 correction, so that the abilities, the uncorrected item estimates and the log-likelihood go together; each ability's
 standard error is that of maximum likelihood, the inverse square root of the test information, there. An examinee left
-out has the ability :math:`\infty` or :math:`-\infty`, as maximum likelihood gives responses all right or all wrong.
-JML needs complete responses, as its sources write it, an
-examinee's number correct out of every item (:cite:t:`Wright1977`, p. 282), and :py:class:`irtlib.mml.MMLCalibrator`
-calibrates incomplete ones (ADR-0006).
+out has the ability :math:`\infty` or :math:`-\infty`, as maximum likelihood gives responses all right or all wrong. JML
+needs complete responses, as its sources write it, an examinee's number correct out of every item (:cite:t:`Wright1977`,
+p. 282), and :py:class:`irtlib.mml.MMLCalibrator` calibrates incomplete ones (ADR-0006).
 
 On two SAT tests of 78 and 60 items, the largest difference between the joint and conditional estimates of the Rasch
 difficulties was 0.097 and 0.126, against conditional standard errors of at most 0.008
@@ -298,17 +297,17 @@ class JMLCalibrator:
         The estimates ``[a, b, 0, 1]``, their standard errors, and the joint log-likelihood at the estimates, before
         any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates
         and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's
-        ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with
-        standard errors one over the square root of the test information at the estimates before any correction, and
-        the evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the
-        ability ``inf`` or ``-inf``,
-        for every item kept right or wrong, standard error ``inf`` and 0 evaluations. Abilities at the corrected
-        difficulties are ``irtlib.ability.maximum_likelihood(responses[:, kept], calibration.estimates[kept])``, for
-        ``kept = ~numpy.isnan(calibration.estimates[:, 1])``. If the stopping
-        rule is not met within ``max_cycles``, the 2PL's abilities separate an item's correct responses from its
-        incorrect ones, or an item step gives a slope that is not positive, the result holds the last complete cycle,
-        says so, and a :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an
-        item's information cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.
+        ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with standard
+        errors one over the square root of the test information at the estimates before any correction, and the
+        evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the ability
+        ``inf`` or ``-inf``, for every item kept right or wrong, standard error ``inf`` and 0 evaluations. Abilities at
+        the corrected difficulties are :py:func:`irtlib.ability.maximum_likelihood`'s, called as
+        ``maximum_likelihood(responses[:, kept], calibration.estimates[kept])`` for the items with estimates,
+        ``kept = ~numpy.isnan(calibration.estimates[:, 1])``. If the stopping rule is not met within ``max_cycles``,
+        the 2PL's abilities separate an item's correct responses from its incorrect ones, or an item step gives a slope
+        that is not positive, the result holds the last complete cycle, says so, and a
+        :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an item's information
+        cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.
 
     Raises
     ------

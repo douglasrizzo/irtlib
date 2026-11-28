@@ -340,6 +340,8 @@ def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:
   conditional one (p. 288). The bank leaves the first and fourth out with a warning naming them, and the 16 examinees
   left add one ability each to the one free difficulty (Baker, 1987, p. 112). The default correction multiplies them by
   (M - 1) / M for the M = 2 items kept, 1/2, where the four columns would give 3/4. A single pass keeps the first item.
+  The 1001 and 0001 examinees, left out only once an item has gone, have ability -inf, by their responses to the items
+  kept; the 1001 examinees answered the first column right, so reading the responses to every item would give inf.
   """
   patterns = np.array([[1, 0, 0, 1], [1, 1, 0, 1], [1, 0, 1, 1], [0, 0, 0, 1]], dtype=float)
   matrix = np.repeat(patterns, [5, 12, 4, 6], axis=0)
@@ -355,6 +357,8 @@ def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:
   assert calibration.items.names == ("item_1", "item_2")
   assert calibration.n_parameters == 1 + 16
   np.testing.assert_array_equal(calibration.item_parameters, [0, 1, 1, 0])
+  assert calibration.abilities is not None
+  np.testing.assert_allclose(calibration.abilities.theta, np.repeat([-np.inf, 0.0, -np.inf], [5, 16, 6]), atol=1e-7)
   with pytest.warns(RuntimeWarning, match="NaN or infinite parameters"):
     corrected = JMLCalibrator("1PL").calibrate(matrix)
   np.testing.assert_allclose(corrected.estimates[:, 1], [np.nan, -difference / 2, difference / 2, np.nan], atol=1e-9)
