@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Item Fit &#8212; irtlib 0.1.0 documentation</title>
+    <title>Item and Person Fit &#8212; irtlib 0.1.0 documentation</title>
   
   
   
@@ -382,7 +382,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../calibration/index.html">Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ability/index.html">Ability Estimation</a></li>
-<li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">Item Fit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">Item and Person Fit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="s-x2.html">S-X²</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mean-squares.html">Mean Squares</a></li>
 </ul>
@@ -431,7 +431,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Methods</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Item Fit</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Item and Person Fit</span></li>
   </ul>
 </nav>
 </div>
@@ -449,10 +449,12 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-irtlib.fit">
-<span id="item-fit"></span><h1>Item Fit<a class="headerlink" href="#module-irtlib.fit" title="Link to this heading">#</a></h1>
+<span id="item-and-person-fit"></span><h1>Item and Person Fit<a class="headerlink" href="#module-irtlib.fit" title="Link to this heading">#</a></h1>
 <p>Item fit compares, item by item, the responses a calibration predicts with those observed. Both
-statistics take a calibration by <a class="reference internal" href="../calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>, whose grid and population they
-use, and complete responses (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>).</p>
+item statistics take a calibration by <a class="reference internal" href="../calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>, whose grid and population
+they use, and complete responses (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>). Person fit
+compares, examinee by examinee, the responses with their expectations at the examinee’s ability,
+from the responses, the items and the abilities, with missing responses left out.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Statistic</p></th>
@@ -467,10 +469,15 @@ use, and complete responses (<a class="reference internal" href="../../adr/0006-
 <td><p>number-correct score</p></td>
 <td><p><a class="reference internal" href="s-x2.html#irtlib.fit.ItemFit" title="irtlib.fit.ItemFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemFit</span></code></a>: a <span class="math notranslate nohighlight">\(\chi^2\)</span> statistic, its degrees of freedom and <span class="math notranslate nohighlight">\(p\)</span>-value</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="mean-squares.html"><span class="doc">Mean Squares</span></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="mean-squares.html"><span class="doc">Mean Squares</span></a> of the items</p></td>
 <td><p>1PL</p></td>
 <td><p>not grouped: each response against its expectation</p></td>
 <td><p><a class="reference internal" href="mean-squares.html#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeanSquares</span></code></a>: the infit and outfit, and their standardized values</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="mean-squares.html"><span class="doc">Mean Squares</span></a> of the examinees</p></td>
+<td><p>1PL to 4PL</p></td>
+<td><p>not grouped: each response against its expectation</p></td>
+<td><p><a class="reference internal" href="mean-squares.html#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><code class="xref py py-class docutils literal notranslate"><span class="pre">MeanSquares</span></code></a>, for each examinee</p></td>
 </tr>
 </tbody>
 </table>

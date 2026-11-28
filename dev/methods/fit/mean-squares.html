@@ -382,7 +382,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../models/index.html">Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../calibration/index.html">Calibration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ability/index.html">Ability Estimation</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Item Fit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Item and Person Fit</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="s-x2.html">S-X²</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Mean Squares</a></li>
 </ul>
@@ -432,7 +432,7 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Methods</a></li>
     
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Item Fit</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Item and Person Fit</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Mean Squares</span></li>
   </ul>
@@ -455,26 +455,30 @@
 <h1>Mean Squares<a class="headerlink" href="#mean-squares" title="Link to this heading">#</a></h1>
 <dl class="myst field-list simple">
 <dt class="field-odd">API<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.mean_squares()</span></code></a>; <a class="reference internal" href="#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.fit.MeanSquares</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.mean_squares()</span></code></a>; <a class="reference internal" href="#irtlib.fit.person_mean_squares" title="irtlib.fit.person_mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.person_mean_squares()</span></code></a>; <a class="reference internal" href="#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.fit.MeanSquares</span></code></a></p>
 </dd>
 <dt class="field-even">Sources<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="bibtex-citation" id="id1">Wright and Masters [<a class="reference internal" href="#id63" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">1982</a>]</span></p>
+<dd class="field-even"><p><span class="bibtex-citation" id="id1">Wright and Masters [<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">1982</a>]</span>; <span class="bibtex-citation" id="id2">Wright and Stone [<a class="reference internal" href="#id66" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>]</span></p>
 </dd>
 </dl>
 <section id="motivation">
 <h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">#</a></h2>
 <p>The weighted and unweighted mean squares compare each response with its expectation at the
-examinee’s estimated ability <span class="bibtex-citation" id="id2">[<a class="reference internal" href="#id63" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, pp. 97-99]</span>, summed item by item: the infit and the
+examinee’s estimated ability <span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, pp. 97-99]</span>, summed item by item: the infit and the
 outfit of the Rasch model. Wright and Masters define them for the models of their book, all built
 from the Rasch model (p. 10; p. 100, Table 5.4a), whose model for dichotomous responses (p. 38,
 Equation 3.1.1) is the 1PL, every item with the same slope <span class="math notranslate nohighlight">\(a\)</span>, with person parameters <span class="math notranslate nohighlight">\(a\theta_j\)</span>
 and item parameters <span class="math notranslate nohighlight">\(ab_i\)</span>. For the other models, <a class="reference internal" href="s-x2.html"><span class="doc">S-X²</span></a> tests item fit.</p>
+<p>Summed examinee by examinee instead, over the items each examinee answered, the same residuals give
+each examinee’s mean squares: person fit, which flags the examinees whose response patterns the model
+does not explain <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 108]</span>. Item fit serves the construction and calibration of a
+test, and person fit the validity of the measures a calibrated test makes (p. 109).</p>
 </section>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
 <p>For examinee <span class="math notranslate nohighlight">\(j\)</span> and item <span class="math notranslate nohighlight">\(i\)</span>, with <span class="math notranslate nohighlight">\(P_{ij}\)</span> the probability of a correct response at the examinee’s
 ability and <span class="math notranslate nohighlight">\(Q_{ij} = 1 - P_{ij}\)</span>, the score residual <span class="math notranslate nohighlight">\(y_{ij} = u_{ij} - P_{ij}\)</span>
-<span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id63" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 98, Equation 5.4.2]</span> has variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> and kurtosis <span class="math notranslate nohighlight">\(C_{ij}\)</span>
+<span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 98, Equation 5.4.2]</span> has variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> and kurtosis <span class="math notranslate nohighlight">\(C_{ij}\)</span>
 (p. 98, Equations 5.4.3 and 5.4.4), which for the two categories of a dichotomous item are</p>
 <div class="math notranslate nohighlight">
 \[W_{ij} = P_{ij} Q_{ij}, \quad C_{ij} = P_{ij} Q_{ij} (P_{ij}^3 + Q_{ij}^3),\]</div>
@@ -498,13 +502,36 @@ When the data fit the model both have expectation 1, <span class="math notransla
 Table 5.4a). Wright and Masters estimate the person and item parameters from the same data as the
 residuals, which lowers the expected mean square by the factor <span class="math notranslate nohighlight">\((M - 1)(N - 1) / (MN)\)</span> for <span class="math notranslate nohighlight">\(M\)</span> items
 (p. 101).</p>
+<p><strong>Person fit.</strong> The examinees’ mean squares “parallel the corresponding item fit statistics exactly”,
+the squared residuals summed over the items for one examinee rather than over the examinees for one
+item <span class="bibtex-citation" id="id6">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 109]</span>. Over the <span class="math notranslate nohighlight">\(M_j\)</span> items examinee <span class="math notranslate nohighlight">\(j\)</span> answered, the weighted mean
+square, its variance and its standardized value are</p>
+<div class="math notranslate nohighlight">
+\[V_j = \frac{\sum_i y_{ij}^2}{\sum_i W_{ij}}, \quad
+q_j^2 = \frac{\sum_i (C_{ij} - W_{ij}^2)}{\left(\sum_i W_{ij}\right)^2}, \quad
+t_j = (V_j^{1/3} - 1)(3 / q_j) + q_j / 3\]</div>
+<p>(pp. 108-109, Equations 5.7.6-5.7.8), and the unweighted mean square <span class="math notranslate nohighlight">\(U_j = \sum_i z_{ij}^2 / M_j\)</span>
+has the variance <span class="math notranslate nohighlight">\(\sum_i (C_{ij} / W_{ij}^2) / M_j^2 - 1 / M_j\)</span> of Table 5.4a (p. 100), with the items
+in place of the examinees. <span class="bibtex-citation" id="id7">Wright and Stone [<a class="reference internal" href="#id66" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>, p. 77, Equations 4.4.1-4.4.2]</span> divide an examinee’s sum
+of squared standardized residuals by <span class="math notranslate nohighlight">\(M - 1\)</span> instead, one less than the number of items, and
+standardize it by a logarithm; irtlib follows Wright and Masters.</p>
 </section>
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
-<p><strong>The abilities</strong> are the EAP estimates of <a class="reference internal" href="../ability/eap.html#irtlib.ability.expected_a_posteriori" title="irtlib.ability.expected_a_posteriori"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.ability.expected_a_posteriori()</span></code></a> on the
-calibration’s grid, abilities normal with mean 0 and variance 1
-(<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>), so the mean squares take a calibration of the 1PL
-by <a class="reference internal" href="../calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>.</p>
+<p><strong>The abilities.</strong> The item mean squares take EAP estimates of
+<a class="reference internal" href="../ability/eap.html#irtlib.ability.expected_a_posteriori" title="irtlib.ability.expected_a_posteriori"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.ability.expected_a_posteriori()</span></code></a> on the calibration’s grid, abilities normal with mean 0
+and variance 1 (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>), so they take a calibration of the
+1PL by <a class="reference internal" href="../calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>. The examinees’ mean squares take the abilities from the caller,
+estimated by any of the <a class="reference internal" href="../ability/index.html"><span class="doc">Ability Estimation</span></a>.</p>
+<p><strong>The models.</strong> The item mean squares take the 1PL, the model of Wright and Masters’ book. The
+examinees’ mean squares take items of any model, 1PL to 4PL: <span class="math notranslate nohighlight">\(W_{ij}\)</span> and <span class="math notranslate nohighlight">\(C_{ij}\)</span> are written in terms of
+the model’s probabilities (p. 108, Equations 5.7.1-5.7.3), but no source on the shelf applies the mean
+squares beyond the Rasch model.</p>
+<p><strong>Missing responses.</strong> Wright and Masters’ sums run over every examinee and every item, with no rule
+for a missing response. The item mean squares need complete responses
+(<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>). The examinees’ mean squares sum over the items each
+examinee answered, <span class="math notranslate nohighlight">\(M_j\)</span> of them, with no source on the shelf for that rule; an examinee who answered
+no item, or whose ability is infinite or NaN, has none of the four values.</p>
 <p><strong>Three choices no source on the shelf covers:</strong></p>
 <ul class="simple">
 <li><p>the unweighted mean square is standardized in the same way as the weighted one, with the standard
@@ -514,51 +541,66 @@ deviation from Table 5.4a in place of <span class="math notranslate nohighlight"
 <li><p>the standard deviation of either mean square is capped at 1.4142 before standardizing.</p></li>
 </ul>
 <p>The <a class="reference external" href="https://github.com/douglasrizzo/irtlib/blob/dev/backlog/discovery/sources-wanted.md">sources wanted</a>
-list all three.</p>
-<p><strong>Complete responses.</strong> Wright and Masters’ sums run over every examinee, with no rule for a missing
-response, so irtlib’s mean squares need complete responses
-(<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>).</p>
+list these three, the examinees’ mean squares of the 2PL to 4PL, and their sums over the answered items.</p>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Comparison with mirt</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <ul class="simple">
-<li><p>mirt 1.48 calls <span class="math notranslate nohighlight">\(U_i\)</span> and <span class="math notranslate nohighlight">\(V_i\)</span> outfit and infit too (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:584,</span> <span class="pre">588</span></code>), and takes EAP
+<li><p>mirt 1.48 calls <span class="math notranslate nohighlight">\(U\)</span> and <span class="math notranslate nohighlight">\(V\)</span> outfit and infit too (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:584,</span> <span class="pre">588</span></code>), and takes EAP
 estimates by default (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:268,</span> <span class="pre">535-538</span></code>), on the grid of its <code class="docutils literal notranslate"><span class="pre">fscores</span></code>.</p></li>
 <li><p>irtlib’s three choices above are mirt’s: the standardized outfit (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:585,</span> <span class="pre">587</span></code>), the
 floor on <span class="math notranslate nohighlight">\(W_{ij}\)</span> (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:189-200</span></code>) and the cap on the standard deviation
-(<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:586,</span> <span class="pre">591</span></code>).</p></li>
+(<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:586,</span> <span class="pre">591</span></code>; <code class="docutils literal notranslate"><span class="pre">R/personfit.R:205,</span> <span class="pre">209</span></code>).</p></li>
 <li><p>mirt computes the mean squares of any model from its probabilities (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:181-194</span></code>), and
 with missing responses sums over the examinees who answered each item, with <span class="math notranslate nohighlight">\(N\)</span> their number
-(<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:577-584</span></code>).</p></li>
-<li><p>At mirt’s estimates and abilities the parity tests find the mean squares and their standardized
-values within a relative <span class="math notranslate nohighlight">\(10^{-10}\)</span>; on irtlib’s own calibration, the mean squares within a relative
-<span class="math notranslate nohighlight">\(10^{-4}\)</span> and the standardized values within <span class="math notranslate nohighlight">\(10^{-3}\)</span>
-(<a class="reference internal" href="../../adr/0003-mirt-as-the-reference.html"><span class="doc">ADR-0003</span></a>).</p></li>
+(<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:577-584</span></code>), and over the items each examinee answered, with <span class="math notranslate nohighlight">\(M_j\)</span> their number
+(<code class="docutils literal notranslate"><span class="pre">R/personfit.R:195,</span> <span class="pre">202-210</span></code>).</p></li>
+<li><p>Three departures, in the examinees’ mean squares only. With missing responses, mirt divides the
+first term of the outfit’s variance by the square of the number of all items, <span class="math notranslate nohighlight">\(M^2\)</span>, where irtlib
+divides it by <span class="math notranslate nohighlight">\(M_j^2\)</span> (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:204</span></code>). Where the floor on <span class="math notranslate nohighlight">\(W_{ij}\)</span> leaves that variance
+negative, mirt takes its absolute value (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:204</span></code>), and irtlib gives NaN. mirt replaces
+an infinite ability by the largest finite one plus 0.1, or the smallest less 0.1
+(<code class="docutils literal notranslate"><span class="pre">R/personfit.R:146-151</span></code>), and irtlib gives that examinee NaN.</p></li>
+<li><p>At mirt’s estimates and abilities the parity tests find the item mean squares and their
+standardized values within a relative <span class="math notranslate nohighlight">\(10^{-10}\)</span>; on irtlib’s own calibration, the mean squares
+within a relative <span class="math notranslate nohighlight">\(10^{-4}\)</span> and the standardized values within <span class="math notranslate nohighlight">\(10^{-3}\)</span>
+(<a class="reference internal" href="../../adr/0003-mirt-as-the-reference.html"><span class="doc">ADR-0003</span></a>). At the same abilities, on 2PL, 3PL and 4PL
+items with responses complete and missing, they find mirt’s mean squares of the examinees within a relative
+<span class="math notranslate nohighlight">\(10^{-10}\)</span>, and their standardized values too, except the standardized outfit with missing
+responses.</p></li>
 </ul>
 </div>
 </details></section>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">mean_squares()</span></code></a> takes the calibration and the responses it was calibrated on, and
-has no settings.</p>
+<a class="reference internal" href="#irtlib.fit.person_mean_squares" title="irtlib.fit.person_mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">person_mean_squares()</span></code></a> the responses, the items and each examinee’s ability. Neither
+has settings.</p>
 </section>
 <section id="guarantees">
 <h2>Guarantees<a class="headerlink" href="#guarantees" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p>Each item gets its outfit and infit, and their standardized values; a standardized value is NaN
-where its mean square’s variance is not positive.</p></li>
-<li><p>A missing response, a calibration whose likelihood is not marginal, or a calibration of a model
-other than the 1PL raises an error.</p></li>
+<li><p>Each item, or each examinee, gets its outfit and infit, and their standardized values; a
+standardized value is NaN where its mean square’s variance is not positive.</p></li>
+<li><p>For the item mean squares, a missing response, a calibration whose likelihood is not marginal, or a
+calibration of a model other than the 1PL raises an error.</p></li>
+<li><p>The mean squares of an examinee leave out the examinee’s missing responses, and are NaN when
+the examinee answered no item or the ability is infinite or NaN, without a warning.</p></li>
 </ol>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
-<div class="docutils container" id="id4">
+<div class="docutils container" id="id8">
 <div role="list" class="citation-list">
-<div class="citation" id="id63" role="doc-biblioentry">
+<div class="citation" id="id67" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>WM82<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>)</span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>,<a role="doc-backlink" href="#id5">4</a>,<a role="doc-backlink" href="#id6">5</a>)</span>
 <p>Benjamin D. Wright and Geoffrey N. Masters. <em>Rating Scale Analysis</em>. MESA Press, Chicago, 1982. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf">https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf</a>.</p>
+</div>
+<div class="citation" id="id66" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WS79<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
+<p>Benjamin D. Wright and Mark H. Stone. <em>Best Test Design</em>. MESA Press, Chicago, 1979. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf">https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf</a>.</p>
 </div>
 </div>
 </div>
@@ -613,23 +655,71 @@ one column per item of the calibration.</p>
 </div>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="irtlib.fit.MeanSquares">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">MeanSquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/irtlib/fit.html#MeanSquares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.MeanSquares" title="Link to this definition">#</a></dt>
-<dd><p>The outfit and infit mean squares of each item, each with its standardized value.</p>
-<p>Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
-from the same responses, as they are here.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.fit.person_mean_squares">
+<span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">person_mean_squares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><span class="pre">MeanSquares</span></a></span></span><a class="reference internal" href="../../_modules/irtlib/fit.html#person_mean_squares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.person_mean_squares" title="Link to this definition">#</a></dt>
+<dd><p>Return the outfit and infit mean squares of every examinee, from the responses at the examinees’ abilities.</p>
+<p>Each response is compared with its probability at the examinee’s ability, under the model of each item, 1PL to
+4PL. A missing response is left out, so that each examinee’s mean squares sum over the items the examinee answered.
+An examinee who answered no item, or whose ability is infinite or NaN, gets NaN throughout.</p>
+<p>The <a class="reference internal" href="#"><span class="doc">Mean Squares</span></a> page gives the method, its sources and the origin of each default.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>outfit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The unweighted mean square of each item, Wright and Masters’ <span class="math notranslate nohighlight">\(u_i\)</span>: the mean, over examinees, of the
-squared standardized residuals.</p>
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix: one row per examinee, one column per item, 1 or 0, and NaN for a missing response.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">array_like</span></dt><dd><p>The items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code> per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>.</p>
+</dd>
+<dt><strong>theta</strong><span class="classifier">array_like</span></dt><dd><p>Each examinee’s ability, one per row of <code class="docutils literal notranslate"><span class="pre">responses</span></code>, such as the <code class="docutils literal notranslate"><span class="pre">theta</span></code> of an
+<a class="reference internal" href="../ability/index.html#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>MeanSquares</dt><dd><p>Each examinee’s outfit and infit, and their standardized values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats, or <code class="docutils literal notranslate"><span class="pre">theta</span></code> holds values other than numbers.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix, <code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, a response is
+not 0, 1 or NaN, or <code class="docutils literal notranslate"><span class="pre">theta</span></code> does not hold one ability per row of <code class="docutils literal notranslate"><span class="pre">responses</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span> <span class="o">=</span> <span class="n">person_mean_squares</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span><span class="o">.</span><span class="n">outfit</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">fit</span><span class="o">.</span><span class="n">infit</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">(array([0.378, 1.99 , 0.435]), array([0.402, 1.904, 0.465]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="irtlib.fit.MeanSquares">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">MeanSquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/irtlib/fit.html#MeanSquares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.MeanSquares" title="Link to this definition">#</a></dt>
+<dd><p>The outfit and infit mean squares of each item, or of each examinee, each with its standardized value.</p>
+<p>An item’s mean squares sum over every examinee, and an examinee’s over the items the examinee answered. Both mean
+squares have expectation 1 when the responses fit the model at the abilities they are evaluated at, and less when
+the abilities are estimated from the same responses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outfit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The unweighted mean square of each item or examinee, Wright and Masters’ <span class="math notranslate nohighlight">\(u\)</span>: the mean of its squared
+standardized residuals.</p>
 </dd>
 <dt><strong>outfit_t</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The outfit standardized by the same cube-root transformation as <code class="docutils literal notranslate"><span class="pre">infit_t</span></code>, with the outfit’s own standard
 deviation under the model; NaN where its variance under the model is not positive.</p>
 </dd>
-<dt><strong>infit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The weighted mean square of each item, Wright and Masters’ <span class="math notranslate nohighlight">\(v_i\)</span>: the squared residuals summed over
-examinees, over the sum of their variances.</p>
+<dt><strong>infit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The weighted mean square of each item or examinee, Wright and Masters’ <span class="math notranslate nohighlight">\(v\)</span>: the sum of its squared
+residuals over the sum of their variances.</p>
 </dd>
 <dt><strong>infit_t</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where
 its variance under the model is not positive.</p>
@@ -697,6 +787,7 @@ its variance under the model is not positive.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api-reference">API Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.mean_squares"><code class="docutils literal notranslate"><span class="pre">mean_squares()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.person_mean_squares"><code class="docutils literal notranslate"><span class="pre">person_mean_squares()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.MeanSquares"><code class="docutils literal notranslate"><span class="pre">MeanSquares</span></code></a></li>
 </ul>
 </li>

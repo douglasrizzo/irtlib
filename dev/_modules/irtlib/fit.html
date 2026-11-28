@@ -414,14 +414,17 @@
                 <article class="bd-article">
                   
   <h1>Source code for irtlib.fit</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""Item fit: Orlando and Thissen's S-X² statistic for every model, and the mean squares of the Rasch model."""</span>
+<span></span><span class="sd">"""Item and person fit: Orlando and Thissen's S-X² of each item, and the mean squares of each item or examinee."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">chi2</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">responses_and_items</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.ability</span><span class="w"> </span><span class="kn">import</span> <span class="n">expected_a_posteriori</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">_check_marginal</span><span class="p">,</span> <span class="n">_complete_responses</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">icc</span><span class="p">,</span> <span class="n">log_response_probabilities</span>
@@ -585,22 +588,23 @@
 <a class="viewcode-back" href="../../methods/fit/mean-squares.html#irtlib.fit.MeanSquares">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MeanSquares</span><span class="p">:</span>
-<span class="w">  </span><span class="sd">"""The outfit and infit mean squares of each item, each with its standardized value.</span>
+<span class="w">  </span><span class="sd">"""The outfit and infit mean squares of each item, or of each examinee, each with its standardized value.</span>
 
-<span class="sd">  Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated</span>
-<span class="sd">  from the same responses, as they are here.</span>
+<span class="sd">  An item's mean squares sum over every examinee, and an examinee's over the items the examinee answered. Both mean</span>
+<span class="sd">  squares have expectation 1 when the responses fit the model at the abilities they are evaluated at, and less when</span>
+<span class="sd">  the abilities are estimated from the same responses.</span>
 
 <span class="sd">  Parameters</span>
 <span class="sd">  ----------</span>
 <span class="sd">  outfit : numpy.ndarray</span>
-<span class="sd">      The unweighted mean square of each item, Wright and Masters' :math:`u_i`: the mean, over examinees, of the</span>
-<span class="sd">      squared standardized residuals.</span>
+<span class="sd">      The unweighted mean square of each item or examinee, Wright and Masters' :math:`u`: the mean of its squared</span>
+<span class="sd">      standardized residuals.</span>
 <span class="sd">  outfit_t : numpy.ndarray</span>
 <span class="sd">      The outfit standardized by the same cube-root transformation as ``infit_t``, with the outfit's own standard</span>
 <span class="sd">      deviation under the model; NaN where its variance under the model is not positive.</span>
 <span class="sd">  infit : numpy.ndarray</span>
-<span class="sd">      The weighted mean square of each item, Wright and Masters' :math:`v_i`: the squared residuals summed over</span>
-<span class="sd">      examinees, over the sum of their variances.</span>
+<span class="sd">      The weighted mean square of each item or examinee, Wright and Masters' :math:`v`: the sum of its squared</span>
+<span class="sd">      residuals over the sum of their variances.</span>
 <span class="sd">  infit_t : numpy.ndarray</span>
 <span class="sd">      The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where</span>
 <span class="sd">      its variance under the model is not positive.</span>
@@ -673,9 +677,71 @@
 
 
 
+<div class="viewcode-block" id="person_mean_squares">
+<a class="viewcode-back" href="../../methods/fit/mean-squares.html#irtlib.fit.person_mean_squares">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">person_mean_squares</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeanSquares</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the outfit and infit mean squares of every examinee, from the responses at the examinees' abilities.</span>
+
+<span class="sd">  Each response is compared with its probability at the examinee's ability, under the model of each item, 1PL to</span>
+<span class="sd">  4PL. A missing response is left out, so that each examinee's mean squares sum over the items the examinee answered.</span>
+<span class="sd">  An examinee who answered no item, or whose ability is infinite or NaN, gets NaN throughout.</span>
+
+<span class="sd">  The :doc:`/methods/fit/mean-squares` page gives the method, its sources and the origin of each default.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix: one row per examinee, one column per item, 1 or 0, and NaN for a missing response.</span>
+<span class="sd">  items : array_like</span>
+<span class="sd">      The items, a matrix of shape ``(n, 4)``, one row ``[a, b, c, d]`` per column of ``responses``.</span>
+<span class="sd">  theta : array_like</span>
+<span class="sd">      Each examinee's ability, one per row of ``responses``, such as the ``theta`` of an</span>
+<span class="sd">      :py:class:`~irtlib.ability.AbilityEstimates`.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  MeanSquares</span>
+<span class="sd">      Each examinee's outfit and infit, and their standardized values.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats, or ``theta`` holds values other than numbers.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is</span>
+<span class="sd">      not 0, 1 or NaN, or ``theta`` does not hold one ability per row of ``responses``.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.9]])</span>
+<span class="sd">  &gt;&gt;&gt; responses = numpy.array([[1, 1, 0], [0, 1, 1], [1, numpy.nan, 0]])</span>
+<span class="sd">  &gt;&gt;&gt; fit = person_mean_squares(responses, items, [0.5, 0.0, -0.5])</span>
+<span class="sd">  &gt;&gt;&gt; fit.outfit.round(3), fit.infit.round(3)</span>
+<span class="sd">  (array([0.378, 1.99 , 0.435]), array([0.402, 1.904, 0.465]))</span>
+<span class="sd">  """</span>
+  <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">responses_and_items</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">theta</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">"iuf"</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"theta holds </span><span class="si">{</span><span class="n">theta</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> values; theta must hold numbers, one ability per row of responses"</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"theta must hold one ability per row of responses, </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, got shape </span><span class="si">{</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="c1"># an examinee without a finite ability is left with no response; its theta is set to 0 only so that its</span>
+  <span class="c1"># probabilities are finite, and its NaN responses keep them out of every sum</span>
+  <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">[</span><span class="o">~</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+  <span class="n">log_p</span><span class="p">,</span> <span class="n">log_q</span> <span class="o">=</span> <span class="n">log_response_probabilities</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finite</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">items</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_mean_squares</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_p</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_q</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span></div>
+
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_mean_squares</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MeanSquares</span><span class="p">:</span>
-<span class="w">  </span><span class="sd">"""Return the mean squares of complete responses, examinees by items, from the probabilities P and Q of each."""</span>
-  <span class="n">n_examinees</span> <span class="o">=</span> <span class="n">responses</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">  </span><span class="sd">"""Return the mean squares of each column of responses, from the probabilities P and Q of each, leaving out NaN."""</span>
+  <span class="n">answered</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+  <span class="n">n_responses</span> <span class="o">=</span> <span class="n">answered</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
   <span class="n">variance</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span>
   <span class="c1"># the floor applies to the variance W only, not to the kurtosis C or the squared residual, as mirt's does</span>
   <span class="c1"># (R/personfit.R:189-200)</span>
@@ -683,11 +749,16 @@
   <span class="n">kurtosis</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="n">q</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
   <span class="c1"># the residual u - P is Q for a correct response and -P for an incorrect one</span>
   <span class="n">squared_residual</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">responses</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-  <span class="n">outfit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">squared_residual</span> <span class="o">/</span> <span class="n">variance</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_examinees</span>
-  <span class="n">outfit_variance</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kurtosis</span> <span class="o">/</span> <span class="n">variance</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_examinees</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_examinees</span>
-  <span class="n">total_variance</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-  <span class="n">infit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">squared_residual</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_variance</span>
-  <span class="n">infit_variance</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">kurtosis</span> <span class="o">-</span> <span class="n">variance</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_variance</span><span class="o">**</span><span class="mi">2</span>
+  <span class="c1"># each column's sum over its responses</span>
+  <span class="n">total</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">answered</span><span class="p">)</span>
+  <span class="c1"># a column without responses divides 0 by 0, which leaves its mean squares and their variances NaN: an examinee who</span>
+  <span class="c1"># answered no item; never an item, whose responses the item mean squares require complete and non-empty</span>
+  <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+    <span class="n">outfit</span> <span class="o">=</span> <span class="n">total</span><span class="p">(</span><span class="n">squared_residual</span> <span class="o">/</span> <span class="n">variance</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_responses</span>
+    <span class="n">outfit_variance</span> <span class="o">=</span> <span class="n">total</span><span class="p">(</span><span class="n">kurtosis</span> <span class="o">/</span> <span class="n">variance</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_responses</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_responses</span>
+    <span class="n">total_variance</span> <span class="o">=</span> <span class="n">total</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+    <span class="n">infit</span> <span class="o">=</span> <span class="n">total</span><span class="p">(</span><span class="n">squared_residual</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_variance</span>
+    <span class="n">infit_variance</span> <span class="o">=</span> <span class="n">total</span><span class="p">(</span><span class="n">kurtosis</span> <span class="o">-</span> <span class="n">variance</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_variance</span><span class="o">**</span><span class="mi">2</span>
   <span class="k">return</span> <span class="n">MeanSquares</span><span class="p">(</span>
     <span class="n">outfit</span><span class="o">=</span><span class="n">outfit</span><span class="p">,</span>
     <span class="n">outfit_t</span><span class="o">=</span><span class="n">_standardized</span><span class="p">(</span><span class="n">outfit</span><span class="p">,</span> <span class="n">outfit_variance</span><span class="p">),</span>

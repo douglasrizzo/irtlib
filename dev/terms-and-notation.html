@@ -566,6 +566,9 @@ likelihood. In the API: <a class="reference internal" href="methods/models/quadr
 <dt>item fit</dt><dd><p>How well the responses a calibration predicts for an item match those observed. In the API:
 <a class="reference internal" href="methods/fit/s-x2.html#irtlib.fit.s_x2" title="irtlib.fit.s_x2"><code class="xref py py-func docutils literal notranslate"><span class="pre">s_x2()</span></code></a> and <a class="reference internal" href="methods/fit/mean-squares.html#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">mean_squares()</span></code></a>.</p>
 </dd>
+<dt>person fit</dt><dd><p>How well an examinee’s responses match their expectations at the examinee’s ability. In the API:
+<a class="reference internal" href="methods/fit/mean-squares.html#irtlib.fit.person_mean_squares" title="irtlib.fit.person_mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">person_mean_squares()</span></code></a>.</p>
+</dd>
 <dt>model comparison</dt><dd><p>Whether a model with more parameters fits enough better to justify them. In the API: the
 functions of <a class="reference internal" href="methods/comparison.html#module-irtlib.comparison" title="irtlib.comparison"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a>.</p>
 </dd>
@@ -605,47 +608,51 @@ functions of <a class="reference internal" href="methods/comparison.html#module-
 <td><p>number of examinees</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a_i\)</span>, <span class="math notranslate nohighlight">\(b_i\)</span>, <span class="math notranslate nohighlight">\(c_i\)</span>, <span class="math notranslate nohighlight">\(d_i\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(M_j\)</span></p></td>
+<td><p>number of items examinee <span class="math notranslate nohighlight">\(j\)</span> answered</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(a_i\)</span>, <span class="math notranslate nohighlight">\(b_i\)</span>, <span class="math notranslate nohighlight">\(c_i\)</span>, <span class="math notranslate nohighlight">\(d_i\)</span></p></td>
 <td><p>discrimination, difficulty, guessing parameter and upper asymptote of item <span class="math notranslate nohighlight">\(i\)</span></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">discrimination</span></code>, <code class="docutils literal notranslate"><span class="pre">difficulty</span></code>, <code class="docutils literal notranslate"><span class="pre">pseudo_guessing</span></code>, <code class="docutils literal notranslate"><span class="pre">upper_asymptote</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(P_i(\theta)\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(P_i(\theta)\)</span></p></td>
 <td><p>probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span></p></td>
 <td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(Q_i(\theta)\)</span></p></td>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(Q_i(\theta)\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(1 - P_i(\theta)\)</span>, probability of an incorrect response</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(I_i(\theta)\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(I_i(\theta)\)</span></p></td>
 <td><p>information of item <span class="math notranslate nohighlight">\(i\)</span></p></td>
 <td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.information()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(I(\theta)\)</span></p></td>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(I(\theta)\)</span></p></td>
 <td><p>test information, <span class="math notranslate nohighlight">\(\sum_i I_i(\theta)\)</span></p></td>
 <td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.total_information()</span></code></a></p></td>
 </tr>
-<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(SE(\hat{\theta})\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(SE(\hat{\theta})\)</span></p></td>
 <td><p>standard error of the ability estimate</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">standard_errors</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(u_{ij}\)</span></p></td>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(u_{ij}\)</span></p></td>
 <td><p>examinee <span class="math notranslate nohighlight">\(j\)</span>’s response to item <span class="math notranslate nohighlight">\(i\)</span>: 1 if correct, 0 if not</p></td>
 <td><p>an entry of <code class="docutils literal notranslate"><span class="pre">responses</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(L_j(\theta)\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(L_j(\theta)\)</span></p></td>
 <td><p>likelihood of examinee <span class="math notranslate nohighlight">\(j\)</span>’s responses at ability <span class="math notranslate nohighlight">\(\theta\)</span></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(X_q\)</span></p></td>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(X_q\)</span></p></td>
 <td><p>node <span class="math notranslate nohighlight">\(q\)</span> of the quadrature grid</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">QuadratureGrid.nodes</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(A_q\)</span></p></td>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(A_q\)</span></p></td>
 <td><p>prior mass at node <span class="math notranslate nohighlight">\(X_q\)</span></p></td>
 <td><p><a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.prior_masses" title="irtlib.quadrature.prior_masses"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_masses()</span></code></a></p></td>
 </tr>
-<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(Q\)</span></p></td>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(Q\)</span></p></td>
 <td><p>number of nodes</p></td>
 <td><p></p></td>
 </tr>
