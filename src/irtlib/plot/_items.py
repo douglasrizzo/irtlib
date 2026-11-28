@@ -51,6 +51,7 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
   ability axis, one call each, as the example shows.
 
   .. plot::
+      :filename-prefix: item_curve
       :caption: One item's characteristic curve above and its information curve below. The dot marks the peak.
 
       import matplotlib.pyplot as plt

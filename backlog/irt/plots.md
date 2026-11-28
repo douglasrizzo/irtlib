@@ -20,6 +20,8 @@ curves. The plots below remain; catsim deletes its copy of a plot once irtlib ha
 ## What irtlib and catsim have now
 
 - `irtlib.plot.item_curve`, with the calling conventions of ADR-0011.
+- `irtlib.plot.item_person_map`, `likelihood` (of one examinee's responses), `ability_histogram`,
+  `prior_posterior`, `population_posterior` and `precision`: the examinees on the scale.
 - catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
   `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
@@ -54,12 +56,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Item-person map (`item_person_map`) | Examinees' abilities above the axis and the items' locations below it, on one θ scale. | `item_person_map` |  | Wright & Stone 1979, p. 121, Fig. 5.10.1; p. 205, Fig. 8.8.1; eRm 1.0-10, plotPImap; TAM 4.3-25, IRT.WrightMap |
-| Targeting (`targeting`) | The examinees' abilities above, the test information below with a tick at each item's location. |  |  | Wright & Stone 1979, p. 138, Fig. 6.7.1; PP 1.0.0, pp-plots 'precision' |
-| Likelihood of a response pattern (`likelihood`) | The likelihood of one examinee's responses across abilities, relative to its maximum, with the ML estimate and, in a simulation, the true ability. | `likelihood(session)` |  | Bock & Mislevy 1982, p. 434, Fig. 1 |
-| Prior, likelihood and posterior (`prior_posterior`) | The prior, the likelihood and the posterior of one response pattern, each as a density. |  |  | Bock & Mislevy 1982, p. 434, Fig. 1; Kim & Bolt 2007, p. 41, Fig. 1 |
-| Population posterior (`population_posterior`) | The mean of the examinees' posteriors over the quadrature grid, against the prior. |  |  | mirt 1.48 manual, p. 194, plot 'posteriorTheta' |
-| Measurement precision of examinees (`precision`) | Each examinee's standard error against their estimate, with the test's curve. |  |  | PP 1.0.0, pp-plots 'precision' |
+| Targeting (a figure in `ability_histogram`) | The examinees' abilities above, the test information below with a tick at each item's location: `ability_histogram` stacked over `bank_information` with its `locations=`, drawn in `ability_histogram`'s docstring once `bank_information` is on `dev`. |  |  | Wright & Stone 1979, p. 138, Fig. 6.7.1; PP 1.0.0, pp-plots 'precision' |
 | Sum score to θ (`sum_score_conversion`) | The EAP estimate of each sum score, with a band of one posterior standard deviation. |  | EAP estimates for sum scores | mirt 1.48 manual, p. 74, fscores method 'EAPsum' |
 
 ### Fit
@@ -101,7 +98,6 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 Every location above was read on the shelf on 2026-11-28.
 
-- Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4), 431-444. doi:10.1177/014662168200600405
 - Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. Journal of Statistical Software, 48(6), 1-29. doi:10.18637/jss.v048.i06
 - Kim, J.-S., & Bolt, D. M. (2007). Estimating item response theory models using Markov chain Monte Carlo methods. Educational Measurement: Issues and Practice, 26(4), 38-51. doi:10.1111/j.1745-3992.2007.00107.x
 - Lalor, J. P., & Rodriguez, P. (2023). py-irt: A scalable item response theory library for Python. INFORMS Journal on Computing, 35(1), 5-13. doi:10.1287/ijoc.2022.1250 (figure read in the arXiv preprint 2203.01282v2)
