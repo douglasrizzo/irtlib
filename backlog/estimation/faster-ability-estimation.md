@@ -71,8 +71,8 @@ against 162.5-169.4 µs: both are under 1.2.
 
 Profile each estimator on the benchmark's shapes, and make it faster where the profile points,
 without changing its estimates beyond rounding: cheaper checks on the one examinee of a CAT step, a
-lighter path through the posterior for EAP, fewer search points where the likelihood has one
-maximum (the 1PL and 2PL, Open Question 1), and P and Q from the logistic in the WLE where neither
+lighter path through the posterior for EAP, Brent's search alone where the likelihood has one
+maximum (the 1PL and 2PL, decided under Open Questions), and P and Q from the logistic in the WLE where neither
 rounds off.
 
 ## Tests
@@ -85,8 +85,10 @@ rounds off.
 
 1. **The ML search on the 1PL and 2PL.** With every $c = 0$, the second derivative of the
    log-likelihood is $-I$ (Warm, 1989, p. 449, in a model with $d = 1$), so the likelihood has at
-   most one maximum and Brent's search alone would do there. Whether to branch on the model, or to
-   keep one search for every model, is the maintainer's call once the benchmarks measure the cost.
+   most one maximum and Brent's search alone would do there. **Decided by the maintainer on
+   2026-11-28:** the 1PL and 2PL skip the grid and use Brent's search alone. MAP with the normal
+   prior can do the same, since the normal log-density is concave too. MAP with any other prior,
+   and the 3PL and 4PL, keep the grid.
 
 ## References
 

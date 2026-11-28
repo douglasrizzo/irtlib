@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-23 cards: 9 ready, 3 needs-research, 5 needs-decision, 2 blocked, 4 parked.
+27 cards: 10 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -64,8 +64,9 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Generate banks of a chosen shape, and document the scaling constant D where users look](discovery/bank-generation.md) | discovery | decision | needs-decision | S |  | catsim's research walkthrough of 2026-11-26 |
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
 | [Choose the WLE's standard error (Warm's corrected SE, the sandwich SE)](estimation/wle-standard-errors.md) | estimation | technique | needs-research | S |  | catsim's Wang and Vispoel (1998) walkthrough |
-| [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
+| [Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE](estimation/vectorized-ability-estimation.md) | estimation | feature | ready | M |  | joint maximum likelihood PR on 2026-11-27 |
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
+| [Return joint maximum likelihood's abilities, and let its correction scale the standard errors](estimation/jml-result.md) | estimation | feature | ready | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Compute the normal quantile in irtlib.irt with scipy.special instead of importing scipy.stats](irt/normal-quantile-import.md) | irt | maintenance | ready | XS |  | catsim's import-time card on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
@@ -80,7 +81,10 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Find how EAP abilities lower the mean squares on data that fit the Rasch model](discovery/mean-squares-eap.md) | discovery | research | needs-research | S |  | mean-squares PR on 2026-11-27 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | needs-decision | S |  | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
+| [Keep the 2PL's joint maximum likelihood slopes finite on short tests](estimation/jml-slope-limits.md) | estimation | feature | blocked | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
+| [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
+| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | blocked | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 

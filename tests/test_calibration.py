@@ -58,13 +58,16 @@ def _calibration(likelihood: Likelihood | str, grid: QuadratureGrid | None) -> C
 
 
 @pytest.mark.parametrize(
-  ("likelihood", "grid"), [(Likelihood.MARGINAL, None), (Likelihood.CONDITIONAL, default_grid())], ids=str
+  ("likelihood", "grid"),
+  [(Likelihood.MARGINAL, None), (Likelihood.CONDITIONAL, default_grid()), (Likelihood.JOINT, default_grid())],
+  ids=str,
 )
 def test_a_grid_comes_with_the_marginal_likelihood_only(likelihood: Likelihood, grid: QuadratureGrid | None) -> None:
-  """A calibration of the marginal likelihood without a grid, or of the conditional likelihood with one, is refused.
+  """A calibration of the marginal likelihood without a grid, or of the conditional or joint likelihood with one, is
+  refused.
 
   Model comparison and item fit read a grid as the sign of a marginal log-likelihood, so a mismatch would let them
-  compare a conditional one or integrate over nodes the calibration never used.
+  compare a conditional or joint one or integrate over nodes the calibration never used.
   """
   with pytest.raises(ValueError, match="a grid exactly when its likelihood is marginal"):
     _calibration(likelihood, grid)

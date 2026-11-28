@@ -84,8 +84,16 @@ import warnings
 
 import numpy
 
-from .calibration import Calibration, ConvergenceWarning, Likelihood, _valid_items, validate_responses
-from .typing import BoolArray, FloatArray
+from .calibration import (
+  Calibration,
+  ConvergenceWarning,
+  Likelihood,
+  _edited,
+  _reject_separation,
+  _valid_items,
+  validate_responses,
+)
+from .typing import FloatArray
 
 # The most halvings of a Newton-Raphson step before the iterations stop at the maximum.
 _STEP_HALVINGS = 30
@@ -169,7 +177,8 @@ class CMLCalibrator:
         "with missing entries"
       )
       raise ValueError(msg)
-    kept, items = _estimable(matrix)
+    kept, items = _edited(matrix, Likelihood.CONDITIONAL)
+    _reject_separation(kept, items, Likelihood.CONDITIONAL)
     totals = kept.sum(axis=0)
     score_counts = numpy.bincount(kept.sum(axis=1).astype(int), minlength=totals.size + 1).astype(float)
     # Andersen's (1972) starting values: the log-odds of an incorrect response, centred
@@ -260,91 +269,6 @@ def _newton_raphson(
   else:
     failure = f"the last Newton-Raphson step changed a difficulty by {change:.3g}, above the tolerance {tolerance:g}"
   return difficulty, max_cycles, change, failure
-
-
-def _estimable(matrix: FloatArray) -> tuple[FloatArray, BoolArray]:
-  """Return the responses of the examinees and items kept, and the items kept, once a maximum is known to exist.
-
-  Returns
-  -------
-  tuple[numpy.ndarray, numpy.ndarray]
-      The responses of the examinees and items kept, and a mask of the items kept among the columns.
-
-  Raises
-  ------
-  ValueError
-      If no item is kept, or the conditional likelihood of the responses kept has no maximum.
-  """
-  examinees, items = _kept(matrix)
-  # _kept leaves no item rather than one, whose every examinee would have no item or every item correct
-  if not items.any():
-    msg = (
-      "no item has a conditional estimate: once the examinees with no item or every item correct are left out, "
-      "every item is answered correctly by every examinee or by none"
-    )
-    raise ValueError(msg)
-  kept = matrix[numpy.ix_(examinees, items)]
-  separation = _separation(kept)
-  if separation is not None:
-    columns = numpy.flatnonzero(items)
-    score, easier, harder = separation
-    msg = (
-      f"no difficulty has a finite conditional estimate: the examinees with at most {score} correct answered none of "
-      f"the items in columns {columns[harder].tolist()} correctly, and those with more answered all of the items in "
-      f"columns {columns[easier].tolist()}, so the responses fix only that the first group is harder than the second"
-    )
-    raise ValueError(msg)
-  return kept, items
-
-
-def _kept(matrix: FloatArray) -> tuple[BoolArray, BoolArray]:
-  """Return the examinees and items kept: none with no item or every item correct, none answered by all or none."""
-  examinees = numpy.ones(matrix.shape[0], dtype=bool)
-  items = numpy.ones(matrix.shape[1], dtype=bool)
-  while True:
-    scores = matrix[:, items].sum(axis=1)
-    kept_examinees = examinees & (scores > 0) & (scores < items.sum())
-    totals = matrix[kept_examinees].sum(axis=0)
-    kept_items = items & (totals > 0) & (totals < kept_examinees.sum())
-    if numpy.array_equal(kept_examinees, examinees) and numpy.array_equal(kept_items, items):
-      return examinees, items
-    examinees, items = kept_examinees, kept_items
-
-
-def _separation(matrix: FloatArray) -> tuple[int, BoolArray, BoolArray] | None:
-  """Return a split of the responses that leaves the conditional likelihood no maximum, or None if there is none.
-
-  Haberman's Theorem 10 on responses with no examinee who has no item or every item correct and no item answered by
-  every examinee or by none: a number correct and a cut of the item totals such that the examinees with at most that
-  many correct answered no item below the cut, and those with more answered every item above it.
-
-  Parameters
-  ----------
-  matrix : numpy.ndarray
-      The complete responses of the examinees and items kept.
-
-  Returns
-  -------
-  tuple[int, numpy.ndarray, numpy.ndarray] or None
-      The number correct, the items above the cut and the items below it, as masks of the columns; None if no split
-      exists, and so the conditional maximum likelihood estimate does.
-  """
-  n_items = matrix.shape[1]
-  scores = matrix.sum(axis=1)[:, numpy.newaxis]
-  totals = matrix.sum(axis=0)
-  # each item's smallest number correct among the examinees who answered it correctly, and largest among those who
-  # did not: no examinee with at most s correct answered an item right exactly when its smallest exceeds s
-  lowest_right = numpy.where(matrix == 1, scores, numpy.inf).min(axis=0)
-  highest_wrong = numpy.where(matrix == 0, scores, -numpy.inf).max(axis=0)
-  # the theorem's a, a number correct plus one half, lies strictly between 1 and M - 1, and its b, an item total plus
-  # one half, below the largest total; with no examinee left out, it lies between n_0 = 0 and n - n_0 = n as well
-  for score in range(1, n_items - 1):
-    for cut in numpy.unique(totals)[:-1] + 0.5:
-      harder, easier = totals < cut, totals > cut
-      # Theorem 10's fifth condition holds whenever the first four do, since every examinee kept is low or high
-      if numpy.all(lowest_right[harder] > score) and numpy.all(highest_wrong[easier] <= score):
-        return score, easier, harder
-  return None
 
 
 def _log_symmetric_functions(log_easiness: FloatArray) -> FloatArray:
