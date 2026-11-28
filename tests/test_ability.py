@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import math
+import re
 import tracemalloc
 from itertools import product
 from typing import TYPE_CHECKING
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
   from collections.abc import Callable
 
   from irtlib.quadrature import LogPrior
-  from irtlib.typing import FloatArray
+  from irtlib.typing import FloatArray, IntArray
 
 _NAN = np.nan
 _ESTIMATORS = {
@@ -131,6 +132,7 @@ class TestEveryEstimator:
       pytest.param(maximum_likelihood, {}, id="ml_unbounded"),
       pytest.param(maximum_a_posteriori, {}, id="map_standard_normal"),
       pytest.param(maximum_a_posteriori, {"log_prior": normal_log_prior(0.5, 3.0)}, id="map_wide_normal"),
+      pytest.param(weighted_likelihood, {}, id="wle"),
     ],
   )
   @pytest.mark.parametrize("model", ["2PL", "3PL_4PL", "steep"])
@@ -672,6 +674,106 @@ class TestMaximumLikelihood:
     assert estimates.evaluations[0] == 2
 
 
+class TestRootSearch:
+  """The WLE's root search: SciPy's brentq, step by step, for one bracket and for many at once."""
+
+  # q (x - low) (x - high) - tanh(s (x - r)) - e (x - r)^3 on [low, high]: gentle, steep, cubic, flat, roots near the
+  # ends, values exactly opposite at the ends, and a triple root far from 0, where brentq's relative tolerance counts
+  _SHAPES = np.array([
+    [1.0, 0.3, 0.0, 0.0],
+    [50.0, 0.3, 0.0, 0.0],
+    [0.2, -0.7, 5.0, 0.0],
+    [3.0, 2.0 / 3.0, 1.0, 0.0],
+    [1e-3, 0.123, 0.0, 0.0],
+    [8.0, 0.999, 0.0, 0.0],
+    [1.0, 1e-3, 0.0, 0.0],
+    [200.0, -0.25, 0.0, 0.0],
+    [2.0, 0.5, 0.0, 1.0],
+    [1e-9, 1000.3, 1.0, 0.0],
+  ])
+  _ENDS = np.array(
+    [[0, 1], [0, 1], [-1, 1], [0, 1], [-1, 1], [0, 1], [-1, 1], [-1, 1], [0, 1], [999, 1001]], dtype=float
+  )
+
+  def _shapes(self, theta: FloatArray, rows: IntArray) -> FloatArray:
+    scale, root, cubic, bend = self._SHAPES[rows].T
+    low, high = self._ENDS[rows].T
+    return bend * ((theta - low) * (theta - high)) - (np.tanh(scale * (theta - root)) + cubic * (theta - root) ** 3)
+
+  def _shape(self, row: int) -> Callable[[float], float]:
+    return lambda theta: float(self._shapes(np.array([theta]), np.array([row]))[0])
+
+  @pytest.mark.parametrize("tol", [1e-6, 1e-12])
+  def test_the_root_search_takes_scipys_brentq_steps(self, tol: float) -> None:
+    """Brent's method finds brentq's root exactly, with its evaluations less the two at the ends, one bracket or many.
+
+    The functions take brentq through interpolation, extrapolation and bisection. A port that took another step, such
+    as one that swapped ends of equal size or took another relative tolerance, lands elsewhere or counts differently;
+    one over many brackets that let a bracket's state reach another's, or kept stepping a bracket that converged,
+    differs from the bracket alone.
+    """
+    rows = np.arange(len(self._SHAPES))
+    low, high = self._ENDS.T
+
+    roots, used, failed = _search._brent_rows(  # noqa: SLF001
+      self._shapes, rows, (low, high), (self._shapes(low, rows), self._shapes(high, rows)), tol=tol
+    )
+
+    for row, (start, end) in enumerate(self._ENDS.tolist()):
+      f = self._shape(row)
+      reference, result = brentq(f, start, end, xtol=tol, full_output=True)
+      root, evaluations = _search._brent(f, start, end, f(start), f(end), tol=tol)  # noqa: SLF001
+      assert root == reference, row
+      assert evaluations == result.function_calls - 2, row
+      assert (roots[row], used[row], failed[row]) == (root, evaluations, False), row
+
+  def test_a_nan_value_stops_the_root_search_as_scipys_brentq_does(self) -> None:
+    """A NaN value raises SciPy's brentq's ValueError for one bracket, and fails only its own bracket among many.
+
+    On [0, 1] the line 1 - 2 x has values of equal size at the ends, so the first step bisects to 0.5, where the
+    function is NaN. A search that went on from a NaN value, or a batched one that marked every bracket failed or
+    none, fails.
+    """
+
+    def line(theta: float) -> float:
+      return math.nan if theta == 0.5 else 1.0 - 2.0 * theta
+
+    def lines(theta: FloatArray, rows: IntArray) -> FloatArray:
+      return np.where((rows == 0) & (theta == 0.5), math.nan, 1.0 - 2.0 * theta + (rows == 1) * 0.1)
+
+    with pytest.raises(ValueError, match=r"x=0\.5 is NaN; solver cannot continue") as scipys:
+      brentq(line, 0.0, 1.0, xtol=1e-6)
+    with pytest.raises(ValueError, match=re.escape(str(scipys.value))):
+      _search._brent(line, 0.0, 1.0, 1.0, -1.0, tol=1e-6)  # noqa: SLF001
+    _, _, failed = _search._brent_rows(  # noqa: SLF001
+      lines, np.array([0, 1]), (np.zeros(2), np.ones(2)), (np.array([1.0, 1.1]), np.array([-1.0, -0.9])), tol=1e-6
+    )
+    np.testing.assert_array_equal(failed, [True, False])
+
+  def test_a_root_search_out_of_iterations_raises_as_scipys_brentq_does(self) -> None:
+    """Brent's method out of its 100 iterations raises brentq's RuntimeError, and fails that bracket among many.
+
+    A step from 1 to -1 at 1e-200 leaves Brent's method only bisection, and with a tolerance of 1e-300 it needs about
+    700 halvings of [-1, 1] to reach the step. A search that returned its last point as a root, or ran on, fails.
+    """
+
+    def step(theta: float) -> float:
+      return -1.0 if theta > 1e-200 else 1.0
+
+    def steps(theta: FloatArray, rows: IntArray) -> FloatArray:
+      return np.where(theta > np.where(rows == 0, 1e-200, 0.25), -1.0, 1.0)
+
+    with pytest.raises(RuntimeError, match="Failed to converge after 100 iterations"):
+      brentq(step, -1.0, 1.0, xtol=1e-300)
+    with pytest.raises(RuntimeError, match="Failed to converge after 100 iterations"):
+      _search._brent(step, -1.0, 1.0, 1.0, -1.0, tol=1e-300)  # noqa: SLF001
+    _, used, failed = _search._brent_rows(  # noqa: SLF001
+      steps, np.array([0, 1]), (np.full(2, -1.0), np.ones(2)), (np.ones(2), np.full(2, -1.0)), tol=1e-300
+    )
+    np.testing.assert_array_equal(failed, [True, False])
+    assert used[0] == 100
+
+
 class TestFallback:
   """The estimator a maximum likelihood estimate falls back to where it is not finite."""
 
@@ -1180,8 +1282,9 @@ class TestWeightedLikelihood:
     """The count includes every modified-score evaluation: the scan, Brent's searches and the ranking integrals.
 
     The reference counts SciPy's own evaluations on the score written out: the 121-point scan, Brent's search in each
-    interval where the score turns from + to -, and, with several candidates, the integral from the lower bound to
-    each. A count that left out the Brent steps or the integrals fails.
+    interval where the score turns from + to -, less the two at its ends, which the scan has evaluated, and, with
+    several candidates, the integral from the lower bound to each. A count that left out the Brent steps or the
+    integrals, or counted the ends twice, fails.
     """
     cases = [
       (np.array([[1.0, 0.0, 0.0, 1.0], [1.2, 0.5, 0.0, 1.0]]), np.array([1.0, 0.0]), 1),
@@ -1193,7 +1296,7 @@ class TestWeightedLikelihood:
       brackets = np.flatnonzero((values[:-1] > 0) & (values[1:] <= 0)).tolist()
       score = functools.partial(_warm_modified_score, items=items, responses=pattern)
       searches = [brentq(score, scan[k], scan[k + 1], xtol=1e-6, full_output=True) for k in brackets]
-      expected = 121 + sum(result.function_calls for _, result in searches)
+      expected = 121 + sum(result.function_calls - 2 for _, result in searches)
       if len(searches) > 1:
         expected += sum(quad(score, -6.0, root, limit=200, full_output=1)[2]["neval"] for root, _ in searches)
 
@@ -1201,6 +1304,51 @@ class TestWeightedLikelihood:
 
       assert len(searches) == n_candidates
       assert estimates.evaluations[0] == expected
+
+  def test_a_scan_of_many_items_is_taken_a_few_rows_at_a_time(self) -> None:
+    """With 3,000 items the scan takes two rows at a time, and each row still gets its estimate alone.
+
+    A chunk of 2^20 floats holds the terms of two rows at 121 points and 3,000 items, so five rows take three chunks. A
+    chunk written to the wrong rows, or a short one, gives another row's estimate or raises.
+    """
+    rng = np.random.default_rng(3000)
+    items = np.column_stack([rng.uniform(0.5, 2.0, 3000), rng.normal(0.0, 1.0, 3000), np.zeros(3000), np.ones(3000)])
+    matrix = np.full((5, 3000), _NAN)
+    for row in range(5):
+      answered = rng.choice(3000, 8, replace=False)
+      matrix[row, answered] = rng.random(8) < 0.2 * (row + 1)
+
+    together = weighted_likelihood(matrix, items)
+
+    for row in range(5):
+      alone = weighted_likelihood(matrix[row : row + 1], items)
+      np.testing.assert_allclose(together.theta[row], alone.theta[0], rtol=1e-12)
+      assert together.evaluations[row] == alone.evaluations[0], row
+
+  # the steep item overflows at its difficulty, alone as together
+  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+  def test_a_row_whose_root_search_meets_a_nan_score_raises_as_alone(self) -> None:
+    """A row whose root search meets a NaN modified score raises SciPy's brentq's ValueError in a matrix as alone.
+
+    An item of slope 1e300 adds exactly 0 to the modified score at every point of the scan, and NaN at its difficulty,
+    where a times P' overflows before it meets P'' = 0. Its difficulty is the first point SciPy's brentq tries after a
+    correct answer to an item at -0.4 and an incorrect one to an item at 0.9. A batch that took the NaN point for a
+    root, instead of searching the row alone, returns an estimate.
+    """
+    items = np.array([[1.0, -0.4, 0.0, 1.0], [1.3, 0.9, 0.0, 1.0], [1e300, 0.0, 0.0, 1.0]])
+    score = _search._Examinee.of(np.array([1.0, 0.0]), items[:2]).modified_score_at  # noqa: SLF001
+    scan = np.linspace(-6.0, 6.0, 121)
+    turn = next(k for k in range(120) if score(scan[k]) > 0.0 >= score(scan[k + 1]))
+    tried: list[float] = []
+    brentq(lambda theta: tried.append(theta) or score(theta), scan[turn], scan[turn + 1], xtol=1e-6)
+    items[2, 1] = tried[2]
+    matrix = np.array([[1.0, 0.0, _NAN], [1.0, 0.0, 1.0]])
+    message = re.escape(f"x={tried[2]} is NaN; solver cannot continue")
+
+    with pytest.raises(ValueError, match=message):
+      weighted_likelihood(matrix[1:], items)
+    with pytest.raises(ValueError, match=message):
+      weighted_likelihood(matrix, items)
 
   def test_a_ranking_integral_that_does_not_converge_warns_from_the_callers_line(self) -> None:
     """A ranking integral that does not converge warns, naming the row, from the line that called the estimator.

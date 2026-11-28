@@ -103,20 +103,46 @@ class _Examinee:
 
   def modified_score(self, theta: npt.ArrayLike) -> FloatArray:
     """Return Warm's modified score at each ability: the likelihood's score plus J / (2 I)."""
-    a, b, c, d = self.items.T
-    z = a * (numpy.atleast_1d(numpy.asarray(theta, dtype=float))[:, numpy.newaxis] - b)
+    terms = _WarmTerms.of(numpy.atleast_1d(numpy.asarray(theta, dtype=float))[:, numpy.newaxis], self.items)
+    information, j = terms.information.sum(axis=-1), terms.j.sum(axis=-1)
+    return terms.residual(self.responses == 1).sum(axis=-1) + numpy.divide(
+      j, 2.0 * information, out=numpy.zeros_like(j), where=information > 0.0
+    )
+
+  def modified_score_at(self, theta: float) -> float:
+    """Return Warm's modified score at one ability, as a float."""
+    return float(self.modified_score(theta)[0])
+
+
+@dataclass(frozen=True, slots=True)
+class _WarmTerms:
+  """Each item's terms of Warm's modified score at each ability, which the score sums over the items answered."""
+
+  p: FloatArray
+  q: FloatArray
+  ratio: FloatArray
+  """P' / (P Q), with P Q floored at the smallest normal float."""
+  information: FloatArray
+  """P'^2 / (P Q), the item's information."""
+  j: FloatArray
+  """P' P'' / (P Q), the item's term of J."""
+
+  @classmethod
+  def of(cls, theta: FloatArray, items: FloatArray) -> Self:
+    """Return the terms at abilities shaped to broadcast against the items, one row ``[a, b, c, d]`` each."""
+    a, b, c, d = items.T
+    z = a * (theta - b)
     rising, falling = expit(z), expit(-z)
     # P and Q each from its own side of the logistic, so that neither loses its digits where the other rounds to 1
     above = (d - c) * rising
     p, q = c + above, (1.0 - d) + (d - c) * falling
     first = a * above * falling
     ratio = first / numpy.maximum(p * q, _TINY)
-    information = (first * ratio).sum(axis=-1)
-    j = (a * first * (falling - rising) * ratio).sum(axis=-1)
-    # u - P is Q for a correct response and -P for an incorrect one
-    return (numpy.where(self.responses == 1, q, -p) * ratio).sum(axis=-1) + numpy.divide(
-      j, 2.0 * information, out=numpy.zeros_like(j), where=information > 0.0
-    )
+    return cls(p, q, ratio, first * ratio, a * first * (falling - rising) * ratio)
+
+  def residual(self, correct: BoolArray) -> FloatArray:
+    """Return each item's term of the likelihood's score: (u - P) P' / (P Q), Q or -P times the ratio."""
+    return numpy.where(correct, self.q, -self.p) * self.ratio
 
 
 def _maximum(
@@ -361,6 +387,32 @@ class _Rows:
     """Return each of the rows' test information, over the items it answered, at its own ability."""
     return numpy.where(self.answered[rows], irt.information(theta, self.items), 0.0).sum(axis=-1)
 
+  def modified_score(self, theta: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' Warm's modified score at its own ability, as :py:meth:`_Examinee.modified_score`."""
+    terms = _WarmTerms.of(theta[:, numpy.newaxis], self.items)
+    answered = self.answered[rows]
+    return _warm_sum(answered, self.correct[rows], terms)
+
+  def modified_score_grid(self, nodes: FloatArray, rows: IntArray) -> FloatArray:
+    """Return each of the rows' Warm's modified score at every node, rows by nodes."""
+    terms = _WarmTerms.of(nodes[:, numpy.newaxis], self.items)
+    values = numpy.empty((rows.size, nodes.size))
+    chunk = max(1, _CHUNK_ELEMENTS // (nodes.size * self.items.shape[0]))
+    for start in range(0, rows.size, chunk):
+      part = rows[start : start + chunk]
+      values[start : start + chunk] = _warm_sum(
+        self.answered[part][:, numpy.newaxis, :], self.correct[part][:, numpy.newaxis, :], terms
+      )
+    return values
+
+
+def _warm_sum(answered: BoolArray, correct: BoolArray, terms: _WarmTerms) -> FloatArray:
+  """Return Warm's modified score summed over the items answered, as :py:meth:`_Examinee.modified_score` sums it."""
+  information = numpy.where(answered, terms.information, 0.0).sum(axis=-1)
+  j = numpy.where(answered, terms.j, 0.0).sum(axis=-1)
+  score = numpy.where(answered, terms.residual(correct), 0.0).sum(axis=-1)
+  return score + numpy.divide(j, 2.0 * information, out=numpy.zeros_like(j), where=information > 0.0)
+
 
 @dataclass(frozen=True, slots=True)
 class _BatchObjective:
@@ -579,3 +631,174 @@ def _newton_rows(
     theta[active] = current + step
     active = active[numpy.abs(step) >= tol]
   return theta, evaluations
+
+
+# Brent's method as SciPy 1.18.1's brentq implements it (scipy/optimize/Zeros/brentq.c:36-130), with its default number
+# of iterations and relative tolerance (scipy/optimize/_zeros_py.py:9, 11) and its error on a NaN value (:104-119)
+_BRENT_RTOL = 4 * numpy.finfo(float).eps
+_BRENT_ITERATIONS = 100
+
+
+def _brent(
+  f: Callable[[float], float], low: float, high: float, f_low: float, f_high: float, *, tol: float
+) -> tuple[float, int]:
+  """Return the zero Brent's method finds between two abilities of opposite signs of ``f``, and its evaluations.
+
+  It is SciPy's brentq step by step, from the values at the two ends, which the caller has evaluated.
+
+  Returns
+  -------
+  tuple[float, int]
+      The zero, within ``tol``, and the number of evaluations of ``f`` besides the two at the ends.
+
+  Raises
+  ------
+  ValueError
+      If ``f`` is NaN at an ability the method evaluates, as SciPy's brentq raises it.
+  RuntimeError
+      If the method has not converged after 100 evaluations, as SciPy's brentq raises it.
+  """
+  xpre, xcur, fpre, fcur = low, high, f_low, f_high
+  if fpre == 0:
+    return xpre, 0
+  if fcur == 0:
+    return xcur, 0
+  xblk = fblk = spre = scur = 0.0
+  for evaluations in range(_BRENT_ITERATIONS):
+    if fpre != 0 and fcur != 0 and math.copysign(1.0, fpre) != math.copysign(1.0, fcur):
+      xblk, fblk = xpre, fpre
+      spre = scur = xcur - xpre
+    if abs(fblk) < abs(fcur):
+      xpre, xcur, xblk = xcur, xblk, xcur
+      fpre, fcur, fblk = fcur, fblk, fcur
+    delta = (tol + _BRENT_RTOL * abs(xcur)) / 2
+    sbis = (xblk - xcur) / 2
+    if fcur == 0 or abs(sbis) < delta:
+      return xcur, evaluations
+    if abs(spre) > delta and abs(fcur) < abs(fpre):
+      if xpre == xblk:
+        # interpolate
+        stry = _quotient(-fcur * (xcur - xpre), fcur - fpre)
+      else:
+        # extrapolate
+        dpre = _quotient(fpre - fcur, xpre - xcur)
+        dblk = _quotient(fblk - fcur, xblk - xcur)
+        stry = _quotient(-fcur * (fblk * dblk - fpre * dpre), dblk * dpre * (fblk - fpre))
+      # a short step is taken, and a long one bisects
+      spre, scur = (scur, stry) if 2 * abs(stry) < min(abs(spre), 3 * abs(sbis) - delta) else (sbis, sbis)
+    else:
+      spre = scur = sbis
+    xpre, fpre = xcur, fcur
+    xcur += scur if abs(scur) > delta else (delta if sbis > 0 else -delta)
+    fcur = f(xcur)
+    if math.isnan(fcur):
+      msg = f"The function value at x={xcur} is NaN; solver cannot continue."
+      raise ValueError(msg)
+  msg = f"Failed to converge after {_BRENT_ITERATIONS} iterations, value is {xcur}."
+  raise RuntimeError(msg)
+
+
+def _quotient(numerator: float, denominator: float) -> float:
+  """Return the quotient as C's division of doubles gives it, infinite or NaN where the denominator is 0."""
+  if denominator:
+    return numerator / denominator
+  return (
+    math.nan
+    if numerator == 0 or math.isnan(numerator)
+    else math.copysign(math.inf, numerator) * math.copysign(1.0, denominator)
+  )
+
+
+@dataclass(frozen=True, slots=True)
+class _Brackets:
+  """Many brackets in the middle of :py:func:`_brent`, its variables an array each, one entry per bracket."""
+
+  xpre: FloatArray
+  xcur: FloatArray
+  xblk: FloatArray
+  fpre: FloatArray
+  fcur: FloatArray
+  fblk: FloatArray
+  spre: FloatArray
+  scur: FloatArray
+
+  def turn(self, active: IntArray) -> None:
+    """Take a new bracket where the last two values differ in sign, and keep the smaller value current."""
+    fpre, fcur = self.fpre[active], self.fcur[active]
+    turned = active[(fpre != 0) & (fcur != 0) & (numpy.signbit(fpre) != numpy.signbit(fcur))]
+    self.xblk[turned], self.fblk[turned] = self.xpre[turned], self.fpre[turned]
+    self.spre[turned] = self.scur[turned] = self.xcur[turned] - self.xpre[turned]
+    swap = active[numpy.abs(self.fblk[active]) < numpy.abs(self.fcur[active])]
+    self.xpre[swap], self.xcur[swap], self.xblk[swap] = self.xcur[swap], self.xblk[swap], self.xcur[swap]
+    self.fpre[swap], self.fcur[swap], self.fblk[swap] = self.fcur[swap], self.fblk[swap], self.fcur[swap]
+
+  def trial(self, active: IntArray, delta: FloatArray, sbis: FloatArray) -> tuple[BoolArray, FloatArray]:
+    """Return where an interpolated or extrapolated step is short enough to take, and that step."""
+    xpre, xcur, xblk = self.xpre[active], self.xcur[active], self.xblk[active]
+    fpre, fcur, fblk = self.fpre[active], self.fcur[active], self.fblk[active]
+    spre = self.spre[active]
+    tried = (numpy.abs(spre) > delta) & (numpy.abs(fcur) < numpy.abs(fpre))
+    stry = numpy.zeros(active.size)
+    i = tried & (xpre == xblk)
+    stry[i] = -fcur[i] * (xcur[i] - xpre[i]) / (fcur[i] - fpre[i])
+    e = tried & (xpre != xblk)
+    dpre, dblk = (fpre[e] - fcur[e]) / (xpre[e] - xcur[e]), (fblk[e] - fcur[e]) / (xblk[e] - xcur[e])
+    stry[e] = -fcur[e] * (fblk[e] * dblk - fpre[e] * dpre) / (dblk * dpre * (fblk[e] - fpre[e]))
+    return tried & (2 * numpy.abs(stry) < numpy.minimum(numpy.abs(spre), 3 * numpy.abs(sbis) - delta)), stry
+
+  def step(self, active: IntArray, delta: FloatArray, sbis: FloatArray) -> None:
+    """Set the next two steps, a short trial step or else bisection, and move each current point by its step."""
+    # an exact zero in a denominator gives an infinite or NaN trial step, which bisects, as in C
+    with numpy.errstate(divide="ignore", invalid="ignore", over="ignore"):
+      short, stry = self.trial(active, delta, sbis)
+    self.spre[active] = numpy.where(short, self.scur[active], sbis)
+    self.scur[active] = scur = numpy.where(short, stry, sbis)
+    self.xpre[active], self.fpre[active] = self.xcur[active], self.fcur[active]
+    self.xcur[active] += numpy.where(numpy.abs(scur) > delta, scur, numpy.where(sbis > 0, delta, -delta))
+
+
+def _brent_rows(
+  f: Callable[[FloatArray, IntArray], FloatArray],
+  rows: IntArray,
+  ends: tuple[FloatArray, FloatArray],
+  values: tuple[FloatArray, FloatArray],
+  *,
+  tol: float,
+) -> tuple[FloatArray, IntArray, BoolArray]:
+  """Return what :py:func:`_brent` returns for each of many brackets, step by step the same arithmetic.
+
+  ``f`` takes abilities and the rows they are for: ``rows[i]`` for the bracket from ``ends[0][i]`` to ``ends[1][i]``,
+  where ``f`` is ``values[0][i]`` and ``values[1][i]``.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      Each bracket's zero, within ``tol``, the number of evaluations of ``f`` besides the two at its ends, and whether
+      the search failed, where :py:func:`_brent` raises.
+  """
+  fpre, fcur = values[0].astype(float), values[1].astype(float)
+  size = fpre.size
+  state = _Brackets(
+    ends[0].astype(float), ends[1].astype(float), numpy.zeros(size), fpre, fcur, *(numpy.zeros(size) for _ in range(3))
+  )
+  zero = numpy.where(fpre == 0, state.xpre, state.xcur)
+  evaluations = numpy.zeros(size, dtype=int)
+  failed = numpy.zeros(size, dtype=bool)
+  active = numpy.flatnonzero((fpre != 0) & (fcur != 0))
+  for _ in range(_BRENT_ITERATIONS):
+    state.turn(active)
+    delta = (tol + _BRENT_RTOL * numpy.abs(state.xcur[active])) / 2
+    sbis = (state.xblk[active] - state.xcur[active]) / 2
+    done = (state.fcur[active] == 0) | (numpy.abs(sbis) < delta)
+    zero[active[done]] = state.xcur[active[done]]
+    active, delta, sbis = active[~done], delta[~done], sbis[~done]
+    if not active.size:
+      return zero, evaluations, failed
+    state.step(active, delta, sbis)
+    state.fcur[active] = f(state.xcur[active], rows[active])
+    evaluations[active] += 1
+    nan = numpy.isnan(state.fcur[active])
+    failed[active[nan]] = True
+    active = active[~nan]
+  failed[active] = True
+  return zero, evaluations, failed

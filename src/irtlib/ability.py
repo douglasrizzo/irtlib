@@ -5,10 +5,11 @@ examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per co
 :py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the
 estimator's objective or of its derivatives. An examinee's estimate depends only on the items it answered, so its row
 gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a
-sum over more terms, since the maximum likelihood and MAP searches, under a normal prior, search every row of a matrix
-at once with the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses
-:math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and
-:math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.
+sum over more terms, since the maximum likelihood and weighted likelihood searches, and MAP's under a normal prior,
+search every row of a matrix at once with the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of
+examinee :math:`j`'s responses :math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items
+:math:`i` it answered, and :math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines
+them.
 
 **Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /
 \sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with
@@ -112,12 +113,13 @@ Theorem). When every :math:`c_i = 0`, :math:`w = I^{1/2}` (p. 431), in Warm's mo
 (p. 431), and its standard error is :math:`1 / \sqrt{I(\hat\theta)}`, catR 3.17's default (``R/semTheta.R:90-96``);
 :cite:t:`Magis2012` (p. 6, Equation 14) give a corrected one, which irtlib does not use. The search evaluates the
 modified score at 121 equally spaced abilities within the bounds. Each change of sign from positive to negative,
-refined by Brent's method, ``scipy.optimize.brentq``, is a maximum of the weighted likelihood, and so is a bound the
-score points out of. Of several, the estimate is the one of largest weighted likelihood, ranked by integrating the score
-from the lower bound with ``scipy.integrate.quad``. Warm finds finite estimates for responses all correct or all
-incorrect on his tests (p. 443, Table 1), and :cite:t:`Magis2012` (p. 11) propose the estimator for them; irtlib's
-estimate lies within the bounds whatever the responses. An examinee who answered no item has no estimate, NaN, and
-standard error :math:`\infty`, as under maximum likelihood.
+refined by Brent's method step for step as SciPy 1.18.1's ``scipy.optimize.brentq`` takes it (source
+``scipy/optimize/Zeros/brentq.c:36-130``), from the values of the scan at its ends, is a maximum of the weighted
+likelihood, and so is a bound the score points out of. Of several, the estimate is the one of largest weighted
+likelihood, ranked by integrating the score from the lower bound with ``scipy.integrate.quad``. Warm finds finite
+estimates for responses all correct or all incorrect on his tests (p. 443, Table 1), and :cite:t:`Magis2012` (p. 11)
+propose the estimator for them; irtlib's estimate lies within the bounds whatever the responses. An examinee who
+answered no item has no estimate, NaN, and standard error :math:`\infty`, as under maximum likelihood.
 
 mirt 1.48 maximizes :math:`\log L_j + \tfrac12 \log I` instead (``R/fscores.internal.R:705-738``), Warm's estimate when
 every answered item has :math:`c_i = 0` and :math:`d_i = 1`, and takes its standard error from ``nlm``'s numerical
@@ -133,11 +135,11 @@ import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 
 import numpy
 import numpy.typing as npt
 from scipy.integrate import IntegrationWarning, quad
-from scipy.optimize import brentq
 
 from . import irt
 from ._responses import responses_and_items
@@ -145,6 +147,8 @@ from ._search import (
   _SEARCH_POINTS,
   _BatchObjective,
   _Bounds,
+  _brent,
+  _brent_rows,
   _Derivatives,
   _Examinee,
   _maxima,
@@ -843,13 +847,20 @@ def weighted_likelihood(
   bounds = _check_bounds(bounds)
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
+  if matrix.shape[0] > 1:
+    return _weighted_likelihood_roots(matrix, items, bounds, tol)
   rows: list[tuple[float, float, int]] = []
   for row, (row_responses, row_items) in enumerate(_answered(matrix, items)):
     theta, se, evaluations, messages = _weighted_likelihood_root(row_responses, row_items, bounds, tol)
     rows.append((theta, se, evaluations))
-    for message in messages:
-      warnings.warn(_ROW.format(row) + message, IntegrationWarning, skip_file_prefixes=(_PACKAGE,))
+    _warn_ranking(row, messages)
   return _estimates(rows)
+
+
+def _warn_ranking(row: int, messages: list[str]) -> None:
+  """Warn of each message from a row's ranking integrals, naming the row, from the line that called irtlib."""
+  for message in messages:
+    warnings.warn(_ROW.format(row) + message, IntegrationWarning, skip_file_prefixes=(_PACKAGE,))
 
 
 def _weighted_likelihood_root(
@@ -861,25 +872,18 @@ def _weighted_likelihood_root(
     return math.nan, math.inf, 0, []
 
   examinee = _Examinee.of(responses, items)
-
-  def score(theta: float) -> float:
-    return float(examinee.modified_score(theta)[0])
-
+  score = examinee.modified_score_at
   low, high = bounds
   scan = numpy.linspace(low, high, _SCAN_POINTS)
   values = examinee.modified_score(scan)
   evaluations = scan.size
-  # Maxima of the weighted likelihood: + to - sign changes of its derivative (a zero at the right end of a bracket is a
-  # valid Brent endpoint), and any bound the modified score points outward from
   candidates: list[float] = []
-  for index in numpy.flatnonzero((values[:-1] > 0.0) & (values[1:] <= 0.0)).tolist():
-    root, result = brentq(score, scan[index], scan[index + 1], xtol=tol, full_output=True)
-    candidates.append(float(root))
-    evaluations += result.function_calls
-  if values[0] <= 0.0:
-    candidates.append(low)
-  if values[-1] > 0.0:
-    candidates.append(high)
+  for index in _brackets(values).tolist():
+    ends, ends_values = scan[index : index + 2].tolist(), values[index : index + 2].tolist()
+    root, used = _brent(score, ends[0], ends[1], ends_values[0], ends_values[1], tol=tol)
+    candidates.append(root)
+    evaluations += used
+  candidates.extend(_outward_bounds(values, bounds))
   messages: list[str] = []
   if len(candidates) == 1:
     theta = candidates[0]
@@ -887,6 +891,120 @@ def _weighted_likelihood_root(
     theta, ranking_evaluations, messages = _most_likely(score, low, candidates)
     evaluations += ranking_evaluations
   return theta, irt.see(theta, items), evaluations, messages
+
+
+def _brackets(values: FloatArray) -> IntArray:
+  """Return the flat indices where the modified score at the scan's points turns from + to -, along its last axis.
+
+  Each is a maximum of the weighted likelihood between a point and the next; a zero at the right is a valid end of
+  Brent's bracket.
+
+  Returns
+  -------
+  numpy.ndarray
+      The index of each such point, flat over the other axes.
+  """
+  return numpy.flatnonzero((values[..., :-1] > 0.0) & (values[..., 1:] <= 0.0))
+
+
+def _outward_bounds(values: FloatArray, bounds: _Bounds) -> list[float]:
+  """Return the bounds that the modified score, at the scan's ends, points out of: maxima of the weighted likelihood."""
+  return [bound for bound, outward in zip(bounds, (values[0] <= 0.0, values[-1] > 0.0), strict=True) if outward]
+
+
+def _weighted_likelihood_roots(matrix: FloatArray, items: FloatArray, bounds: _Bounds, tol: float) -> AbilityEstimates:
+  """Return what :py:func:`_weighted_likelihood_root` returns for each row, every row's scan and roots at once.
+
+  The rows with several maxima, or none, are ranked one at a time, and those whose root search fails are searched
+  alone, so that each raises or warns as it does alone, in the order of the rows.
+
+  Returns
+  -------
+  AbilityEstimates
+      Each row's estimate, standard error and evaluations of the modified score.
+  """
+  batch = _Rows.of(matrix, items)
+  rows = numpy.flatnonzero(batch.answered.any(axis=1))
+  scans = _Scans.of(batch, rows, bounds, tol)
+  theta = numpy.full(matrix.shape[0], math.nan)
+  evaluations = numpy.zeros(matrix.shape[0], dtype=int)
+  evaluations[rows] = _SCAN_POINTS
+  numpy.add.at(evaluations, rows[scans.owner], scans.used)
+  settled = scans.settled
+  theta[rows[settled]] = scans.only_candidate(bounds)[settled]
+  for k in numpy.flatnonzero(~settled).tolist():
+    row = int(rows[k])
+    examinee = _Examinee.of(matrix[row, batch.answered[row]], items[batch.answered[row]])
+    if scans.failed[scans.owner == k].any():
+      theta[row], _, evaluations[row], messages = _weighted_likelihood_root(
+        examinee.responses, examinee.items, bounds, tol
+      )
+    else:
+      found, ranking_evaluations, messages = _most_likely(
+        examinee.modified_score_at, bounds[0], scans.candidates(k, bounds)
+      )
+      theta[row] = found
+      evaluations[row] += ranking_evaluations
+    _warn_ranking(row, messages)
+  return AbilityEstimates(
+    theta, _inverse_root_information(batch, theta), evaluations, numpy.zeros(theta.size, dtype=bool)
+  )
+
+
+@dataclass(frozen=True, slots=True)
+class _Scans:
+  """Many rows' scans of Warm's modified score, and the roots Brent's method finds in their brackets."""
+
+  values: FloatArray
+  """The modified score of each row, by rows, at each of the scan's points."""
+  owner: IntArray
+  """Each bracket's row, as its position among the rows scanned: in the order of the rows, and within each, of the
+  brackets."""
+  roots: FloatArray
+  """Each bracket's root."""
+  used: IntArray
+  """Each bracket's evaluations of the modified score, besides the two at its ends."""
+  failed: BoolArray
+  """Whether each bracket's search failed, where it raises for the row alone."""
+
+  @classmethod
+  def of(cls, batch: _Rows, rows: IntArray, bounds: _Bounds, tol: float) -> Self:
+    """Return the scans of the given rows at the scan's points within the bounds, and the roots in their brackets."""
+    scan = numpy.linspace(*bounds, _SCAN_POINTS)
+    values = batch.modified_score_grid(scan, rows)
+    owner, index = numpy.divmod(_brackets(values), scan.size - 1)
+    roots, used, failed = _brent_rows(
+      batch.modified_score,
+      rows[owner],
+      (scan[index], scan[index + 1]),
+      (values[owner, index], values[owner, index + 1]),
+      tol=tol,
+    )
+    return cls(values, owner, roots, used, failed)
+
+  @property
+  def n_candidates(self) -> IntArray:
+    """Return each row's number of maxima of the weighted likelihood: roots, and bounds the score points out of."""
+    roots = numpy.bincount(self.owner, minlength=self.values.shape[0])
+    return roots + (self.values[:, 0] <= 0.0) + (self.values[:, -1] > 0.0)
+
+  @property
+  def settled(self) -> BoolArray:
+    """Return whether each row has a single maximum, found without a failed search."""
+    failed = numpy.zeros(self.values.shape[0], dtype=bool)
+    failed[self.owner[self.failed]] = True
+    return (self.n_candidates == 1) & ~failed
+
+  def only_candidate(self, bounds: _Bounds) -> FloatArray:
+    """Return the maximum of each row that has one: its root, else the bound the score points out of."""
+    root = numpy.full(self.values.shape[0], math.nan)
+    root[self.owner] = self.roots
+    bound = numpy.where(self.values[:, 0] <= 0.0, bounds[0], bounds[1])
+    return numpy.where(numpy.isnan(root), bound, root)
+
+  def candidates(self, k: int, bounds: _Bounds) -> list[float]:
+    """Return the maxima of the row at position ``k``, its roots then the bounds, in the order of the one-row search."""
+    return self.roots[self.owner == k].tolist() + _outward_bounds(self.values[k], bounds)
 
 
 def _most_likely(score: Callable[[float], float], low: float, candidates: list[float]) -> tuple[float, int, list[str]]:
