@@ -84,9 +84,15 @@ class _Fit:
   """Each group's ability."""
   evaluations: IntArray
   """The evaluations of each group's likelihood in the ability step that gave its ability, 0 for a starting one."""
-  cycles: int = 0
+  log_likelihoods: tuple[float, ...] = ()
+  """The joint log-likelihood at the end of each complete cycle."""
   change: float = math.inf
   failure: str | None = None
+
+  @property
+  def cycles(self) -> int:
+    """The complete cycles run."""
+    return len(self.log_likelihoods)
 
 
 class JMLCalibrator:
@@ -252,12 +258,12 @@ class JMLCalibrator:
       items=_valid_items(estimates),
       covariances=None if kept_covariances is None else _every_item(kept_covariances, items, numpy.nan),
       log_likelihood=_objective(fit.values, fit.index, fit.theta, groups.correct, groups.total, priors=()),
+      log_likelihoods=numpy.array(fit.log_likelihoods),
       likelihood=Likelihood.JOINT,
       # the free item parameters and the abilities of the examinees kept, less the constraints of the scale: one for
       # the Rasch model's mean difficulty, two for the 2PL's mean and standard deviation of the abilities
       n_parameters=int(fit.index.max()) + 1 + kept.shape[0] - (1 if rasch else 2),
       item_parameters=numpy.where(items, 1 if rasch else 2, 0),
-      cycles=fit.cycles,
       converged=fit.failure is None,
       change=fit.change,
       grid=None,
@@ -281,20 +287,21 @@ class JMLCalibrator:
     Returns
     -------
     _Fit
-        The item parameters and the abilities of the last complete cycle, on the identified scale; the complete cycles
-        run; the largest change of an item parameter in the last of them; and None if the rule was met, or else why
-        the cycles stopped short of it.
+        The item parameters and the abilities of the last complete cycle, on the identified scale; the joint
+        log-likelihood after each complete cycle; the largest change of an item parameter in the last of them; and
+        None if the rule was met, or else why the cycles stopped short of it.
     """
     free = fit.index >= 0
     values, theta, evaluations, change = fit.values, fit.theta, fit.evaluations, math.inf
-    for cycle in range(1, self._max_cycles + 1):
+    log_likelihoods: list[float] = []
+    for _ in range(self._max_cycles):
       separated = numpy.array([], dtype=int) if rasch else groups.separated(theta)
       if separated.size:
         failure = (
           f"the abilities separate the correct and incorrect responses to the items in columns "
           f"{columns[separated].tolist()}, so their slopes have no finite estimate"
         )
-        return _Fit(fit.index, values, theta, evaluations, cycle - 1, change, failure)
+        return _Fit(fit.index, values, theta, evaluations, tuple(log_likelihoods), change, failure)
       stepped = _m_step(values, fit.index, theta, groups.correct, groups.total, priors=())
       negative = numpy.flatnonzero(stepped[:, 0] <= 0)
       if negative.size:
@@ -303,16 +310,17 @@ class JMLCalibrator:
           f"the item step of the next cycle gave the items in columns {columns[negative].tolist()} a slope that is not "
           f"positive, and the item in column {columns[largest]} the largest slope, {stepped[largest, 0]:.3g}"
         )
-        return _Fit(fit.index, values, theta, evaluations, cycle - 1, change, failure)
+        return _Fit(fit.index, values, theta, evaluations, tuple(log_likelihoods), change, failure)
       abilities = maximum_likelihood(groups.patterns, _to_items(stepped))
       stepped, theta = _identified(stepped, abilities.theta, groups.sizes, rasch=rasch)
       evaluations = abilities.evaluations
       change = float(numpy.max(numpy.abs(stepped[free] - values[free])))
       values = stepped
+      log_likelihoods.append(_objective(values, fit.index, theta, groups.correct, groups.total, priors=()))
       if change <= self._tolerance:
-        return _Fit(fit.index, values, theta, evaluations, cycle, change)
+        return _Fit(fit.index, values, theta, evaluations, tuple(log_likelihoods), change)
     failure = f"the last cycle changed an item parameter by {change:.3g}, above the tolerance {self._tolerance:g}"
-    return _Fit(fit.index, values, theta, evaluations, self._max_cycles, change, failure)
+    return _Fit(fit.index, values, theta, evaluations, tuple(log_likelihoods), change, failure)
 
 
 def _start(groups: _Groups, *, rasch: bool) -> _Fit:

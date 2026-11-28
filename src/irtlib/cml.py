@@ -107,11 +107,13 @@ class CMLCalibrator:
     score_counts = numpy.bincount(kept.sum(axis=1).astype(int), minlength=totals.size + 1).astype(float)
     # Andersen's (1972) starting values: the log-odds of an incorrect response, centred
     start = numpy.log((kept.shape[0] - totals) / totals)
-    difficulty, cycles, change, failure = _newton_raphson(
+    difficulty, log_likelihoods, change, failure = _newton_raphson(
       start - start.mean(), totals, score_counts, tolerance=self._tolerance, max_cycles=self._max_cycles
     )
     if failure is not None:
-      warnings.warn(f"calibration stopped after {cycles} iterations: {failure}", ConvergenceWarning, stacklevel=2)
+      warnings.warn(
+        f"calibration stopped after {len(log_likelihoods)} iterations: {failure}", ConvergenceWarning, stacklevel=2
+      )
     variances = _variances(_derivatives(difficulty, totals, score_counts)[1])
     if variances is None:
       warnings.warn(
@@ -130,11 +132,11 @@ class CMLCalibrator:
       estimates=estimates,
       items=_valid_items(estimates),
       covariances=covariances,
-      log_likelihood=_log_likelihood(difficulty, totals, score_counts),
+      log_likelihood=log_likelihoods[-1],
+      log_likelihoods=numpy.array(log_likelihoods),
       likelihood=Likelihood.CONDITIONAL,
       n_parameters=difficulty.size - 1,
       item_parameters=items.astype(int),
-      cycles=cycles,
       converged=failure is None,
       change=change,
       grid=None,
@@ -144,16 +146,17 @@ class CMLCalibrator:
 
 def _newton_raphson(
   difficulty: FloatArray, totals: FloatArray, score_counts: FloatArray, *, tolerance: float, max_cycles: int
-) -> tuple[FloatArray, int, float, str | None]:
+) -> tuple[FloatArray, list[float], float, str | None]:
   """Run Newton-Raphson iterations, each step halved until the log-likelihood does not fall, until the rule is met.
 
   The rule is met when a full step, taken without halving, changes no difficulty by more than ``tolerance``.
 
   Returns
   -------
-  tuple[numpy.ndarray, int, float, str or None]
-      The difficulties; the iterations run; the largest change of a difficulty in the last iteration's full step,
-      before any halving; and None if the rule was met, or else why the iterations stopped short of it.
+  tuple[numpy.ndarray, list[float], float, str or None]
+      The difficulties; the conditional log-likelihood after each iteration run, at the difficulties it ended with;
+      the largest change of a difficulty in the last iteration's full step, before any halving; and None if the rule
+      was met, or else why the iterations stopped short of it.
 
   Raises
   ------
@@ -161,8 +164,9 @@ def _newton_raphson(
       If the information matrix is singular.
   """
   log_likelihood = _log_likelihood(difficulty, totals, score_counts)
+  log_likelihoods: list[float] = []
   change, halvings = math.inf, 0
-  for cycle in range(1, max_cycles + 1):
+  for _ in range(max_cycles):
     gradient, information = _derivatives(difficulty, totals, score_counts)
     step = _solve(information, gradient)
     change = float(numpy.max(numpy.abs(step)))
@@ -170,30 +174,34 @@ def _newton_raphson(
     # with two items, such as two items answered 11 to 1; with halving, all 391 converged, within 7 iterations
     # (measured 2026-11-27).
     for halvings in range(_STEP_HALVINGS + 1):
+      # the conditional log-likelihood is the same for difficulties shifted by a constant, so centring keeps it
       trial = difficulty + step / 2**halvings
+      trial -= trial.mean()
       trial_log_likelihood = _log_likelihood(trial, totals, score_counts)
       # accept a step that does not lower the log-likelihood beyond rounding
       if trial_log_likelihood >= log_likelihood - 1e-12 * abs(log_likelihood):
         break
     else:
-      # stalled: a halved step is no evidence of a maximum, which a full step within the tolerance would be
+      # stalled: a halved step is no evidence of a maximum, which a full step within the tolerance would be; the
+      # difficulties stay where the iteration found them
+      log_likelihoods.append(log_likelihood)
       return (
         difficulty,
-        cycle,
+        log_likelihoods,
         change,
         f"halving the Newton-Raphson step {_STEP_HALVINGS} times did not keep the conditional log-likelihood from "
         f"falling, with a full step of {change:.3g}",
       )
-    # the conditional log-likelihood is the same for difficulties shifted by a constant, so centring keeps it
-    difficulty, log_likelihood = trial - trial.mean(), trial_log_likelihood
+    difficulty, log_likelihood = trial, trial_log_likelihood
+    log_likelihoods.append(log_likelihood)
     # a halved step under the tolerance can lie far from the maximum, so only a full one meets the rule
     if halvings == 0 and change <= tolerance:
-      return difficulty, cycle, change, None
+      return difficulty, log_likelihoods, change, None
   if halvings:
     failure = f"the last Newton-Raphson step was halved {halvings} times"
   else:
     failure = f"the last Newton-Raphson step changed a difficulty by {change:.3g}, above the tolerance {tolerance:g}"
-  return difficulty, max_cycles, change, failure
+  return difficulty, log_likelihoods, change, failure
 
 
 def _log_symmetric_functions(log_easiness: FloatArray) -> FloatArray:

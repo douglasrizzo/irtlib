@@ -50,10 +50,10 @@ def _calibration(
     items=None,
     covariances=None,
     log_likelihood=-1.0,
+    log_likelihoods=np.array([-1.0]),
     likelihood=likelihood,  # ty: ignore[invalid-argument-type]
     n_parameters=1,
     item_parameters=np.ones(2, dtype=int),
-    cycles=1,
     converged=True,
     change=0.0,
     grid=grid,

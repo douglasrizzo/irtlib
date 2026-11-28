@@ -81,7 +81,9 @@ the difficulties falls below $10^{-4}$ {cite:p}`Wright1977{p. 285, Equation 15}`
 and 0.0009 short of the maximum on 20 items and on LSAT-6, where irtlib's rule stops within
 $2 \times 10^{-7}$ of it (measured 2026-11-27). The ability step compares likelihoods, which can
 leave changes of about $10^{-8}$ from cycle to cycle, as on a 2PL of 20 items and 400 examinees, so a
-tolerance below that may not be met (measured 2026-11-28).
+tolerance below that may not be met (measured 2026-11-28). The result holds the joint
+log-likelihood after each complete cycle, before any correction, and none when the calibration
+stops before its first cycle completes.
 
 **The Rasch model's bias and its correction.** Wright and Douglas write each difficulty estimate as
 the conditional one plus a bias, $d_i^* = d_i + a_{ri}$ at score $r$, approximating the bias by the

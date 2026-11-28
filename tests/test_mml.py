@@ -34,6 +34,7 @@ from tests.mirt_fixtures import load, responses
 if TYPE_CHECKING:
   from collections.abc import Callable
 
+  from irtlib.calibration import Calibration
   from irtlib.typing import FloatArray
 
 _MML_EM = load("mml_em")
@@ -109,6 +110,38 @@ def test_log_posterior_never_decreases(
   assert log_posteriors[-1] > log_posteriors[0]
 
 
+@pytest.mark.parametrize("acceleration", list(Acceleration))
+@pytest.mark.parametrize(
+  ("model", "matrix", "start"),
+  [
+    ("2PL", _LSAT7, None),
+    ("3PL", _LSAT6, ItemBank(np.tile([0.3, 2.0, 0.3, 1.0], (5, 1)))),
+  ],
+  ids=["LSAT-7 2PL", "LSAT-6 3PL from far"],
+)
+def test_log_likelihoods_are_those_after_each_cycle(
+  model: str, matrix: FloatArray, start: ItemBank | None, acceleration: Acceleration
+) -> None:
+  """The log-likelihood recorded for each cycle is the public marginal log-likelihood, without the log-prior, at the
+  estimates of a calibration stopped after that cycle; the last is the calibration's own.
+
+  SQUAREM keeps LSAT-7's extrapolations and refuses the 3PL's second, so a record of an extrapolation, of the
+  log-likelihood before a cycle rather than after it, or, under the 3PL's guessing prior, of the log-posterior fails.
+  """
+  priors = Priors(guessing=_GUESSING_PRIOR) if model == "3PL" else None
+
+  def calibrate(max_cycles: int) -> Calibration:
+    calibrator = MMLCalibrator(model, priors=priors, tolerance=1e-14, max_cycles=max_cycles, acceleration=acceleration)
+    # a ConvergenceWarning, and from the far start one for an information matrix that cannot be inverted yet
+    with pytest.warns(RuntimeWarning):
+      return calibrator.calibrate(matrix, start=start)
+
+  calibration = calibrate(8)
+  expected = [marginal_log_likelihood(matrix, calibrate(cycles).estimates) for cycles in range(1, 9)]
+  np.testing.assert_allclose(calibration.log_likelihoods, expected, rtol=1e-13)
+  assert calibration.log_likelihoods[-1] == calibration.log_likelihood
+
+
 def test_squarem_point_of_a_linear_iteration() -> None:
   """SQUAREM's extrapolation from three iterates of x -> x* + c (x - x*) is the fixed point x*, for any c below 1.
 
@@ -163,7 +196,7 @@ def test_squarem_cycles_from_a_kept_extrapolation_before_extrapolating_again() -
 
 def test_a_change_that_is_nan_stops_the_cycles() -> None:
   """The cycles stop on a change that is NaN, which compares above no tolerance, rather than run to ``max_cycles``."""
-  cycles = _Cycles(_LSAT7, np.zeros((5, 4), dtype=int), default_grid(), (), 1e-6, 500, count=1, change=float("nan"))
+  cycles = _Cycles(_LSAT7, np.zeros((5, 4), dtype=int), default_grid(), (), 1e-6, 500, change=float("nan"))
   assert cycles.done
 
 

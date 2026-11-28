@@ -301,6 +301,33 @@ def test_two_pl_estimates_maximize_the_joint_likelihood() -> None:
   np.testing.assert_array_equal(calibration.item_parameters, np.full(20, 2))
 
 
+@pytest.mark.parametrize("model", ["1PL", "2PL"])
+def test_log_likelihoods_are_those_after_each_cycle(model: str) -> None:
+  """The joint log-likelihood recorded for each cycle is the one written out over the responses, at the estimates and
+  abilities of a calibration stopped after that cycle; the last is the calibration's own.
+
+  Fails if the record is taken before a cycle's ability step, or at the abilities before the scale is fixed, which
+  moves the 2PL's abilities and not its items.
+  """
+  matrix = _LSAT6 if model == "1PL" else _two_pl_responses()
+
+  def calibrate(max_cycles: int) -> Calibration:
+    with pytest.warns(ConvergenceWarning):
+      return JMLCalibrator(model, correct=False, max_cycles=max_cycles).calibrate(matrix)
+
+  calibration = calibrate(5)
+  expected = []
+  for cycles in range(1, 6):
+    stopped = calibrate(cycles)
+    assert stopped.abilities is not None
+    rows = np.isfinite(stopped.abilities.theta)
+    slope, difficulty = stopped.estimates[:, 0], stopped.estimates[:, 1]
+    logit = slope * (stopped.abilities.theta[rows, np.newaxis] - difficulty)
+    expected.append(np.sum(matrix[rows] * log_expit(logit) + (1 - matrix[rows]) * log_expit(-logit)))
+  np.testing.assert_allclose(calibration.log_likelihoods, expected, rtol=1e-12)
+  assert calibration.log_likelihoods[-1] == calibration.log_likelihood
+
+
 def test_two_pl_covariances_invert_each_items_information() -> None:
   """Each 2PL item's covariance of a and b is the inverse of its information at the maximum, the abilities known, taken
   to b by the delta method (Baker, 1987, p. 119; p. 114, Equation 8), with standard errors the square roots of its
@@ -445,8 +472,9 @@ def test_a_miskeyed_item_stops_the_cycles_at_the_last_complete_cycle() -> None:
   column right for every examinee is left out, so the reversed item is the twentieth item kept and the 21st column. No
   cycle is complete, so the result holds the starting values, every slope positive, and the bank leaves out only the
   first column; its abilities are the starting ones, which no ability step evaluated, with standard errors the inverse
-  square root of the information at the starting items. Fails if the warning numbers the items kept, or the result
-  pairs the item step's slopes with the abilities of the cycle before.
+  square root of the information at the starting items, and it records no log-likelihood. Fails if the warning numbers
+  the items kept, the result pairs the item step's slopes with the abilities of the cycle before, or it records the
+  cycle that did not complete.
   """
   matrix = np.column_stack([np.ones(400), _two_pl_responses()])
   matrix[:, -1] = 1 - matrix[:, -1]
@@ -462,6 +490,7 @@ def test_a_miskeyed_item_stops_the_cycles_at_the_last_complete_cycle() -> None:
   assert not any("item_20" in message for message in messages), messages
   assert not calibration.converged
   assert calibration.cycles == 0
+  assert calibration.log_likelihoods.size == 0
   assert np.all(calibration.estimates[1:, 0] > 0)
   abilities = calibration.abilities
   assert abilities is not None

@@ -28,8 +28,9 @@ likelihood (source `R/04-PrepData.R:107`).
   - each item's covariances in the same parameterization, a shared parameter in every item's, giving
     the standard errors; none, with a flag, if the information cannot be inverted or a variance is
     not positive;
-  - the maximized log-likelihood, which likelihood it is, and the number of estimated parameters;
-  - the cycles run, whether the stopping rule was met, and the rule's final value;
+  - the maximized log-likelihood, its value after each cycle, which likelihood it is, and the
+    number of estimated parameters;
+  - whether the stopping rule was met, and the rule's final value;
   - for a marginal likelihood only, the grid abilities were integrated over, which fit and ability
     estimates reuse; for a joint one only, its abilities.
 - **Comparison.** Model comparison and item fit refuse a calibration whose likelihood is not
