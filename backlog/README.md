@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-21 cards: 12 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+22 cards: 12 ready, 2 needs-research, 2 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -73,6 +73,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Find how EAP abilities lower the mean squares on data that fit the Rasch model](discovery/mean-squares-eap.md) | discovery | research | needs-research | S |  | mean-squares PR on 2026-11-27 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | needs-decision | S |  | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |

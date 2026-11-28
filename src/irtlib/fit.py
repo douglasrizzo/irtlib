@@ -55,7 +55,8 @@ examinees, the unweighted and the weighted mean squares, which Wright and Master
    U_i = \frac{1}{N} \sum_j z_{ij}^2, \quad
    V_i = \frac{\sum_j W_{ij} z_{ij}^2}{\sum_j W_{ij}} = \frac{\sum_j y_{ij}^2}{\sum_j W_{ij}}
 
-(p. 99, Equations 5.4.6 and 5.4.7). :math:`U_i` is sensitive to unexpected responses of examinees for whom the item is
+(p. 99, Equations 5.4.6 and 5.4.7). irtlib calls :math:`U_i` the outfit and :math:`V_i` the infit, as mirt 1.48 does
+(source ``R/itemfit.R:584, 588``). :math:`U_i` is sensitive to unexpected responses of examinees for whom the item is
 far too easy or far too hard, and the weights :math:`W_{ij}`, smallest for those examinees, lessen their influence on
 :math:`V_i` (pp. 99, 101). When the data fit the model both have expectation 1, :math:`U_i` with variance
 :math:`\sum_j (C_{ij} / W_{ij}^2) / N^2 - 1 / N` (p. 100, Table 5.4a) and :math:`V_i` with variance
@@ -75,16 +76,17 @@ Masters estimate the person and item parameters from the same data as the residu
 square by the factor :math:`(M - 1)(N - 1) / (MN)` for :math:`M` items (p. 101).
 
 The abilities are the EAP estimates of :py:func:`irtlib.ability.expected_a_posteriori` on the calibration's grid,
-abilities normal with mean 0 and variance 1 (ADR-0006). mirt 1.48, which reports the unweighted and weighted mean
-squares as outfit and infit (source ``R/itemfit.R:584, 588``), takes EAP estimates by default too
+abilities normal with mean 0 and variance 1 (ADR-0006). mirt 1.48 takes EAP estimates by default too
 (``R/itemfit.R:268, 535-538``), on the grid of its ``fscores``. irtlib follows mirt in three places that no source on
-the shelf covers: it standardizes :math:`U_i` in the same way as :math:`V_i`, with the standard deviation from
-Table 5.4a in place of :math:`q_i` (``R/itemfit.R:585, 587``); it raises a variance :math:`W_{ij}` whose square is
-below :math:`10^{-5}` to :math:`10^{-5/2}` (``R/personfit.R:200``); and it caps the standard deviation of either mean
-square at 1.4142 before standardizing (``R/itemfit.R:586, 591``). mirt computes the mean squares of any model from its
-probabilities (``R/personfit.R:181-194``), and with missing responses sums over the examinees who answered each item,
-with :math:`N` their number (``R/itemfit.R:577-584``). Wright and Masters' sums run over every examinee, with no rule
-for a missing response, so irtlib's mean squares need complete responses (ADR-0006), and a calibration of the 1PL.
+the shelf covers: it standardizes :math:`U_i` in the same way as :math:`V_i`, with the standard deviation from Table
+5.4a in place of :math:`q_i` (``R/itemfit.R:585, 587``); it raises a variance :math:`W_{ij}` whose square is below
+:math:`10^{-5}` to :math:`10^{-5/2}`, leaving :math:`C_{ij}` and :math:`y_{ij}` as they are (``R/personfit.R:189-200``),
+so that a mean square's variance can fall below 0, and its :math:`t` is then NaN; and it caps the standard deviation of
+either mean square at 1.4142 before standardizing (``R/itemfit.R:586, 591``). mirt computes the mean squares of any
+model from its probabilities (``R/personfit.R:181-194``), and with missing responses sums over the examinees who
+answered each item, with :math:`N` their number (``R/itemfit.R:577-584``). Wright and Masters' sums run over every
+examinee, with no rule for a missing response, so irtlib's mean squares need complete responses (ADR-0006), and a
+calibration of the 1PL.
 """
 
 import math
@@ -242,34 +244,35 @@ def _collapse(observed: FloatArray, expected: FloatArray, min_expected: float) -
 
 @dataclass(frozen=True, slots=True)
 class MeanSquares:
-  """The unweighted and weighted mean squares of each item, each with its standardized value.
+  """The outfit and infit mean squares of each item, each with its standardized value.
 
   Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
   from the same responses, as they are here.
 
   Attributes
   ----------
-  unweighted : numpy.ndarray
-      The unweighted mean square of each item: the mean, over examinees, of the squared standardized residuals.
-  unweighted_t : numpy.ndarray
-      The unweighted mean square standardized by the cube-root transformation of ``weighted_t``, with its own
-      standard deviation under the model.
-  weighted : numpy.ndarray
-      The weighted mean square of each item: the squared residuals summed over examinees, over the sum of their
-      variances.
-  weighted_t : numpy.ndarray
-      The weighted mean square standardized by a cube-root transformation, with its standard deviation under the
-      model.
+  outfit : numpy.ndarray
+      The unweighted mean square of each item, Wright and Masters' :math:`u_i`: the mean, over examinees, of the
+      squared standardized residuals.
+  outfit_t : numpy.ndarray
+      The outfit standardized by the same cube-root transformation as ``infit_t``, with the outfit's own standard
+      deviation under the model; NaN where its variance under the model is not positive.
+  infit : numpy.ndarray
+      The weighted mean square of each item, Wright and Masters' :math:`v_i`: the squared residuals summed over
+      examinees, over the sum of their variances.
+  infit_t : numpy.ndarray
+      The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where
+      its variance under the model is not positive.
   """
 
-  unweighted: FloatArray
-  unweighted_t: FloatArray
-  weighted: FloatArray
-  weighted_t: FloatArray
+  outfit: FloatArray
+  outfit_t: FloatArray
+  infit: FloatArray
+  infit_t: FloatArray
 
 
 def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares:
-  """Return the unweighted and weighted mean squares of every item of a 1PL calibration, from its responses.
+  """Return the outfit and infit mean squares of every item of a 1PL calibration, from its responses.
 
   Each response is compared with its probability at the examinee's EAP ability estimate on the calibration's grid, with
   abilities normal with mean 0 and variance 1.
@@ -285,7 +288,7 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   Returns
   -------
   MeanSquares
-      Each item's unweighted and weighted mean squares, and their standardized values.
+      Each item's outfit and infit, and their standardized values.
 
   Raises
   ------
@@ -304,7 +307,7 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   >>> items = numpy.column_stack([numpy.ones(4), [-1.0, -0.3, 0.3, 1.0], numpy.zeros(4), numpy.ones(4)])
   >>> responses = draw_responses(numpy.random.default_rng(1).normal(size=500), items, rng=2)
   >>> fit = mean_squares(MMLCalibrator("1PL").calibrate(responses), responses)
-  >>> fit.unweighted.round(3), fit.weighted.round(3)
+  >>> fit.outfit.round(3), fit.infit.round(3)
   (array([0.751, 0.772, 0.741, 0.723]), array([0.821, 0.807, 0.777, 0.791]))
   """
   items = calibration.estimates
@@ -325,26 +328,29 @@ def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSq
   """Return the mean squares of complete responses, examinees by items, from the probabilities P and Q of each."""
   n_examinees = responses.shape[0]
   variance = p * q
+  # the floor applies to the variance W only, not to the kurtosis C or the squared residual, as mirt's does
+  # (R/personfit.R:189-200)
   variance = numpy.where(variance**2 < _SQUARED_VARIANCE_FLOOR, math.sqrt(_SQUARED_VARIANCE_FLOOR), variance)
   kurtosis = p * q * (p**3 + q**3)
   # the residual u - P is Q for a correct response and -P for an incorrect one
   squared_residual = numpy.where(responses == 1, q, p) ** 2
-  unweighted = numpy.sum(squared_residual / variance, axis=0) / n_examinees
-  unweighted_sd = numpy.sqrt(numpy.sum(kurtosis / variance**2, axis=0) / n_examinees**2 - 1 / n_examinees)
+  outfit = numpy.sum(squared_residual / variance, axis=0) / n_examinees
+  outfit_variance = numpy.sum(kurtosis / variance**2, axis=0) / n_examinees**2 - 1 / n_examinees
   total_variance = numpy.sum(variance, axis=0)
-  weighted = numpy.sum(squared_residual, axis=0) / total_variance
-  weighted_sd = numpy.sqrt(numpy.sum(kurtosis - variance**2, axis=0)) / total_variance
+  infit = numpy.sum(squared_residual, axis=0) / total_variance
+  infit_variance = numpy.sum(kurtosis - variance**2, axis=0) / total_variance**2
   return MeanSquares(
-    unweighted=unweighted,
-    unweighted_t=_standardized(unweighted, unweighted_sd),
-    weighted=weighted,
-    weighted_t=_standardized(weighted, weighted_sd),
+    outfit=outfit,
+    outfit_t=_standardized(outfit, outfit_variance),
+    infit=infit,
+    infit_t=_standardized(infit, infit_variance),
   )
 
 
-def _standardized(mean_square: FloatArray, sd: FloatArray) -> FloatArray:
-  """Return mean squares standardized by the cube-root transformation, their standard deviations capped first."""
-  sd = numpy.minimum(sd, _SD_CAP)
+def _standardized(mean_square: FloatArray, variance: FloatArray) -> FloatArray:
+  """Return mean squares standardized by the cube-root transformation, NaN where their variance is not positive."""
+  # the floor on W can leave the variance negative, which has no square root, as in mirt
+  sd = numpy.minimum(numpy.sqrt(numpy.where(variance > 0, variance, numpy.nan)), _SD_CAP)
   return (numpy.cbrt(mean_square) - 1) * (3 / sd) + sd / 3
 
 

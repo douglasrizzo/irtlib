@@ -235,7 +235,7 @@ def test_collapse_matches_mirt(table: int) -> None:
 
 
 # The mean squares and their standardized values, by mirt's names for them.
-_MEAN_SQUARES = {"unweighted": "outfit", "unweighted_t": "z_outfit", "weighted": "infit", "weighted_t": "z_infit"}
+_MEAN_SQUARES = {"outfit": "outfit", "outfit_t": "z_outfit", "infit": "infit", "infit_t": "z_infit"}
 
 
 def _rasch_items(case: dict[str, Any]) -> FloatArray:
@@ -298,10 +298,10 @@ def test_mean_squares_of_a_calibration(case: dict[str, Any]) -> None:
   """
   matrix = responses(_ITEM_FIT["data"][case["data"]])
   fit = mean_squares(MMLCalibrator("1PL", tolerance=_ITEM_FIT["settings"]["tol"]).calibrate(matrix), matrix)
-  np.testing.assert_allclose(fit.unweighted, case["outfit"], rtol=_MEAN_SQUARE_RTOL)
-  np.testing.assert_allclose(fit.weighted, case["infit"], rtol=_MEAN_SQUARE_RTOL)
-  np.testing.assert_allclose(fit.unweighted_t, case["z_outfit"], rtol=0, atol=_STANDARDIZED_ATOL)
-  np.testing.assert_allclose(fit.weighted_t, case["z_infit"], rtol=0, atol=_STANDARDIZED_ATOL)
+  np.testing.assert_allclose(fit.outfit, case["outfit"], rtol=_MEAN_SQUARE_RTOL)
+  np.testing.assert_allclose(fit.infit, case["infit"], rtol=_MEAN_SQUARE_RTOL)
+  np.testing.assert_allclose(fit.outfit_t, case["z_outfit"], rtol=0, atol=_STANDARDIZED_ATOL)
+  np.testing.assert_allclose(fit.infit_t, case["z_infit"], rtol=0, atol=_STANDARDIZED_ATOL)
 
 
 def test_mean_square_guards() -> None:
