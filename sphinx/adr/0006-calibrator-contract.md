@@ -39,8 +39,8 @@ likelihood (source `R/04-PrepData.R:107`).
   responses and the items, not part of the result: EAP abilities; S-X² with its degrees of freedom
   per item; and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
-  them, with an error naming an alternative: conditional and joint maximum likelihood, S-X² and the
-  mean squares.
+  them, naming an alternative: conditional and joint maximum likelihood, S-X² and the item mean
+  squares. Person fit takes them.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; ability estimation; calibration's checks, result and
   M-step; the methods, with their own standard errors; then fit. Drawing responses is its own

@@ -1,11 +1,14 @@
-"""Item fit: Orlando and Thissen's S-X² statistic for every model, and the mean squares of the Rasch model."""
+"""Item and person fit: Orlando and Thissen's S-X² of each item, and the mean squares of each item or examinee."""
 
+import functools
 import math
 from dataclasses import dataclass
 
 import numpy
+import numpy.typing as npt
 from scipy.stats import chi2
 
+from ._responses import responses_and_items
 from .ability import expected_a_posteriori
 from .calibration import Calibration, _check_marginal, _complete_responses
 from .irt import icc, log_response_probabilities
@@ -161,22 +164,23 @@ def _collapse(observed: FloatArray, expected: FloatArray, min_expected: float) -
 
 @dataclass(frozen=True, slots=True)
 class MeanSquares:
-  """The outfit and infit mean squares of each item, each with its standardized value.
+  """The outfit and infit mean squares of each item, or of each examinee, each with its standardized value.
 
-  Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
-  from the same responses, as they are here.
+  An item's mean squares sum over the examinees who answered it, and an examinee's over the items the examinee
+  answered. Both mean squares have expectation 1 when the responses fit the model at the abilities they are evaluated
+  at, and less when the abilities are estimated from the same responses.
 
   Parameters
   ----------
   outfit : numpy.ndarray
-      The unweighted mean square of each item, Wright and Masters' :math:`u_i`: the mean, over examinees, of the
-      squared standardized residuals.
+      The unweighted mean square of each item or examinee, Wright and Masters' :math:`u`: the mean of its squared
+      standardized residuals.
   outfit_t : numpy.ndarray
       The outfit standardized by the same cube-root transformation as ``infit_t``, with the outfit's own standard
       deviation under the model; NaN where its variance under the model is not positive.
   infit : numpy.ndarray
-      The weighted mean square of each item, Wright and Masters' :math:`v_i`: the squared residuals summed over
-      examinees, over the sum of their variances.
+      The weighted mean square of each item or examinee, Wright and Masters' :math:`v`: the sum of its squared
+      residuals over the sum of their variances.
   infit_t : numpy.ndarray
       The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where
       its variance under the model is not positive.
@@ -245,9 +249,63 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   return _mean_squares(matrix, numpy.exp(log_p), numpy.exp(log_q))
 
 
+def person_mean_squares(responses: npt.ArrayLike, items: npt.ArrayLike, theta: npt.ArrayLike) -> MeanSquares:
+  """Return the outfit and infit mean squares of every examinee, from the responses at the examinees' abilities.
+
+  Each response is compared with its probability at the examinee's ability, under the model of each item, 1PL to
+  4PL. A missing response is left out, so that each examinee's mean squares sum over the items the examinee answered.
+  An examinee who answered no item, or whose ability is infinite or NaN, gets NaN throughout.
+
+  The :doc:`/methods/fit/mean-squares` page gives the method, its sources and the origin of each default.
+
+  Parameters
+  ----------
+  responses : array_like
+      The response matrix: one row per examinee, one column per item, 1 or 0, and NaN for a missing response.
+  items : array_like
+      The items, a matrix of shape ``(n, 4)``, one row ``[a, b, c, d]`` per column of ``responses``.
+  theta : array_like
+      Each examinee's ability, one per row of ``responses``, such as the ``theta`` of an
+      :py:class:`~irtlib.ability.AbilityEstimates`.
+
+  Returns
+  -------
+  MeanSquares
+      Each examinee's outfit and infit, and their standardized values.
+
+  Raises
+  ------
+  TypeError
+      If the responses are neither Booleans, integers nor floats.
+  ValueError
+      If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is
+      not 0, 1 or NaN, or ``theta`` does not hold one ability per row of ``responses``.
+
+  Examples
+  --------
+  >>> import numpy
+  >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.9]])
+  >>> responses = numpy.array([[1, 1, 0], [0, 1, 1], [1, numpy.nan, 0]])
+  >>> fit = person_mean_squares(responses, items, [0.5, 0.0, -0.5])
+  >>> fit.outfit.round(3), fit.infit.round(3)
+  (array([0.378, 1.99 , 0.435]), array([0.402, 1.904, 0.465]))
+  """
+  matrix, items = responses_and_items(responses, items)
+  theta = numpy.array(theta, dtype=float)
+  if theta.shape != (matrix.shape[0],):
+    msg = f"theta must hold one ability per row of responses, {matrix.shape[0]}, got shape {theta.shape}"
+    raise ValueError(msg)
+  # an examinee without a finite ability is left with no response, and its probabilities are taken at 0 unused
+  finite = numpy.isfinite(theta)
+  matrix[~finite] = numpy.nan
+  log_p, log_q = log_response_probabilities(numpy.where(finite, theta, 0.0), items)
+  return _mean_squares(matrix.T, numpy.exp(log_p).T, numpy.exp(log_q).T)
+
+
 def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSquares:
-  """Return the mean squares of complete responses, examinees by items, from the probabilities P and Q of each."""
-  n_examinees = responses.shape[0]
+  """Return the mean squares of each column of responses, from the probabilities P and Q of each, leaving out NaN."""
+  answered = ~numpy.isnan(responses)
+  n_responses = answered.sum(axis=0)
   variance = p * q
   # the floor applies to the variance W only, not to the kurtosis C or the squared residual, as mirt's does
   # (R/personfit.R:189-200)
@@ -255,11 +313,15 @@ def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSq
   kurtosis = p * q * (p**3 + q**3)
   # the residual u - P is Q for a correct response and -P for an incorrect one
   squared_residual = numpy.where(responses == 1, q, p) ** 2
-  outfit = numpy.sum(squared_residual / variance, axis=0) / n_examinees
-  outfit_variance = numpy.sum(kurtosis / variance**2, axis=0) / n_examinees**2 - 1 / n_examinees
-  total_variance = numpy.sum(variance, axis=0)
-  infit = numpy.sum(squared_residual, axis=0) / total_variance
-  infit_variance = numpy.sum(kurtosis - variance**2, axis=0) / total_variance**2
+  # each column's sum over its responses
+  total = functools.partial(numpy.sum, axis=0, where=answered)
+  # a column without responses divides 0 by 0, which leaves its mean squares and their variances NaN
+  with numpy.errstate(divide="ignore", invalid="ignore"):
+    outfit = total(squared_residual / variance) / n_responses
+    outfit_variance = total(kurtosis / variance**2) / n_responses**2 - 1 / n_responses
+    total_variance = total(variance)
+    infit = total(squared_residual) / total_variance
+    infit_variance = total(kurtosis - variance**2) / total_variance**2
   return MeanSquares(
     outfit=outfit,
     outfit_t=_standardized(outfit, outfit_variance),

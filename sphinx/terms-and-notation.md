@@ -139,6 +139,10 @@ item fit
 : How well the responses a calibration predicts for an item match those observed. In the API:
   {func}`~irtlib.fit.s_x2` and {func}`~irtlib.fit.mean_squares`.
 
+person fit
+: How well an examinee's responses match their expectations at the examinee's ability. In the API:
+  {func}`~irtlib.fit.person_mean_squares`.
+
 model comparison
 : Whether a model with more parameters fits enough better to justify them. In the API: the
   functions of {mod}`irtlib.comparison`.
