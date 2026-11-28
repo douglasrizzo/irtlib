@@ -1,4 +1,4 @@
-"""What every plot module shares: the axes to draw on, the items to draw and the abilities to draw them at."""
+"""What every plot module shares: the axes, the items, the abilities to draw them at, and the reference lines."""
 
 import operator
 
@@ -34,6 +34,21 @@ def prepare_axes(ax: Axes | None, title: str | None) -> Axes:
   if title is not None:
     ax.set_title(title)
   return ax
+
+
+def reference_line(ax: Axes, y: float) -> None:
+  """Draw a dashed horizontal line across the axes at ``y``, in their frame's colour and width, left out of a legend.
+
+  Parameters
+  ----------
+  ax : matplotlib.axes.Axes
+      The axes to draw on.
+  y : float
+      The height of the line, in data units.
+  """
+  # The frame's colour follows the caller's style, dark ones included, where a fixed black line would vanish.
+  frame = ax.spines["left"]
+  ax.axhline(y, color=frame.get_edgecolor(), linewidth=frame.get_linewidth(), linestyle="--")
 
 
 def as_bank(items: ItemBank | FloatArray) -> ItemBank:

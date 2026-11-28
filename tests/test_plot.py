@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tomllib
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -16,10 +17,15 @@ from matplotlib.axes import Axes
 import irtlib
 from irtlib import ItemBank, plot
 
-# Items that every plot drawn at abilities takes, and each such plot, drawn at the abilities theta.
+# Items that every plot of items takes, and each such plot, given its data and waiting for its keyword options.
 _ITEMS = ItemBank(np.array([[1.0, 0.0, 0.0, 1.0]]))
-_DRAWN_AT: dict[str, Callable[[npt.ArrayLike], Axes]] = {
-  "item_curve": lambda theta: plot.item_curve(_ITEMS, 0, theta=theta),
+_PLOTS: dict[str, Callable[..., Axes]] = {
+  "item_curve": partial(plot.item_curve, _ITEMS, 0),
+  "bank_information": partial(plot.bank_information, _ITEMS),
+  "standard_error": partial(plot.standard_error, _ITEMS),
+  "expected_score": partial(plot.expected_score, _ITEMS),
+  "reliability": partial(plot.reliability, _ITEMS),
+  "relative_efficiency": partial(plot.relative_efficiency, _ITEMS, _ITEMS),
 }
 
 
@@ -78,7 +84,25 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
   )
 
 
-@pytest.mark.parametrize("draw", _DRAWN_AT.values(), ids=_DRAWN_AT.keys())
+@pytest.mark.parametrize("draw", _PLOTS.values(), ids=_PLOTS.keys())
+def test_plots_draw_on_the_given_axes_with_the_title_and_label(draw: Callable[..., Axes]) -> None:
+  """With ax, a plot draws on that axes and returns it, opening no figure; its title and curve carry title and label.
+
+  Fails if a plot opens a figure of its own when given axes, draws on a second axes such as a twin with another y
+  scale, drops the title, or leaves its curve without the label, so that a legend of several cannot tell them apart.
+  """
+  figure, ax = plt.subplots()
+
+  drawn = draw(ax=ax, title="A title", label="A label")
+
+  assert drawn is ax
+  assert plt.get_fignums() == [figure.number]
+  assert figure.axes == [ax]
+  assert ax.get_title() == "A title"
+  assert ax.get_lines()[0].get_label() == "A label"
+
+
+@pytest.mark.parametrize("draw", _PLOTS.values(), ids=_PLOTS.keys())
 @pytest.mark.parametrize(
   ("theta", "error", "message"),
   [
@@ -96,7 +120,7 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
   ids=["scalar", "empty", "one", "matrix", "nan", "inf", "repeated", "decreasing", "bools", "strings"],
 )
 def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
-  draw: Callable[[npt.ArrayLike], Axes], theta: npt.ArrayLike, error: type[Exception], message: str
+  draw: Callable[..., Axes], theta: npt.ArrayLike, error: type[Exception], message: str
 ) -> None:
   """Abilities that are not a line's x values, at least two, finite and increasing, raise before any figure exists.
 
@@ -105,5 +129,5 @@ def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
   behind the error.
   """
   with pytest.raises(error, match=message):
-    draw(theta)
+    draw(theta=theta)
   assert plt.get_fignums() == []

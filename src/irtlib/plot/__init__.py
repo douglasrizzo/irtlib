@@ -19,5 +19,14 @@ except ImportError as error:
   raise ImportError(_missing) from error
 
 from ._items import Curve, item_curve
+from ._test_functions import bank_information, expected_score, relative_efficiency, reliability, standard_error
 
-__all__ = ["Curve", "item_curve"]
+__all__ = [
+  "Curve",
+  "bank_information",
+  "expected_score",
+  "item_curve",
+  "relative_efficiency",
+  "reliability",
+  "standard_error",
+]

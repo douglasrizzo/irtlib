@@ -211,20 +211,6 @@ def test_item_curve_parameter_box_stays_inside_the_axes_and_off_the_curve(kind: 
     assert box.count_contains(line.get_transform().transform(line.get_xydata())) == 0
 
 
-def test_item_curve_draws_on_the_given_axes_with_the_title() -> None:
-  """With ax, the curve goes on that axes and no new figure opens; with title, the axes carry it.
-
-  Fails if the plot opens a figure of its own when given axes, or drops the title.
-  """
-  figure, ax = plt.subplots()
-
-  drawn = item_curve(ITEMS, 0, ax=ax, title="Item 0")
-
-  assert drawn is ax
-  assert plt.get_fignums() == [figure.number]
-  assert ax.get_title() == "Item 0"
-
-
 @pytest.mark.parametrize(
   ("item", "kind", "error", "message"),
   [
