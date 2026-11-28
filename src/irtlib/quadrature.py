@@ -102,8 +102,11 @@ class _NormalLogPrior:
 
   def __call__(self, theta: FloatArray) -> FloatArray:
     """Return the log-density at each ability."""
-    var = self.sd * self.sd
-    return -0.5 * numpy.log(2.0 * numpy.pi * var) - 0.5 * (theta - self.mean) ** 2 / var
+    # from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi
+    # times it, or a squared deviation over it can overflow; a deviation too large to square has log-density -inf
+    with numpy.errstate(over="ignore"):
+      deviation = (theta - self.mean) / self.sd
+      return -0.5 * deviation * deviation - math.log(self.sd) - 0.5 * math.log(2.0 * math.pi)
 
   @override
   def __repr__(self) -> str:
