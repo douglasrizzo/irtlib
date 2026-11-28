@@ -3,11 +3,12 @@ r"""Ability estimation: each examinee's ability, with its standard error, from r
 Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the
 examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column. It returns an
 :py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the
-estimator's objective or of its derivatives. An examinee's estimate depends only on the items it
-answered, so its row gives the same estimate alone as in any matrix. Below, :math:`L_j(\theta)` is the likelihood of
-examinee :math:`j`'s responses :math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items
-:math:`i` it answered, and :math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines
-them.
+estimator's objective or of its derivatives. An examinee's estimate depends only on the items it answered, so its row
+gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a
+sum over more terms, since the maximum likelihood and MAP searches, under a normal prior, search every row of a matrix
+at once with the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses
+:math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and
+:math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.
 
 **Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /
 \sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with
@@ -132,17 +133,26 @@ import warnings
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Self
 
 import numpy
 import numpy.typing as npt
 from scipy.integrate import IntegrationWarning, quad
-from scipy.optimize import brentq, minimize_scalar
-from scipy.special import expit
+from scipy.optimize import brentq
 
 from . import irt
 from ._responses import responses_and_items
-from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED, _log_terms, _LogTerms
+from ._search import (
+  _SEARCH_POINTS,
+  _BatchObjective,
+  _Bounds,
+  _Derivatives,
+  _Examinee,
+  _maxima,
+  _maximum,
+  _PriorTerms,
+  _Rows,
+)
+from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED
 from .quadrature import (
   GridPrior,
   LogPrior,
@@ -155,17 +165,6 @@ from .quadrature import (
 )
 from .typing import BoolArray, FloatArray, IntArray
 
-# Points on which a maximum is located before Newton's method refines it: 101, 0.12 apart on [-6, 6], while no item
-# answered is steeper than _STEEP_SLOPE, and above it 0.3 divided by the steepest slope apart (module docstring).
-_NEWTON_SEARCH_POINTS = 101
-_STEEP_SLOPE = 2.5
-# The most points: 0.005 apart on [-6, 6], the spacing of a slope of 60, the steepest measured. Steeper items keep
-# it, so that a pathological slope cannot exhaust memory.
-_MAX_SEARCH_POINTS = 2401
-# Points on which a posterior mode under any prior but the normal is located before SciPy's bounded search refines it.
-_SEARCH_POINTS = 201
-# Equal maxima on this many search points mean a flat objective; two can flank a symmetric peak.
-_FLAT_MAXIMUM_POINTS = 3
 # Step of the central difference that gives a prior's curvature at the posterior mode.
 _CURVATURE_STEP = 1e-4
 # Points on which Warm's modified score is scanned to bracket its roots: 0.1 apart on [-6, 6].
@@ -180,14 +179,6 @@ _ROW = "examinee in row {}: "
 _ROW_PATTERN = re.compile(r"^examinee in row (\d+): ")
 # Log-likelihoods closer than this, relative to their size, count as equal: the rounding of a sum over the items.
 _RELATIVE_SLACK = 1e-12
-# The most steps of a Newton refinement: bisection alone narrows [-6, 6] to 1e-6 in 24.
-_NEWTON_STEPS = 100
-# The smallest normal float, below which P Q is floored in Warm's modified score.
-_TINY = numpy.finfo(float).tiny
-
-type _Bounds = tuple[float, float]
-type _Objective = Callable[[FloatArray], FloatArray]
-type _Derivatives = Callable[[float], tuple[float, float]]
 
 
 @functools.cache
@@ -200,14 +191,6 @@ def _default_grid() -> QuadratureGrid:
 def _default_prior() -> LogPrior:
   """Return the standard normal prior of EAP and MAP estimates without one, built once."""
   return normal_log_prior()
-
-
-@functools.lru_cache(maxsize=32)
-def _search_points(low: float, high: float, n_points: int) -> FloatArray:
-  """Return the search's equally spaced points within the bounds, built once per bounds and read-only."""
-  nodes = numpy.linspace(low, high, n_points)
-  nodes.setflags(write=False)
-  return nodes
 
 
 @dataclass(frozen=True, slots=True)
@@ -289,214 +272,6 @@ def _estimates(rows: Iterable[tuple[float, float, int]]) -> AbilityEstimates:
     evaluations=numpy.array([evaluations for _, _, evaluations in values], dtype=int),
     from_fallback=numpy.zeros(len(values), dtype=bool),
   )
-
-
-@dataclass(frozen=True, slots=True)
-class _Examinee:
-  """One examinee's responses to the items it answered: its log-likelihood, and the derivatives the searches use."""
-
-  responses: FloatArray
-  """The responses, 1 or 0."""
-  items: FloatArray
-  """The items answered."""
-  terms: _LogTerms
-  """Each response's log-probability, as a function of ability."""
-
-  @classmethod
-  def of(cls, responses: FloatArray, items: FloatArray) -> Self:
-    """Return the examinee of responses and items that its caller has checked."""
-    return cls(responses, items, _log_terms(items, numpy.arange(responses.size), responses == 1))
-
-  @property
-  def concave(self) -> bool:
-    """Whether every item answered has c = 0 and d = 1, which makes the log-likelihood concave."""
-    return not (self.items[:, 2].any() or (1.0 - self.items[:, 3]).any())
-
-  @property
-  def search_points(self) -> int:
-    """The number of points a search with Newton's refinement locates the maximum on, from the steepest slope."""
-    steepest = float(self.items[:, 0].max()) if self.items.size else 0.0
-    # a slope that is not finite gives the fewest points, on which the search then finds the objective not finite
-    if not math.isfinite(steepest):
-      return _NEWTON_SEARCH_POINTS
-    spaced = math.ceil((_NEWTON_SEARCH_POINTS - 1) * steepest / _STEEP_SLOPE) + 1
-    return min(_MAX_SEARCH_POINTS, max(_NEWTON_SEARCH_POINTS, spaced))
-
-  def log_likelihood(self, theta: FloatArray) -> FloatArray:
-    """Return the log-likelihood at each of an array of abilities."""
-    return self.terms(theta).sum(axis=-1)
-
-  def derivatives(self, theta: float) -> tuple[float, float]:
-    """Return the log-likelihood's first and second derivatives at one ability."""
-    # Each term is the log P of a signed item: with F its logistic and P = floor + (d - c) F, the term's derivatives
-    # are a (P - floor)(1 - F) / P and a^2 (P - floor)(1 - F) / P (floor (1 - F) / P - F)
-    slope, difficulty = self.terms.items[:, 0], self.terms.items[:, 1]
-    z = slope * (theta - difficulty)
-    rising, falling = expit(z), expit(-z)
-    above = self.terms.dmc * rising
-    probability = self.terms.floor + above
-    if (probability > 0.0).all():
-      share, rest = above / probability, self.terms.floor / probability
-    else:
-      # P underflows to 0 only above a floor of 0, where (P - floor) / P is 1 and floor / P is 0
-      share = numpy.divide(above, probability, out=numpy.ones_like(above), where=probability > 0.0)
-      rest = numpy.divide(self.terms.floor, probability, out=numpy.zeros_like(above), where=probability > 0.0)
-    first = slope * share * falling
-    return float(first.sum()), float((slope * first * (rest * falling - rising)).sum())
-
-  def modified_score(self, theta: npt.ArrayLike) -> FloatArray:
-    """Return Warm's modified score at each ability: the likelihood's score plus J / (2 I)."""
-    a, b, c, d = self.items.T
-    z = a * (numpy.atleast_1d(numpy.asarray(theta, dtype=float))[:, numpy.newaxis] - b)
-    rising, falling = expit(z), expit(-z)
-    # P and Q each from its own side of the logistic, so that neither loses its digits where the other rounds to 1
-    above = (d - c) * rising
-    p, q = c + above, (1.0 - d) + (d - c) * falling
-    first = a * above * falling
-    ratio = first / numpy.maximum(p * q, _TINY)
-    information = (first * ratio).sum(axis=-1)
-    j = (a * first * (falling - rising) * ratio).sum(axis=-1)
-    # u - P is Q for a correct response and -P for an incorrect one
-    return (numpy.where(self.responses == 1, q, -p) * ratio).sum(axis=-1) + numpy.divide(
-      j, 2.0 * information, out=numpy.zeros_like(j), where=information > 0.0
-    )
-
-
-def _maximum(
-  objective: _Objective,
-  bounds: _Bounds,
-  tol: float,
-  derivatives: _Derivatives | None = None,
-  *,
-  concave: bool = False,
-  n_points: int = _SEARCH_POINTS,
-) -> tuple[float, float, int]:
-  """Return the ability of largest objective within the bounds, the objective there and the evaluations taken.
-
-  The best of ``n_points`` equally spaced points, or the middle of three or more tied ones, refined between its
-  neighbours and kept only if no worse: by Newton's method on ``derivatives``, the objective's first and second
-  derivatives at one ability, or by SciPy's bounded search without them. A ``concave`` objective skips the points
-  (:py:func:`_concave_maximum`).
-
-  Returns
-  -------
-  tuple[float, float, int]
-      The ability, the objective there, and the number of evaluations of the objective or of its derivatives.
-
-  Raises
-  ------
-  ValueError
-      If the objective is not finite at any of the points.
-  """
-  if concave and derivatives is not None:
-    return _concave_maximum(objective, derivatives, bounds, tol)
-  # the points are shared and read-only, so a prior that wrote into them, which would move the best point, raises
-  nodes = _search_points(*bounds, n_points)
-  values = objective(nodes)
-  peak = float(numpy.max(values))
-  # the log-likelihood is finite at every finite ability, so only a prior can leave no finite point
-  if not math.isfinite(peak):
-    msg = (
-      f"the log-posterior is not finite at any of the {nodes.size} search points in {bounds}; the prior's support "
-      "must contain at least one of them"
-    )
-    raise ValueError(msg)
-  ties = numpy.flatnonzero(values == peak)
-  best = int(ties[ties.size // 2])
-  if ties.size >= _FLAT_MAXIMUM_POINTS:
-    return float(nodes[best]), peak, nodes.size
-  low, high = float(nodes[max(best - 1, 0)]), float(nodes[min(best + 1, nodes.size - 1)])
-  if derivatives is None:
-    found, value, used = _bounded_search(objective, low, high, tol)
-  else:
-    found, used = _newton(derivatives, _vertex(nodes, values, best), low, high, tol)
-    value, used = float(objective(numpy.array([found]))[0]), used + 1
-  # A neighbour can lie outside a narrow prior's support, so the refinement is kept only if it did at least as well as
-  # the best point; the estimate then always lies inside the support
-  if value >= peak:
-    return found, value, nodes.size + used
-  return float(nodes[best]), peak, nodes.size + used
-
-
-def _bounded_search(objective: _Objective, low: float, high: float, tol: float) -> tuple[float, float, int]:
-  """Return the maximum SciPy's bounded search finds between two abilities, the objective there and its evaluations."""
-  # Past a narrow prior's support the objective is -inf, and SciPy's parabolic step then subtracts infinities; the
-  # caller checks the result against the best point
-  with numpy.errstate(invalid="ignore"):
-    result = minimize_scalar(
-      lambda theta: -float(objective(numpy.array([theta]))[0]),
-      bounds=(low, high),
-      method="bounded",
-      options={"xatol": tol},
-    )
-  return float(result.x), -float(result.fun), int(result.nfev)
-
-
-def _vertex(nodes: FloatArray, values: FloatArray, best: int) -> float:
-  """Return the vertex of the parabola through the best point and its neighbours, or the best point at an end."""
-  if 0 < best < nodes.size - 1:
-    left, centre, right = values[best - 1 : best + 2]
-    curvature = left - 2.0 * centre + right
-    if curvature < 0.0:
-      return float(nodes[best] + 0.5 * (nodes[1] - nodes[0]) * (left - right) / curvature)
-  return float(nodes[best])
-
-
-def _concave_maximum(
-  objective: _Objective, derivatives: _Derivatives, bounds: _Bounds, tol: float
-) -> tuple[float, float, int]:
-  """Return the maximum of a concave objective within the bounds, the objective there and the evaluations taken.
-
-  A bound is the maximum where the derivative points out of the range there; otherwise the maximum is the derivative's
-  zero between the bounds, which Newton's method finds from their middle.
-
-  Returns
-  -------
-  tuple[float, float, int]
-      The ability, the objective there, and the number of evaluations of the objective or of its derivatives.
-  """
-  low, high = bounds
-  if derivatives(low)[0] <= 0.0:
-    theta, evaluations = low, 1
-  elif derivatives(high)[0] >= 0.0:
-    theta, evaluations = high, 2
-  else:
-    theta, used = _newton(derivatives, 0.5 * (low + high), low, high, tol)
-    evaluations = 2 + used
-  return theta, float(objective(numpy.array([theta]))[0]), evaluations + 1
-
-
-def _newton(derivatives: _Derivatives, theta: float, low: float, high: float, tol: float) -> tuple[float, int]:
-  """Return a zero of the objective's derivative between two abilities, and the evaluations of the derivatives taken.
-
-  Each step is Newton's on the derivative, within a bracket that shrinks to the side the derivative points to; a step
-  that would leave the bracket, or that is longer than half the step before last, bisects it instead.
-
-  Returns
-  -------
-  tuple[float, int]
-      The zero, within ``tol``, and the number of evaluations of the derivatives.
-  """
-  last = before_last = high - low
-  for evaluations in range(1, _NEWTON_STEPS + 1):
-    slope, curvature = derivatives(theta)
-    if slope > 0.0:
-      low = theta
-    else:
-      high = theta
-    # a Newton step needs a finite negative curvature; any other bisects
-    step = -slope / curvature if -math.inf < curvature < 0.0 else math.inf
-    # a Newton step within the tolerance ends the search before the bracket test: at the zero, theta + step can round
-    # to theta, on the bracket's edge, which would bisect away from it
-    if abs(step) < tol:
-      return min(high, max(low, theta + step)), evaluations
-    if not low < theta + step < high or abs(step) > before_last / 2.0:
-      step = 0.5 * (low + high) - theta
-    before_last, last = last, abs(step)
-    theta += step
-    if abs(step) < tol:
-      return theta, evaluations
-  return theta, _NEWTON_STEPS
 
 
 def expected_a_posteriori(
@@ -627,14 +402,24 @@ def maximum_a_posteriori(
   bounds = _check_bounds(bounds)
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
+  prior = _normal_prior_terms(log_prior)
+  # one examinee keeps the search of one row, which a step of an adaptive test calls and which has less to set up
+  if prior is not None and matrix.shape[0] > 1:
+    return _posterior_modes(matrix, items, prior, bounds, tol)
   return _estimates(
-    _posterior_mode(row_responses, row_items, log_prior, bounds, tol)
+    _posterior_mode(row_responses, row_items, log_prior, bounds, tol, prior=prior)
     for row_responses, row_items in _answered(matrix, items)
   )
 
 
 def _posterior_mode(
-  responses: FloatArray, items: FloatArray, log_prior: LogPrior, bounds: _Bounds, tol: float
+  responses: FloatArray,
+  items: FloatArray,
+  log_prior: LogPrior,
+  bounds: _Bounds,
+  tol: float,
+  *,
+  prior: _PriorTerms | None,
 ) -> tuple[float, float, int]:
   """Return one examinee's posterior mode, its standard error and the posterior evaluations it took.
 
@@ -649,7 +434,7 @@ def _posterior_mode(
       If the log-posterior is not finite at any search point.
   """
   examinee = _Examinee.of(responses, items)
-  derivatives = _posterior_derivatives(examinee, log_prior)
+  derivatives = _posterior_derivatives(examinee, prior)
   theta, _, evaluations = _maximum(
     lambda theta: examinee.log_likelihood(theta) + log_prior(theta),
     bounds,
@@ -666,27 +451,57 @@ def _posterior_mode(
   return theta, se, evaluations
 
 
-def _posterior_derivatives(examinee: _Examinee, log_prior: LogPrior) -> _Derivatives | None:
-  """Return the log-posterior's first and second derivatives at one ability, for a normal prior; None for any other.
+def _posterior_modes(
+  matrix: FloatArray, items: FloatArray, prior: _PriorTerms, bounds: _Bounds, tol: float
+) -> AbilityEstimates:
+  """Return what :py:func:`_posterior_mode` returns for each row, every row searched at once."""
+  batch = _Rows.of(matrix, items)
+  rows = numpy.arange(matrix.shape[0])
+  theta, _, evaluations = _maxima(_BatchObjective(batch, prior), rows, bounds, tol)
+  h = _CURVATURE_STEP
+  below, at, above = prior.log_density(theta - h), prior.log_density(theta), prior.log_density(theta + h)
+  curvature = (above - 2.0 * at + below) / h**2
+  precision = batch.total_information(theta, rows) - numpy.where(numpy.isfinite(curvature), curvature, 0.0)
+  standard_errors = numpy.full(rows.size, math.inf)
+  positive = (precision > 0.0) & numpy.isfinite(precision)
+  standard_errors[positive] = 1.0 / numpy.sqrt(precision[positive])
+  return AbilityEstimates(theta, standard_errors, evaluations, numpy.zeros(rows.size, dtype=bool))
+
+
+def _normal_prior_terms(log_prior: LogPrior) -> _PriorTerms | None:
+  """Return a normal prior's terms for the searches' derivatives; None for any other prior.
 
   A normal prior whose precision, 1 / sd^2, is not a finite positive float, from a standard deviation near the floats'
   limits, also gives None, leaving its posterior to the search without derivatives.
 
   Returns
   -------
-  Callable or None
-      The derivatives as a function of one ability, or None.
+  _PriorTerms or None
+      The prior's log-density, mean and precision, or None.
   """
   if not isinstance(log_prior, _NormalLogPrior):
     return None
   inverse = 1.0 / log_prior.sd
-  precision, mean = inverse * inverse, log_prior.mean
+  precision = inverse * inverse
   if not 0.0 < precision < math.inf:
+    return None
+  return _PriorTerms(log_prior, log_prior.mean, precision)
+
+
+def _posterior_derivatives(examinee: _Examinee, prior: _PriorTerms | None) -> _Derivatives | None:
+  """Return the log-posterior's first and second derivatives at one ability, under a normal prior's terms, or None.
+
+  Returns
+  -------
+  Callable or None
+      The derivatives as a function of one ability, or None without a normal prior.
+  """
+  if prior is None:
     return None
 
   def derivatives(theta: float) -> tuple[float, float]:
     slope, curvature = examinee.derivatives(theta)
-    return slope - precision * (theta - mean), curvature - precision
+    return slope - prior.precision * (theta - prior.mean), curvature - prior.precision
 
   return derivatives
 
@@ -759,8 +574,14 @@ def maximum_likelihood(
   bounds = None if bounds is None else _check_bounds(bounds)
   tol = _check_tol(tol)
   matrix, items = responses_and_items(responses, items)
-  estimates = _estimates(
-    _likelihood_maximum(row_responses, row_items, bounds, tol) for row_responses, row_items in _answered(matrix, items)
+  # one examinee keeps the search of one row, which a step of an adaptive test calls and which has less to set up
+  estimates = (
+    _likelihood_maxima(matrix, items, bounds, tol)
+    if matrix.shape[0] > 1
+    else _estimates(
+      _likelihood_maximum(row_responses, row_items, bounds, tol)
+      for row_responses, row_items in _answered(matrix, items)
+    )
   )
   replaced = ~numpy.isfinite(estimates.theta)
   if fallback is None or not replaced.any():
@@ -818,6 +639,84 @@ def _likelihood_maximum(
       n_points=examinee.search_points,
     )
   return theta, irt.see(theta, items) if math.isfinite(theta) else math.inf, evaluations
+
+
+def _likelihood_maxima(matrix: FloatArray, items: FloatArray, bounds: _Bounds | None, tol: float) -> AbilityEstimates:
+  """Return what :py:func:`_likelihood_maximum` returns for each row, every row searched at once."""
+  batch = _Rows.of(matrix, items)
+  n_answered, n_correct = batch.answered.sum(axis=1), batch.correct.sum(axis=1)
+  theta = numpy.full(matrix.shape[0], math.nan)
+  evaluations = numpy.zeros(matrix.shape[0], dtype=int)
+  all_correct = (n_answered > 0) & (n_correct == n_answered)
+  all_incorrect = (n_answered > 0) & (n_correct == 0)
+  # the likelihood of responses all correct rises with the ability, and that of responses all incorrect falls
+  low, high = (-math.inf, math.inf) if bounds is None else bounds
+  theta[all_correct], theta[all_incorrect] = high, low
+  mixed = numpy.flatnonzero((n_correct > 0) & (n_correct < n_answered))
+  if mixed.size:
+    search = (THETA_MIN_EXTENDED, THETA_MAX_EXTENDED) if bounds is None else bounds
+    found, value, used = _maxima(_BatchObjective(batch), mixed, search, tol)
+    theta[mixed], evaluations[mixed] = found, used
+    if bounds is None:
+      _settle_ends(batch, mixed, value, theta, evaluations, tol=tol)
+  return AbilityEstimates(
+    theta, _inverse_root_information(batch, theta), evaluations, numpy.zeros(theta.size, dtype=bool)
+  )
+
+
+def _inverse_root_information(batch: _Rows, theta: FloatArray) -> FloatArray:
+  """Return what :py:func:`irtlib.irt.see` gives for each row at its estimate where finite, and ``inf`` elsewhere."""
+  standard_errors = numpy.full(theta.size, math.inf)
+  finite = numpy.flatnonzero(numpy.isfinite(theta))
+  information = batch.total_information(theta[finite], finite)
+  variance = numpy.divide(1.0, information, out=numpy.full(finite.size, math.inf), where=information.astype(bool))
+  standard_errors[finite] = numpy.sqrt(variance)
+  return standard_errors
+
+
+def _settle_ends(
+  batch: _Rows, rows: IntArray, value: FloatArray, theta: FloatArray, evaluations: IntArray, *, tol: float
+) -> None:
+  """Settle each row's maximum over the extended real line, as :py:func:`_supremum` does, in ``theta``.
+
+  ``value`` is each row's log-likelihood at its maximum on [-6, 6]. A row whose range ends leave no room for a larger
+  log-likelihood beyond them is settled at once, at an infinity or at that maximum; the others search on as
+  :py:func:`_supremum` does, one row at a time, which also sets their ``evaluations``.
+  """
+  lower_ceiling, lower_limit, upper_ceiling, upper_limit = _end_sums(batch, rows)
+  # max takes the lower of two equal limits, as _supremum's does
+  upper = upper_limit > lower_limit
+  largest = numpy.where(upper, upper_limit, lower_limit)
+  target = numpy.maximum(value, largest)
+  slack = _RELATIVE_SLACK * numpy.maximum(1.0, numpy.abs(target))
+  unresolved = (lower_ceiling > target + slack) | (upper_ceiling > target + slack)
+  infinite = ~unresolved & (largest >= value - slack)
+  theta[rows[infinite]] = numpy.where(upper[infinite], math.inf, -math.inf)
+  # few rows need a wider range, mostly those of a near-flat likelihood, so they are searched on one at a time
+  for row in rows[unresolved].tolist():
+    kept = batch.answered[row]
+    responses = numpy.where(batch.correct[row, kept], 1.0, 0.0)
+    theta[row], evaluations[row] = _supremum(_Examinee.of(responses, batch.items[kept]), tol)
+
+
+def _end_sums(batch: _Rows, rows: IntArray) -> tuple[FloatArray, FloatArray, FloatArray, FloatArray]:
+  """Return what :py:func:`_end` sums for each row at -6 and at 6: the ceilings and the limits there."""
+  _, _, c, d = batch.items.T
+  log_p, _ = irt.log_response_probabilities(THETA_MIN_EXTENDED, batch.items)
+  _, log_q = irt.log_response_probabilities(THETA_MAX_EXTENDED, batch.items)
+  correct = batch.correct[rows]
+  # c = 0 and d = 1 give log(0) = -inf, a limit of 0
+  with numpy.errstate(divide="ignore"):
+    terms = (
+      numpy.where(correct, log_p, numpy.log1p(-c)),
+      numpy.where(correct, numpy.log(c), numpy.log1p(-c)),
+      numpy.where(correct, numpy.log(d), log_q),
+      numpy.where(correct, numpy.log(d), numpy.log1p(-d)),
+    )
+  lower_ceiling, lower_limit, upper_ceiling, upper_limit = (
+    numpy.where(batch.answered[rows], term, 0.0).sum(axis=-1) for term in terms
+  )
+  return lower_ceiling, lower_limit, upper_ceiling, upper_limit
 
 
 @dataclass(frozen=True, slots=True)

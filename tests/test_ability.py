@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import math
+import tracemalloc
 from itertools import product
 from typing import TYPE_CHECKING
 
@@ -19,7 +20,7 @@ from scipy.integrate import IntegrationWarning, quad
 from scipy.optimize import brentq, minimize_scalar
 from scipy.special import expit
 
-from irtlib import ability
+from irtlib import _search  # noqa: PLC2701 - the searches' derivatives, score and refinement
 from irtlib.ability import (
   AbilityEstimates,
   expected_a_posteriori,
@@ -122,6 +123,163 @@ class TestEveryEstimator:
       np.testing.assert_allclose(together.standard_errors[row], alone.standard_errors[0], rtol=1e-12)
       assert together.evaluations[row] == alone.evaluations[0]
     assert together.theta.shape == together.standard_errors.shape == together.evaluations.shape == (len(_RESPONSES),)
+
+  @pytest.mark.parametrize(
+    ("estimator", "options"),
+    [
+      pytest.param(maximum_likelihood, {"bounds": (-6.0, 6.0)}, id="ml_bounded"),
+      pytest.param(maximum_likelihood, {}, id="ml_unbounded"),
+      pytest.param(maximum_a_posteriori, {}, id="map_standard_normal"),
+      pytest.param(maximum_a_posteriori, {"log_prior": normal_log_prior(0.5, 3.0)}, id="map_wide_normal"),
+    ],
+  )
+  @pytest.mark.parametrize("model", ["2PL", "3PL_4PL", "steep"])
+  def test_many_rows_are_searched_as_each_examinee_alone(
+    self, estimator: Callable[..., AbilityEstimates], options: dict[str, object], model: str
+  ) -> None:
+    """Every row of a matrix gets its examinee's estimate, standard error and evaluation count alone.
+
+    Many rows are searched at once with the arithmetic of one, so a row that answered every item gets exactly its
+    estimate alone, and one that left some out gets it to the rounding of a sum over more terms. MAP's standard error
+    takes the prior's curvature from a central difference of step 1e-4, which turns that rounding into up to a
+    relative 1e-7, for the prior's log-density near the bounds.
+    The rows include responses all correct, all incorrect and unanswered, a likelihood nearly flat, maxima beyond
+    [-6, 6] for the search without bounds, and, with slopes of 60, search points that split the rows into several
+    chunks. A batched search that took another step, tie, bracket, end or count than one row's fails.
+    """
+    rng = np.random.default_rng(20261128)
+    n_items, n_rows = 10, 100
+    slopes = rng.uniform(0.5, 2.5, n_items)
+    guessing = np.zeros(n_items) if model == "2PL" else rng.uniform(0.0, 0.3, n_items)
+    upper = rng.uniform(0.85, 1.0, n_items) if model == "3PL_4PL" else np.ones(n_items)
+    if model == "steep":
+      slopes[:3] = 60.0
+    items = np.column_stack([slopes, rng.normal(0.0, 1.2, n_items), guessing, upper])
+    items[-1, 0] = 1e-9
+    matrix = (rng.random((n_rows, n_items)) < 0.6).astype(float)
+    matrix[0], matrix[1], matrix[2] = 1.0, 0.0, _NAN
+    matrix[3] = _NAN
+    matrix[3, -1] = 1.0
+    matrix[50:][rng.random((n_rows - 50, n_items)) < 0.3] = _NAN
+
+    together = estimator(matrix, items, **options)
+
+    for row in range(n_rows):
+      alone = estimator(matrix[row : row + 1], items, **options)
+      if row < 50:
+        np.testing.assert_array_equal(together.theta[row], alone.theta[0])
+        np.testing.assert_array_equal(together.standard_errors[row], alone.standard_errors[0])
+      else:
+        np.testing.assert_allclose(together.theta[row], alone.theta[0], rtol=1e-12, atol=1e-14)
+        se_rtol = 1e-6 if estimator is maximum_a_posteriori else 1e-12
+        np.testing.assert_allclose(together.standard_errors[row], alone.standard_errors[0], rtol=se_rtol)
+      assert together.evaluations[row] == alone.evaluations[0], row
+
+  @pytest.mark.parametrize("bounds", [(-6.0, 6.0), None], ids=["bounded", "unbounded"])
+  def test_edge_rows_are_searched_as_each_examinee_alone(self, bounds: tuple[float, float] | None) -> None:
+    """Rows at the searches' edges get their estimates and evaluation counts alone, searched together.
+
+    Each row answers two items of its own. In the first, the correct answer to an item of slope 100 at -6.1 and the
+    incorrect one to an item at 13.5 leave a derivative exactly 0 at 6, which takes the upper bound. In the second,
+    searched without bounds, a guessed correct answer and a slipped incorrect one, c = 0.5 and d = 0.5, give the
+    likelihood the same limit, 0.5, at both infinities, which takes the lower. In the third, searched within bounds,
+    slopes of 1e-30 make the likelihood exactly flat, which takes the middle of the tied points; without bounds it
+    would move its range out until it warned. A batched search that took the first of tied points, the upper bound only
+    on a strictly positive derivative, or the upper of two equal limits fails.
+    """
+    items = np.array([
+      [100.0, -6.1, 0.0, 1.0],
+      [100.0, 13.5, 0.0, 1.0],
+      [10.0, 3.0, 0.5, 1.0],
+      [10.0, -3.0, 0.0, 0.5],
+      [1e-30, 0.0, 0.2, 1.0],
+      [1e-30, 1.0, 0.2, 1.0],
+    ])
+    matrix = np.full((3, 6), _NAN)
+    for row in range(3):
+      matrix[row, 2 * row : 2 * row + 2] = [1.0, 0.0]
+    matrix = matrix[[0, 1]] if bounds is None else matrix[[0, 2]]
+
+    together = maximum_likelihood(matrix, items, bounds=bounds)
+
+    for row in range(2):
+      alone = maximum_likelihood(matrix[row : row + 1], items, bounds=bounds)
+      np.testing.assert_array_equal(together.theta[row], alone.theta[0])
+      assert together.evaluations[row] == alone.evaluations[0], row
+
+  # NaN parameters make NumPy warn of invalid values, alone as together
+  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+  @pytest.mark.parametrize(
+    ("estimator", "options"),
+    [
+      pytest.param(maximum_likelihood, {"bounds": (-6.0, 6.0)}, id="ml"),
+      pytest.param(maximum_a_posteriori, {}, id="map"),
+    ],
+  )
+  def test_a_nan_slope_is_searched_as_each_examinee_alone(
+    self, estimator: Callable[..., AbilityEstimates], options: dict[str, object]
+  ) -> None:
+    """A NaN slope's NaN derivative goes on past the lower bound, together as alone.
+
+    The items are not checked for NaN. Alone, a derivative that is not at most 0 at the lower bound goes on to the
+    upper one and to Newton's method; a batch that stopped at the lower bound unless the derivative was positive gave
+    -6 after 2 evaluations, against -5.9999993 after 26.
+    """
+    items = np.array([[_NAN, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
+    matrix = np.array([[1.0, 0.0], [0.0, 1.0]])
+
+    together = estimator(matrix, items, **options)
+
+    for row in range(2):
+      alone = estimator(matrix[row : row + 1], items, **options)
+      np.testing.assert_array_equal(together.theta[row], alone.theta[0])
+      assert together.evaluations[row] == alone.evaluations[0]
+
+  def test_examinees_with_no_items_get_the_prior_mode_together(self) -> None:
+    """Several rows of a matrix with no items get the normal prior's mode and standard deviation, as one row does.
+
+    Under N(0.3, 1) with no item the log-posterior is -(theta - 0.3)^2 / 2: the derivative points inward at both
+    bounds, Newton's step from 0 lands on 0.3 and the next derivative, 0, ends it, and the posterior there is the fifth
+    evaluation; the standard error is 1 / sqrt(1 / sigma^2). A batch that took the steepest slope of no items raised
+    ValueError.
+    """
+    estimates = maximum_a_posteriori(np.zeros((2, 0)), np.zeros((0, 4)), log_prior=normal_log_prior(0.3, 1.0))
+
+    np.testing.assert_array_equal(estimates.theta, [0.3, 0.3])
+    np.testing.assert_allclose(estimates.standard_errors, [1.0, 1.0], rtol=1e-6)
+    np.testing.assert_array_equal(estimates.evaluations, [5, 5])
+
+  def test_a_batch_names_the_search_points_of_its_first_failing_row(self) -> None:
+    """A batch that finds no finite log-posterior raises the error its first failing row raises alone.
+
+    The first row answered an item of slope 60, searched on 2,401 points, the second only one of slope 1, on 101; a
+    prior of standard deviation 1e-154 centred at 100 has no mass at any of them. Searching the groups of rows from
+    the fewest points named 101.
+    """
+    items = np.array([[60.0, 0.0, 0.2, 1.0], [1.0, 0.0, 0.2, 1.0]])
+    matrix = np.array([[1.0, 0.0], [_NAN, 1.0]])
+
+    with pytest.raises(ValueError, match="any of the 2401 search points"):
+      maximum_a_posteriori(matrix, items, log_prior=normal_log_prior(100.0, 1e-154))
+
+  def test_a_batch_searches_its_points_a_chunk_of_rows_at_a_time(self) -> None:
+    """The memory of a batched search does not grow with its rows: 2,000 rows of steep items peak below 64 MB.
+
+    With slopes of 60, each row has 2,401 points. A search that held every row's points at once, with their ties and
+    their running count, peaked at 115 MB; a chunk of rows at a time peaks at about 34 MB.
+    """
+    rng = np.random.default_rng(1)
+    items = np.column_stack([np.full(10, 60.0), rng.normal(0.0, 1.0, 10), np.full(10, 0.2), np.ones(10)])
+    matrix = (rng.random((2000, 10)) < 0.5).astype(float)
+
+    tracemalloc.start()
+    try:
+      maximum_likelihood(matrix, items, bounds=(-6.0, 6.0))
+      peak = tracemalloc.get_traced_memory()[1]
+    finally:
+      tracemalloc.stop()
+
+    assert peak < 64 * 2**20
 
   @pytest.mark.parametrize("estimator", _ESTIMATORS.values(), ids=_ESTIMATORS.keys())
   def test_no_estimate_comes_from_a_fallback(self, estimator: Callable[..., AbilityEstimates]) -> None:
@@ -446,7 +604,7 @@ class TestMaximumLikelihood:
     h = 1e-4
     below, at, above = _log_likelihood(np.array([theta - h, theta, theta + h]), items, responses)
 
-    first, second = ability._Examinee.of(responses, items).derivatives(theta)  # noqa: SLF001
+    first, second = _search._Examinee.of(responses, items).derivatives(theta)  # noqa: SLF001
 
     assert first == pytest.approx((above - below) / (2 * h), rel=1e-6)
     assert second == pytest.approx((above - 2 * at + below) / h**2, rel=1e-5)
@@ -456,7 +614,7 @@ class TestMaximumLikelihood:
 
     Dividing the slope by the infinite curvature gave a step of 0, which ended the search at once where the slope was 5.
     """
-    theta, evaluations = ability._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
+    theta, evaluations = _search._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
 
     assert theta == pytest.approx(1.0, abs=1e-6)
     assert evaluations > 1
@@ -1013,7 +1171,7 @@ class TestWeightedLikelihood:
     a = 10.0
     p, q = expit(a * (theta - b)), expit(-a * (theta - b))
 
-    examinee = ability._Examinee.of(np.array([correct]), np.array([[a, b, 0.0, 1.0]]))  # noqa: SLF001
+    examinee = _search._Examinee.of(np.array([correct]), np.array([[a, b, 0.0, 1.0]]))  # noqa: SLF001
     value = examinee.modified_score(theta)[0]
 
     assert value == pytest.approx((a * q if correct else -a * p) + a * (q - p) / 2.0, rel=1e-12)
