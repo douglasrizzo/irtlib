@@ -40,7 +40,7 @@ grid's nodes once, for a caller that computes many posteriors with the same grid
 
 import math
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Self, override
 
 import numpy
@@ -312,6 +312,15 @@ class GridPrior:
     log_masses.setflags(write=False)
     object.__setattr__(self, "nodes", nodes)
     object.__setattr__(self, "_node_log_masses", log_masses)
+
+  def __setstate__(self, state: list[object]) -> None:
+    """Restore the fields from ``state``, with the nodes and log-masses read-only."""
+    # NumPy's pickling does not keep an array's read-only flag; the state is the dataclass's, each field's value in the
+    # fields' order
+    for name, value in zip((item.name for item in fields(self)), state, strict=True):
+      object.__setattr__(self, name, value)
+    self.nodes.setflags(write=False)
+    self._node_log_masses.setflags(write=False)
 
   def posterior(self, log_likelihood: FloatArray) -> FloatArray:
     """Return each examinee's posterior over the nodes, from its log-likelihood at them.
