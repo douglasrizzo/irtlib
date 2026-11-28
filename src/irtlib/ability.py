@@ -5,11 +5,11 @@ examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per co
 :py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the
 estimator's objective or of its derivatives. An examinee's estimate depends only on the items it answered, so its row
 gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a
-sum over more terms, since the maximum likelihood and weighted likelihood searches, and MAP's under a normal prior,
-search every row of a matrix at once with the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of
-examinee :math:`j`'s responses :math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items
-:math:`i` it answered, and :math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines
-them.
+sum over more terms, which can also move a search's last step and change its evaluation count by one, since the maximum
+likelihood and weighted likelihood searches, and MAP's under a normal prior, search every row of a matrix at once with
+the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses
+:math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and
+:math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.
 
 **Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /
 \sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with
@@ -935,7 +935,7 @@ def _weighted_likelihood_roots(matrix: FloatArray, items: FloatArray, bounds: _B
   for k in numpy.flatnonzero(~settled).tolist():
     row = int(rows[k])
     examinee = _Examinee.of(matrix[row, batch.answered[row]], items[batch.answered[row]])
-    if scans.failed[scans.owner == k].any():
+    if scans.failed[scans.of_row(k)].any():
       theta[row], _, evaluations[row], messages = _weighted_likelihood_root(
         examinee.responses, examinee.items, bounds, tol
       )
@@ -966,6 +966,8 @@ class _Scans:
   """Each bracket's evaluations of the modified score, besides the two at its ends."""
   failed: BoolArray
   """Whether each bracket's search failed, where it raises for the row alone."""
+  starts: IntArray
+  """Where each row's brackets start, and after the last row's, where they end."""
 
   @classmethod
   def of(cls, batch: _Rows, rows: IntArray, bounds: _Bounds, tol: float) -> Self:
@@ -980,13 +982,16 @@ class _Scans:
       (values[owner, index], values[owner, index + 1]),
       tol=tol,
     )
-    return cls(values, owner, roots, used, failed)
+    return cls(values, owner, roots, used, failed, numpy.searchsorted(owner, numpy.arange(rows.size + 1)))
+
+  def of_row(self, k: int) -> slice:
+    """Return the brackets of the row at position ``k``, which are consecutive."""
+    return slice(int(self.starts[k]), int(self.starts[k + 1]))
 
   @property
   def n_candidates(self) -> IntArray:
     """Return each row's number of maxima of the weighted likelihood: roots, and bounds the score points out of."""
-    roots = numpy.bincount(self.owner, minlength=self.values.shape[0])
-    return roots + (self.values[:, 0] <= 0.0) + (self.values[:, -1] > 0.0)
+    return numpy.diff(self.starts) + (self.values[:, 0] <= 0.0) + (self.values[:, -1] > 0.0)
 
   @property
   def settled(self) -> BoolArray:
@@ -1004,7 +1009,7 @@ class _Scans:
 
   def candidates(self, k: int, bounds: _Bounds) -> list[float]:
     """Return the maxima of the row at position ``k``, its roots then the bounds, in the order of the one-row search."""
-    return self.roots[self.owner == k].tolist() + _outward_bounds(self.values[k], bounds)
+    return self.roots[self.of_row(k)].tolist() + _outward_bounds(self.values[k], bounds)
 
 
 def _most_likely(score: Callable[[float], float], low: float, candidates: list[float]) -> tuple[float, int, list[str]]:

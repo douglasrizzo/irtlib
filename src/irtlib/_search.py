@@ -6,6 +6,7 @@ The searches, their point counts and their measurements are documented with the 
 
 import functools
 import math
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Self
@@ -390,14 +391,13 @@ class _Rows:
   def modified_score(self, theta: FloatArray, rows: IntArray) -> FloatArray:
     """Return each of the rows' Warm's modified score at its own ability, as :py:meth:`_Examinee.modified_score`."""
     terms = _WarmTerms.of(theta[:, numpy.newaxis], self.items)
-    answered = self.answered[rows]
-    return _warm_sum(answered, self.correct[rows], terms)
+    return _warm_sum(self.answered[rows], self.correct[rows], terms)
 
   def modified_score_grid(self, nodes: FloatArray, rows: IntArray) -> FloatArray:
     """Return each of the rows' Warm's modified score at every node, rows by nodes."""
     terms = _WarmTerms.of(nodes[:, numpy.newaxis], self.items)
     values = numpy.empty((rows.size, nodes.size))
-    chunk = max(1, _CHUNK_ELEMENTS // (nodes.size * self.items.shape[0]))
+    chunk = max(1, _CHUNK_ELEMENTS // max(1, nodes.size * self.items.shape[0]))
     for start in range(0, rows.size, chunk):
       part = rows[start : start + chunk]
       values[start : start + chunk] = _warm_sum(
@@ -635,7 +635,7 @@ def _newton_rows(
 
 # Brent's method as SciPy 1.18.1's brentq implements it (scipy/optimize/Zeros/brentq.c:36-130), with its default number
 # of iterations and relative tolerance (scipy/optimize/_zeros_py.py:9, 11) and its error on a NaN value (:104-119)
-_BRENT_RTOL = 4 * numpy.finfo(float).eps
+_BRENT_RTOL = 4 * sys.float_info.epsilon
 _BRENT_ITERATIONS = 100
 
 

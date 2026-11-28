@@ -11,6 +11,7 @@ import functools
 import math
 import re
 import tracemalloc
+import warnings
 from itertools import product
 from typing import TYPE_CHECKING
 
@@ -142,7 +143,8 @@ class TestEveryEstimator:
     """Every row of a matrix gets its examinee's estimate, standard error and evaluation count alone.
 
     Many rows are searched at once with the arithmetic of one, so a row that answered every item gets exactly its
-    estimate alone, and one that left some out gets it to the rounding of a sum over more terms. MAP's standard error
+    estimate alone, and one that left some out gets it to the rounding of a sum over more terms; at the default
+    tolerance that rounding moves no search's last step in these rows, whose counts are equal too. MAP's standard error
     takes the prior's curvature from a central difference of step 1e-4, which turns that rounding into up to a
     relative 1e-7, for the prior's log-density near the bounds.
     The rows include responses all correct, all incorrect and unanswered, a likelihood nearly flat, maxima beyond
@@ -250,6 +252,28 @@ class TestEveryEstimator:
     np.testing.assert_array_equal(estimates.theta, [0.3, 0.3])
     np.testing.assert_allclose(estimates.standard_errors, [1.0, 1.0], rtol=1e-6)
     np.testing.assert_array_equal(estimates.evaluations, [5, 5])
+
+  @pytest.mark.parametrize(
+    ("estimator", "options"),
+    [
+      pytest.param(maximum_likelihood, {"bounds": (-6.0, 6.0)}, id="ml_bounded"),
+      pytest.param(maximum_likelihood, {}, id="ml_unbounded"),
+      pytest.param(weighted_likelihood, {}, id="wle"),
+    ],
+  )
+  def test_examinees_with_no_items_have_no_estimate_together(
+    self, estimator: Callable[..., AbilityEstimates], options: dict[str, object]
+  ) -> None:
+    """Several rows of a matrix with no items get NaN, an infinite standard error and no evaluation, as one row does.
+
+    No response gives a constant likelihood, which every ability maximizes. A batched WLE that divided its chunk of
+    2^20 floats by the points times no items raised ZeroDivisionError.
+    """
+    estimates = estimator(np.zeros((3, 0)), np.zeros((0, 4)), **options)
+
+    np.testing.assert_array_equal(estimates.theta, [_NAN] * 3)
+    np.testing.assert_array_equal(estimates.standard_errors, [math.inf] * 3)
+    np.testing.assert_array_equal(estimates.evaluations, [0, 0, 0])
 
   def test_a_batch_names_the_search_points_of_its_first_failing_row(self) -> None:
     """A batch that finds no finite log-posterior raises the error its first failing row raises alone.
@@ -726,6 +750,23 @@ class TestRootSearch:
       assert root == reference, row
       assert evaluations == result.function_calls - 2, row
       assert (roots[row], used[row], failed[row]) == (root, evaluations, False), row
+
+  def test_an_overflowing_step_is_taken_in_floats_as_brentq_takes_it(self) -> None:
+    """A trial step that overflows gives brentq's root as a float, without NumPy's overflow warning.
+
+    On [-1, 1], 1e300 (0.4 - x)^3 overflows in the extrapolated step, which C's doubles and Python's floats take
+    silently; a port whose tolerance was a NumPy float did its arithmetic in NumPy scalars, which warn, an error here.
+    """
+
+    def cubic(theta: float) -> float:
+      return 1e300 * (0.4 - theta) ** 3
+
+    reference, result = brentq(cubic, -1.0, 1.0, xtol=1e-6, full_output=True)
+    root, evaluations = _search._brent(cubic, -1.0, 1.0, cubic(-1.0), cubic(1.0), tol=1e-6)  # noqa: SLF001
+
+    assert type(root) is float
+    assert root == reference
+    assert evaluations == result.function_calls - 2
 
   def test_a_nan_value_stops_the_root_search_as_scipys_brentq_does(self) -> None:
     """A NaN value raises SciPy's brentq's ValueError for one bracket, and fails only its own bracket among many.
@@ -1325,15 +1366,13 @@ class TestWeightedLikelihood:
       np.testing.assert_allclose(together.theta[row], alone.theta[0], rtol=1e-12)
       assert together.evaluations[row] == alone.evaluations[0], row
 
-  # the steep item overflows at its difficulty, alone as together
-  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
-  def test_a_row_whose_root_search_meets_a_nan_score_raises_as_alone(self) -> None:
-    """A row whose root search meets a NaN modified score raises SciPy's brentq's ValueError in a matrix as alone.
+  @staticmethod
+  def _nan_on_first_step() -> tuple[FloatArray, float]:
+    """Return three items whose modified score, after answers 1, 0 and 1, is NaN where brentq first steps, and there.
 
     An item of slope 1e300 adds exactly 0 to the modified score at every point of the scan, and NaN at its difficulty,
     where a times P' overflows before it meets P'' = 0. Its difficulty is the first point SciPy's brentq tries after a
-    correct answer to an item at -0.4 and an incorrect one to an item at 0.9. A batch that took the NaN point for a
-    root, instead of searching the row alone, returns an estimate.
+    correct answer to an item at -0.4 and an incorrect one to an item at 0.9.
     """
     items = np.array([[1.0, -0.4, 0.0, 1.0], [1.3, 0.9, 0.0, 1.0], [1e300, 0.0, 0.0, 1.0]])
     score = _search._Examinee.of(np.array([1.0, 0.0]), items[:2]).modified_score_at  # noqa: SLF001
@@ -1342,13 +1381,48 @@ class TestWeightedLikelihood:
     tried: list[float] = []
     brentq(lambda theta: tried.append(theta) or score(theta), scan[turn], scan[turn + 1], xtol=1e-6)
     items[2, 1] = tried[2]
+    return items, tried[2]
+
+  # the steep item overflows at its difficulty, alone as together
+  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+  def test_a_row_whose_root_search_meets_a_nan_score_raises_as_alone(self) -> None:
+    """A row whose root search meets a NaN modified score raises SciPy's brentq's ValueError in a matrix as alone.
+
+    The row's third item makes the score NaN where Brent's method first steps (:py:meth:`_nan_on_first_step`). A batch
+    that took the NaN point for a root, instead of searching the row alone, returns an estimate.
+    """
+    items, nan_at = self._nan_on_first_step()
     matrix = np.array([[1.0, 0.0, _NAN], [1.0, 0.0, 1.0]])
-    message = re.escape(f"x={tried[2]} is NaN; solver cannot continue")
+    message = re.escape(f"x={nan_at} is NaN; solver cannot continue")
 
     with pytest.raises(ValueError, match=message):
       weighted_likelihood(matrix[1:], items)
     with pytest.raises(ValueError, match=message):
       weighted_likelihood(matrix, items)
+
+  # the steep item overflows at its difficulty, alone as together
+  @pytest.mark.filterwarnings("ignore::RuntimeWarning")
+  def test_rows_warn_and_raise_in_their_order(self) -> None:
+    """A row's ranking warning comes before a later row's error, and not at all after an earlier row's error.
+
+    The ranking row answered only an item of slope 200 with c = 0.2, wrongly, whose ranking integral does not
+    converge; the failing row's third item makes its score NaN where Brent's method first steps. A batch that warned
+    after the loop, or handled the failing rows first, breaks one order or the other.
+    """
+    nan_items, _ = self._nan_on_first_step()
+    items = np.vstack([[[200.0, 0.0, 0.2, 1.0]], nan_items])
+    ranking, failing = [0.0, _NAN, _NAN, _NAN], [_NAN, 1.0, 0.0, 1.0]
+
+    with (
+      pytest.warns(IntegrationWarning, match=r"examinee in row 0: .*subdivisions"),
+      pytest.raises(ValueError, match="is NaN"),
+    ):
+      weighted_likelihood(np.array([ranking, failing]), items)
+    with warnings.catch_warnings(record=True) as caught:
+      warnings.simplefilter("always", IntegrationWarning)
+      with pytest.raises(ValueError, match="is NaN"):
+        weighted_likelihood(np.array([failing, ranking]), items)
+    assert not [warning for warning in caught if issubclass(warning.category, IntegrationWarning)]
 
   def test_a_ranking_integral_that_does_not_converge_warns_from_the_callers_line(self) -> None:
     """A ranking integral that does not converge warns, naming the row, from the line that called the estimator.
