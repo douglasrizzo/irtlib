@@ -400,6 +400,59 @@ def test_an_examinee_whose_posterior_has_no_mass_is_an_error() -> None:
     posterior(log_likelihood, grid, uniform_log_prior(-1.0, 1.0))
 
 
+def test_each_examinee_alone_gets_its_row_of_the_batched_posterior() -> None:
+  """Each examinee's posterior alone is the masses times its likelihood, normalized, and its row of the batch's.
+
+  The first two likelihoods are positive at every node, the third 0 at both ends, so the batch's log-likelihood is not
+  finite everywhere while the first two rows alone are. A posterior that left out the prior or the normalization for a
+  log-likelihood finite everywhere changes those rows.
+  """
+  grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
+  likelihood = np.array([
+    [0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9],
+    [0.9, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05],
+    [0.0, 0.3, 0.5, 1.0, 0.5, 0.3, 0.0],
+  ])
+  with np.errstate(divide="ignore"):
+    log_likelihood = np.log(likelihood)
+  joint = _masses() * likelihood
+  expected = joint / joint.sum(axis=1, keepdims=True)
+  prior = normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)
+
+  batch = posterior(log_likelihood, grid, prior)
+
+  for examinee, row in enumerate(log_likelihood):
+    alone = posterior(row[np.newaxis], grid, prior)
+    np.testing.assert_allclose(alone, expected[[examinee]], rtol=1e-12, atol=0.0)
+    np.testing.assert_allclose(alone[0], batch[examinee], rtol=1e-12, atol=0.0)
+
+
+@pytest.mark.parametrize(
+  ("log_likelihood", "match"),
+  [
+    pytest.param([0.0, 0.0, np.nan, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="NaN"),
+    pytest.param([0.0, 0.0, np.inf, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="+inf"),
+    pytest.param(
+      [np.inf, 0.0, 0.0, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="+inf where the prior is 0"
+    ),
+    pytest.param([0.0, -np.inf, -np.inf, -np.inf, 0.0], r"no mass at any node for the examinees in rows \[0\]", id="0"),
+  ],
+)
+def test_one_examinee_with_an_undefined_or_massless_posterior_is_an_error(
+  log_likelihood: list[float], match: str
+) -> None:
+  """One examinee whose log-likelihood is NaN or +inf at a node, or -inf wherever the prior has mass, is an error.
+
+  The prior is uniform on [-1, 1], 0 at the grid's ends. Skipping the checks for one examinee, or deciding them on a
+  log-likelihood finite at some node, returns NaN; adding the log-prior before checking +inf against its -inf warns of
+  an invalid value, which the test suite turns into an error.
+  """
+  grid = QuadratureGrid.uniform(5, -2.0, 2.0)
+
+  with pytest.raises(ValueError, match=match):
+    posterior(np.array([log_likelihood]), grid, uniform_log_prior(-1.0, 1.0))
+
+
 @pytest.mark.parametrize("shape", [(121,), (2, 120), (2, 121, 1)])
 def test_a_log_likelihood_that_is_not_examinees_by_nodes_is_an_error(shape: tuple[int, ...]) -> None:
   """A log-likelihood that is not one row per examinee and one column per node is an error, not a broadcast."""

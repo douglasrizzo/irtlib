@@ -343,16 +343,17 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
     )
     raise ValueError(msg)
   log_masses = _log_masses(grid, log_prior)
-  undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
-  if undefined.any():
-    msg = f"the log-likelihood is NaN or +inf for the examinees in rows {numpy.flatnonzero(undefined).tolist()}"
-    raise ValueError(msg)
-  log_joint = log_likelihood + log_masses
-  massless = ~numpy.isfinite(log_joint).any(axis=1)
-  if massless.any():
-    msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
-    raise ValueError(msg)
-  return _normalized(log_joint)
+  # A log-likelihood finite at every node passes the checks of the rows: the masses are finite at some node.
+  if not numpy.isfinite(log_likelihood).all():
+    undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
+    if undefined.any():
+      msg = f"the log-likelihood is NaN or +inf for the examinees in rows {numpy.flatnonzero(undefined).tolist()}"
+      raise ValueError(msg)
+    massless = ~numpy.isfinite(log_likelihood + log_masses).any(axis=1)
+    if massless.any():
+      msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
+      raise ValueError(msg)
+  return _normalized(log_likelihood + log_masses)
 
 
 def posterior_mean(post: FloatArray, nodes: FloatArray) -> FloatArray:
