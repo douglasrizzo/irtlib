@@ -28,7 +28,7 @@ estimate; mirt's manual advises removing such items or using priors (p. 132).
     (manual pp. 122, 131).
   - The 1PL: a common slope estimated with that normal ability distribution.
   - Conditional maximum likelihood: difficulties summing to zero.
-  - Joint maximum likelihood: LOGIST's and BICAL's conventions (`backlog/estimation/jml.md`).
+  - Joint maximum likelihood: LOGIST's for the 2PL, BICAL's for the Rasch model (`irtlib.jml`).
 - **Priors.** mirt's densities on mirt's parameters: lognormal on the slope, normal on the
   intercept, and normal on the logits of $c$ and $d$. A prior is given per parameter and applies to
   every item. There is no default prior; the 3PL's documentation recommends one.
@@ -38,17 +38,15 @@ estimate; mirt's manual advises removing such items or using priors (p. 132).
 - **Items with no finite estimate.** Marginal maximum likelihood raises an error listing them,
   unless priors keep their estimates finite. Conditional and joint maximum likelihood leave out and
   report those answered by all or none, as their sources do (Gustafsson, 1980, p. 379; Mislevy &
-  Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294); conditional maximum likelihood raises one
-  for any other (Haberman, 2004, pp. 37-38).
+  Stocking, 1989, p. 65; Wright & Douglas, 1977, p. 294); conditional maximum likelihood, and joint
+  for the Rasch model, raise one for any other (Haberman, 2004, pp. 11, 37-38).
 
 ## Consequences
 
 - Priors use mirt's definitions, so the parity tests cover calibrations with priors.
 - A caller who wants Mislevy's priors must translate them: BILOG's defaults are not mirt's.
-- The common-slope 1PL converges faster than the `"Rasch"` form and needs no estimated variance;
-  the `"Rasch"` form waits for a need.
-- A 3PL calibrated without a prior may put guessing estimates at the boundary; its documentation
-  recommends a prior.
+- The `"Rasch"` form, which needs an estimated variance, waits for a need.
+- A 3PL calibrated without a prior may put guessing estimates at the boundary.
 
 ## Alternatives Considered
 

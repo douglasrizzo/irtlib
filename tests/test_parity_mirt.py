@@ -31,6 +31,7 @@ from scipy.special import expit, logit, logsumexp
 from scipy.stats import lognorm, norm
 
 from irtlib import ItemBank, irt
+from irtlib._m_step import _prior_terms, _PriorTerm  # noqa: PLC2701 - mirt's log-prior at its estimates
 from irtlib.ability import (
   AbilityEstimates,
   expected_a_posteriori,
@@ -46,14 +47,7 @@ from irtlib.fit import (
   mean_squares,
   s_x2,
 )
-from irtlib.mml import (
-  Acceleration,
-  MMLCalibrator,
-  Priors,
-  _prior_terms,  # noqa: PLC2701
-  _PriorTerm,  # noqa: PLC2701 - the prior densities are compared with mirt's log-prior at its estimates
-  marginal_log_likelihood,
-)
+from irtlib.mml import Acceleration, MMLCalibrator, Priors, marginal_log_likelihood
 from irtlib.quadrature import QuadratureGrid
 from tests.mirt_fixtures import load, responses
 
