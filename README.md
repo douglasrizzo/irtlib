@@ -20,8 +20,8 @@ comparison, is implemented and checked against the R package mirt; conditional m
 calibration of the Rasch model, and joint maximum likelihood calibration of the Rasch model and the
 2PL, against published values and closed forms. The response functions, the quadrature grid and
 priors, the item bank and ability estimation, taken from catsim, are implemented too, and irtlib
-runs on NumPy and SciPy alone. The other calibration methods come next. Nothing is published on
-PyPI.
+runs on NumPy and SciPy alone; its plots need matplotlib, which the `plot` extra installs. The other
+calibration methods come next. Nothing is published on PyPI.
 
 ## Install from source
 
