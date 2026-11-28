@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import functools
 import math
+import re
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -199,14 +200,16 @@ def test_uncorrected_rasch_estimates_maximize_the_joint_likelihood(data: FloatAr
   out over every examinee and item, and each standard error is Wright and Douglas's (1977, p. 285) Equation 16 there.
 
   SciPy maximizes over every examinee's ability and difficulties that sum to zero, the examinees with no item or every
-  item correct left out. Fails if the item step or the ability step stops short of its maximum, the examinees of a
-  number correct do not share an ability, or the difficulties are not centred.
+  item correct left out. The log-likelihood, flat at its maximum, moves by the square of the estimates' error: within
+  1e-10 of the maximum, against 1e-8 to 2e-8 below it when the ability step's search stops at 1e-4 (measured
+  2026-11-28). Fails if the item step or the ability step stops short of its maximum, the examinees of a number correct
+  do not share an ability, or the difficulties are not centred.
   """
   matrix = _kept(data)
   _, difficulty, theta, maximum = _brute_force_maximum(matrix, rasch=True)
   calibration = JMLCalibrator("1PL", correct=False).calibrate(data)
   np.testing.assert_allclose(calibration.estimates[:, 1], difficulty, atol=1e-5)
-  np.testing.assert_allclose(calibration.log_likelihood, maximum, rtol=1e-10)
+  np.testing.assert_allclose(calibration.log_likelihood, maximum, rtol=0, atol=1e-10)
   probability = expit(theta[:, np.newaxis] - difficulty)
   assert calibration.standard_errors is not None
   np.testing.assert_allclose(
@@ -241,16 +244,17 @@ def test_two_pl_estimates_maximize_the_joint_likelihood() -> None:
   item, on LOGIST's scale, and its parameters are counted as Baker (1987, p. 112) counts them, 2M + N - 2.
 
   SciPy maximizes over every examinee's ability, slope and intercept, the examinees with no item or every item correct
-  left out, and the abilities are then standardized to mean 0 and standard deviation 1, the items moved with them.
-  Fails if the scale is fixed otherwise, the item step or the ability step stops short of its maximum, or the
-  identification changes the likelihood.
+  left out, and the abilities are then standardized to mean 0 and standard deviation 1, the items moved with them. The
+  log-likelihood is within 1e-9 of the maximum, against 1.2e-7 below it when the ability step's search stops at 1e-4
+  (measured 2026-11-28). Fails if the scale is fixed otherwise, the item step or the ability step stops short of its
+  maximum, or the identification changes the likelihood.
   """
   slope, difficulty, _, maximum = _two_pl_maximum()
   calibration = _two_pl_calibration()
   assert calibration.converged
   np.testing.assert_allclose(calibration.estimates[:, 0], slope, atol=1e-5)
   np.testing.assert_allclose(calibration.estimates[:, 1], difficulty, atol=1e-5)
-  np.testing.assert_allclose(calibration.log_likelihood, maximum, rtol=1e-10)
+  np.testing.assert_allclose(calibration.log_likelihood, maximum, rtol=0, atol=1e-9)
   assert calibration.likelihood is Likelihood.JOINT
   assert calibration.grid is None
   assert calibration.n_parameters == 2 * 20 + _kept(_two_pl_responses()).shape[0] - 2
@@ -294,7 +298,8 @@ def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:
   right for every examinee left and goes; without it, the 1001 examinees have no item right and go (Wright & Douglas,
   1977, p. 294). The second and third items follow the two-item closed form of the 12 and the 4 examinees, twice the
   conditional one (p. 288). The bank leaves the first and fourth out with a warning naming them, and the 16 examinees
-  left add one ability each to the one free difficulty (Baker, 1987, p. 112). A single pass keeps the first item.
+  left add one ability each to the one free difficulty (Baker, 1987, p. 112). The default correction multiplies them by
+  (M - 1) / M for the M = 2 items kept, 1/2, where the four columns would give 3/4. A single pass keeps the first item.
   """
   patterns = np.array([[1, 0, 0, 1], [1, 1, 0, 1], [1, 0, 1, 1], [0, 0, 0, 1]], dtype=float)
   matrix = np.repeat(patterns, [5, 12, 4, 6], axis=0)
@@ -310,6 +315,9 @@ def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:
   assert calibration.items.names == ("item_1", "item_2")
   assert calibration.n_parameters == 1 + 16
   np.testing.assert_array_equal(calibration.item_parameters, [0, 1, 1, 0])
+  with pytest.warns(RuntimeWarning, match="NaN or infinite parameters"):
+    corrected = JMLCalibrator("1PL").calibrate(matrix)
+  np.testing.assert_allclose(corrected.estimates[:, 1], [np.nan, -difference / 2, difference / 2, np.nan], atol=1e-9)
 
 
 @pytest.mark.parametrize("model", ["1PL", "2PL"])
@@ -367,26 +375,32 @@ def test_recovery_of_two_pl_parameters() -> None:
   np.testing.assert_allclose(calibration.estimates[:, 1], difficulties, atol=0.4)
 
 
-def test_a_miskeyed_item_stops_the_cycles() -> None:
-  """An item scored in reverse gets a slope that is not positive in the first item step, which stops the cycles.
+def test_a_miskeyed_item_stops_the_cycles_at_the_last_complete_cycle() -> None:
+  """An item scored in reverse gets a slope that is not positive in the first item step, which stops the cycles there,
+  with the last complete cycle's state, and the warning names the items by their columns in the responses.
 
   On the 2PL responses with the last item's scoring reversed, the examinees who answer it correctly are those of low
-  starting ability, so its slope given those abilities is negative; the ability step takes positive slopes only.
-  The calibration returns flagged as not converged after one cycle, and the bank calls the item miskeyed.
+  starting ability, so its slope given those abilities is negative; the ability step takes positive slopes only. A first
+  column right for every examinee is left out, so the reversed item is the twentieth item kept and the 21st column. No
+  cycle is complete, so the result holds the starting values, every slope positive, and the bank leaves out only the
+  first column. Fails if the warning numbers the items kept, or the result pairs the item step's slopes with the
+  abilities of the cycle before.
   """
-  matrix = _two_pl_responses().copy()
+  matrix = np.column_stack([np.ones(400), _two_pl_responses()])
   matrix[:, -1] = 1 - matrix[:, -1]
   with pytest.warns(RuntimeWarning) as caught:
     calibration = JMLCalibrator().calibrate(matrix)
   messages = [str(warning.message) for warning in caught]
   assert any(
-    warning.category is ConvergenceWarning and "rows [19] of the items kept a slope that is not positive" in message
+    warning.category is ConvergenceWarning
+    and re.search(r"columns \[20\] a slope that is not positive, and the item in column \d+ the largest slope", message)
     for warning, message in zip(caught, messages, strict=True)
   ), messages
-  assert any("item_19" in message and "miskeyed" in message for message in messages), messages
+  assert any("NaN or infinite parameters for 0 ('item_00')" in message for message in messages), messages
+  assert not any("item_20" in message for message in messages), messages
   assert not calibration.converged
-  assert calibration.cycles == 1
-  assert calibration.estimates[19, 0] < 0
+  assert calibration.cycles == 0
+  assert np.all(calibration.estimates[1:, 0] > 0)
 
 
 # Responses of three items whose first item the starting abilities separate, each row a pattern and its count: right
@@ -408,14 +422,20 @@ def test_abilities_that_separate_an_items_responses_stop_the_cycles(
   Hand-worked: the starting abilities rise with the number correct, so the first item discriminates perfectly, and its
   slope has no finite estimate (Baker, 1987, p. 117): strictly, or with correct and incorrect responses tied at the
   ability of one correct, where the likelihood still rises as the slope grows with the item's threshold at that
-  ability. The calibration returns flagged before its first cycle. Fails if the cycles run on, raising the first item's
-  slope at each, or if a tie is taken for no separation.
+  ability. A column right for every examinee comes first and is left out, so the item is the second column. The
+  calibration returns flagged before its first cycle. Fails if the cycles run on, raising the item's slope at each, if a
+  tie is taken for no separation, or if the warning numbers the items kept rather than the columns.
   """
-  matrix = np.repeat(np.array(patterns, dtype=float), counts, axis=0)
-  with pytest.warns(
-    ConvergenceWarning, match=r"separate the correct and incorrect responses to the items in rows \[0\]"
-  ):
+  rows = np.repeat(np.array(patterns, dtype=float), counts, axis=0)
+  matrix = np.column_stack([np.ones(len(rows)), rows])
+  with pytest.warns(RuntimeWarning) as caught:
     calibration = JMLCalibrator().calibrate(matrix)
+  messages = [str(warning.message) for warning in caught]
+  assert any(
+    warning.category is ConvergenceWarning
+    and "separate the correct and incorrect responses to the items in columns [1]," in message
+    for warning, message in zip(caught, messages, strict=True)
+  ), messages
   assert not calibration.converged
   assert calibration.cycles == 0
 

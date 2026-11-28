@@ -51,8 +51,9 @@ abilities are standardized. A calibration stops when no item parameter changes b
 :math:`10^{-6}` by default, in at most 500 cycles, the rule and the defaults of :py:mod:`irtlib.mml` (ADR-0007). Wright
 and Douglas stop when the mean squared change of the difficulties falls below :math:`10^{-4}` (p. 285, Equation 15),
 which stopped 0.0007 and 0.0009 short of the maximum on 20 items and on LSAT-6, where irtlib's rule stops within
-:math:`2 \times 10^{-7}` of it (measured 2026-11-27). The ability step compares likelihoods, which leaves changes of
-about :math:`10^{-8}` from cycle to cycle, so a tolerance below that is not met.
+:math:`2 \times 10^{-7}` of it (measured 2026-11-27). The ability step compares likelihoods, which can leave changes of
+about :math:`10^{-8}` from cycle to cycle, as on a 2PL of 20 items and 400 examinees, so a tolerance below that may not
+be met (measured 2026-11-28).
 
 **Bias and its correction for the Rasch model.** For the Rasch model, Wright and Douglas write each difficulty
 estimate as the conditional one plus a bias, :math:`d_i^* = d_i + a_{ri}` at score :math:`r`, approximating the bias by
@@ -83,10 +84,18 @@ intervals" for the difficulties cannot be built from them (:cite:t:`Haberman2004
 
 Under the 2PL a slope can grow without bound, as large slopes and the abilities of the examinees who answer those items
 correctly feed each other from cycle to cycle, the Heywood case; LOGIST imposes upper limits on the slopes
-(:cite:t:`Baker1987`, p. 113). irtlib imposes none. An item whose correct responses the abilities all put at or above
-its incorrect ones, or at or below, discriminates perfectly, and its slope has no finite estimate (p. 117), so the
-cycles stop before such an item step; they stop too after an item step that gives a slope that is not positive, as a
-miskeyed item can, since the ability step needs positive slopes. Either way the result says so.
+(:cite:t:`Baker1987`, p. 113), and "the maximizing values for item discriminations under the 2PL ... are sometimes
+infinite" (:cite:t:`Mislevy1989`, p. 62). irtlib imposes no limit. An item whose correct responses the abilities all put
+at or above its incorrect ones, or at or below, discriminates perfectly, and its slope has no finite estimate
+(:cite:t:`Baker1987`, p. 117), so the cycles stop before such an item step; they stop too at an item step that gives a
+slope that is not positive, since the ability step needs positive slopes. Either way the result holds the last complete
+cycle and says so. On short tests this is the usual outcome. On LSAT-6 and LSAT-7, five items and 1,000 examinees,
+the cycles stopped after 3 and 2 at an item step that gave one slope a value that was not positive and another 3.53 and
+7.21. On random 2PL tests, slopes uniform on [0.7, 2], difficulties on [-1.5, 1.5] and abilities normal, the cycles
+stopped on all 50 tests of 8 items and 300 examinees (38 at a separation, 12 at a slope that was not positive), on 19 of
+20 of 10 items and 500 examinees, 13 of 20 of 15 and 500, and 3 of 20 of 20 and 500, and on none of 10 tests each of 20
+and 30 items with 1,000 examinees (measured 2026-11-28). The authors of LOGIST advise at least 20 items per examinee and
+800 to 1,000 examinees per item (:cite:t:`Mislevy1989`, p. 61).
 
 The ability estimates are not part of the result (ADR-0006): with the correction off, maximum likelihood abilities at
 the estimated items are the joint ones, within the tolerance. JML needs complete responses, as its sources write it, an
@@ -121,10 +130,6 @@ from .calibration import (
   validate_responses,
 )
 from .typing import BoolArray, FloatArray, IntArray
-
-# The ability step's search tolerance, well inside the stopping rule's, so that the abilities' rounding does not move
-# the items by as much as the rule allows.
-_ABILITY_TOLERANCE = 1e-9
 
 
 @dataclass(frozen=True, slots=True)
@@ -192,7 +197,9 @@ class JMLCalibrator:
 
   Each call to :py:meth:`calibrate` estimates the items of one complete response matrix together with the abilities
   of its examinees, with no assumption about their distribution. The estimates are not consistent for a test of fixed
-  length; they serve comparisons of calibration methods and preliminary estimates.
+  length; they serve comparisons of calibration methods and preliminary estimates. On short tests the 2PL's joint
+  maximum often does not exist, its slopes growing without bound; calibration then stops early with a
+  :py:class:`~irtlib.calibration.ConvergenceWarning`.
 
   Parameters
   ----------
@@ -269,9 +276,9 @@ class JMLCalibrator:
         any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates
         and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping
         rule is not met within ``max_cycles``, the 2PL's abilities separate an item's correct responses from its
-        incorrect ones, or an item step gives a slope that is not positive, the result says so and a
-        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if an item's information cannot be inverted, the
-        result has no standard errors and a ``RuntimeWarning`` is issued.
+        incorrect ones, or an item step gives a slope that is not positive, the result holds the last complete cycle,
+        says so, and a :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an
+        item's information cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.
 
     Raises
     ------
@@ -296,7 +303,7 @@ class JMLCalibrator:
     if rasch:
       _reject_separation(kept, items, Likelihood.JOINT)
     groups = _Groups.of(kept, rasch=rasch)
-    fit = self._cycle(groups, _start(groups, rasch=rasch), rasch=rasch)
+    fit = self._cycle(groups, _start(groups, rasch=rasch), columns=numpy.flatnonzero(items), rasch=rasch)
     if fit.failure is not None:
       warnings.warn(f"calibration stopped after {fit.cycles} cycles: {fit.failure}", ConvergenceWarning, stacklevel=2)
     kept_errors = _standard_errors(
@@ -330,14 +337,26 @@ class JMLCalibrator:
       grid=None,
     )
 
-  def _cycle(self, groups: _Groups, fit: _Fit, *, rasch: bool) -> _Fit:
+  def _cycle(self, groups: _Groups, fit: _Fit, *, columns: IntArray, rasch: bool) -> _Fit:
     """Run cycles of an item and an ability step until the rule is met, the cycles run out, or a slope has no estimate.
+
+    Parameters
+    ----------
+    groups : _Groups
+        The examinees kept, grouped.
+    fit : _Fit
+        The starting item parameters and abilities.
+    columns : numpy.ndarray
+        The column of the responses of each item kept, for the messages.
+    rasch : bool
+        Whether the model is the Rasch model.
 
     Returns
     -------
     _Fit
-        The item parameters and the abilities on the identified scale, the cycles run, the largest change of an item
-        parameter in the last cycle, and None if the rule was met, or else why the cycles stopped short of it.
+        The item parameters and the abilities of the last complete cycle, on the identified scale; the complete cycles
+        run; the largest change of an item parameter in the last of them; and None if the rule was met, or else why
+        the cycles stopped short of it.
     """
     free = fit.index >= 0
     values, theta, change = fit.values, fit.theta, math.inf
@@ -345,19 +364,20 @@ class JMLCalibrator:
       separated = numpy.array([], dtype=int) if rasch else groups.separated(theta)
       if separated.size:
         failure = (
-          f"the abilities separate the correct and incorrect responses to the items in rows {separated.tolist()} of "
-          "the items kept, so their slopes have no finite estimate"
+          f"the abilities separate the correct and incorrect responses to the items in columns "
+          f"{columns[separated].tolist()}, so their slopes have no finite estimate"
         )
         return _Fit(fit.index, values, theta, cycle - 1, change, failure)
       stepped = _m_step(values, fit.index, theta, groups.correct, groups.total, priors=())
-      change = float(numpy.max(numpy.abs(stepped[free] - values[free])))
       negative = numpy.flatnonzero(stepped[:, 0] <= 0)
       if negative.size:
+        largest = int(numpy.argmax(stepped[:, 0]))
         failure = (
-          f"the item step gave the items in rows {negative.tolist()} of the items kept a slope that is not positive"
+          f"the item step of the next cycle gave the items in columns {columns[negative].tolist()} a slope that is not "
+          f"positive, and the item in column {columns[largest]} the largest slope, {stepped[largest, 0]:.3g}"
         )
-        return _Fit(fit.index, stepped, theta, cycle, change, failure)
-      abilities = maximum_likelihood(groups.patterns, _to_items(stepped), tol=_ABILITY_TOLERANCE).theta
+        return _Fit(fit.index, values, theta, cycle - 1, change, failure)
+      abilities = maximum_likelihood(groups.patterns, _to_items(stepped)).theta
       stepped, theta = _identified(stepped, abilities, groups.sizes, rasch=rasch)
       change = float(numpy.max(numpy.abs(stepped[free] - values[free])))
       values = stepped
