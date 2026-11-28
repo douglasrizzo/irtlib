@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-24 cards: 7 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
+23 cards: 6 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
