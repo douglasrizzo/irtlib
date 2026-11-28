@@ -1,8 +1,8 @@
-# ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later
+# ADR-0002: NumPy and SciPy Are the Only Required Runtime Dependencies, on Python 3.12 and Later
 
 ## Status
 
-Accepted 2026-11-26; catsim removed 2026-11-27
+Accepted 2026-11-26; catsim removed 2026-11-27; plot extra added 2026-11-28
 
 ## Context
 
@@ -28,7 +28,8 @@ development lock file:
 
 ## Decision
 
-- irtlib's runtime dependencies are NumPy and SciPy, with catsim's floors.
+- irtlib's required runtime dependencies are NumPy and SciPy, with catsim's floors; the plot extra adds
+  matplotlib (ADR-0011).
 - catsim, at a fixed commit, is a development dependency of the benchmarks alone (ADR-0004), in a
   dependency group of its own that neither the tests nor CI install.
 - It supports Python 3.12 and later. Its development lock and local tools use 3.13, as catsim's do.
@@ -44,8 +45,8 @@ development lock file:
 - The code uses the Python 3.12 type-parameter syntax, and imports `override` from `typing`, with no
   compatibility module.
 - A catsim user on Python 3.11 cannot install irtlib.
-- Data-frame libraries, plotting libraries and file formats other than the bank's CSV stay out of
-  irtlib; its results are NumPy arrays that those libraries read.
+- Data-frame libraries and file formats other than the bank's CSV stay out of irtlib; its results are
+  NumPy arrays that those libraries read.
 
 ## Alternatives Considered
 
@@ -55,6 +56,6 @@ development lock file:
   group of users.
 - Python 3.14, for free threading: a thread-parallel M-step gains on free-threaded builds under any
   floor (`backlog/estimation/free-threaded-m-step.md`), so the floor need not exclude 3.12 and 3.13.
-- An optional dependency for plotting or data frames: no feature needs one yet.
+- An optional dependency for data frames: no feature needs one yet.
 - catsim as an optional extra for the benchmarks: it would be part of the published package's
   metadata, offered to users, for code that only contributors run.

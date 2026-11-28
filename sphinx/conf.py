@@ -9,6 +9,8 @@ import re
 import sys
 from importlib.metadata import version as get_version
 
+from matplotlib import rc_params_from_file
+
 # Sphinx runs this file from the sphinx/ directory.
 sys.path.insert(0, str(pathlib.Path("../src").resolve()))
 
@@ -26,7 +28,19 @@ extensions = [
   "myst_parser",
   "sphinxcontrib.bibtex",
   "sphinx_design",
+  "matplotlib.sphinxext.plot_directive",
 ]
+
+# The plot directive embeds the first format in the page, so figures are vector SVG, sharp on any screen. Every
+# figure takes the documentation's style, _static/figures.mplstyle. The tight bounding box keeps labels that sit
+# outside the axes inside the image. The links to other formats and to the figure's source are left out.
+plot_formats = [("svg", 100)]
+plot_rcparams = {
+  **rc_params_from_file("_static/figures.mplstyle", use_default_template=False),
+  "savefig.bbox": "tight",
+}
+plot_html_show_formats = False
+plot_html_show_source_link = False
 
 myst_enable_extensions = [
   "colon_fence",
@@ -53,6 +67,7 @@ intersphinx_mapping = {
     "python": "https://docs.python.org/3/",
     "numpy": "https://numpy.org/doc/stable/",
     "scipy": "https://docs.scipy.org/doc/scipy/",
+    "matplotlib": "https://matplotlib.org/stable/",
   }.items()
 }
 
@@ -138,6 +153,19 @@ nitpick_ignore = [
 ]
 
 
+def _own(defined_in: str, module: str) -> bool:
+  """Return whether an object defined in ``defined_in`` is ``module``'s own: defined there or in a private submodule.
+
+  A package such as irtlib.plot defines its functions in private submodules and documents them at its own path.
+
+  Returns
+  -------
+  bool
+      Whether the object belongs to ``module``'s public API.
+  """
+  return defined_in == module or defined_in.startswith(f"{module}._")
+
+
 def _unvalidated() -> set[str]:
   """Name the objects whose docstrings numpydoc's validation skips, as regular expressions.
 
@@ -157,7 +185,7 @@ def _unvalidated() -> set[str]:
     for name, obj in vars(module).items():
       if isinstance(obj, type) and issubclass(obj, enum.Enum):
         patterns.add(rf"^irtlib(\.\w+)?\.{name}$")
-      elif not name.startswith("_") and getattr(obj, "__module__", info.name) != info.name:
+      elif not name.startswith("_") and not _own(getattr(obj, "__module__", info.name), info.name):
         patterns.add(rf"^{re.escape(info.name)}\.{name}$")
   return patterns
 
