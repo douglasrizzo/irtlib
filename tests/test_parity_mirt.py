@@ -45,6 +45,7 @@ from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
   _mean_squares,  # noqa: PLC2701 - mirt's guards are compared at the abilities it was given
   mean_squares,
+  person_mean_squares,
   s_x2,
 )
 from irtlib.mml import Acceleration, MMLCalibrator, Priors, marginal_log_likelihood
@@ -72,6 +73,7 @@ _STANDARDIZED_ATOL = 1e-3
 
 _MML_EM = load("mml_em")
 _ITEM_FIT = load("item_fit")
+_PERSON_FIT = load("person_fit")
 _MML_PRIORS = load("mml_priors")
 _COMPARISON = load("comparison")
 _RESPONSE_FUNCTIONS = load("response_functions")
@@ -319,6 +321,43 @@ def test_mean_square_guards() -> None:
   log_p, log_q = irt.log_response_probabilities(np.array(case["theta"], dtype=float), np.array(case["items"]))
   fit = _mean_squares(np.array(case["responses"], dtype=float), np.exp(log_p), np.exp(log_q))
   for name, mirt_name in _MEAN_SQUARES.items():
+    np.testing.assert_allclose(getattr(fit, name), case[mirt_name], rtol=_CLOSED_FORM_RTOL, err_msg=name)
+
+
+# The examinees of the person-fit fixture whose abilities were drawn from N(0, 1); the last four answer against
+# abilities 7 logits or more from most items.
+_DRAWN = slice(0, -4)
+
+
+def test_person_fit_fixture_infit_is_wright_and_masters() -> None:
+  """mirt's infit of each drawn examinee is the sum of squared residuals over the sum of variances, written out.
+
+  The probabilities are those of the 4PL at the fixture's items and abilities (Wright & Masters, 1982, p. 108,
+  Equation 5.7.6), none of them close enough to 0 or 1 for mirt's floor on a variance. Fails if the fixture's items
+  were set up in mirt with their difficulties, guessing or upper asymptotes misread.
+  """
+  case = _PERSON_FIT["cases"][0]
+  slope, difficulty, guessing, upper = np.array(_PERSON_FIT["items"]).T
+  theta = np.array(case["theta"])[_DRAWN, np.newaxis]
+  p = guessing + (upper - guessing) * expit(slope * (theta - difficulty))
+  matrix = responses(case["data"])[_DRAWN]
+  infit = np.sum((matrix - p) ** 2, axis=1) / np.sum(p * (1 - p), axis=1)
+  np.testing.assert_allclose(case["infit"][_DRAWN], infit, rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("case", _PERSON_FIT["cases"], ids=operator.itemgetter("id"))
+def test_person_mean_squares(case: dict[str, Any]) -> None:
+  """Each examinee's mean squares and their standardized values match mirt's personfit at the same abilities.
+
+  2PL, 3PL and 4PL items of fixed parameters, and four examinees whose variances fall under mirt's floor and whose
+  outfit's standard deviation exceeds its cap. With missing responses, the sums run over the answered items; mirt then
+  divides the first term of the outfit's variance by the square of the number of all items where irtlib takes that of
+  the answered items (R/personfit.R:204), so the standardized outfit is compared on complete responses only. Fails if
+  the examinee's sums run over the wrong axis or count a missing response, or a guard is dropped.
+  """
+  fit = person_mean_squares(responses(case["data"]), np.array(_PERSON_FIT["items"]), np.array(case["theta"]))
+  compared = _MEAN_SQUARES if case["id"] == "complete" else {"outfit": "outfit", "infit": "infit", "infit_t": "z_infit"}
+  for name, mirt_name in compared.items():
     np.testing.assert_allclose(getattr(fit, name), case[mirt_name], rtol=_CLOSED_FORM_RTOL, err_msg=name)
 
 
