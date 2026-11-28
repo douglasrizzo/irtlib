@@ -111,8 +111,9 @@ class JMLCalibrator:
       Whether to multiply the difficulties of the Rasch model by ``(M - 1) / M``, for ``M`` items kept, once the
       likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.
   correct_errors : bool, optional
-      Whether to multiply the difficulties' standard errors by ``(M - 1) / M`` too, when the difficulties are
-      corrected. Default is False, which keeps the standard errors of the estimates before the correction.
+      Whether to multiply the difficulty's row and column of each item's covariances by ``(M - 1) / M`` too, and so
+      its standard error by that factor, when the difficulties are corrected. Default is False, which keeps the
+      covariances of the estimates before the correction.
   tolerance : float, optional
       The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step
       and an ability step. Default is 1e-6.
@@ -162,8 +163,8 @@ class JMLCalibrator:
     self._correct = self._model is IrtModel.PL1 if correct is None else correct
     if correct_errors and not self._correct:
       msg = (
-        "correct_errors multiplies the standard errors by the correction (M - 1) / M, which this calibrator does not "
-        f"apply: the {self._model} with correct={correct}"
+        "correct_errors multiplies the difficulties' covariances by the correction (M - 1) / M, which this calibrator "
+        f"does not apply: the {self._model} with correct={correct}"
       )
       raise ValueError(msg)
     self._correct_errors = correct_errors
@@ -197,7 +198,8 @@ class JMLCalibrator:
         the 2PL's abilities separate an item's correct responses from its incorrect ones, or an item step gives a slope
         that is not positive, the result holds the last complete cycle, says so, and a
         :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an item's information
-        cannot be inverted, the result has no covariances or standard errors and a ``RuntimeWarning`` is issued.
+        cannot be inverted, or gives a variance that is not positive, the result has no covariances or standard errors
+        and a ``RuntimeWarning`` is issued.
 
     Raises
     ------
@@ -230,8 +232,8 @@ class JMLCalibrator:
     )
     if kept_covariances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no covariances or standard errors; "
-        "an item may have no finite estimate",
+        "the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "
+        "reports no covariances or standard errors; an item may have no finite estimate",
         RuntimeWarning,
         stacklevel=2,
       )

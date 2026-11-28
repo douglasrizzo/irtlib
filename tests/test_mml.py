@@ -282,13 +282,13 @@ def test_covariances_invert_the_brute_force_hessian(
   model: str, guessing: tuple[float, float] | None, estimated: list[int]
 ) -> None:
   """Each item's covariances are its block of the inverse of the brute-force Hessian of the log-posterior in a, b and
-  c, and NaN in the rows and columns of the parameters not estimated.
+  c, exactly symmetric, and NaN in the rows and columns of the parameters not estimated.
 
   At the maximum, the inverse Hessian in a, b and c is the delta method's transform of the inverse in the slope, the
   intercept and the logit of c, so differencing the log-posterior in a, b and c checks the delta method and Oakes's
   identity at once. The 1PL's one slope is a single free parameter, whose variance and covariance with each
   difficulty every item's matrix holds. Fails if an item's matrix leaves out the shared slope, takes c's derivative
-  wrong, or leaves a parameter not estimated with a covariance.
+  wrong, keeps the asymmetry the products leave by rounding, or leaves a parameter not estimated with a covariance.
   """
   priors = Priors() if guessing is None else Priors(guessing=guessing)
   calibration = MMLCalibrator(model, priors=priors, tolerance=1e-10).calibrate(_LSAT7)
@@ -319,6 +319,8 @@ def test_covariances_invert_the_brute_force_hessian(
     np.testing.assert_allclose(
       calibration.covariances[item][np.ix_(estimated, estimated)], covariance[np.ix_(free, free)], rtol=1e-4
     )
+  # NaN compares equal to NaN here, so the matrices must agree with their transposes entry for entry
+  np.testing.assert_array_equal(calibration.covariances, calibration.covariances.transpose(0, 2, 1))
   fixed = [column for column in range(4) if column not in estimated]
   assert np.all(np.isnan(calibration.covariances[:, fixed]))
   assert np.all(np.isnan(calibration.covariances[:, :, fixed]))

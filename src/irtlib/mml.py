@@ -281,9 +281,9 @@ class MMLCalibrator:
         which do not count the extrapolations of an acceleration, and the largest change of a parameter in the last
         one. If the stopping rule is not met within ``max_cycles``, the result says so and a
         :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted,
-        the result has no covariances or standard errors and a ``RuntimeWarning`` is issued; if an item's estimates
-        are not valid in an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves
-        the item out and a ``RuntimeWarning`` names it.
+        or gives a variance that is not positive, the result has no covariances or standard errors and a
+        ``RuntimeWarning`` is issued; if an item's estimates are not valid in an item bank, such as a miskeyed item's
+        slope that is not positive, the result's bank leaves the item out and a ``RuntimeWarning`` names it.
 
     Raises
     ------
@@ -321,8 +321,8 @@ class MMLCalibrator:
     covariances = _covariances(values, index, _observed_information(matrix, values, index, self._grid, self._priors))
     if covariances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no covariances or standard errors; "
-        "the model may not be identified by these responses",
+        "the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "
+        "reports no covariances or standard errors; the model may not be identified by these responses",
         RuntimeWarning,
         stacklevel=2,
       )

@@ -93,19 +93,20 @@ counted once, and an extrapolation with a parameter that is not finite, or a gue
 above its upper asymptote, is not kept. The extrapolation is not a cycle: the stopping rule applies to
 every cycle, an EM step with or without acceleration.
 
-**Standard errors and covariances.** The standard errors are the square roots of the inverse observed
-information at the estimates, by Oakes's identity {cite:p}`Oakes1999{p. 480}`: the score of the
-marginal log-likelihood is the M-step's gradient at the E-step's own parameters (Equation 5), and its
-derivative as both move together is the observed-data Hessian, the sum of the complete-data Hessian
-and the missing information (Equation 6). That score, log-prior included, is differenced centrally
-with step $10^{-5}$, the E-step recomputed at each shifted point, so the posterior precision takes in
-the log-prior's second derivative {cite:p}`Mislevy1986{p. 182, Equations 15-17}`; the result is
-symmetrized, which {cite:t}`Chalmers2018{p. 17}` finds improves it
-({doc}`ADR-0007 </adr/0007-mml-em-settings>`). The inverse is the estimates' asymptotic covariance
-matrix {cite:p}`Chalmers2018{p. 1}`. The covariance of each item's $a$, $b = -\zeta / \lambda$, $c$
-and $d$ follows from that item's block of it by the delta method, the 1PL's block holding the shared
-slope's variance and its covariances with the item's own parameters, and their standard errors are
-the square roots of its diagonal.
+**Standard errors and covariances.** The covariance of the estimated parameters, the slopes
+$\lambda$, the intercepts $\zeta$ and the logits of $c$ and $d$, is the inverse of the observed
+information at the estimates {cite:p}`Chalmers2018{p. 4}`, computed by Oakes's identity
+{cite:p}`Oakes1999{p. 480}`: the score of the marginal log-likelihood is the M-step's gradient at the
+E-step's own parameters (Equation 5), and its derivative as both move together is the observed-data
+Hessian, the sum of the complete-data Hessian and the missing information (Equation 6). That score,
+log-prior included, is differenced centrally with step $10^{-5}$, the E-step recomputed at each
+shifted point, so the posterior precision takes in the log-prior's second derivative
+{cite:p}`Mislevy1986{p. 182, Equations 15-17}`; the result is symmetrized, which
+{cite:t}`Chalmers2018{p. 17}` finds improves it ({doc}`ADR-0007 </adr/0007-mml-em-settings>`). The
+covariance of each item's $a$, $b = -\zeta / \lambda$, $c$ and $d$ follows from that item's block of
+it by the delta method, a 1PL's block, when its common slope is estimated, holding the slope's
+variance and its covariances with the item's own parameters; the standard errors are the square
+roots of its diagonal.
 
 **Starting values.** The slope 0.851, the intercept $\Phi^{-1}(p_i) \cdot 1.702 / \sqrt{0.75}$, or 2
 where $p_i$ is 0 or 1, the guessing parameter 0.15 and the upper asymptote 0.85, where $p_i$ is item
@@ -121,8 +122,8 @@ the proportion correct as a starting intercept.
 - **Without priors** the parity tests find the estimates within $10^{-5}$ of mirt's recorded at
   `TOL = 1e-8`, the log-likelihoods within a relative $10^{-10}$, and the standard errors within a
   relative $10^{-4}$, for the 1PL, the 2PL and fixed slopes, on the LSAT 6 and LSAT 7 data and on
-  simulated data; each item's covariance of $a$ and $b$, from mirt's covariance matrix of the slopes
-  and intercepts, agrees within a relative $2 \times 10^{-4}$ for the 1PL and the 2PL
+  simulated data; each item's covariance matrix of $a$ and $b$, from mirt's covariance matrix of the
+  slopes and intercepts, agrees within a relative $2 \times 10^{-4}$ for the 1PL and the 2PL
   ({doc}`ADR-0003 </adr/0003-mirt-as-the-reference>`).
 - **With priors** the estimates and standard errors agree as closely on the LSAT 7 3PL. On the
   simulated 2PL, 3PL and 4PL, mirt reports convergence where the gradient of the marginal
