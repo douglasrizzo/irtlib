@@ -316,7 +316,7 @@ def test_a_grid_prior_is_unchanged_by_later_changes_to_its_grid() -> None:
   """Changing the grid's arrays after building a GridPrior changes neither its nodes nor its posterior.
 
   A GridPrior that kept the grid's nodes array, rather than a copy, would pair the changed nodes with masses computed on
-  the old ones.
+  the old ones; one whose own nodes were writable would let a caller do the same to them.
   """
   nodes = _NODES.copy()
   grid_prior = GridPrior(QuadratureGrid(nodes=nodes, weights=_WEIGHTS), normal_log_prior(_PRIOR_MEAN, _PRIOR_SD))
@@ -327,6 +327,8 @@ def test_a_grid_prior_is_unchanged_by_later_changes_to_its_grid() -> None:
 
   np.testing.assert_array_equal(grid_prior.nodes, _NODES)
   np.testing.assert_array_equal(grid_prior.posterior(log_likelihood), before)
+  with pytest.raises(ValueError, match="read-only"):
+    grid_prior.nodes[0] = 5.0
 
 
 def test_a_grid_prior_rejects_a_prior_without_mass_on_its_grid_when_built() -> None:

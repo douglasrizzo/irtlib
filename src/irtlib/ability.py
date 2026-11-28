@@ -33,27 +33,28 @@ answered no item has a constant likelihood, which every ability maximizes: its e
 Where an item answered has :math:`c_i > 0` or :math:`d_i < 1`, the likelihood can have several maxima, and the search
 evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope :math:`a_i`
 above 2.5, 0.12 apart on [-6, 6], and otherwise :math:`\lceil 40 \max_i a_i \rceil + 1`, 0.3 divided by the steepest
-slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12. It refines the best between its
-neighbours by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the parabola
-through the three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and
-bisecting the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP
-estimate below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second derivative is :math:`-I`
-(see the MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the
-points: the estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first
-derivative, found by the same bracketed Newton's method from the middle of the range. On about 38,000 random mixed
-patterns of 1 to 60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201
-points found the global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole
-range, with no points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items,
-half of them with slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001
-in log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range
+slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12, up to 2,401 points, 0.005 apart, for
+slopes of 60 and above, so that a pathological slope cannot exhaust memory. It refines the best between its neighbours
+by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the parabola through the
+three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and bisecting
+the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP estimate
+below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second derivative is :math:`-I` (see the
+MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the points: the
+estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first derivative,
+found by the same bracketed Newton's method from the middle of the range. On about 38,000 random mixed patterns of 1 to
+60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201 points found the
+global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole range, with no
+points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items, half of them with
+slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001 in
+log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range
 starts as [-6, 6]. Beyond the lower end of the range, a correct response's probability is at most its value at the end,
 since it rises with the ability, and an incorrect one's at most :math:`1 - c_i`; beyond the upper end, a correct one's
 is at most :math:`d_i` and an incorrect one's at most its value at the end. While these bounds leave room beyond an end
 for a log-likelihood above both the best found and the two limits, that end moves out, twice as far each time, and the
-new stretch is searched the same way. The estimate is then the infinity of the larger limit, :math:`-\infty` of two
-equal ones, if that limit is at least the best value found, within a relative :math:`10^{-12}`, and the best ability
-found otherwise. After 64 moves of an end, which only items of a vanishing discrimination need, the search stops at the
-best ability found and warns.
+new stretch is searched the same way, with as many points as the range, so that their spacing doubles with each stretch.
+The estimate is then the infinity of the larger limit, :math:`-\infty` of two equal ones, if that limit is at least the
+best value found, within a relative :math:`10^{-12}`, and the best ability found otherwise. After 64 moves of an end,
+which only items of a vanishing discrimination need, the search stops at the best ability found and warns.
 
 mirt 1.48 also gives :math:`+\infty` or :math:`-\infty` to responses all correct or all incorrect
 (``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`, and NA to both
@@ -72,10 +73,11 @@ normal prior of variance :math:`\sigma^2` its standard error is :math:`1 / \sqrt
 for a normal prior, and for a uniform one, inside its support, the maximum likelihood standard error, as catR 3.17
 computes them (``R/semTheta.R:43-50, 82-89``). Where the difference is not finite, at the edge of a bounded prior's
 support, the prior adds nothing; where the sum is not positive, the standard error is :math:`\infty`. The search
-evaluates the log-posterior at equally spaced abilities within the bounds, as many as the maximum likelihood search
-under a normal prior and 201 under any other. Three or more tied at the maximum make a flat posterior, and the estimate
-is the middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so
-the estimate stays inside the prior's support and is the highest of the modes the points separate. With a normal prior
+evaluates the log-posterior at equally spaced abilities within the bounds: under a normal prior whose precision :math:`1
+/ \sigma^2` is a finite positive float, as many as the maximum likelihood search for the same items, and under any other
+prior 201, 0.06 apart on [-6, 6]. Three or more tied at the maximum make a flat posterior, and the estimate is the
+middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so the
+estimate stays inside the prior's support and is the highest of the modes the points separate. With a normal prior
 :math:`N(\mu, \sigma^2)` the refinement is the maximum likelihood search's Newton's method, with :math:`-(\theta - \mu)
 / \sigma^2` and :math:`-1 / \sigma^2` added to the derivatives, and on items that all have :math:`c_i = 0` and
 :math:`d_i = 1` the log-posterior is concave too, and the search skips the points as the maximum likelihood search does.
@@ -153,10 +155,13 @@ from .quadrature import (
 )
 from .typing import BoolArray, FloatArray, IntArray
 
-# Points on which a maximum is located before Newton's method refines it, at least: 0.12 apart on [-6, 6]. Above the
-# slope below, the spacing shrinks to 0.3 divided by the steepest slope answered (module docstring).
+# Points on which a maximum is located before Newton's method refines it: 101, 0.12 apart on [-6, 6], while no item
+# answered is steeper than _STEEP_SLOPE, and above it 0.3 divided by the steepest slope apart (module docstring).
 _NEWTON_SEARCH_POINTS = 101
-_TYPICAL_SLOPE = 2.5
+_STEEP_SLOPE = 2.5
+# The most points: 0.005 apart on [-6, 6], the spacing of a slope of 60, the steepest measured. Steeper items keep
+# it, so that a pathological slope cannot exhaust memory.
+_MAX_SEARCH_POINTS = 2401
 # Points on which a posterior mode under any prior but the normal is located before SciPy's bounded search refines it.
 _SEARCH_POINTS = 201
 # Equal maxima on this many search points mean a flat objective; two can flank a symmetric peak.
@@ -311,7 +316,11 @@ class _Examinee:
   def search_points(self) -> int:
     """The number of points a search with Newton's refinement locates the maximum on, from the steepest slope."""
     steepest = float(self.items[:, 0].max()) if self.items.size else 0.0
-    return max(_NEWTON_SEARCH_POINTS, math.ceil((_NEWTON_SEARCH_POINTS - 1) * steepest / _TYPICAL_SLOPE) + 1)
+    # a slope that is not finite gives the fewest points, on which the search then finds the objective not finite
+    if not math.isfinite(steepest):
+      return _NEWTON_SEARCH_POINTS
+    spaced = math.ceil((_NEWTON_SEARCH_POINTS - 1) * steepest / _STEEP_SLOPE) + 1
+    return min(_MAX_SEARCH_POINTS, max(_NEWTON_SEARCH_POINTS, spaced))
 
   def log_likelihood(self, theta: FloatArray) -> FloatArray:
     """Return the log-likelihood at each of an array of abilities."""
@@ -381,6 +390,7 @@ def _maximum(
   """
   if concave and derivatives is not None:
     return _concave_maximum(objective, derivatives, bounds, tol)
+  # the points are shared and read-only, so a prior that wrote into them, which would move the best point, raises
   nodes = _search_points(*bounds, n_points)
   values = objective(nodes)
   peak = float(numpy.max(values))
@@ -528,9 +538,9 @@ def expected_a_posteriori(
   TypeError
       If the responses are neither Booleans, integers nor floats.
   ValueError
-      If ``grid_prior`` is given with ``grid`` or ``log_prior``, ``items`` is not an ``(n, 4)`` matrix,
-      ``responses`` is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-prior is NaN
-      or +inf at a node or has no mass on the grid.
+      If ``grid_prior`` is given together with ``grid`` or ``log_prior``. Also if ``items`` is not an ``(n, 4)``
+      matrix, ``responses`` is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-prior
+      is NaN or +inf at a node or has no mass on the grid.
 
   Examples
   --------

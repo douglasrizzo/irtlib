@@ -461,15 +461,15 @@ class TestMaximumLikelihood:
     assert theta == pytest.approx(1.0, abs=1e-6)
     assert evaluations > 1
 
-  @pytest.mark.parametrize(("slope", "points"), [(1.0, 101), (5.0, 201)])
+  @pytest.mark.parametrize(("slope", "points"), [(1.0, 101), (10.0, 401), (1000.0, 2401)])
   def test_evaluations_count_the_search_points_and_the_refinement(self, slope: float, points: int) -> None:
     """Under the 3PL the count is the search points, each evaluation of the derivatives, and the refined point.
 
     The likelihood below falls across the whole range: the guessed correct answer to the far too hard item is worth c
     everywhere, and the incorrect answer to the easy one ever less. So the best point is the lower bound, its bracket
     reaches no lower, and one evaluation of the derivatives, pointing down, ends the refinement there. The points are
-    101 for slopes up to 2.5 and ceil(40 a) + 1 above, 201 for a slope of 5. A count of the refinement alone, without
-    the search points, or with points that ignore the slope, fails.
+    101 for slopes up to 2.5, ceil(40 a) + 1 above, 401 for a slope of 10, and at most 2,401. A count of the refinement
+    alone, without the search points, with points that ignore the slope, or with no cap on them, fails.
     """
     items = np.array([[slope, 10.0, 0.2, 1.0], [slope, -8.0, 0.2, 1.0]])
 
@@ -478,20 +478,26 @@ class TestMaximumLikelihood:
     assert estimates.theta[0] == -6.0
     assert estimates.evaluations[0] == points + 1 + 1
 
-  def test_steep_items_narrow_the_spacing_of_the_search_points(self) -> None:
-    """A peak narrower than 0.12, between two steep items, is the estimate: the argmax of the written-out likelihood.
+  @pytest.mark.parametrize("search", ["bounded", "unbounded", "map"])
+  def test_steep_items_narrow_the_spacing_of_the_search_points(self, search: str) -> None:
+    """A peak narrower than 0.06, between two steep items, is the estimate: the argmax of the written-out objective.
 
-    A correct answer to the item of slope 24.8 at -1.44 and an incorrect one to the item of slope 19.4 at -1.5 meet in a
-    peak about 0.06 wide near -1.48, 0.07 above the plateau below it in log-likelihood. Points 0.12 apart step over it
-    and stop at -6; spaced by 0.3 / 24.8 they find it.
+    A correct answer to the item of slope 56 at -0.62 and an incorrect one to the item of slope 36 at -0.68 meet in a
+    peak above the plateau below only on [-0.651, -0.612], 0.115 higher in log-likelihood. Points 0.06 apart, as 201
+    give, miss it and stop on the plateau; spaced by 0.3 / 56 they find it, with bounds, without them, and for MAP
+    under a wide normal prior.
     """
-    items = np.array([[15.8, 2.89, 0.18, 1.0], [24.8, -1.44, 0.14, 1.0], [19.4, -1.5, 0.14, 1.0]])
-    pattern = np.array([0.0, 1.0, 0.0])
-    fine = np.linspace(-6.0, 6.0, 120_001)
+    items = np.array([[56.0, -0.62, 0.05, 1.0], [36.0, -0.68, 0.16, 1.0]])
+    pattern = np.array([1.0, 0.0])
+    fine = np.linspace(-6.0, 6.0, 1_200_001)
+    log_prior = -0.5 * (fine / 10.0) ** 2 if search == "map" else 0.0
+    objective = _log_likelihood(fine, items, pattern) + log_prior
+    if search == "map":
+      estimates = maximum_a_posteriori(_rows(pattern), items, log_prior=normal_log_prior(0.0, 10.0))
+    else:
+      estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0) if search == "bounded" else None)
 
-    estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0))
-
-    assert estimates.theta[0] == pytest.approx(fine[np.argmax(_log_likelihood(fine, items, pattern))], abs=1e-4)
+    assert estimates.theta[0] == pytest.approx(fine[np.argmax(objective)], abs=1e-4)
 
   def test_a_concave_likelihood_skips_the_search_points(self) -> None:
     """Without guessing or slipping the log-likelihood is concave, and a maximum beyond a bound costs two evaluations.
@@ -654,6 +660,20 @@ class TestMaximumAPosteriori:
     """
     with pytest.raises(ValueError, match="not finite at any of the 201 search points"):
       maximum_a_posteriori(_rows([1.0, 0.0]), _ITEMS[:2], log_prior=normal_log_prior(0.33, 1e-200))
+
+  def test_a_prior_that_writes_into_the_abilities_it_is_given_raises(self) -> None:
+    """A prior must not write into the abilities it is given, and one that does raises instead of moving the estimate.
+
+    The prior below halves its argument in place. Given points it may write to, it halved the search's points too, and
+    the estimate came out at half the mode, 0.39 where the written-out log-posterior peaks at 0.78.
+    """
+
+    def in_place_prior(theta: FloatArray) -> FloatArray:
+      theta *= 0.5
+      return -2.0 * theta**2
+
+    with pytest.raises(ValueError, match="read-only"):
+      maximum_a_posteriori(_rows([1.0, 0.0, 1.0, 1.0]), _ITEMS, log_prior=in_place_prior)
 
   def test_evaluations_add_the_refinement_to_the_search_points(self) -> None:
     """Each estimate counts the 201 search points plus every posterior evaluation of the refinement.

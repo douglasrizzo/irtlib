@@ -49,7 +49,7 @@ from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED
 from .typing import FloatArray
 
 type LogPrior = Callable[[FloatArray], FloatArray]
-"""A log prior density: maps an array of abilities to their log-densities, elementwise."""
+"""A log prior density: maps an array of abilities to their log-densities, elementwise, without writing to the array."""
 
 _MIN_NODES = 2
 _POSTERIOR_NDIM = 2
@@ -301,14 +301,17 @@ class GridPrior:
   grid: QuadratureGrid
   log_prior: LogPrior
   nodes: FloatArray = field(init=False, repr=False)
-  """The grid's nodes when the prior was evaluated."""
-  _log_masses: FloatArray = field(init=False, repr=False)
+  """The grid's nodes when the prior was evaluated, read-only."""
+  _node_log_masses: FloatArray = field(init=False, repr=False)
   """Each node's log weight plus log prior density, checked."""
 
   def __post_init__(self) -> None:
-    """Copy the grid's nodes, and evaluate and check the prior on them."""
-    object.__setattr__(self, "nodes", self.grid.nodes.copy())
-    object.__setattr__(self, "_log_masses", _log_masses(self.grid, self.log_prior))
+    """Copy the grid's nodes, and evaluate and check the prior on them, both read-only."""
+    nodes, log_masses = self.grid.nodes.copy(), _log_masses(self.grid, self.log_prior)
+    nodes.setflags(write=False)
+    log_masses.setflags(write=False)
+    object.__setattr__(self, "nodes", nodes)
+    object.__setattr__(self, "_node_log_masses", log_masses)
 
   def posterior(self, log_likelihood: FloatArray) -> FloatArray:
     """Return each examinee's posterior over the nodes, from its log-likelihood at them.
@@ -329,7 +332,7 @@ class GridPrior:
         If ``log_likelihood`` is not of shape ``(examinees, nodes)``, if the log-likelihood is NaN or +inf at a node,
         or if an examinee's posterior has no mass at any node.
     """
-    return _posterior(log_likelihood, self._log_masses)
+    return _posterior(log_likelihood, self._node_log_masses)
 
 
 def _log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
