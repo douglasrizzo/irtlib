@@ -101,8 +101,9 @@ def test_g2_refuses_incomplete_or_mismatched_responses_and_saturated_models() ->
     g2(calibration, with_missing)
   with pytest.raises(ValueError, match="4 items, the calibration 5"):
     g2(calibration, _LSAT7[:, :4])
+  # the 1PL of two items has as many parameters as free pattern probabilities, and is identified
   with pytest.raises(ValueError, match="no degrees of freedom"):
-    g2(MMLCalibrator().calibrate(_LSAT7[:, :2]), _LSAT7[:, :2])
+    g2(MMLCalibrator("1PL").calibrate(_LSAT7[:, :2]), _LSAT7[:, :2])
 
 
 def test_g2_of_a_miskeyed_item_equals_g2_with_its_scoring_reversed() -> None:
