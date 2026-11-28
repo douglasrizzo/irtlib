@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-19 cards: 7 ready, 3 needs-research, 3 needs-decision, 2 blocked, 4 parked.
+21 cards: 8 ready, 3 needs-research, 4 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -47,6 +47,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
+| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | 4 |
 
 ## Priority 2
 
@@ -60,6 +61,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
+| [Estimate the abilities of many examinees in one vectorized search](estimation/vectorized-ability-estimation.md) | estimation | feature | ready | M |  | joint maximum likelihood PR on 2026-11-27 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
@@ -75,6 +77,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
+| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | needs-decision | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 

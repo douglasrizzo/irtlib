@@ -10,6 +10,12 @@ raised_by: [mean-squares PR on 2026-11-27]
 
 # Share the complete-response check of item fit and G²
 
+## Why this card exists
+
+Reviewing the mean squares PR (#28) found the same response checks written twice, once in
+`irtlib.fit` and once in `irtlib.comparison`. Sharing them meant moving a helper between modules,
+outside that PR's concern.
+
 ## Problem
 
 Three functions refuse missing responses and responses with another number of items than the

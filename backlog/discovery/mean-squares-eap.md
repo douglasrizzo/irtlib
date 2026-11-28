@@ -10,6 +10,12 @@ raised_by: [mean-squares PR on 2026-11-27]
 
 # Find how EAP abilities lower the mean squares on data that fit the Rasch model
 
+## Why this card exists
+
+The mean squares PR (#28) measured infit and outfit well below 1 on data drawn from the Rasch
+model, more than the sources explain. It kept mirt's EAP abilities, and on 2026-11-27 the
+maintainer chose a research card over a change.
+
 ## Problem
 
 `irtlib.fit.mean_squares` evaluates the outfit and infit, Wright and Masters' unweighted and
@@ -46,6 +52,17 @@ test cannot tell misfit from this lowering.
   (`tests/parity/mirt/item_fit.json`, the `mean_squares` cases).
 - mirt's own example notes that ML abilities agree better with the eRm package (source
   `R/itemfit.R:198-199`).
+- Other R packages choose differently (sources read on 2026-11-28):
+  - **TAM 4.3-25** has three ways to get the abilities (`man/msq.itemfit.Rd`):
+    - `msq.itemfit` evaluates "the individual posterior" instead of a point estimate;
+    - `tam.fit` simulates from it;
+    - `msq.itemfitWLE` uses weighted likelihood estimates (`R/msq.itemfitWLE.R:1-24`).
+  - **eRm 1.0-10** uses maximum likelihood abilities, leaving out the examinees with extreme
+    scores (`R/itemfit.ppar.R:6-10, 21-28`).
+  - **iarm 0.4.3** uses no ability estimate: it compares responses with their expectation given
+    the total score, "to avoid bias" ([fit/conditional-mean-squares](../fit/conditional-mean-squares.md)).
+  - No source on the shelf measures any of these against EAP abilities. Müller (2020), open at
+    doi:10.1186/s40488-020-00108-7, is a candidate to read.
 
 ## What irtlib and catsim have now
 
@@ -57,8 +74,12 @@ test cannot tell misfit from this lowering.
 
 Look for a published measurement or correction of the mean squares' expectation and variance
 when the abilities are EAP estimates, or other shrunken estimates, together with the items'
-estimates. Failing that, look for a source for another choice of abilities, such as maximum
-likelihood or weighted likelihood estimates, with its measured effect on the expectation. Bring
+estimates. Failing that, look for a source for another choice of abilities, with its measured
+effect on the expectation. The candidates are:
+- maximum likelihood estimates;
+- weighted likelihood estimates;
+- TAM's posterior-weighted residuals;
+- the conditional residuals of iarm, which need no abilities. Bring
 what is found to the maintainer. A change to the abilities or a correction would change ADR-0006's
 decision and the mirt parity settings.
 
@@ -72,3 +93,16 @@ decision and the mirt parity settings.
 
 1. Does a correction belong in irtlib, or a documented expectation below 1 with its size? The card
    assumes documentation until a source is found.
+
+## References
+
+- Müller, M. (2020). Item fit statistics for Rasch analysis: can we trust them? *Journal of
+  Statistical Distributions and Applications, 7*, 5. doi:10.1186/s40488-020-00108-7. Open access;
+  not yet on the shelf.
+- Wright, B. D., & Masters, G. N. (1982). *Rating scale analysis*. MESA Press. Open copy:
+  https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf
+- Wright, B. D., & Stone, M. H. (1979). *Best test design*. MESA Press. Open copy:
+  https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf
+- eRm 1.0-10, iarm 0.4.3 and TAM 4.3-25, CRAN source packages.
+  <https://cran.r-project.org/package=eRm>, <https://cran.r-project.org/package=iarm>,
+  <https://cran.r-project.org/package=TAM>
