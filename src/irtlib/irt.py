@@ -120,8 +120,7 @@ from typing import NamedTuple, overload
 
 import numpy
 import numpy.typing as npt
-from scipy import stats
-from scipy.special import expit, log_expit
+from scipy.special import expit, log_expit, ndtri
 
 from ._responses import responses_and_items
 from .typing import BoolArray, FloatArray, IntArray
@@ -399,7 +398,7 @@ def confidence_interval(theta: float, items: FloatArray, confidence: float = 0.9
   if not 0 < confidence < 1:
     msg = f"Confidence level must be between 0 and 1, got {confidence}"
     raise ValueError(msg)
-  margin = float(stats.norm.ppf((1 + confidence) / 2)) * see(theta, items)
+  margin = float(ndtri((1 + confidence) / 2)) * see(theta, items)
   return (theta - margin, theta + margin)
 
 

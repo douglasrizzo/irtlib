@@ -80,8 +80,7 @@ from enum import StrEnum
 from typing import assert_never
 
 import numpy
-from scipy.special import logit, logsumexp
-from scipy.stats import norm
+from scipy.special import logit, logsumexp, ndtri
 
 from ._m_step import (
   _GUESSING,
@@ -451,7 +450,7 @@ class MMLCalibrator:
     if start is None:
       values[:, 0] = _START_SLOPE
       with numpy.errstate(divide="ignore"):
-        intercept = norm.ppf(proportion) * _START_INTERCEPT_SCALE
+        intercept = ndtri(proportion) * _START_INTERCEPT_SCALE
       values[:, 1] = numpy.where(numpy.isfinite(intercept), intercept, _START_EXTREME_INTERCEPT)
     else:
       a, b = start.discrimination, start.difficulty

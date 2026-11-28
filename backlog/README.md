@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-25 cards: 8 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
+24 cards: 7 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -66,7 +66,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
 | [Return joint maximum likelihood's abilities, and let its correction scale the standard errors](estimation/jml-result.md) | estimation | feature | ready | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
-| [Compute the normal quantile in irtlib.irt with scipy.special instead of importing scipy.stats](irt/normal-quantile-import.md) | irt | maintenance | ready | XS |  | catsim's import-time card on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Share the complete-response check of item fit and G²](maintenance/complete-responses-check.md) | maintenance | maintenance | ready | XS |  | mean-squares PR on 2026-11-27 |
