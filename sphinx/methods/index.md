@@ -11,6 +11,8 @@ implementations, and its API.
 - {doc}`ability/index`: maximum likelihood, maximum a posteriori, expected a posteriori and
   weighted likelihood.
 - {doc}`fit/index`: S-X² and the mean squares of the items, and the mean squares of the examinees.
+- {doc}`classical`: each item's proportion correct and item-rest correlation, which screen the
+  responses before a calibration.
 - {doc}`comparison`: the likelihood-ratio test, AIC, BIC and $G^2$.
 
 ```{toctree}
@@ -22,4 +24,5 @@ calibration/index
 ability/index
 fit/index
 comparison
+classical
 ```

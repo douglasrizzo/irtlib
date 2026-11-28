@@ -248,7 +248,7 @@ layers = [
   "_m_step | calibration",
   "ability",
   "_search | quadrature | bank | drawing",
-  "irt",
+  "irt | classical",
   "_responses",
   "typing",
 ]
@@ -261,6 +261,7 @@ source_modules = [
   "irtlib.ability",
   "irtlib.bank",
   "irtlib.calibration",
+  "irtlib.classical",
   "irtlib.cml",
   "irtlib.comparison",
   "irtlib.drawing",

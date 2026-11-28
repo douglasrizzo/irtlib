@@ -16,6 +16,7 @@ The modules of the methods are documented on their method pages:
 | {mod}`irtlib.ability` | {doc}`/methods/ability/index` |
 | {mod}`irtlib.fit` | {doc}`/methods/fit/index` |
 | {mod}`irtlib.comparison` | {doc}`/methods/comparison` |
+| {mod}`irtlib.classical` | {doc}`/methods/classical` |
 
 The pages below document the rest: the item bank, the result and the response-matrix checks that the
 calibrators share, drawing responses from the model, the plots, and the array types of the signatures.
