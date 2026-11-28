@@ -1,7 +1,7 @@
 ---
 title: Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?
 kind: decision
-status: needs-decision
+status: blocked
 priority: 4
 effort: S
 blocked_by: []
@@ -17,6 +17,9 @@ Robitzsch's (2021) other variants deserve a card. They change only the ability s
 those steps already exist in `irtlib.ability`. On 2026-11-28 the maintainer asked for the card,
 pending a decision, with what other packages implement. The variants serve comparison studies of
 the Rasch model, the use `irtlib.jml` already has. No user has asked for them.
+
+**Blocked:** the maintainer postponed the decision on 2026-11-28, until a comparison study needs
+the variants.
 
 ## Problem
 
@@ -92,7 +95,7 @@ Recommendation: option 1 until a comparison study needs the variants, then optio
 
 ## Open Questions
 
-1. Which option the maintainer prefers. The card assumes option 1.
+1. Which option, once the card is unblocked. Until then irtlib keeps option 1.
 
 ## References
 

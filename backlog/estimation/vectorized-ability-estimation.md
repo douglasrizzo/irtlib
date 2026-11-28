@@ -115,7 +115,10 @@ What it takes:
 
 TAM's damped Newton step for all persons is the alternative to point 2. It assumes one maximum,
 which the 1PL and 2PL have and the 3PL and 4PL need not. The grid followed by a bracketed
-refinement keeps irtlib's guard against a local maximum.
+refinement keeps irtlib's guard against a local maximum. On the 1PL and 2PL, where the maintainer
+lets the one-examinee search use Brent's method alone
+([estimation/faster-ability-estimation](faster-ability-estimation.md)), the vectorized search can
+skip the grid too: `scipy.optimize.elementwise.bracket_minimum` then `find_minimum`.
 
 EAP needs none of this: it already scores every examinee on the grid at once.
 

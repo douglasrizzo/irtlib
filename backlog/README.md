@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-23 cards: 9 ready, 3 needs-research, 4 needs-decision, 3 blocked, 4 parked.
+23 cards: 9 ready, 3 needs-research, 3 needs-decision, 4 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -47,7 +47,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
-| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | 4 |
 
 ## Priority 2
 
@@ -79,7 +78,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Keep the 2PL's joint maximum likelihood slopes finite on short tests](estimation/jml-slope-limits.md) | estimation | feature | blocked | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
 | [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
-| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | needs-decision | S |  | joint maximum likelihood PR on 2026-11-27 |
+| [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | blocked | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 
