@@ -13,30 +13,32 @@ raised_by: [conditional maximum likelihood PR on 2026-11-27]
 ## Problem
 
 The weighted and unweighted mean squares are the Rasch model's item fit, and conditional maximum
-likelihood is its calibration method, yet the two do not meet. The mean-squares card decides on EAP
-abilities on the calibration's grid, as mirt does (`backlog/fit/mean-squares.md`, Open Question 1),
-and a calibration by `irtlib.cml` has no grid: it integrates over no abilities, so its
-`grid` is None (ADR-0006).
+likelihood is its calibration method, yet the two do not meet. `irtlib.fit.mean_squares` evaluates
+the residuals at EAP abilities on the calibration's grid (ADR-0006), and a calibration by
+`irtlib.cml` has no grid: it integrates over no abilities, so its `grid` is None, and
+`mean_squares` refuses it with an error, as S-X² does.
 
 ## Evidence
 
-- `irtlib.calibration.Calibration.grid` is None for a conditional calibration, and S-X² refuses one
-  with an error (ADR-0006).
+- `irtlib.calibration.Calibration.grid` is None for a conditional calibration, and item fit and
+  model comparison refuse one (ADR-0006).
 - Wright and Masters compute the residuals from "estimates of the person and item parameters",
   which "usually come from the same data" (1982, p. 101, Section 5.4.4).
+- EAP abilities lower the mean squares on data that fit the model, by more than the factor Wright
+  and Masters give ([discovery/mean-squares-eap.md](../discovery/mean-squares-eap.md)).
 
 ## What irtlib and catsim have now
 
+- `irtlib.fit.mean_squares(calibration, responses)` refuses a calibration whose likelihood is not
+  marginal.
 - `irtlib.ability` estimates abilities by ML, MAP, EAP and WLE from responses and items, on a grid
   the caller passes for EAP, with no calibration needed (ADR-0010).
-- The mean squares are being implemented from `backlog/fit/mean-squares.md`, in parallel with
-  conditional maximum likelihood (2026-11-27).
 
 ## Proposal
 
-Options, once the mean squares land:
+Options:
 
-1. Refuse a conditional calibration, as S-X² does: the simplest, but it leaves the Rasch estimator
+1. Keep refusing a conditional calibration, as now: the simplest, but it leaves the Rasch estimator
    without the Rasch fit statistics.
 2. Take the abilities as an argument, estimated by the caller from the calibration's items, so that
    a conditional calibration can be scored by maximum likelihood or WLE, as Wright and Masters
@@ -45,7 +47,8 @@ Options, once the mean squares land:
    distribution the conditional calibration never assumed.
 
 Recommendation: option 2, with EAP on the calibration's grid as the default for a marginal
-calibration.
+calibration, decided together with `discovery/mean-squares-eap.md`, which asks which abilities
+lower the mean squares least.
 
 ## Open Questions
 

@@ -133,8 +133,8 @@ def _check_marginal(calibration: Calibration, statistic: str) -> QuadratureGrid:
   """
   if calibration.grid is None:
     msg = (
-      f"{statistic} needs a calibration of the marginal likelihood, which integrates abilities over a grid; this "
-      f"calibration's likelihood is {calibration.likelihood}"
+      f"for {statistic}, a calibration must be of the marginal likelihood, which integrates abilities over a grid; "
+      f"this one's likelihood is {calibration.likelihood}"
     )
     raise ValueError(msg)
   return calibration.grid

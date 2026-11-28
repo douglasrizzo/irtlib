@@ -30,20 +30,22 @@ likelihood (source `R/04-PrepData.R:107`).
     matrix cannot be inverted;
   - the maximized log-likelihood, which likelihood it is, and the number of estimated parameters;
   - the cycles run, whether the stopping rule was met, and the rule's final value;
-  - the grid a marginal likelihood integrated abilities over, which fit and ability estimates
-    reuse; none for any other likelihood.
-- **Comparison.** Model comparison and S-X² refuse a calibration whose likelihood is not marginal.
-- **Non-convergence.** When the cycles run out, the result is flagged as not converged, with a
-  warning.
+  - for a marginal likelihood only, the grid abilities were integrated over, which fit and ability
+    estimates reuse.
+- **Comparison.** Model comparison and item fit refuse a calibration whose likelihood is not
+  marginal.
+- **Non-convergence.** A result whose stopping rule was not met is flagged, with a warning.
 - **Ability estimates and item fit** are functions of the responses and the items, a calibration's
   for item fit, not part of the result: EAP abilities; S-X² with its degrees of freedom per item;
   and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
-  them, with an error naming an alternative: conditional maximum likelihood and S-X².
+  them, with an error naming an alternative: conditional maximum likelihood, S-X² and the mean
+  squares.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; calibration, with the shared E-step and M-step below the
-  methods, each method computing its own standard errors from them; then ability estimation and
-  fit. Drawing responses is its own module; the import-linter contract enforces the order.
+  methods, each method computing its own standard errors from them; then ability estimation; then
+  fit, whose mean squares take ability estimates. Drawing responses is its own module; the
+  import-linter contract enforces the order.
 
 ## Consequences
 

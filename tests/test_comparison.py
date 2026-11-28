@@ -103,7 +103,9 @@ def test_a_conditional_calibration_is_refused() -> None:
     ("the likelihood-ratio test", lambda: likelihood_ratio(conditional, marginal)),
     ("the likelihood-ratio test", lambda: likelihood_ratio(marginal, conditional)),
   ]:
-    with pytest.raises(ValueError, match=f"^{statistic} needs a calibration of the marginal likelihood.*conditional$"):
+    with pytest.raises(
+      ValueError, match=f"^for {statistic}, a calibration must be of the marginal likelihood.*conditional$"
+    ):
       compute()
 
 
