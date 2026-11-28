@@ -19,7 +19,7 @@ from scipy.integrate import IntegrationWarning, quad
 from scipy.optimize import brentq, minimize_scalar
 from scipy.special import expit
 
-from irtlib import ability
+from irtlib import _search  # noqa: PLC2701 - the searches' derivatives, score and refinement
 from irtlib.ability import (
   AbilityEstimates,
   expected_a_posteriori,
@@ -446,7 +446,7 @@ class TestMaximumLikelihood:
     h = 1e-4
     below, at, above = _log_likelihood(np.array([theta - h, theta, theta + h]), items, responses)
 
-    first, second = ability._Examinee.of(responses, items).derivatives(theta)  # noqa: SLF001
+    first, second = _search._Examinee.of(responses, items).derivatives(theta)  # noqa: SLF001
 
     assert first == pytest.approx((above - below) / (2 * h), rel=1e-6)
     assert second == pytest.approx((above - 2 * at + below) / h**2, rel=1e-5)
@@ -456,7 +456,7 @@ class TestMaximumLikelihood:
 
     Dividing the slope by the infinite curvature gave a step of 0, which ended the search at once where the slope was 5.
     """
-    theta, evaluations = ability._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
+    theta, evaluations = _search._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
 
     assert theta == pytest.approx(1.0, abs=1e-6)
     assert evaluations > 1
@@ -1013,7 +1013,7 @@ class TestWeightedLikelihood:
     a = 10.0
     p, q = expit(a * (theta - b)), expit(-a * (theta - b))
 
-    examinee = ability._Examinee.of(np.array([correct]), np.array([[a, b, 0.0, 1.0]]))  # noqa: SLF001
+    examinee = _search._Examinee.of(np.array([correct]), np.array([[a, b, 0.0, 1.0]]))  # noqa: SLF001
     value = examinee.modified_score(theta)[0]
 
     assert value == pytest.approx((a * q if correct else -a * p) + a * (q - p) / 2.0, rel=1e-12)
