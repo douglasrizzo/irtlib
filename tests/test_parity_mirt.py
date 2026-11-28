@@ -14,13 +14,15 @@ responses counted, fails. The number of nodes cannot be checked this way: 41 or 
 range give the same log-likelihood within the tolerance. The response-function fixture holds items with fixed
 parameters instead of responses, and is checked against the 4PL information of Magis (2013, p. 307, Equation 6),
 written out. The ability fixture holds items with fixed parameters and response patterns, and its EAP estimates are
-checked against the posterior mean and standard deviation written out on mirt's grid; the abilities of the
-mean-square cases are checked the same way, on irtlib's grid.
+checked against the posterior mean and standard deviation written out on mirt's grid, its EAP estimates of each
+number correct against the same posterior given the number, its patterns pooled; the abilities of the mean-square cases
+are checked the same way, on irtlib's grid.
 """
 
 from __future__ import annotations
 
 import functools
+import itertools
 import operator
 from typing import TYPE_CHECKING, Any
 
@@ -37,6 +39,7 @@ from irtlib.ability import (
   expected_a_posteriori,
   maximum_a_posteriori,
   maximum_likelihood,
+  number_correct_eap,
   weighted_likelihood,
 )
 from irtlib.calibration import Calibration, ConvergenceWarning, Likelihood, default_grid
@@ -728,3 +731,43 @@ def test_ability_standard_errors(case: dict[str, Any]) -> None:
   estimates = _ability_estimates(case)
   rtol = _CLOSED_FORM_RTOL if case["method"] == "EAP" else _STANDARD_ERROR_RTOL
   np.testing.assert_allclose(estimates.standard_errors, _floats(case["se"]), rtol=rtol)
+
+
+@pytest.mark.parametrize("case", _ABILITY["number_correct"], ids=operator.itemgetter("id"))
+def test_number_correct_fixture_pools_the_patterns_of_each_number(case: dict[str, Any]) -> None:
+  """mirt's EAP of each number correct is the posterior given the number, its patterns written out on irtlib's grid.
+
+  The posterior weighs 121 nodes on [-6, 6] by the standard normal density and the summed 4PL likelihoods of the
+  patterns with each number correct; the expected counts are its normalizer times the rows of the model's data. A
+  fixture recorded on another grid or prior, or with its numbers correct out of order, fails.
+  """
+  items = np.array(_ABILITY["banks"][case["bank"]])
+  nodes = np.linspace(-6.0, 6.0, 121)
+  a, b, c, d = items.T
+  p = c + (d - c) / (1.0 + np.exp(-a * (nodes[:, np.newaxis] - b)))  # nodes x items
+  masses = np.exp(-(nodes**2) / 2) / np.sum(np.exp(-(nodes**2) / 2))
+  joint = np.zeros((items.shape[0] + 1, nodes.size))  # numbers correct x nodes
+  for pattern in itertools.product((0, 1), repeat=items.shape[0]):
+    answers = np.array(pattern)
+    joint[answers.sum()] += np.prod(np.where(answers == 1, p, 1 - p), axis=1) * masses
+  probability = joint.sum(axis=1)
+  mean = joint @ nodes / probability
+  sd = np.sqrt(np.sum(joint * (nodes - mean[:, np.newaxis]) ** 2, axis=1) / probability)
+  np.testing.assert_allclose(_floats(case["theta"]), mean, rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(_floats(case["se"]), sd, rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(_floats(case["expected"]), case["n_examinees"] * probability, rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("case", _ABILITY["number_correct"], ids=operator.itemgetter("id"))
+def test_number_correct_eap(case: dict[str, Any]) -> None:
+  """irtlib's EAP of each number correct, its standard error and the number's probability match mirt's EAPsum table.
+
+  mirt reports the probability as the expected number of examinees, times the rows of the model's data. The sums run
+  on the same grid, so they are compared as closed forms.
+  """
+  estimates = number_correct_eap(np.array(_ABILITY["banks"][case["bank"]]))
+  np.testing.assert_allclose(estimates.theta, _floats(case["theta"]), rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(estimates.standard_errors, _floats(case["se"]), rtol=_CLOSED_FORM_RTOL)
+  np.testing.assert_allclose(
+    estimates.probability * case["n_examinees"], _floats(case["expected"]), rtol=_CLOSED_FORM_RTOL
+  )

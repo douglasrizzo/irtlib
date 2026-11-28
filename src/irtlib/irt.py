@@ -13,7 +13,7 @@ import numpy
 import numpy.typing as npt
 from scipy.special import expit, log_expit, ndtri
 
-from ._responses import responses_and_items
+from ._responses import item_matrix, responses_and_items
 from .typing import BoolArray, FloatArray, IntArray
 
 THETA_MIN_TYPICAL = -4.0
@@ -637,6 +637,52 @@ def log_likelihood_function(responses: npt.ArrayLike, items: FloatArray) -> Call
   # which terms each examinee's responses select, one row per examinee
   selected = numpy.concatenate([matrix[:, right] == 1, matrix[:, wrong] == 0], axis=1).astype(float)
   return lambda theta: numpy.moveaxis(log_terms(theta) @ selected.T, -1, 0)
+
+
+def number_correct_probabilities(theta: float | FloatArray, items: FloatArray) -> FloatArray:
+  r"""Return the probability of each number correct on a set of items, from 0 to all of them, at each ability.
+
+  The probabilities at an ability sum to 1.
+
+  Parameters
+  ----------
+  theta : float or numpy.ndarray
+      An ability, or an array of abilities.
+  items : numpy.ndarray
+      The items, a matrix of shape ``(n, 4)``. No items, shape ``(0, 4)``, give a number correct of 0 with probability
+      1.
+
+  Returns
+  -------
+  numpy.ndarray
+      Every ability against every number correct from 0 to ``n``, of shape ``numpy.shape(theta) + (n + 1,)``.
+
+  Raises
+  ------
+  ValueError
+      If ``items`` is not an ``(n, 4)`` matrix.
+
+  Examples
+  --------
+  >>> import numpy
+  >>> items = numpy.array([[1.0, 0.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
+  >>> number_correct_probabilities(0.0, items).round(4)
+  array([0.25, 0.5 , 0.25])
+  >>> number_correct_probabilities(numpy.array([-1.0, 0.0, 1.0]), items).shape
+  (3, 3)
+  """
+  items = item_matrix(items)
+  log_p, log_q = log_response_probabilities(theta, items)
+  # one row per item, then the abilities' axes
+  correct, incorrect = numpy.moveaxis(numpy.exp(log_p), -1, 0), numpy.moveaxis(numpy.exp(log_q), -1, 0)
+  # row k: the probability of k correct on the items added so far
+  probabilities = numpy.zeros((items.shape[0] + 1, *numpy.shape(theta)))
+  probabilities[0] = 1.0
+  for item, (p, q) in enumerate(zip(correct, incorrect, strict=True)):
+    shifted = probabilities[: item + 1] * p
+    probabilities[: item + 1] *= q
+    probabilities[1 : item + 2] += shifted
+  return numpy.moveaxis(probabilities, 0, -1)
 
 
 class _LogTerms(NamedTuple):

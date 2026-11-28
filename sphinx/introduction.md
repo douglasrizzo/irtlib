@@ -113,6 +113,10 @@ error. irtlib has four estimators ({mod}`irtlib.ability`):
 - Warm's *weighted likelihood* (WLE) estimate removes the first-order bias of the maximum likelihood
   estimate {cite:p}`Warm1989{p. 427}`.
 
+A test scored by its number correct reports one estimate per number correct, the mean of the
+posterior given the number correct alone, which every examinee with that number shares
+{cite:p}`Thissen1995{p. 40}` ({doc}`methods/ability/number-correct-eap`).
+
 ## Checking a Calibration
 
 Item fit compares, item by item, the responses a calibration predicts with those observed

@@ -59,6 +59,32 @@ def response_matrix(responses: npt.ArrayLike) -> FloatArray:
   return matrix.astype(float)
 
 
+def item_matrix(items: npt.ArrayLike) -> FloatArray:
+  """Return an item matrix as a new float array, after checking its shape.
+
+  Parameters
+  ----------
+  items : array_like
+      The items, a matrix of shape ``(n, 4)``, one row ``[a, b, c, d]`` per item.
+
+  Returns
+  -------
+  numpy.ndarray
+      A float copy of the items.
+
+  Raises
+  ------
+  ValueError
+      If ``items`` is not an ``(n, 4)`` matrix.
+  """
+  # a float copy, so that 1 - d cannot wrap around in an unsigned integer type
+  items = numpy.array(items, dtype=float)
+  if items.shape[1:] != (_N_COLUMNS,):
+    msg = f"items must be an (n, 4) matrix, one row per item, got shape {items.shape}"
+    raise ValueError(msg)
+  return items
+
+
 def responses_and_items(responses: npt.ArrayLike, items: npt.ArrayLike) -> tuple[FloatArray, FloatArray]:
   """Return a response matrix and its items as new float arrays, after checking each and that they match.
 
@@ -82,11 +108,7 @@ def responses_and_items(responses: npt.ArrayLike, items: npt.ArrayLike) -> tuple
       If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, or a response
       is not 0, 1 or NaN.
   """
-  # a float copy, so that 1 - d cannot wrap around in an unsigned integer type
-  items = numpy.array(items, dtype=float)
-  if items.shape[1:] != (_N_COLUMNS,):
-    msg = f"items must be an (n, 4) matrix, one row per item, got shape {items.shape}"
-    raise ValueError(msg)
+  items = item_matrix(items)
   matrix = response_matrix(responses)
   if matrix.shape[1] != items.shape[0]:
     msg = f"responses has {matrix.shape[1]} columns and items {items.shape[0]} rows; there must be one item per column"

@@ -26,10 +26,9 @@ $$
 E_{ik} = \frac{\sum_q P_i(X_q)\, S^{*i}_{k-1}(X_q)\, A_q}{\sum_q S_k(X_q)\, A_q}
 $$
 
-(p. 54, Equation 12), where $S_k(X_q)$ is the likelihood of a score of $k$ at ability $X_q$ and
-$S^{*i}_k$ the same without item $i$, both from Lord and Wingersky's recursion over items (p. 53,
-Equations 6-11): adding an item with probability $T$ turns $S^*_k$ into
-$T S^*_{k-1} + (1 - T) S^*_k$. The statistic sums $(O - E)^2 / E$ over the cells of the table of
+(p. 54, Equation 12), where $S_k(X_q)$ is the probability of a number correct of $k$ at ability
+$X_q$, which {doc}`/methods/models/item-response-functions` defines, and $S^{*i}_k$ the same
+without item $i$ (p. 54). The statistic sums $(O - E)^2 / E$ over the cells of the table of
 scores by responses, and its degrees of freedom are the rows of the table less the number of
 parameters estimated for the item (p. 56).
 

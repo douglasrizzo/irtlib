@@ -27,6 +27,9 @@ estimate. The maintainer decided the behaviour below on 2026-11-27.
   settings as keyword arguments with catsim's defaults. An estimator keeps no state.
 - **The result.** An immutable value with, per examinee, the estimate, its standard error, the
   number of objective evaluations, and whether a fallback (below) gave the estimate.
+- **Number-correct scoring.** The EAP by number correct is a table, one estimate per number correct
+  from 0 to the number of items, from the items and the prior alone: every examinee who answers
+  every item gets the entry of its number correct, so the function takes no response matrix.
 - **Maximum likelihood** is the maximizer over the extended real line: $+\infty$ or $-\infty$
   wherever the likelihood's supremum is reached only in the limit, with a standard error of
   $+\infty$, since the information tends to 0 there. An examinee who answered nothing has no

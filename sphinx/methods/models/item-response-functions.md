@@ -2,13 +2,13 @@
 
 :API: {py:mod}`irtlib.irt`
 :Sources: {cite:t}`Magis2013`; {cite:t}`Magis2012`; {cite:t}`Barton1981`; {cite:t}`Baker1987`;
-  {cite:t}`Veerkamp1994`; {cite:t}`Barrada2006`
+  {cite:t}`Veerkamp1994`; {cite:t}`Barrada2006`; {cite:t}`Orlando2000`; {cite:t}`Thissen1995`
 
 ## Motivation
 
 Every method in irtlib rests on the same few quantities of the logistic models: the probability of a
-correct response, its derivatives, the information an item gives about the ability, and the
-likelihood of a set of responses. {mod}`irtlib.irt` computes them once, for every model from the 1PL
+correct response, its derivatives, the information an item gives about the ability, the
+likelihood of a set of responses, and the probability of each number correct. {mod}`irtlib.irt` computes them once, for every model from the 1PL
 to the 4PL, and the calibrators, the ability estimators and item fit call it, as catsim does. A
 package that builds on irtlib can call it too.
 
@@ -90,6 +90,22 @@ $$
 
 over the items $i$ the examinee answered {cite:p}`Magis2012{p. 4, Equation 2}`;
 {cite:p}`Barton1981{p. A1}`.
+
+**The probability of each number correct.** The probability $S_k(\theta)$ that an examinee of
+ability $\theta$ answers $k$ of $M$ items correctly, $k = 0, \dots, M$, sums the probabilities of
+the response patterns with $k$ correct {cite:p}`Thissen1995{p. 40, Equation 1}`. Lord and
+Wingersky's recursion builds it one item at a time, without enumerating the patterns
+{cite:p}`Thissen1995{p. 42}`. With $S^{(i)}_k$ the probability of $k$ correct on the first $i$
+items, it starts from $S^{(1)}_0 = Q_1$ and $S^{(1)}_1 = P_1$, and adding item $i$ gives
+
+$$
+S^{(i)}_k(\theta) = P_i(\theta)\, S^{(i-1)}_{k-1}(\theta) + Q_i(\theta)\, S^{(i-1)}_k(\theta),
+\quad k = 0, \dots, i,
+$$
+
+where a term whose number correct is below 0 or above $i - 1$ is 0
+{cite:p}`Orlando2000{p. 53, Equations 6-10}`; {cite:p}`Thissen1995{p. 42, Equation 16}`.
+$S_k(\theta)$ is $S^{(M)}_k(\theta)$ (p. 53, Equation 11).
 
 **A reporting scale.** {func}`~irtlib.irt.theta_to_scale` takes abilities to scores on a reporting
 scale along the line through $(\theta_{min}, \text{scale}_{min})$ and

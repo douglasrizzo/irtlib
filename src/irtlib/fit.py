@@ -8,7 +8,7 @@ from scipy.stats import chi2
 
 from .ability import expected_a_posteriori
 from .calibration import Calibration, _check_marginal, _complete_responses
-from .irt import icc, log_response_probabilities
+from .irt import icc, log_response_probabilities, number_correct_probabilities
 from .quadrature import normal_log_prior, prior_masses
 from .typing import FloatArray, IntArray
 
@@ -79,8 +79,7 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   items = calibration.estimates
   grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
-  probability = icc(grid.nodes, items).T  # items x nodes
-  expected = _expected_proportions(probability, masses)
+  expected = _expected_proportions(grid.nodes, items, masses)
   scores = matrix.sum(axis=1).astype(int)
   n_items = items.shape[0]
   statistic = numpy.full(n_items, numpy.nan)
@@ -101,25 +100,15 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   return ItemFit(statistic=statistic, df=df, p_value=p_value)
 
 
-def _summed_score_likelihoods(probability: FloatArray) -> FloatArray:
-  """Return the likelihood of each number-correct score at each node, shape (items + 1, nodes): Lord and Wingersky."""
-  likelihoods = numpy.zeros((probability.shape[0] + 1, probability.shape[1]))
-  likelihoods[0] = 1.0
-  for item, correct in enumerate(probability):
-    shifted = likelihoods[: item + 1] * correct
-    likelihoods[: item + 1] *= 1 - correct
-    likelihoods[1 : item + 2] += shifted
-  return likelihoods
-
-
-def _expected_proportions(probability: FloatArray, masses: FloatArray) -> FloatArray:
+def _expected_proportions(nodes: FloatArray, items: FloatArray, masses: FloatArray) -> FloatArray:
   """Return each item's expected proportion correct at each score from 1 to M - 1, shape (items, M - 1)."""
-  n_items = probability.shape[0]
-  score_probability = _summed_score_likelihoods(probability) @ masses  # scores 0 to M
+  n_items = items.shape[0]
+  score_probability = masses @ number_correct_probabilities(nodes, items)  # scores 0 to M
+  probability = icc(nodes, items)  # nodes x items
   expected = numpy.empty((n_items, n_items - 1))
   for item in range(n_items):
-    without = _summed_score_likelihoods(numpy.delete(probability, item, axis=0))  # scores 0 to M - 1
-    correct = (without[:-1] * probability[item]) @ masses  # scores 1 to M - 1, the item answered correctly
+    without = number_correct_probabilities(nodes, numpy.delete(items, item, axis=0))  # nodes x scores 0 to M - 1
+    correct = (masses * probability[:, item]) @ without[:, :-1]  # scores 1 to M - 1, the item answered correctly
     expected[item] = correct / score_probability[1:-1]
   return expected
 

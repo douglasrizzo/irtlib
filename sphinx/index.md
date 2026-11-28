@@ -23,7 +23,8 @@ responses, by {doc}`methods/calibration/cml` for the Rasch model, or by
 
 Researchers estimate each examinee's ability, with its standard error, from responses to items of
 known parameters: by {doc}`methods/ability/ml`, {doc}`methods/ability/map`,
-{doc}`methods/ability/eap` or {doc}`methods/ability/wle`.
+{doc}`methods/ability/eap` or {doc}`methods/ability/wle`; or by the number correct, with
+{doc}`methods/ability/number-correct-eap`.
 
 ## Build on irtlib
 

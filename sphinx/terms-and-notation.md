@@ -78,8 +78,10 @@ response matrix
   The responses are *complete* when no entry is missing.
 
 number correct
-: The number of items an examinee answered correctly. Also called the *raw score* or *number-correct
-  score*.
+: The number of items an examinee answered correctly. Also called the *raw score*, *number-correct
+  score*, *sum score* or *summed score*. In the API: {func}`irtlib.irt.number_correct_probabilities`
+  gives the probability of each number correct at an ability, and
+  {func}`irtlib.ability.number_correct_eap` the EAP estimate of each.
 
 ## Calibration
 
@@ -161,6 +163,7 @@ model comparison
 | $SE(\hat{\theta})$ | standard error of the ability estimate | `standard_errors` |
 | $u_{ij}$ | examinee $j$'s response to item $i$: 1 if correct, 0 if not | an entry of `responses` |
 | $L_j(\theta)$ | likelihood of examinee $j$'s responses at ability $\theta$ | |
+| $S_k(\theta)$ | probability of a number correct of $k$ at ability $\theta$ | {func}`irtlib.irt.number_correct_probabilities` |
 | $X_q$ | node $q$ of the quadrature grid | `QuadratureGrid.nodes` |
 | $A_q$ | prior mass at node $X_q$ | {func}`~irtlib.quadrature.prior_masses` |
 | $Q$ | number of nodes | |
