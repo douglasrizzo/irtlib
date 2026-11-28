@@ -659,6 +659,58 @@ class TestLogLikelihood:
       values.reshape(3, 6), _brute_force_log_likelihood(thetas.ravel(), responses, _ITEMS), rtol=1e-12
     )
 
+  @pytest.mark.parametrize(
+    "row",
+    [
+      pytest.param([1.0, 0.0, np.nan, 1.0], id="one missing"),
+      pytest.param([0.0, np.nan, np.nan, 0.0], id="two missing, both answers incorrect"),
+      pytest.param([1.0, 1.0, 0.0, 1.0], id="none missing"),
+      pytest.param([np.nan, np.nan, np.nan, np.nan], id="none answered"),
+    ],
+  )
+  def test_one_examinee_sums_the_log_probabilities_of_its_answered_items(self, row: list[float]) -> None:
+    """One examinee's value at an array of abilities, and at one ability, is the brute-force sum over its answers.
+
+    Counting a missing response as incorrect, pairing an item with another item's response or asymptotes, or giving
+    one ability, a float or a 0-d array, a shape other than (1,) changes a value or the shape; with no answers the
+    value is 0.
+    """
+    responses = np.array([row])
+    thetas = np.array([-2.5, -0.4, 0.0, 1.3, 2.8])
+    expected = _brute_force_log_likelihood(thetas, responses, _ITEMS)
+
+    values = irt.log_likelihood(thetas, responses, _ITEMS)
+
+    assert values.shape == (1, 5)
+    np.testing.assert_allclose(values, expected, rtol=1e-12, atol=0.0)
+    for one in (1.3, np.array(1.3)):
+      at_one = irt.log_likelihood(one, responses, _ITEMS)
+      assert at_one.shape == (1,)
+      np.testing.assert_allclose(at_one, expected[:, 3], rtol=1e-12, atol=0.0)
+
+  def test_each_examinee_alone_gets_its_row_of_the_batch(self) -> None:
+    """Each examinee's log-likelihood alone, at a (2, 3) array of abilities, is its row of the batch's.
+
+    The batch has missing responses, an examinee with none and an item nobody answered, so its terms are no one
+    examinee's. An examinee alone that summed a term it did not answer, or laid its values out other than as a
+    (1, 2, 3) block, changes a value or the shape.
+    """
+    responses = np.array([
+      [1.0, 0.0, np.nan, 1.0],
+      [np.nan, np.nan, np.nan, np.nan],
+      [0.0, 1.0, np.nan, np.nan],
+      [1.0, 1.0, np.nan, 0.0],
+      [0.0, np.nan, np.nan, 0.0],
+    ])
+    thetas = np.linspace(-2.0, 2.0, 6).reshape(2, 3)
+
+    batch = irt.log_likelihood(thetas, responses, _ITEMS)
+
+    for examinee, row in enumerate(responses):
+      alone = irt.log_likelihood(thetas, row[np.newaxis], _ITEMS)
+      assert alone.shape == (1, 2, 3)
+      np.testing.assert_allclose(alone[0], batch[examinee], rtol=1e-12, atol=0.0)
+
   @pytest.mark.parametrize("z", [-700.0, -100.0, -37.0, -30.0, -25.0, 0.0, 25.0, 30.0, 37.0, 100.0, 700.0])
   def test_log_likelihood_is_exact_far_from_the_difficulty(self, z: float) -> None:
     """A 2PL item's log P and log Q equal -log(1 + e^-z) and -log(1 + e^z) at any logit.
