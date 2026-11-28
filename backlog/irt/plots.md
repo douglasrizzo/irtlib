@@ -15,11 +15,14 @@ raised_by: [maintainer on 2026-11-28 after the plot catalogue]
 On 2026-11-28 the maintainer chose to draw in `irtlib.plot` every plot of the catalogue below
 (ADR-0011): the item response plots of the literature and of the R packages on the shelf, for the
 unidimensional dichotomous 1PL to 4PL. `item_curve` draws one item's characteristic and information
-curves. The plots below remain; catsim deletes its copy of a plot once irtlib has it.
+curves, and six plots draw item and person fit. The plots below remain; catsim deletes its copy of a
+plot once irtlib has it.
 
 ## What irtlib and catsim have now
 
 - `irtlib.plot.item_curve`, with the calling conventions of ADR-0011.
+- The fit plots `empirical_icc`, `sx2_item`, `pathway_map`, `invariance`, `person_profile` and
+  `person_fit_map`.
 - catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
   `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
@@ -66,13 +69,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Empirical characteristic curve (`empirical_icc`) | The model curve with the observed proportion correct in groups of examinees by ability estimate, with 95% intervals. |  |  | Yen 1981, p. 248, ten ability cells; mirt 1.48 manual, p. 85, itemfit empirical.plot, empirical.CI; mirt 1.48 manual, p. 94, itemplot empirical_proportions; eRm 1.0-10, plotICC empICC; TAM 4.3-25, plot.tam; iarm 0.4.3, ICCplot |
-| S-X² observed and expected (`sx2_item`) | The observed proportion correct at each sum score against the proportion S-X² expects, with the item's statistic. |  | each item's observed and expected proportions by sum score | Orlando & Thissen 2000, p. 54, S-X²; mirt 1.48 manual, p. 85, itemfit S_X2.plot |
 | Observed and expected sum scores (`sum_score_fit`) | How many examinees got each sum score, against the number the calibrated model expects. |  | the model's sum-score distribution | mirt 1.48 manual, p. 194, plot 'EAPsum'; source SingleGroup-methods.R:1262-1270 |
-| Item fit against location (`pathway_map`) | Each item's standardized infit against its difficulty, with the band from -2 to 2. |  |  | Wright & Masters 1982, pp. 102-103, Fig. 5.4c; eRm 1.0-10, plotPWmap |
-| Item estimates from two groups (`invariance`) | Each item's difficulty calibrated by CML on low and on high scorers, with 95% intervals, against the identity line. |  |  | Wright & Masters 1982, pp. 115-116, Fig. 5.9; eRm 1.0-10, plotGOF; Yen 1981, p. 254, Fig. 2 |
-| Person response profile (`person_profile`) | One examinee's standardized residual on each item, the items in order of difficulty. |  |  | Wright & Stone 1979, p. 180, Fig. 7.9.3; PP 1.0.0, pp-plots 'profile' |
-| Person fit against ability (`person_fit_map`) | Each examinee's standardized fit against their ability estimate, with the band from -2 to 2. |  | a person-fit statistic | PP 1.0.0, pp-plots 'fit'; eRm 1.0-10, plotPWmap |
 
 ### Calibration diagnostics
 
