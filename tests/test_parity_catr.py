@@ -31,7 +31,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.quadrature import LogPrior, QuadratureGrid, normal_log_prior, uniform_log_prior
+from irtlib.quadrature import GridPrior, LogPrior, QuadratureGrid, normal_log_prior, uniform_log_prior
 
 if TYPE_CHECKING:
   from collections.abc import Callable
@@ -299,3 +299,20 @@ class TestEstimators:
       assert se == pytest.approx(float(case["se"]), rel=_CLOSED_FORM_RTOL, abs=0)
     else:
       assert se == pytest.approx(float(case["se"]), rel=0, abs=_ESTIMATE_ATOL * (abs(case["se_slope"]) + 1))
+
+  @pytest.mark.parametrize(
+    "case", [case for case in _ESTIMATION["cases"] if case["method"] == "EAP"], ids=operator.itemgetter("id")
+  )
+  def test_eap_from_a_grid_prior(self, case: dict[str, Any]) -> None:
+    """EAP from a GridPrior, the route catsim's estimator takes, gives catR's estimate and standard error too.
+
+    catR's uniform prior on (-3, 3) over its grid on [-4, 4] has no density at the outer nodes, whose log-prior is
+    -inf; a GridPrior that gave those nodes mass, or turned them into NaN, would move both off catR's.
+    """
+    items, responses = np.array(_ESTIMATION["bank"]), _case_responses(case)
+    grid_prior = GridPrior(_trapezoid_grid(**case["grid"]), _log_prior(case["prior"]))
+
+    estimates = expected_a_posteriori(responses, items, grid_prior=grid_prior)
+
+    assert estimates.theta[0] == pytest.approx(case["theta"], rel=_CLOSED_FORM_RTOL, abs=0)
+    assert estimates.standard_errors[0] == pytest.approx(float(case["se"]), rel=_CLOSED_FORM_RTOL, abs=0)
