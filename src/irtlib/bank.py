@@ -412,8 +412,8 @@ class ItemBank:  # noqa: PLR0904 - the bank type: parameters, names, derived val
         The logistic model of the items, an :py:class:`IrtModel` or its name in any case ("3pl").
         Default is ``IrtModel.PL4``.
     corr : float, optional
-        Correlation between discrimination and difficulty, between -1 and 1, ignored for ``IrtModel.PL1``. Default
-        is 0.
+        Correlation between discrimination and difficulty, from -1 to 1 for every model; the discriminations of a 1PL
+        bank do not depend on it. Default is 0.
     rng : int, numpy.random.Generator or None, optional
         Where the parameters are drawn from. None, the default, draws fresh randomness, so every call
         gives another bank. An int seeds a new generator, so the same seed gives the same bank. A
@@ -428,7 +428,7 @@ class ItemBank:  # noqa: PLR0904 - the bank type: parameters, names, derived val
     ------
     ValueError
         If ``model`` is neither an :py:class:`IrtModel` nor one of the names "1PL", "2PL", "3PL" and
-        "4PL", in any case, or if ``corr`` is not a number between -1 and 1.
+        "4PL", in any case, or if ``corr`` is NaN or outside [-1, 1].
 
     Examples
     --------

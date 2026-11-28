@@ -104,22 +104,45 @@ def test_uniform_log_prior_defaults_to_the_extended_ability_range() -> None:
     (0.0, -1.0, "sd must be positive"),
     (0.0, math.nan, "sd must be positive"),
     (0.0, math.inf, "sd must be positive"),
-    (0.0, 1e-200, "sd must have a positive and finite square"),
-    (0.0, 1e200, "sd must have a positive and finite square"),
-    (0.0, np.float64(1e200), "sd must have a positive and finite square"),
     (math.inf, 1.0, "mean must be finite"),
     (math.nan, 1.0, "mean must be finite"),
   ],
 )
 def test_normal_log_prior_rejects_an_invalid_mean_or_sd(mean: float, sd: float, match: str) -> None:
-  """A mean that is not finite, or a standard deviation that is not finite and positive, is an error.
-
-  So is a standard deviation whose square, the variance, underflows to 0 (1e-200) or overflows to infinity (1e200):
-  accepting it gives a prior whose log-density is NaN or infinite at every node. Squaring a NumPy float to check it
-  warns of the overflow, which the test suite turns into an error.
-  """
+  """A mean that is not finite, or a standard deviation that is not finite and positive, is an error."""
   with pytest.raises(ValueError, match=match):
     normal_log_prior(mean, sd)
+
+
+@pytest.mark.parametrize("sd", [6e153, 1e200, np.float64(1e200)])
+def test_a_very_wide_normal_prior_is_flat_at_minus_log_sd(sd: float) -> None:
+  """With 2 pi sd^2 past the largest float, the log-density is still -log(sd) - log(2 pi)/2 at every ability.
+
+  Over [-6, 6] the term -(theta / sd)^2 / 2 is below 1e-300, so the closed form is flat. A log-density computed from
+  the variance is -inf everywhere (6e153) or overflows with a warning, which the test suite turns into an error.
+  """
+  theta = np.array([-6.0, 0.0, 6.0])
+
+  log_density = normal_log_prior(0.0, sd)(theta)
+
+  np.testing.assert_allclose(log_density, -math.log(sd) - 0.5 * math.log(2 * math.pi), rtol=1e-15)
+
+
+@pytest.mark.parametrize("sd", [1e-161, 1e-200])
+def test_a_very_narrow_normal_prior_has_a_density_only_at_its_mean(sd: float) -> None:
+  """With sd^2 near or below the smallest float, the log-density is -inf off the mean and finite at it.
+
+  At the mean it is -log(sd) - log(2 pi)/2; 0.05 and 1 away from it, the squared standardized deviation is past the
+  largest float, so the density is 0. A log-density computed from the variance overflows or divides by 0 with a
+  warning, which the test suite turns into an error, or is NaN at the mean.
+  """
+  theta = np.array([0.0, 0.05, 1.05])
+
+  log_density = normal_log_prior(0.05, sd)(theta)
+
+  assert log_density[0] == -np.inf
+  assert log_density[2] == -np.inf
+  assert log_density[1] == pytest.approx(-math.log(sd) - 0.5 * math.log(2 * math.pi), rel=1e-15)
 
 
 @pytest.mark.parametrize(
