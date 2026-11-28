@@ -495,12 +495,13 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Calibration</span>
-<span class="sd">        The estimates ``[1, b, 0, 1]``, the standard errors of the difficulties and the conditional log-likelihood at</span>
-<span class="sd">        them, of the examinees and items kept; the result has no grid. An item left out has a NaN difficulty and</span>
-<span class="sd">        standard error, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping</span>
-<span class="sd">        rule, a full step within the tolerance, is not met within ``max_cycles``, or no halving of a step keeps the</span>
-<span class="sd">        log-likelihood from falling, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is</span>
-<span class="sd">        issued; if the information matrix cannot be inverted at the estimates, the result has no standard errors and</span>
+<span class="sd">        The estimates ``[1, b, 0, 1]``, the variances of the difficulties, the only entries of the covariances that</span>
+<span class="sd">        are not NaN, and the conditional log-likelihood at them, of the examinees and items kept; the result has no</span>
+<span class="sd">        grid. An item left out has a NaN difficulty and variance, and the result's bank leaves it out, with a</span>
+<span class="sd">        ``RuntimeWarning`` naming it. If the stopping rule, a full step within the tolerance, is not met within</span>
+<span class="sd">        ``max_cycles``, or no halving of a step keeps the log-likelihood from falling, the result says so and a</span>
+<span class="sd">        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted at</span>
+<span class="sd">        the estimates, or gives a variance that is not positive, the result has no covariances or standard errors and</span>
 <span class="sd">        a ``RuntimeWarning`` is issued.</span>
 
 <span class="sd">    Raises</span>
@@ -534,21 +535,21 @@
     <span class="n">variances</span> <span class="o">=</span> <span class="n">_variances</span><span class="p">(</span><span class="n">_derivatives</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">variances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; the responses "</span>
-        <span class="s2">"may leave an item no finite estimate"</span><span class="p">,</span>
+        <span class="s2">"the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "</span>
+        <span class="s2">"reports no covariances or standard errors; the responses may leave an item no finite estimate"</span><span class="p">,</span>
         <span class="ne">RuntimeWarning</span><span class="p">,</span>
         <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
       <span class="p">)</span>
     <span class="n">estimates</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
     <span class="n">estimates</span><span class="p">[</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">difficulty</span>
-    <span class="n">standard_errors</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">covariances</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">variances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-      <span class="n">standard_errors</span><span class="p">[</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span>
+      <span class="n">covariances</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="o">*</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+      <span class="n">covariances</span><span class="p">[</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">variances</span>
     <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
       <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
       <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
-      <span class="n">standard_errors</span><span class="o">=</span><span class="n">standard_errors</span><span class="p">,</span>
+      <span class="n">covariances</span><span class="o">=</span><span class="n">covariances</span><span class="p">,</span>
       <span class="n">log_likelihood</span><span class="o">=</span><span class="n">_log_likelihood</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">),</span>
       <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">CONDITIONAL</span><span class="p">,</span>
       <span class="n">n_parameters</span><span class="o">=</span><span class="n">difficulty</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>

@@ -431,11 +431,11 @@
   <span class="n">_SLOPE</span><span class="p">,</span>
   <span class="n">_UPPER</span><span class="p">,</span>
   <span class="n">_counted</span><span class="p">,</span>
+  <span class="n">_covariances</span><span class="p">,</span>
   <span class="n">_free_gradient</span><span class="p">,</span>
   <span class="n">_m_step</span><span class="p">,</span>
   <span class="n">_prior_terms</span><span class="p">,</span>
   <span class="n">_PriorTerm</span><span class="p">,</span>
-  <span class="n">_standard_errors</span><span class="p">,</span>
   <span class="n">_to_items</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">_N_COLUMNS</span>
@@ -706,13 +706,13 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Calibration</span>
-<span class="sd">        The estimates, their standard errors and the log-likelihood at them, with the cycles run, which do not count</span>
-<span class="sd">        the extrapolations of an acceleration, and the largest change of a parameter in the last one. If the stopping</span>
-<span class="sd">        rule is not met within ``max_cycles``, the result says so and a</span>
+<span class="sd">        The estimates, the covariance of each item's estimates and the log-likelihood at them, with the cycles run,</span>
+<span class="sd">        which do not count the extrapolations of an acceleration, and the largest change of a parameter in the last</span>
+<span class="sd">        one. If the stopping rule is not met within ``max_cycles``, the result says so and a</span>
 <span class="sd">        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted,</span>
-<span class="sd">        the result has no standard errors and a ``RuntimeWarning`` is issued; if an item's estimates are not valid in</span>
-<span class="sd">        an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves the item out and</span>
-<span class="sd">        a ``RuntimeWarning`` names it.</span>
+<span class="sd">        or gives a variance that is not positive, the result has no covariances or standard errors and a</span>
+<span class="sd">        ``RuntimeWarning`` is issued; if an item's estimates are not valid in an item bank, such as a miskeyed item's</span>
+<span class="sd">        slope that is not positive, the result's bank leaves the item out and a ``RuntimeWarning`` names it.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -747,19 +747,18 @@
         <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
       <span class="p">)</span>
     <span class="n">estimates</span> <span class="o">=</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-    <span class="n">information</span> <span class="o">=</span> <span class="n">_observed_information</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span><span class="p">)</span>
-    <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">_standard_errors</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">information</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">standard_errors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">covariances</span> <span class="o">=</span> <span class="n">_covariances</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">_observed_information</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">covariances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; the model "</span>
-        <span class="s2">"may not be identified by these responses"</span><span class="p">,</span>
+        <span class="s2">"the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "</span>
+        <span class="s2">"reports no covariances or standard errors; the model may not be identified by these responses"</span><span class="p">,</span>
         <span class="ne">RuntimeWarning</span><span class="p">,</span>
         <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
       <span class="p">)</span>
     <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
       <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
       <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
-      <span class="n">standard_errors</span><span class="o">=</span><span class="n">standard_errors</span><span class="p">,</span>
+      <span class="n">covariances</span><span class="o">=</span><span class="n">covariances</span><span class="p">,</span>
       <span class="n">log_likelihood</span><span class="o">=</span><span class="n">marginal_log_likelihood</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">estimates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">),</span>
       <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">MARGINAL</span><span class="p">,</span>
       <span class="n">n_parameters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>

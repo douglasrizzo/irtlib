@@ -485,9 +485,12 @@
 <span class="sd">      ``0 &lt;= c &lt; d &lt;= 1``, each named ``item_`` and its column, as in a bank of every item; None if no item's</span>
 <span class="sd">      estimates are. The calibrator warns with a ``RuntimeWarning`` naming the items it leaves out, such as a</span>
 <span class="sd">      miskeyed item, whose slope is not positive.</span>
-<span class="sd">  standard_errors : numpy.ndarray or None</span>
-<span class="sd">      The standard errors of the estimates, in the shape of ``estimates``, NaN for a parameter not estimated;</span>
-<span class="sd">      None, with a warning, when the information matrix could not be inverted.</span>
+<span class="sd">  covariances : numpy.ndarray or None</span>
+<span class="sd">      The covariance of each item's estimates, one 4 x 4 matrix per row of ``estimates``, its rows and columns in the</span>
+<span class="sd">      order ``a, b, c, d``, NaN in those of a parameter not estimated, and symmetric. A parameter shared by every</span>
+<span class="sd">      item, such as the 1PL's slope, appears in each item's matrix, with its variance and its covariances with that</span>
+<span class="sd">      item's estimates. Only the variances are checked, so a matrix may not be positive definite. None, with a</span>
+<span class="sd">      warning, when the information matrix could not be inverted or gives a variance that is not finite and positive.</span>
 <span class="sd">  log_likelihood : float</span>
 <span class="sd">      The logarithm of the likelihood named by ``likelihood``, at the estimates, before any correction the method makes</span>
 <span class="sd">      to them once the likelihood is maximized; with priors, without the log-prior.</span>
@@ -525,7 +528,7 @@
 
   <span class="n">estimates</span><span class="p">:</span> <span class="n">FloatArray</span>
   <span class="n">items</span><span class="p">:</span> <span class="n">ItemBank</span> <span class="o">|</span> <span class="kc">None</span>
-  <span class="n">standard_errors</span><span class="p">:</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span>
+  <span class="n">covariances</span><span class="p">:</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span>
   <span class="n">log_likelihood</span><span class="p">:</span> <span class="nb">float</span>
   <span class="n">likelihood</span><span class="p">:</span> <span class="n">Likelihood</span>
   <span class="n">n_parameters</span><span class="p">:</span> <span class="nb">int</span>
@@ -545,7 +548,20 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abilities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="ow">is</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">):</span>
       <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"a calibration has abilities exactly when its likelihood is joint; this one's is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">"</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">standard_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The standard errors of the estimates, the square roots of the diagonals of ``covariances``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray or None</span>
+<span class="sd">        One row per row of ``estimates``, NaN for a parameter not estimated; None when ``covariances`` is None.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">covariances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covariances</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
 
 
 

@@ -423,7 +423,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._m_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">_free_information</span><span class="p">,</span> <span class="n">_m_step</span><span class="p">,</span> <span class="n">_objective</span><span class="p">,</span> <span class="n">_standard_errors</span><span class="p">,</span> <span class="n">_to_items</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._m_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">_covariances</span><span class="p">,</span> <span class="n">_free_information</span><span class="p">,</span> <span class="n">_m_step</span><span class="p">,</span> <span class="n">_objective</span><span class="p">,</span> <span class="n">_to_items</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">_N_COLUMNS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.ability</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbilityEstimates</span><span class="p">,</span> <span class="n">maximum_likelihood</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bank</span><span class="w"> </span><span class="kn">import</span> <span class="n">IrtModel</span>
@@ -529,8 +529,9 @@
 <span class="sd">      Whether to multiply the difficulties of the Rasch model by ``(M - 1) / M``, for ``M`` items kept, once the</span>
 <span class="sd">      likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.</span>
 <span class="sd">  correct_errors : bool, optional</span>
-<span class="sd">      Whether to multiply the difficulties' standard errors by ``(M - 1) / M`` too, when the difficulties are</span>
-<span class="sd">      corrected. Default is False, which keeps the standard errors of the estimates before the correction.</span>
+<span class="sd">      Whether to multiply the difficulty's row and column of each item's covariances by ``(M - 1) / M`` too, and so</span>
+<span class="sd">      its standard error by that factor, when the difficulties are corrected. Default is False, which keeps the</span>
+<span class="sd">      covariances of the estimates before the correction.</span>
 <span class="sd">  tolerance : float, optional</span>
 <span class="sd">      The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step</span>
 <span class="sd">      and an ability step. Default is 1e-6.</span>
@@ -580,8 +581,8 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_correct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span> <span class="k">if</span> <span class="n">correct</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">correct</span>
     <span class="k">if</span> <span class="n">correct_errors</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct</span><span class="p">:</span>
       <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">"correct_errors multiplies the standard errors by the correction (M - 1) / M, which this calibrator does not "</span>
-        <span class="sa">f</span><span class="s2">"apply: the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2"> with correct=</span><span class="si">{</span><span class="n">correct</span><span class="si">}</span><span class="s2">"</span>
+        <span class="s2">"correct_errors multiplies the difficulties' covariances by the correction (M - 1) / M, which this calibrator "</span>
+        <span class="sa">f</span><span class="s2">"does not apply: the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2"> with correct=</span><span class="si">{</span><span class="n">correct</span><span class="si">}</span><span class="s2">"</span>
       <span class="p">)</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_correct_errors</span> <span class="o">=</span> <span class="n">correct_errors</span>
@@ -604,9 +605,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Calibration</span>
-<span class="sd">        The estimates ``[a, b, 0, 1]``, their standard errors, and the joint log-likelihood at the estimates, before</span>
+<span class="sd">        The estimates ``[a, b, 0, 1]``, their covariances, and the joint log-likelihood at the estimates, before</span>
 <span class="sd">        any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates</span>
-<span class="sd">        and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's</span>
+<span class="sd">        and covariances, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's</span>
 <span class="sd">        ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with standard</span>
 <span class="sd">        errors one over the square root of the test information at the estimates before any correction, and the</span>
 <span class="sd">        evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the ability</span>
@@ -617,7 +618,8 @@
 <span class="sd">        the 2PL's abilities separate an item's correct responses from its incorrect ones, or an item step gives a slope</span>
 <span class="sd">        that is not positive, the result holds the last complete cycle, says so, and a</span>
 <span class="sd">        :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an item's information</span>
-<span class="sd">        cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.</span>
+<span class="sd">        cannot be inverted, or gives a variance that is not positive, the result has no covariances or standard errors</span>
+<span class="sd">        and a ``RuntimeWarning`` is issued.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -645,13 +647,13 @@
     <span class="n">fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">_start</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fit</span><span class="o">.</span><span class="n">failure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"calibration stopped after </span><span class="si">{</span><span class="n">fit</span><span class="o">.</span><span class="n">cycles</span><span class="si">}</span><span class="s2"> cycles: </span><span class="si">{</span><span class="n">fit</span><span class="o">.</span><span class="n">failure</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ConvergenceWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">kept_errors</span> <span class="o">=</span> <span class="n">_standard_errors</span><span class="p">(</span>
+    <span class="n">kept_covariances</span> <span class="o">=</span> <span class="n">_covariances</span><span class="p">(</span>
       <span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">_free_information</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="p">())</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">kept_covariances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; an item may "</span>
-        <span class="s2">"have no finite estimate"</span><span class="p">,</span>
+        <span class="s2">"the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "</span>
+        <span class="s2">"reports no covariances or standard errors; an item may have no finite estimate"</span><span class="p">,</span>
         <span class="ne">RuntimeWarning</span><span class="p">,</span>
         <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
       <span class="p">)</span>
@@ -661,13 +663,14 @@
       <span class="c1"># the difficulties are centred at 0 by the scale's identification</span>
       <span class="n">factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
       <span class="n">estimates</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_errors</span> <span class="ow">and</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">kept_errors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_errors</span> <span class="ow">and</span> <span class="n">kept_covariances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kept_covariances</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">factor</span>
+        <span class="n">kept_covariances</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
     <span class="n">estimates</span> <span class="o">=</span> <span class="n">_every_item</span><span class="p">(</span><span class="n">estimates</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
       <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
       <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
-      <span class="n">standard_errors</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_every_item</span><span class="p">(</span><span class="n">kept_errors</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">_N_COLUMNS</span><span class="p">),</span>
+      <span class="n">covariances</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">kept_covariances</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_every_item</span><span class="p">(</span><span class="n">kept_covariances</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
       <span class="n">log_likelihood</span><span class="o">=</span><span class="n">_objective</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">correct</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="p">()),</span>
       <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">,</span>
       <span class="c1"># the free item parameters and the abilities of the examinees kept, less the constraints of the scale: one for</span>
@@ -831,9 +834,9 @@
   <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">standard_errors</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_every_item</span><span class="p">(</span><span class="n">kept</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
-<span class="w">  </span><span class="sd">"""Return rows for every column of the responses: those of the items kept, and ``fill`` for the others."""</span>
-  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_every_item</span><span class="p">(</span><span class="n">kept</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return an entry for every column of the responses: that of each item kept, and ``fill`` for the others."""</span>
+  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">items</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="o">*</span><span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="n">fill</span><span class="p">)</span>
   <span class="n">rows</span><span class="p">[</span><span class="n">items</span><span class="p">]</span> <span class="o">=</span> <span class="n">kept</span>
   <span class="k">return</span> <span class="n">rows</span>
 </pre></div>

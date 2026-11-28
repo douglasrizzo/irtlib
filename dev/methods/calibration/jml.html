@@ -551,13 +551,14 @@ difficulties within <span class="math notranslate nohighlight">\(\pm 1\)</span>,
 the correction leaves more of the bias of the items far from the centre of a wide test. It is applied
 once the cycles stop, by default for the Rasch model; Wright and Douglas derive it for the Rasch model
 alone.</p>
-<p><strong>Standard errors.</strong> Each item’s standard errors are the square roots of the diagonal of the inverse
-of its item step’s information at the last cycle <span class="bibtex-citation" id="id32">[<a class="reference internal" href="#id49" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">Baker, 1987</a>, p. 119]</span>, for the Rasch model
-<span class="math notranslate nohighlight">\((\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}\)</span>, with <span class="math notranslate nohighlight">\(n_r\)</span> examinees of score <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p_{ri}\)</span> their
-probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span> <span class="bibtex-citation" id="id33">[<a class="reference internal" href="#id101" title="Benjamin D. Wright and Graham A. Douglas. Best procedures for sample-free item analysis. Applied Psychological Measurement, 1(2):281–295, 1977. Open copy: https://hdl.handle.net/11299/98553. doi:10.1177/014662167700100216.">Wright and Douglas, 1977</a>, p. 285, Equation 16]</span>; the 2PL’s
-difficulty takes its standard error by the delta method, as in <a class="reference internal" href="mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>. They treat the abilities
-as known, and with the correction they are those of the estimates before it, unless <code class="docutils literal notranslate"><span class="pre">correct_errors</span></code>
-multiplies them by its factor too. For a fixed number of items, JML’s estimates are not centred on
+<p><strong>Standard errors and covariances.</strong> Each item’s covariances follow from the inverse of its item
+step’s information at the last cycle, and its standard errors are the square roots of their diagonal
+<span class="bibtex-citation" id="id32">[<a class="reference internal" href="#id49" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">Baker, 1987</a>, p. 119]</span>, for the Rasch model <span class="math notranslate nohighlight">\((\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}\)</span>, with
+<span class="math notranslate nohighlight">\(n_r\)</span> examinees of score <span class="math notranslate nohighlight">\(r\)</span> and <span class="math notranslate nohighlight">\(p_{ri}\)</span> their probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span>
+<span class="bibtex-citation" id="id33">[<a class="reference internal" href="#id101" title="Benjamin D. Wright and Graham A. Douglas. Best procedures for sample-free item analysis. Applied Psychological Measurement, 1(2):281–295, 1977. Open copy: https://hdl.handle.net/11299/98553. doi:10.1177/014662167700100216.">Wright and Douglas, 1977</a>, p. 285, Equation 16]</span>; the 2PL’s difficulty takes its variance and its covariance
+with the slope by the delta method, as in <a class="reference internal" href="mml.html"><span class="doc">Marginal Maximum Likelihood</span></a>. They treat the abilities as known, and with the
+correction they are those of the estimates before it, unless <code class="docutils literal notranslate"><span class="pre">correct_errors</span></code> multiplies the
+difficulty’s row and column of each item’s covariances by its factor too, and so its standard error. For a fixed number of items, JML’s estimates are not centred on
 the parameters and their asymptotic covariance is not the customary one, so “ordinary asymptotic
 confidence intervals” for the difficulties cannot be built from them
 <span class="bibtex-citation" id="id34">[<a class="reference internal" href="#id68" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">Haberman, 2004</a>, pp. 26-27, Theorem 7]</span>; <span class="bibtex-citation" id="id35">[<a class="reference internal" href="#id68" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">Haberman, 2004</a>, p. 29]</span>.</p>
@@ -625,8 +626,9 @@ None corrects the Rasch model and not the 2PL.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">correct_errors</span></code></p></td>
 <td><p>False</p></td>
-<td><p>Whether to multiply the difficulties’ standard errors by the same factor.</p></td>
-<td><p>the standard errors of the estimates before the correction</p></td>
+<td><p>Whether to multiply the difficulty’s row and column of each item’s covariances, and so its
+standard error, by the same factor.</p></td>
+<td><p>the covariances of the estimates before the correction</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">1e-6</span></code></p></td>
@@ -717,8 +719,9 @@ compare only after a linear change of the ability scale (ADR-0008).</p>
 <dt><strong>correct</strong><span class="classifier">bool or None, optional</span></dt><dd><p>Whether to multiply the difficulties of the Rasch model by <code class="docutils literal notranslate"><span class="pre">(M</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">M</span></code>, for <code class="docutils literal notranslate"><span class="pre">M</span></code> items kept, once the
 likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.</p>
 </dd>
-<dt><strong>correct_errors</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to multiply the difficulties’ standard errors by <code class="docutils literal notranslate"><span class="pre">(M</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">M</span></code> too, when the difficulties are
-corrected. Default is False, which keeps the standard errors of the estimates before the correction.</p>
+<dt><strong>correct_errors</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to multiply the difficulty’s row and column of each item’s covariances by <code class="docutils literal notranslate"><span class="pre">(M</span> <span class="pre">-</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">M</span></code> too, and so
+its standard error by that factor, when the difficulties are corrected. Default is False, which keeps the
+covariances of the estimates before the correction.</p>
 </dd>
 <dt><strong>tolerance</strong><span class="classifier">float, optional</span></dt><dd><p>The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step
 and an ability step. Default is 1e-6.</p>
@@ -758,9 +761,9 @@ answered correctly by every examinee or by none, repeatedly until neither is lef
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>Calibration</dt><dd><p>The estimates <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">0,</span> <span class="pre">1]</span></code>, their standard errors, and the joint log-likelihood at the estimates, before
+<dt>Calibration</dt><dd><p>The estimates <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">0,</span> <span class="pre">1]</span></code>, their covariances, and the joint log-likelihood at the estimates, before
 any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates
-and standard errors, and the result’s bank leaves it out, with a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> naming it. The result’s
+and covariances, and the result’s bank leaves it out, with a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> naming it. The result’s
 <code class="docutils literal notranslate"><span class="pre">abilities</span></code> are every examinee’s, those of the cycle the estimates come from, on the same scale, with standard
 errors one over the square root of the test information at the estimates before any correction, and the
 evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the ability
@@ -771,7 +774,8 @@ the corrected difficulties are <a class="reference internal" href="../ability/ml
 the 2PL’s abilities separate an item’s correct responses from its incorrect ones, or an item step gives a slope
 that is not positive, the result holds the last complete cycle, says so, and a
 <a class="reference internal" href="../../api/calibration.html#irtlib.calibration.ConvergenceWarning" title="irtlib.calibration.ConvergenceWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvergenceWarning</span></code></a> names the items by their columns; if an item’s information
-cannot be inverted, the result has no standard errors and a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> is issued.</p>
+cannot be inverted, or gives a variance that is not positive, the result has no covariances or standard errors
+and a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> is issued.</p>
 </dd>
 </dl>
 </dd>

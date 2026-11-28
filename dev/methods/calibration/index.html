@@ -451,7 +451,8 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="calibration">
 <h1>Calibration<a class="headerlink" href="#calibration" title="Link to this heading">#</a></h1>
-<p>Calibration estimates the items’ parameters, with their standard errors, from a response matrix.
+<p>Calibration estimates the items’ parameters, with the covariance of each item’s estimates and their
+standard errors, from a response matrix.
 irtlib has three methods, each a calibrator configured at construction whose <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> method
 returns a <a class="reference internal" href="../../api/calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibration</span></code></a>
 (<a class="reference internal" href="../../adr/0006-calibrator-contract.html"><span class="doc">ADR-0006</span></a>). They differ in what they do with the examinees’
