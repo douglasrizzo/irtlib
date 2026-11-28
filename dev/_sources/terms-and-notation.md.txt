@@ -81,6 +81,17 @@ number correct
 : The number of items an examinee answered correctly. Also called the *raw score* or *number-correct
   score*.
 
+rest score
+: An examinee's number correct on the items other than the one in question.
+
+proportion correct
+: The share of the examinees who answered an item that answered it correctly. Also called the
+  item's *p-value*. In the API: {func}`~irtlib.classical.proportion_correct`.
+
+item-rest correlation
+: The correlation of an item's responses with the examinees' rest scores, a point-biserial
+  correlation. In the API: {func}`~irtlib.classical.item_rest_correlation`.
+
 ## Calibration
 
 calibration
@@ -165,6 +176,10 @@ model comparison
 | $I(\theta)$ | test information, $\sum_i I_i(\theta)$ | {func}`irtlib.irt.total_information` |
 | $SE(\hat{\theta})$ | standard error of the ability estimate | `standard_errors` |
 | $u_{ij}$ | examinee $j$'s response to item $i$: 1 if correct, 0 if not | an entry of `responses` |
+| $N_i$, $s_i$ | number of examinees who answered item $i$, and number who answered it correctly | |
+| $p_i$ | proportion correct of item $i$, $s_i / N_i$ | {func}`~irtlib.classical.proportion_correct` |
+| $R_{ij}$ | examinee $j$'s rest score for item $i$ | |
+| $r_i$ | item-rest correlation of item $i$ | {func}`~irtlib.classical.item_rest_correlation` |
 | $L_j(\theta)$ | likelihood of examinee $j$'s responses at ability $\theta$ | |
 | $X_q$ | node $q$ of the quadrature grid | `QuadratureGrid.nodes` |
 | $A_q$ | prior mass at node $X_q$ | {func}`~irtlib.quadrature.prior_masses` |

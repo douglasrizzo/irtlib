@@ -389,6 +389,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../ability/index.html">Ability Estimation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../fit/index.html">Item and Person Fit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../comparison.html">Model Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../classical.html">Classical Item Statistics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -510,7 +511,7 @@ by every item.</p>
 <p><strong>The M-step.</strong> It solves in the slope, the intercept and the logits of <span class="math notranslate nohighlight">\(c\)</span> and <span class="math notranslate nohighlight">\(d\)</span>, by
 Fisher scoring with step halving, on all free parameters at once: the system is one block per item
 unless a parameter is shared (<a class="reference internal" href="../../adr/0007-mml-em-settings.html"><span class="doc">ADR-0007</span></a>). The 1PL shares one
-slope, estimated, with abilities <span class="math notranslate nohighlight">\(N(0, 1)\)</span> <span class="bibtex-citation" id="id14">[<a class="reference internal" href="#id86" title="David Thissen. Marginal maximum likelihood estimation for the one-parameter logistic model. Psychometrika, 47(2):175–186, 1982. Not openly available; Baker (1987) describes the method. doi:10.1007/BF02296273.">Thissen, 1982</a>, pp. 175-176, Equation 1]</span>; fixing the
+slope, estimated, with abilities <span class="math notranslate nohighlight">\(N(0, 1)\)</span> <span class="bibtex-citation" id="id14">[<a class="reference internal" href="#id87" title="David Thissen. Marginal maximum likelihood estimation for the one-parameter logistic model. Psychometrika, 47(2):175–186, 1982. Not openly available; Baker (1987) describes the method. doi:10.1007/BF02296273.">Thissen, 1982</a>, pp. 175-176, Equation 1]</span>; fixing the
 slope at 1 for every item gives the model with slopes 1 and abilities <span class="math notranslate nohighlight">\(N(0, 1)\)</span>
 (<a class="reference internal" href="../../adr/0008-scale-priors-fixed-parameters.html"><span class="doc">ADR-0008</span></a>).</p>
 <p><strong>Stopping.</strong> A calibration stops when no estimated parameter changes by more than its tolerance in
@@ -524,7 +525,7 @@ positive definite. The 3PL’s likelihood is “nearly flat along one or more di
 <span class="bibtex-citation" id="id16">[<a class="reference internal" href="#id71" title="Robert J. Mislevy. Bayes modal estimation in item response models. Psychometrika, 51(2):177–195, 1986. Not openly available; Harwell and Baker (1991) describe the method. doi:10.1007/BF02293979.">Mislevy, 1986</a>, p. 189]</span>, which a prior on the logit of <span class="math notranslate nohighlight">\(c\)</span> remedies. The 4PL adds an upper
 asymptote <span class="math notranslate nohighlight">\(d &lt; 1\)</span>, for examinees of high ability who still miss an item
 <span class="bibtex-citation" id="id17">[<a class="reference internal" href="#id45" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">Barton and Lord, 1981</a>, p. 2]</span>, estimated on its logit with a normal prior there; recovering it takes
-thousands of examinees <span class="bibtex-citation" id="id18">[<a class="reference internal" href="#id89" title="Niels G. Waller and Leah Feuerstahler. Bayesian modal estimation of the four-parameter item response model in real, realistic, and idealized data sets. Multivariate Behavioral Research, 52(3):350–370, 2017. Not openly available; Harwell and Baker (1991) describe the Bayes modal estimation it applies. doi:10.1080/00273171.2017.1292893.">Waller and Feuerstahler, 2017</a>, p. 19]</span>; <span class="bibtex-citation" id="id19">[<a class="reference internal" href="#id54" title="Steven Andrew Culpepper. Revisiting the 4-parameter item response model: Bayesian estimation and application. Psychometrika, 81(4):1142–1163, 2016. Not openly available; Zhang, Lu, Du and Zhang (2020) describe the method. doi:10.1007/s11336-015-9477-6.">Culpepper, 2016</a>, Section 5]</span>.</p>
+thousands of examinees <span class="bibtex-citation" id="id18">[<a class="reference internal" href="#id90" title="Niels G. Waller and Leah Feuerstahler. Bayesian modal estimation of the four-parameter item response model in real, realistic, and idealized data sets. Multivariate Behavioral Research, 52(3):350–370, 2017. Not openly available; Harwell and Baker (1991) describe the Bayes modal estimation it applies. doi:10.1080/00273171.2017.1292893.">Waller and Feuerstahler, 2017</a>, p. 19]</span>; <span class="bibtex-citation" id="id19">[<a class="reference internal" href="#id54" title="Steven Andrew Culpepper. Revisiting the 4-parameter item response model: Bayesian estimation and application. Psychometrika, 81(4):1142–1163, 2016. Not openly available; Zhang, Lu, Du and Zhang (2020) describe the method. doi:10.1007/s11336-015-9477-6.">Culpepper, 2016</a>, Section 5]</span>.</p>
 <p><strong>Items with no finite estimate.</strong> An item answered correctly by every examinee who answered it, or
 by none, has no finite estimate, and calibration raises an error listing such items unless a prior on
 the intercept keeps their estimates finite
@@ -724,11 +725,11 @@ warns with a <a class="reference internal" href="../../api/calibration.html#irtl
 <span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id24">2</a>)</span>
 <p>David Oakes. Direct calculation of the information matrix via the EM algorithm. <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em>, 61(2):479–482, 1999. Not openly available; Chalmers (2018) describes the method. <a class="reference external" href="https://doi.org/10.1111/1467-9868.00188">doi:10.1111/1467-9868.00188</a>.</p>
 </div>
-<div class="citation" id="id86" role="doc-biblioentry">
+<div class="citation" id="id87" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">Thi82</a><span class="fn-bracket">]</span></span>
 <p>David Thissen. Marginal maximum likelihood estimation for the one-parameter logistic model. <em>Psychometrika</em>, 47(2):175–186, 1982. Not openly available; Baker (1987) describes the method. <a class="reference external" href="https://doi.org/10.1007/BF02296273">doi:10.1007/BF02296273</a>.</p>
 </div>
-<div class="citation" id="id89" role="doc-biblioentry">
+<div class="citation" id="id90" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">WF17</a><span class="fn-bracket">]</span></span>
 <p>Niels G. Waller and Leah Feuerstahler. Bayesian modal estimation of the four-parameter item response model in real, realistic, and idealized data sets. <em>Multivariate Behavioral Research</em>, 52(3):350–370, 2017. Not openly available; Harwell and Baker (1991) describe the Bayes modal estimation it applies. <a class="reference external" href="https://doi.org/10.1080/00273171.2017.1292893">doi:10.1080/00273171.2017.1292893</a>.</p>
 </div>

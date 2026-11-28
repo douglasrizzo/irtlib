@@ -388,6 +388,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../comparison.html">Model Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../classical.html">Classical Item Statistics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -458,27 +459,27 @@
 <dd class="field-odd"><p><a class="reference internal" href="#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.mean_squares()</span></code></a>; <a class="reference internal" href="#irtlib.fit.person_mean_squares" title="irtlib.fit.person_mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.fit.person_mean_squares()</span></code></a>; <a class="reference internal" href="#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.fit.MeanSquares</span></code></a></p>
 </dd>
 <dt class="field-even">Sources<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="bibtex-citation" id="id1">Wright and Masters [<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">1982</a>]</span>; <span class="bibtex-citation" id="id2">Wright and Stone [<a class="reference internal" href="#id66" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>]</span></p>
+<dd class="field-even"><p><span class="bibtex-citation" id="id1">Wright and Masters [<a class="reference internal" href="#id68" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">1982</a>]</span>; <span class="bibtex-citation" id="id2">Wright and Stone [<a class="reference internal" href="#id67" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>]</span></p>
 </dd>
 </dl>
 <section id="motivation">
 <h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">#</a></h2>
 <p>The weighted and unweighted mean squares compare each response with its expectation at the
-examinee’s estimated ability <span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, pp. 97-99]</span>, summed item by item: the infit and the
+examinee’s estimated ability <span class="bibtex-citation" id="id3">[<a class="reference internal" href="#id68" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, pp. 97-99]</span>, summed item by item: the infit and the
 outfit of the Rasch model. Wright and Masters define them for the models of their book, all built
 from the Rasch model (p. 10; p. 100, Table 5.4a), whose model for dichotomous responses (p. 38,
 Equation 3.1.1) is the 1PL, every item with the same slope <span class="math notranslate nohighlight">\(a\)</span>, with person parameters <span class="math notranslate nohighlight">\(a\theta_j\)</span>
 and item parameters <span class="math notranslate nohighlight">\(ab_i\)</span>. For the other models, <a class="reference internal" href="s-x2.html"><span class="doc">S-X²</span></a> tests item fit.</p>
 <p>Summed examinee by examinee instead, over the items each examinee answered, the same residuals give
 each examinee’s mean squares: person fit, which flags the examinees whose response patterns the model
-does not explain <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 108]</span>. Item fit serves the construction and calibration of a
+does not explain <span class="bibtex-citation" id="id4">[<a class="reference internal" href="#id68" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 108]</span>. Item fit serves the construction and calibration of a
 test, and person fit the validity of the measures a calibrated test makes (p. 109).</p>
 </section>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
 <p>For examinee <span class="math notranslate nohighlight">\(j\)</span> and item <span class="math notranslate nohighlight">\(i\)</span>, with <span class="math notranslate nohighlight">\(P_{ij}\)</span> the probability of a correct response at the examinee’s
 ability and <span class="math notranslate nohighlight">\(Q_{ij} = 1 - P_{ij}\)</span>, the score residual <span class="math notranslate nohighlight">\(y_{ij} = u_{ij} - P_{ij}\)</span>
-<span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 98, Equation 5.4.2]</span> has variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> and kurtosis <span class="math notranslate nohighlight">\(C_{ij}\)</span>
+<span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id68" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 98, Equation 5.4.2]</span> has variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> and kurtosis <span class="math notranslate nohighlight">\(C_{ij}\)</span>
 (p. 98, Equations 5.4.3 and 5.4.4), which for the two categories of a dichotomous item are</p>
 <div class="math notranslate nohighlight">
 \[W_{ij} = P_{ij} Q_{ij}, \quad C_{ij} = P_{ij} Q_{ij} (P_{ij}^3 + Q_{ij}^3),\]</div>
@@ -504,7 +505,7 @@ residuals, which lowers the expected mean square by the factor <span class="math
 (p. 101).</p>
 <p><strong>Person fit.</strong> The examinees’ mean squares “parallel the corresponding item fit statistics exactly”,
 the squared residuals summed over the items for one examinee rather than over the examinees for one
-item <span class="bibtex-citation" id="id6">[<a class="reference internal" href="#id67" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 109]</span>. Over the <span class="math notranslate nohighlight">\(M_j\)</span> items examinee <span class="math notranslate nohighlight">\(j\)</span> answered, the weighted mean
+item <span class="bibtex-citation" id="id6">[<a class="reference internal" href="#id68" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">Wright and Masters, 1982</a>, p. 109]</span>. Over the <span class="math notranslate nohighlight">\(M_j\)</span> items examinee <span class="math notranslate nohighlight">\(j\)</span> answered, the weighted mean
 square, its variance and its standardized value are</p>
 <div class="math notranslate nohighlight">
 \[V_j = \frac{\sum_i y_{ij}^2}{\sum_i W_{ij}}, \quad
@@ -512,7 +513,7 @@ q_j^2 = \frac{\sum_i (C_{ij} - W_{ij}^2)}{\left(\sum_i W_{ij}\right)^2}, \quad
 t_j = (V_j^{1/3} - 1)(3 / q_j) + q_j / 3\]</div>
 <p>(pp. 108-109, Equations 5.7.6-5.7.8), and the unweighted mean square <span class="math notranslate nohighlight">\(U_j = \sum_i z_{ij}^2 / M_j\)</span>
 has the variance <span class="math notranslate nohighlight">\(\sum_i (C_{ij} / W_{ij}^2) / M_j^2 - 1 / M_j\)</span> of Table 5.4a (p. 100), with the items
-in place of the examinees. <span class="bibtex-citation" id="id7">Wright and Stone [<a class="reference internal" href="#id66" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>, p. 77, Equations 4.4.1-4.4.2]</span> divide an examinee’s sum
+in place of the examinees. <span class="bibtex-citation" id="id7">Wright and Stone [<a class="reference internal" href="#id67" title="Benjamin D. Wright and Mark H. Stone. Best Test Design. MESA Press, Chicago, 1979. Open copy: https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf.">1979</a>, p. 77, Equations 4.4.1-4.4.2]</span> divide an examinee’s sum
 of squared standardized residuals by <span class="math notranslate nohighlight">\(M - 1\)</span> instead, one less than the number of items, and
 standardize it by a logarithm; irtlib follows Wright and Masters.</p>
 </section>
@@ -592,12 +593,12 @@ the examinee answered no item or the ability is infinite or NaN, without a warni
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <div class="docutils container" id="id8">
 <div role="list" class="citation-list">
-<div class="citation" id="id67" role="doc-biblioentry">
+<div class="citation" id="id68" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>WM82<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>,<a role="doc-backlink" href="#id5">4</a>,<a role="doc-backlink" href="#id6">5</a>)</span>
 <p>Benjamin D. Wright and Geoffrey N. Masters. <em>Rating Scale Analysis</em>. MESA Press, Chicago, 1982. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf">https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf</a>.</p>
 </div>
-<div class="citation" id="id66" role="doc-biblioentry">
+<div class="citation" id="id67" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>WS79<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id7">2</a>)</span>
 <p>Benjamin D. Wright and Mark H. Stone. <em>Best Test Design</em>. MESA Press, Chicago, 1979. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf">https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf</a>.</p>

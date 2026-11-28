@@ -388,6 +388,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../ability/index.html">Ability Estimation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../fit/index.html">Item and Person Fit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../comparison.html">Model Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../classical.html">Classical Item Statistics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -459,7 +460,7 @@
 </dd>
 <dt class="field-even">Sources<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="bibtex-citation" id="id1">Magis [<a class="reference internal" href="#id61" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">2013</a>]</span>; <span class="bibtex-citation" id="id2">Magis and Raîche [<a class="reference internal" href="#id60" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>; <span class="bibtex-citation" id="id3">Barton and Lord [<a class="reference internal" href="#id39" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">1981</a>]</span>; <span class="bibtex-citation" id="id4">Baker [<a class="reference internal" href="#id35" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">1987</a>]</span>;
-<span class="bibtex-citation" id="id5">Veerkamp and Berger [<a class="reference internal" href="#id81" title="Wim J. J. Veerkamp and Martijn P. F. Berger. Some new item selection criteria for adaptive testing. Research Report 94-6, University of Twente, 1994. Open access. URL: https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf.">1994</a>]</span>; <span class="bibtex-citation" id="id6">Barrada <em>et al.</em> [<a class="reference internal" href="#id37" title="Juan Ramón Barrada, Paloma Mazuela, and Julio Olea. Maximum information stratification method for controlling item exposure in computerized adaptive testing. Psicothema, 18(1):156–159, 2006. Open access. URL: https://www.psicothema.com/pdf/3191.pdf.">2006</a>]</span></p>
+<span class="bibtex-citation" id="id5">Veerkamp and Berger [<a class="reference internal" href="#id82" title="Wim J. J. Veerkamp and Martijn P. F. Berger. Some new item selection criteria for adaptive testing. Research Report 94-6, University of Twente, 1994. Open access. URL: https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf.">1994</a>]</span>; <span class="bibtex-citation" id="id6">Barrada <em>et al.</em> [<a class="reference internal" href="#id37" title="Juan Ramón Barrada, Paloma Mazuela, and Julio Olea. Maximum information stratification method for controlling item exposure in computerized adaptive testing. Psicothema, 18(1):156–159, 2006. Open access. URL: https://www.psicothema.com/pdf/3191.pdf.">2006</a>]</span></p>
 </dd>
 </dl>
 <section id="motivation">
@@ -491,7 +492,7 @@ the first is also <span class="bibtex-citation" id="id10">Magis [<a class="refer
 information of its items <span class="bibtex-citation" id="id13">[<a class="reference internal" href="#id60" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 5, Equation 8]</span>.</p>
 <p><strong>Standard error and confidence interval.</strong> The maximum likelihood estimate of the ability is
 asymptotically normal, with variance the inverse of the test information
-<span class="bibtex-citation" id="id14">[<a class="reference internal" href="#id85" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">Warm, 1989</a>, p. 445]</span> and standard error <span class="math notranslate nohighlight">\(1 / \sqrt{I(\theta)}\)</span>
+<span class="bibtex-citation" id="id14">[<a class="reference internal" href="#id86" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">Warm, 1989</a>, p. 445]</span> and standard error <span class="math notranslate nohighlight">\(1 / \sqrt{I(\theta)}\)</span>
 <span class="bibtex-citation" id="id15">[<a class="reference internal" href="#id60" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 4, Equation 3]</span>. <a class="reference internal" href="#irtlib.irt.confidence_interval" title="irtlib.irt.confidence_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">confidence_interval()</span></code></a> is the interval this
 normal approximation gives, <span class="math notranslate nohighlight">\(\hat\theta \pm z \cdot SE\)</span>, with <span class="math notranslate nohighlight">\(z\)</span> the standard normal’s quantile at
 <span class="math notranslate nohighlight">\((1 + \text{confidence}) / 2\)</span>.</p>
@@ -516,7 +517,7 @@ in closed form:</p>
 <div class="math notranslate nohighlight">
 \[\int_{\theta_L}^{\theta_U} I_i(\theta)\, d\theta = \frac{a_i}{d_i - c_i} \Big[ P_i - c_i d_i \log P_i +
 (1 - c_i)(1 - d_i) \log(1 - P_i) \Big]_{P_i(\theta_L)}^{P_i(\theta_U)},\]</div>
-<p>which extends the 3PL closed form of <span class="bibtex-citation" id="id20">Veerkamp and Berger [<a class="reference internal" href="#id81" title="Wim J. J. Veerkamp and Martijn P. F. Berger. Some new item selection criteria for adaptive testing. Research Report 94-6, University of Twente, 1994. Open access. URL: https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf.">1994</a>, p. 22, Equation 25]</span>, to which it reduces
+<p>which extends the 3PL closed form of <span class="bibtex-citation" id="id20">Veerkamp and Berger [<a class="reference internal" href="#id82" title="Wim J. J. Veerkamp and Martijn P. F. Berger. Some new item selection criteria for adaptive testing. Research Report 94-6, University of Twente, 1994. Open access. URL: https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf.">1994</a>, p. 22, Equation 25]</span>, to which it reduces
 when <span class="math notranslate nohighlight">\(d_i = 1\)</span>. Under the 2PL the integral over the whole scale is <span class="math notranslate nohighlight">\(a_i\)</span> (p. 22, Equation 28).</p>
 <p><strong>The log-likelihood.</strong> The log-likelihood of examinee <span class="math notranslate nohighlight">\(j\)</span>’s responses <span class="math notranslate nohighlight">\(u_{ij}\)</span> is</p>
 <div class="math notranslate nohighlight">
@@ -672,12 +673,12 @@ parameters.</p></li>
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id26">Mis86</a><span class="fn-bracket">]</span></span>
 <p>Robert J. Mislevy. Bayes modal estimation in item response models. <em>Psychometrika</em>, 51(2):177–195, 1986. Not openly available; Harwell and Baker (1991) describe the method. <a class="reference external" href="https://doi.org/10.1007/BF02293979">doi:10.1007/BF02293979</a>.</p>
 </div>
-<div class="citation" id="id81" role="doc-biblioentry">
+<div class="citation" id="id82" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>VB94<span class="fn-bracket">]</span></span>
 <span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id20">2</a>)</span>
 <p>Wim J. J. Veerkamp and Martijn P. F. Berger. Some new item selection criteria for adaptive testing. Research Report 94-6, University of Twente, 1994. Open access. URL: <a class="reference external" href="https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf">https://ris.utwente.nl/ws/files/5155670/RR_94-6.pdf</a>.</p>
 </div>
-<div class="citation" id="id85" role="doc-biblioentry">
+<div class="citation" id="id86" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">War89</a><span class="fn-bracket">]</span></span>
 <p>Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. <em>Psychometrika</em>, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, <a class="reference external" href="https://hdl.handle.net/11244/5356">https://hdl.handle.net/11244/5356</a>, derives the same results. <a class="reference external" href="https://doi.org/10.1007/BF02294627">doi:10.1007/BF02294627</a>.</p>
 </div>

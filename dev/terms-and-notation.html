@@ -510,6 +510,14 @@ The responses are <em>complete</em> when no entry is missing.</p>
 <dt>number correct</dt><dd><p>The number of items an examinee answered correctly. Also called the <em>raw score</em> or <em>number-correct
 score</em>.</p>
 </dd>
+<dt>rest score</dt><dd><p>An examinee’s number correct on the items other than the one in question.</p>
+</dd>
+<dt>proportion correct</dt><dd><p>The share of the examinees who answered an item that answered it correctly. Also called the
+item’s <em>p-value</em>. In the API: <a class="reference internal" href="methods/classical.html#irtlib.classical.proportion_correct" title="irtlib.classical.proportion_correct"><code class="xref py py-func docutils literal notranslate"><span class="pre">proportion_correct()</span></code></a>.</p>
+</dd>
+<dt>item-rest correlation</dt><dd><p>The correlation of an item’s responses with the examinees’ rest scores, a point-biserial
+correlation. In the API: <a class="reference internal" href="methods/classical.html#irtlib.classical.item_rest_correlation" title="irtlib.classical.item_rest_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">item_rest_correlation()</span></code></a>.</p>
+</dd>
 </dl>
 </section>
 <section id="calibration">
@@ -639,6 +647,22 @@ functions of <a class="reference internal" href="methods/comparison.html#module-
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(u_{ij}\)</span></p></td>
 <td><p>examinee <span class="math notranslate nohighlight">\(j\)</span>’s response to item <span class="math notranslate nohighlight">\(i\)</span>: 1 if correct, 0 if not</p></td>
 <td><p>an entry of <code class="docutils literal notranslate"><span class="pre">responses</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(N_i\)</span>, <span class="math notranslate nohighlight">\(s_i\)</span></p></td>
+<td><p>number of examinees who answered item <span class="math notranslate nohighlight">\(i\)</span>, and number who answered it correctly</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(p_i\)</span></p></td>
+<td><p>proportion correct of item <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(s_i / N_i\)</span></p></td>
+<td><p><a class="reference internal" href="methods/classical.html#irtlib.classical.proportion_correct" title="irtlib.classical.proportion_correct"><code class="xref py py-func docutils literal notranslate"><span class="pre">proportion_correct()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(R_{ij}\)</span></p></td>
+<td><p>examinee <span class="math notranslate nohighlight">\(j\)</span>’s rest score for item <span class="math notranslate nohighlight">\(i\)</span></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(r_i\)</span></p></td>
+<td><p>item-rest correlation of item <span class="math notranslate nohighlight">\(i\)</span></p></td>
+<td><p><a class="reference internal" href="methods/classical.html#irtlib.classical.item_rest_correlation" title="irtlib.classical.item_rest_correlation"><code class="xref py py-func docutils literal notranslate"><span class="pre">item_rest_correlation()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(L_j(\theta)\)</span></p></td>
 <td><p>likelihood of examinee <span class="math notranslate nohighlight">\(j\)</span>’s responses at ability <span class="math notranslate nohighlight">\(\theta\)</span></p></td>
