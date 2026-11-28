@@ -281,10 +281,13 @@ def test_person_mean_squares_are_nan_without_an_answer_or_a_finite_ability(theta
     np.testing.assert_array_equal(values[:1], getattr(alone, name), err_msg=name)
 
 
-def test_person_mean_squares_need_one_ability_per_examinee() -> None:
-  """An array of abilities of another length than the examinees' is refused, naming both."""
+def test_person_mean_squares_need_one_number_per_examinee() -> None:
+  """Abilities of another length than the examinees', or that are not numbers, are refused, naming what they got."""
+  matrix = np.array([[1, 0, 1], [0, 1, 1]])
   with pytest.raises(ValueError, match=r"one ability per row of responses, 2, got shape \(3,\)"):
-    person_mean_squares(np.array([[1, 0, 1], [0, 1, 1]]), _HAND_WORKED_ITEMS, [0.0, 0.5, 1.0])
+    person_mean_squares(matrix, _HAND_WORKED_ITEMS, [0.0, 0.5, 1.0])
+  with pytest.raises(TypeError, match="theta holds <U3 values; theta must hold numbers"):
+    person_mean_squares(matrix, _HAND_WORKED_ITEMS, ["0.0", "0.5"])
 
 
 def test_person_mean_squares_average_one_at_the_generating_abilities() -> None:
@@ -293,8 +296,9 @@ def test_person_mean_squares_average_one_at_the_generating_abilities() -> None:
   Thirty items with guessing up to .25 and upper asymptotes down to .9, and 4,000 examinees. At the generating
   abilities each examinee's mean squares have expectation 1 (Wright & Masters, 1982, p. 108), with the variances of
   Table 5.4a (p. 100) and Equation 5.7.7, written out here at the generating probabilities: the band is four standard
-  errors of their average. Fails if the probabilities ignore the guessing or the upper asymptote, which moves the
-  average outfit above 2, or the mean squares are taken at other abilities.
+  errors of their average. Fails if the probabilities ignore the guessing and the upper asymptote, which moves the
+  average outfit to 1.90 and the average infit to 1.19 (measured 2026-11-28), or if the mean squares are taken at
+  other abilities.
   """
   rng = np.random.default_rng(20261201)
   n_items, n_examinees = 30, 4000

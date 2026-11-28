@@ -58,7 +58,7 @@ Table 5.4a). Wright and Masters estimate the person and item parameters from the
 residuals, which lowers the expected mean square by the factor $(M - 1)(N - 1) / (MN)$ for $M$ items
 (p. 101).
 
-**Person fit.** The person mean squares "parallel the corresponding item fit statistics exactly",
+**Person fit.** The examinees' mean squares "parallel the corresponding item fit statistics exactly",
 the squared residuals summed over the items for one examinee rather than over the examinees for one
 item {cite:p}`Wright1982{p. 109}`. Over the $M_j$ items examinee $j$ answered, the weighted mean
 square, its variance and its standardized value are
@@ -72,25 +72,25 @@ $$
 (pp. 108-109, Equations 5.7.6-5.7.8), and the unweighted mean square $U_j = \sum_i z_{ij}^2 / M_j$
 has the variance $\sum_i (C_{ij} / W_{ij}^2) / M_j^2 - 1 / M_j$ of Table 5.4a (p. 100), with the items
 in place of the examinees. {cite:t}`Wright1979{p. 77, Equations 4.4.1-4.4.2}` divide an examinee's sum
-of squared standardized residuals by $M_j - 1$ instead, and standardize it by a logarithm; irtlib
-follows Wright and Masters.
+of squared standardized residuals by $M - 1$ instead, one less than the number of items, and
+standardize it by a logarithm; irtlib follows Wright and Masters.
 
 ## Implementation
 
 **The abilities.** The item mean squares take EAP estimates of
 {func}`irtlib.ability.expected_a_posteriori` on the calibration's grid, abilities normal with mean 0
 and variance 1 ({doc}`ADR-0006 </adr/0006-calibrator-contract>`), so they take a calibration of the
-1PL by {doc}`/methods/calibration/mml`. The person mean squares take the abilities from the caller,
+1PL by {doc}`/methods/calibration/mml`. The examinees' mean squares take the abilities from the caller,
 estimated by any of the {doc}`/methods/ability/index`.
 
 **The models.** The item mean squares take the 1PL, the model of Wright and Masters' book. The
-person mean squares take items of any model, 1PL to 4PL: $W_{ij}$ and $C_{ij}$ are written in terms of
+examinees' mean squares take items of any model, 1PL to 4PL: $W_{ij}$ and $C_{ij}$ are written in terms of
 the model's probabilities (p. 108, Equations 5.7.1-5.7.3), but no source on the shelf applies the mean
 squares beyond the Rasch model.
 
 **Missing responses.** Wright and Masters' sums run over every examinee and every item, with no rule
 for a missing response. The item mean squares need complete responses
-({doc}`ADR-0006 </adr/0006-calibrator-contract>`). The person mean squares sum over the items each
+({doc}`ADR-0006 </adr/0006-calibrator-contract>`). The examinees' mean squares sum over the items each
 examinee answered, $M_j$ of them, with no source on the shelf for that rule; an examinee who answered
 no item, or whose ability is infinite or NaN, has none of the four values.
 
@@ -103,7 +103,7 @@ no item, or whose ability is infinite or NaN, has none of the four values.
 - the standard deviation of either mean square is capped at 1.4142 before standardizing.
 
 The [sources wanted](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/discovery/sources-wanted.md)
-list these three, the person mean squares of the 2PL to 4PL, and their sums over the answered items.
+list these three, the examinees' mean squares of the 2PL to 4PL, and their sums over the answered items.
 
 :::{dropdown} Comparison with mirt
 
@@ -116,7 +116,7 @@ list these three, the person mean squares of the 2PL to 4PL, and their sums over
   with missing responses sums over the examinees who answered each item, with $N$ their number
   (`R/itemfit.R:577-584`), and over the items each examinee answered, with $M_j$ their number
   (`R/personfit.R:195, 202-210`).
-- Three departures, in the person mean squares only. With missing responses, mirt divides the
+- Three departures, in the examinees' mean squares only. With missing responses, mirt divides the
   first term of the outfit's variance by the square of the number of all items, $M^2$, where irtlib
   divides it by $M_j^2$ (`R/personfit.R:204`). Where the floor on $W_{ij}$ leaves that variance
   negative, mirt takes its absolute value (`R/personfit.R:204`), and irtlib gives NaN. mirt replaces
@@ -126,7 +126,7 @@ list these three, the person mean squares of the 2PL to 4PL, and their sums over
   standardized values within a relative $10^{-10}$; on irtlib's own calibration, the mean squares
   within a relative $10^{-4}$ and the standardized values within $10^{-3}$
   ({doc}`ADR-0003 </adr/0003-mirt-as-the-reference>`). At the same abilities, on 2PL, 3PL and 4PL
-  items with responses complete and missing, they find mirt's person mean squares within a relative
+  items with responses complete and missing, they find mirt's mean squares of the examinees within a relative
   $10^{-10}$, and their standardized values too, except the standardized outfit with missing
   responses.
 :::
@@ -143,7 +143,7 @@ has settings.
    standardized value is NaN where its mean square's variance is not positive.
 2. For the item mean squares, a missing response, a calibration whose likelihood is not marginal, or a
    calibration of a model other than the 1PL raises an error.
-3. The person mean squares of an examinee leave out the examinee's missing responses, and are NaN when
+3. The mean squares of an examinee leave out the examinee's missing responses, and are NaN when
    the examinee answered no item or the ability is infinite or NaN, without a warning.
 
 ## References

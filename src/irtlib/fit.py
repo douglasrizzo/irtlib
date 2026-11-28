@@ -166,9 +166,9 @@ def _collapse(observed: FloatArray, expected: FloatArray, min_expected: float) -
 class MeanSquares:
   """The outfit and infit mean squares of each item, or of each examinee, each with its standardized value.
 
-  An item's mean squares sum over the examinees who answered it, and an examinee's over the items the examinee
-  answered. Both mean squares have expectation 1 when the responses fit the model at the abilities they are evaluated
-  at, and less when the abilities are estimated from the same responses.
+  An item's mean squares sum over every examinee, and an examinee's over the items the examinee answered. Both mean
+  squares have expectation 1 when the responses fit the model at the abilities they are evaluated at, and less when
+  the abilities are estimated from the same responses.
 
   Parameters
   ----------
@@ -276,7 +276,7 @@ def person_mean_squares(responses: npt.ArrayLike, items: npt.ArrayLike, theta: n
   Raises
   ------
   TypeError
-      If the responses are neither Booleans, integers nor floats.
+      If the responses are neither Booleans, integers nor floats, or ``theta`` holds values other than numbers.
   ValueError
       If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is
       not 0, 1 or NaN, or ``theta`` does not hold one ability per row of ``responses``.
@@ -291,11 +291,16 @@ def person_mean_squares(responses: npt.ArrayLike, items: npt.ArrayLike, theta: n
   (array([0.378, 1.99 , 0.435]), array([0.402, 1.904, 0.465]))
   """
   matrix, items = responses_and_items(responses, items)
-  theta = numpy.array(theta, dtype=float)
+  theta = numpy.asarray(theta)
+  if theta.dtype.kind not in "iuf":
+    msg = f"theta holds {theta.dtype} values; theta must hold numbers, one ability per row of responses"
+    raise TypeError(msg)
+  theta = theta.astype(float)
   if theta.shape != (matrix.shape[0],):
     msg = f"theta must hold one ability per row of responses, {matrix.shape[0]}, got shape {theta.shape}"
     raise ValueError(msg)
-  # an examinee without a finite ability is left with no response, and its probabilities are taken at 0 unused
+  # an examinee without a finite ability is left with no response; its theta is set to 0 only so that its
+  # probabilities are finite, and its NaN responses keep them out of every sum
   finite = numpy.isfinite(theta)
   matrix[~finite] = numpy.nan
   log_p, log_q = log_response_probabilities(numpy.where(finite, theta, 0.0), items)
@@ -315,7 +320,8 @@ def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSq
   squared_residual = numpy.where(responses == 1, q, p) ** 2
   # each column's sum over its responses
   total = functools.partial(numpy.sum, axis=0, where=answered)
-  # a column without responses divides 0 by 0, which leaves its mean squares and their variances NaN
+  # a column without responses divides 0 by 0, which leaves its mean squares and their variances NaN: an examinee who
+  # answered no item; never an item, whose responses the item mean squares require complete and non-empty
   with numpy.errstate(divide="ignore", invalid="ignore"):
     outfit = total(squared_residual / variance) / n_responses
     outfit_variance = total(kurtosis / variance**2) / n_responses**2 - 1 / n_responses

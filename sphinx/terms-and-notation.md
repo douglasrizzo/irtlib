@@ -157,6 +157,7 @@ model comparison
 | $j$ | examinee index, a row of the response matrix | |
 | $M$ | number of items | `ItemBank.n_items` |
 | $N$ | number of examinees | |
+| $M_j$ | number of items examinee $j$ answered | |
 | $a_i$, $b_i$, $c_i$, $d_i$ | discrimination, difficulty, guessing parameter and upper asymptote of item $i$ | `discrimination`, `difficulty`, `pseudo_guessing`, `upper_asymptote` |
 | $P_i(\theta)$ | probability of a correct response to item $i$ | {func}`irtlib.irt.icc` |
 | $Q_i(\theta)$ | $1 - P_i(\theta)$, probability of an incorrect response | |
