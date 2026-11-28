@@ -133,7 +133,9 @@ def test_two_items_closed_form(right_wrong: int, wrong_right: int) -> None:
   for calibration in (uncorrected, corrected):
     assert calibration.converged
     assert calibration.standard_errors is not None
-    np.testing.assert_allclose(calibration.standard_errors[:, 1], expected_error, rtol=1e-9)
+    # the ability search compares likelihoods, so it finds the ability to about 1e-8, which moved the standard error
+    # by a relative 3e-9 on CI's Windows runner (measured 2026-11-27)
+    np.testing.assert_allclose(calibration.standard_errors[:, 1], expected_error, rtol=1e-6)
     np.testing.assert_allclose(calibration.log_likelihood, log_likelihood, rtol=1e-12)
 
 
