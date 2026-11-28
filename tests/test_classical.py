@@ -59,6 +59,16 @@ def test_statistics_of_a_hand_worked_matrix_with_a_missing_response() -> None:
   np.testing.assert_allclose(item_rest_correlation(matrix), expected, rtol=1e-14)
 
 
+def test_a_perfect_correlation_is_exactly_minus_one() -> None:
+  """Two items whose responses are each other's complement correlate at exactly -1, not one rounding step below.
+
+  Each item's rest score is the other item's response, so each correlation is that of a response with its own
+  complement. Fails if the rounding of the sums carries the correlation to -1.0000000000000002.
+  """
+  matrix = np.array([[0, 1], [0, 1], [0, 1], [1, 0], [0, 1]])
+  np.testing.assert_array_equal(item_rest_correlation(matrix), [-1.0, -1.0])
+
+
 @pytest.mark.parametrize(
   ("matrix", "proportions", "correlations"),
   [
@@ -84,14 +94,22 @@ def test_undefined_statistics_are_nan(
   np.testing.assert_allclose(item_rest_correlation(np.array(matrix)), correlations, rtol=1e-14)
 
 
+def _pearson(moments: np.ndarray) -> np.ndarray:
+  """Return Pearson's correlation of a 0-1 response x and a score R from the means of x, R, xR and R², the last axis."""
+  x, score, product, square = np.moveaxis(moments, -1, 0)
+  return (product - x * score) / np.sqrt(x * (1 - x) * (square - score**2))
+
+
 def test_statistics_recover_their_population_values() -> None:
   """On 2PL responses of 20,000 examinees, both statistics fall near their values in the population.
 
   Each item's population proportion correct integrates its probability of a correct response over the standard
   normal density of abilities; its standard error is [p(1 - p)/N]^(1/2) (Wright & Stone, 1979, p. 25, Equation
-  1.7.2). The population item-rest correlation follows from the 32 response patterns' probabilities, integrated the
-  same way; the sample correlation's standard error is about (1 - ρ²)/N^(1/2). The bands are four standard errors.
-  Fails if either statistic is computed on the wrong scores, such as the total score with the item.
+  1.7.2). The population item-rest correlation follows from the means of x, R, xR and R² over the 32 response
+  patterns, whose probabilities are integrated the same way. The sample correlation is the same function of the
+  sample means, so its standard error follows by the delta method, from that function's gradient and the four
+  quantities' covariance over the patterns. The bands are four standard errors. Fails if either statistic is computed
+  on the wrong scores, such as the total score with the item.
   """
   items = np.array([[0.8, -1.0, 0, 1], [1.2, -0.3, 0, 1], [1.5, 0.2, 0, 1], [1.0, 0.8, 0, 1], [2.0, 1.4, 0, 1]])
   n_examinees = 20_000
@@ -108,12 +126,16 @@ def test_statistics_recover_their_population_values() -> None:
     for x in patterns
   ])
   rest = patterns.sum(axis=1, keepdims=True) - patterns
-  covariance = masses @ (patterns * rest) - population * (masses @ rest)
-  rest_variance = masses @ rest**2 - (masses @ rest) ** 2
-  correlation = covariance / np.sqrt(population * (1 - population) * rest_variance)
+  quantities = np.stack([patterns, rest, patterns * rest, rest**2], axis=-1)  # patterns x items x 4
+  means = np.einsum("p,pik->ik", masses, quantities)
+  correlation = _pearson(means)
+  step = 1e-6
+  gradient = np.stack(
+    [(_pearson(means + step * unit) - _pearson(means - step * unit)) / (2 * step) for unit in np.eye(4)], axis=-1
+  )
+  influence = np.einsum("pik,ik->pi", quantities - means, gradient)
+  correlation_se = np.sqrt(masses @ influence**2 / n_examinees)
   np.testing.assert_array_less(
     np.abs(proportion_correct(matrix) - population), 4 * np.sqrt(population * (1 - population) / n_examinees)
   )
-  np.testing.assert_array_less(
-    np.abs(item_rest_correlation(matrix) - correlation), 4 * (1 - correlation**2) / np.sqrt(n_examinees)
-  )
+  np.testing.assert_array_less(np.abs(item_rest_correlation(matrix) - correlation), 4 * correlation_se)

@@ -116,8 +116,8 @@ error. irtlib has four estimators ({mod}`irtlib.ability`):
 ## Checking a Calibration
 
 Before a calibration, two classical item statistics screen the responses with no model: each item's
-proportion correct, and its correlation with the examinees' scores on the other items
-{cite:p}`Wright1979{pp. 25-26}` ({mod}`irtlib.classical`).
+proportion correct {cite:p}`Wright1979{p. 25}`, and its correlation with the examinees' scores on the
+other items {cite:p}`Baker1987{p. 123}` ({mod}`irtlib.classical`).
 
 Item fit compares, item by item, the responses a calibration predicts with those observed
 ({mod}`irtlib.fit`). Orlando and Thissen's S-X² groups examinees by their number-correct score,

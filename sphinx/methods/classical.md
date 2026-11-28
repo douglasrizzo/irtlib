@@ -21,26 +21,25 @@ the point-biserial correlation of the item and the item-excluded test score
 
 ## Definition
 
-For item $i$, answered by $N_i$ examinees of whom $s_i$ answered it correctly, the proportion correct
-is
-
-$$
-p_i = s_i / N_i
-$$
-
+The proportion correct of item $i$ is the share of the examinees who answered it correctly
 {cite:p}`Wright1979{p. 25}`. Examinee $j$'s rest score for item $i$ is the sum of the examinee's
-responses to the other items, $R_{ij} = \sum_{k \ne i} u_{kj}$, the score $S_p - X_{pi}$ of
-{cite:t}`Robitzsch2021{p. 819}`. The item-rest correlation is the point-biserial correlation of the
-responses $u_{ij}$ with the rest scores, by Haberman's standard estimate of the point-biserial
-correlation {cite:p}`Haberman2004{p. 47}`, with the rest score in place of the test score:
+responses to the other items, $R_{ij} = \sum_{k \ne i} u_{kj}$ {cite:p}`Robitzsch2021{p. 819}`, and
+the item-rest correlation is the point-biserial correlation of the responses $u_{ij}$ with the rest
+scores, by Haberman's standard estimate of the point-biserial correlation
+{cite:p}`Haberman2004{p. 47}`, with the rest score in place of the test score.
+
+Wright and Stone and Haberman count every one of the $N$ examinees. irtlib takes both statistics
+over the $N_i$ examinees who answered item $i$, all $N$ when the responses are complete (see "Missing
+responses" below). With $s_i$ of them answering the item correctly,
 
 $$
+p_i = s_i / N_i, \quad
 r_i = \frac{\sum_j u_{ij} R_{ij} - s_i \bar R_i}
 {\left[ s_i (1 - s_i / N_i) \sum_j (R_{ij} - \bar R_i)^2 \right]^{1/2}},
 $$
 
-where the sums run over the $N_i$ examinees and $\bar R_i$ is their mean rest score. It is Pearson's
-correlation of the two.
+where the sums run over those $N_i$ examinees and $\bar R_i$ is their mean rest score; $r_i$ is
+Pearson's correlation of the responses and the rest scores.
 
 ## Implementation
 
@@ -62,6 +61,8 @@ does, which includes a test of one item and a single examinee.
   score as the sum of the other answered items, correlated over the examinees who answered the item
   (`R/itemstats.R:110-120, 148`). Its `empirical_plot` draws them, types `"difficulty"`,
   `"discrim"` and `"discrim_diff"` (manual p. 54).
+- One departure: mirt leaves out an item nobody answered (`R/itemstats.R:107-109`), where irtlib
+  keeps it, with NaN for both statistics. No parity case has such an item.
 - On LSAT6, LSAT7 and a simulated data set with a tenth of its responses missing, the parity tests
   find both statistics within a relative $10^{-10}$ of mirt's
   ({doc}`ADR-0003 </adr/0003-mirt-as-the-reference>`).
@@ -77,6 +78,10 @@ take the response matrix, and have no settings.
 1. Each item gets one value, from the examinees who answered it; missing responses raise no error.
 2. A statistic with no value is NaN, without a warning, and leaves the other items' values as they
    are.
+3. The item-rest correlation lies between -1 and 1, a perfect one included.
+4. On the LSAT data, the proportions correct are those {cite:t}`Rizopoulos2006{p. 5}` prints, and the
+   item-rest correlations those that follow from the correlations with the total score and the
+   frequencies of the total scores it prints (p. 6), within the rounding of the printed values.
 
 ## References
 

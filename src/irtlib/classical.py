@@ -93,4 +93,6 @@ def item_rest_correlation(responses: npt.ArrayLike) -> FloatArray:
   covariance = numpy.sum(item_deviation * rest_deviation, axis=0, where=answered)
   spread = numpy.sum(item_deviation**2, axis=0, where=answered) * numpy.sum(rest_deviation**2, axis=0, where=answered)
   # a constant item or rest score has no correlation
-  return numpy.divide(covariance, numpy.sqrt(spread), out=numpy.full(spread.shape, numpy.nan), where=spread > 0)
+  correlation = numpy.divide(covariance, numpy.sqrt(spread), out=numpy.full(spread.shape, numpy.nan), where=spread > 0)
+  # rounding can carry a perfect correlation one unit in the last place past -1 or 1; NaN passes through
+  return numpy.clip(correlation, -1.0, 1.0)
