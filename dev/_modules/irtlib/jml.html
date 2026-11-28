@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.jml &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/jml';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.jml</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.jml</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""Joint maximum likelihood calibration of the Rasch model and the 2PL.</span>
+
+<span class="sd">Joint maximum likelihood (JML) treats every examinee's ability as a parameter, and maximizes the likelihood of the</span>
+<span class="sd">responses over the abilities and the item parameters together, with no assumption about the distribution of ability</span>
+<span class="sd">(:cite:t:`Baker1987`, p. 112). With :math:`N` examinees and :math:`M` items, its logarithm is</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   \sum_{j=1}^N \sum_{i=1}^M \left[u_{ij} \log P_i(\theta_j) + (1 - u_{ij}) \log Q_i(\theta_j)\right]</span>
+
+<span class="sd">(:cite:t:`Baker1987`, p. 112, Equations 1 and 3), for the 2PL (p. 114, Equation 5) or for the Rasch model, whose slopes</span>
+<span class="sd">are 1 (p. 115, Equation 9; :cite:t:`Wright1977`, p. 282, Equations 1-3). As each examinee adds a parameter, the item</span>
+<span class="sd">estimates do not converge to the item parameters as examinees are added to a test of fixed length</span>
+<span class="sd">(:cite:t:`Bock1981`, p. 443; :cite:t:`Baker1987`, pp. 117-118): for the Rasch model they converge to limits that differ</span>
+<span class="sd">from the parameters by a term of order :math:`1/M` (:cite:t:`Haberman2004`, p. 13), and Haberman (p. 35) finds it</span>
+<span class="sd">"difficult to advocate use of JMLE except for preliminary estimation of parameters".</span>
+
+<span class="sd">**Examinees and items left out.** An examinee with no item or every item correct has no finite ability estimate, and</span>
+<span class="sd">an item answered correctly by every examinee or by none no finite estimate either (:cite:t:`Wright1977`, p. 294;</span>
+<span class="sd">:cite:t:`Haberman2004`, p. 7). Both are left out before estimation, the examinees first and then the items, repeatedly</span>
+<span class="sd">until neither is left, as Wright and Douglas's editing does (p. 294), and the items left out get no estimate. For the</span>
+<span class="sd">Rasch model, the joint likelihood of the responses left can still lack a maximum: it has none exactly when the</span>
+<span class="sd">examinees with at most some number correct answered none of a group of items and the others all of the rest</span>
+<span class="sd">(:cite:t:`Haberman2004`, p. 11, Theorem 1), the same split that leaves the conditional likelihood of</span>
+<span class="sd">:py:mod:`irtlib.cml` none once those examinees and items are left out, and calibration raises an error naming the</span>
+<span class="sd">groups.</span>
+
+<span class="sd">**The cycles.** Each cycle has two steps, after Birnbaum's paradigm (:cite:t:`Baker1987`, p. 112):</span>
+
+<span class="sd">- the item step maximizes, for each item, its grouped log-likelihood with the abilities fixed, by the Fisher scoring of</span>
+<span class="sd">  the M-step of :py:mod:`irtlib.mml` with the estimated abilities in place of the quadrature nodes and the observed</span>
+<span class="sd">  counts in place of the expected ones. For the Rasch model and the 2PL the Hessian is the information, so the steps</span>
+<span class="sd">  are Newton-Raphson's (:cite:t:`Baker1987`, p. 116), those of Wright and Douglas (p. 284, Equation 11) for the</span>
+<span class="sd">  difficulties and of Baker (p. 114, Equation 8) for the 2PL's intercept and slope;</span>
+<span class="sd">- the ability step estimates each examinee's ability with the items fixed, by maximum likelihood</span>
+<span class="sd">  (:py:func:`irtlib.ability.maximum_likelihood`). Under the Rasch model every examinee with the same number correct has</span>
+<span class="sd">  the same estimate (:cite:t:`Wright1977`, p. 283; :cite:t:`Baker1987`, p. 115), and under either model every examinee</span>
+<span class="sd">  with the same responses, so each is estimated once.</span>
+
+<span class="sd">The likelihood is the same for abilities and items moved together along a linear transformation of the ability scale</span>
+<span class="sd">(:cite:t:`Baker1987`, p. 112), so after each ability step both are moved to fix the scale (ADR-0008): for the Rasch</span>
+<span class="sd">model so that the difficulties have mean 0, as BICAL fixes it (p. 115) and as Wright and Douglas recentre them (p. 283;</span>
+<span class="sd">p. 284, step iv); for the 2PL so that the abilities of the examinees kept have mean 0 and standard deviation 1, its</span>
+<span class="sd">divisor the number of examinees, as LOGIST fixes it (p. 112). LOGIST standardizes only the abilities between -3 and 3</span>
+<span class="sd">(:cite:t:`Mislevy1989`, p. 60), where irtlib standardizes every examinee kept.</span>
+
+<span class="sd">The cycles start from Wright and Douglas's (p. 283, Equation 9; p. 284, Equation 10) starting values, the abilities</span>
+<span class="sd">:math:`\log(r / (M - r))` for :math:`r` correct and the difficulties :math:`\log((N - s_i) / s_i)` centred, for</span>
+<span class="sd">:math:`s_i` correct responses to item :math:`i`; for the 2PL, which they do not cover, the slopes start at 1 and the</span>
+<span class="sd">abilities are standardized. A calibration stops when no item parameter changes by more than its tolerance in a cycle,</span>
+<span class="sd">:math:`10^{-6}` by default, in at most 500 cycles, the rule and the defaults of :py:mod:`irtlib.mml` (ADR-0007). Wright</span>
+<span class="sd">and Douglas stop when the mean squared change of the difficulties falls below :math:`10^{-4}` (p. 285, Equation 15),</span>
+<span class="sd">which stopped 0.0007 and 0.0009 short of the maximum on 20 items and on LSAT-6, where irtlib's rule stops within</span>
+<span class="sd">:math:`2 \times 10^{-7}` of it (measured 2026-11-27). The ability step compares likelihoods, which can leave changes of</span>
+<span class="sd">about :math:`10^{-8}` from cycle to cycle, as on a 2PL of 20 items and 400 examinees, so a tolerance below that may not</span>
+<span class="sd">be met (measured 2026-11-28).</span>
+
+<span class="sd">**Bias and its correction for the Rasch model.** For the Rasch model, Wright and Douglas write each difficulty</span>
+<span class="sd">estimate as the conditional one plus a bias, :math:`d_i^* = d_i + a_{ri}` at score :math:`r`, approximating the bias by</span>
+<span class="sd">the change in the conditional ability for score :math:`r` when item :math:`i` is left out, and its relative bias as</span>
+<span class="sd">:math:`c_{ri} = a_{ri} / d_i` (:cite:t:`Wright1977`, p. 286, Equations 25-27). Averaged over scores and items with</span>
+<span class="sd">:math:`|d_i| \geq 0.5`, they find it close to :math:`1 / (M - 1)` whatever the spread of the difficulties (p. 287,</span>
+<span class="sd">Equations 31-34, Table 1), so the estimates spread outward from the conditional ones, and multiplying the centred</span>
+<span class="sd">difficulties by the correction factor :math:`(M - 1) / M` (p. 287, Equation 35) leaves a residual bias of at most 0.012</span>
+<span class="sd">for 20 items (p. 288, Table 2). The factor is the one "used in most versions of UCON", and with two items, for which</span>
+<span class="sd">the joint estimates are exactly twice the conditional ones, it is exact (p. 288; :cite:t:`Haberman2004`, pp. 17-18). It</span>
+<span class="sd">assumes item difficulties and examinees spread "more or less uniform[ly]" over the scores (:cite:t:`Wright1977`,</span>
+<span class="sd">p. 288), and it brings the estimates close to the conditional ones, which "is not the same as" removing their bias from</span>
+<span class="sd">the parameters (:cite:t:`Baker1987`, p. 118). Computed exactly for 20 items equally spaced, with as many examinees at</span>
+<span class="sd">each score, the relative bias is 0.055 for difficulties within :math:`\pm 1`, as Wright and Douglas find, but 0.060</span>
+<span class="sd">within :math:`\pm 2` and 0.071 within :math:`\pm 3`, and the largest residual after the correction 0.004, 0.029 and</span>
+<span class="sd">0.090 (measured 2026-11-27): the correction leaves more of the bias of the items far from the centre of a wide test.</span>
+<span class="sd">It is applied once the cycles stop, by default for the Rasch model; Wright and Douglas derive it for the Rasch model</span>
+<span class="sd">alone.</span>
+
+<span class="sd">**Standard errors.** Each item's standard errors are the square roots of the diagonal of the inverse of its item step's</span>
+<span class="sd">information at the last cycle (:cite:t:`Baker1987`, p. 119), for the Rasch model</span>
+<span class="sd">:math:`(\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}`, with :math:`n_r` examinees of score :math:`r` and :math:`p_{ri}` their</span>
+<span class="sd">probability of a correct response to item :math:`i` (:cite:t:`Wright1977`, p. 285, Equation 16); the 2PL's difficulty</span>
+<span class="sd">takes its standard error by the delta method, as in :py:mod:`irtlib.mml`. They treat the abilities as known, and with</span>
+<span class="sd">the correction they are those of the estimates before it, unless ``correct_errors`` multiplies them by its factor too.</span>
+<span class="sd">For a fixed number of items, JML's estimates are not centred on the parameters and their asymptotic covariance is not</span>
+<span class="sd">the customary one, so "ordinary asymptotic confidence intervals" for the difficulties cannot be built from them</span>
+<span class="sd">(:cite:t:`Haberman2004`, pp. 26-27, Theorem 7; p. 29).</span>
+
+<span class="sd">Under the 2PL a slope can grow without bound, as large slopes and the abilities of the examinees who answer those items</span>
+<span class="sd">correctly feed each other from cycle to cycle, the Heywood case; LOGIST imposes upper limits on the slopes</span>
+<span class="sd">(:cite:t:`Baker1987`, p. 113), and "the maximizing values for item discriminations under the 2PL ... are sometimes</span>
+<span class="sd">infinite" (:cite:t:`Mislevy1989`, p. 62). irtlib imposes no limit. An item whose correct responses the abilities all put</span>
+<span class="sd">at or above its incorrect ones, or at or below, discriminates perfectly, and its slope has no finite estimate</span>
+<span class="sd">(:cite:t:`Baker1987`, p. 117), so the cycles stop before such an item step; they stop too at an item step that gives a</span>
+<span class="sd">slope that is not positive, since the ability step needs positive slopes. Either way the result holds the last complete</span>
+<span class="sd">cycle and says so. On short tests this is the usual outcome. On LSAT-6 and LSAT-7, five items and 1,000 examinees,</span>
+<span class="sd">the cycles stopped after 3 and 2 at an item step that gave one slope a value that was not positive and another 3.53 and</span>
+<span class="sd">7.21. On random 2PL tests, slopes uniform on [0.7, 2], difficulties on [-1.5, 1.5] and abilities normal, the cycles</span>
+<span class="sd">stopped on all 50 tests of 8 items and 300 examinees (38 at a separation, 12 at a slope that was not positive), on 19 of</span>
+<span class="sd">20 of 10 items and 500 examinees, 13 of 20 of 15 and 500, and 3 of 20 of 20 and 500, and on none of 10 tests each of 20</span>
+<span class="sd">and 30 items with 1,000 examinees (measured 2026-11-28). The authors of LOGIST advise at least 20 items per examinee and</span>
+<span class="sd">800 to 1,000 examinees per item (:cite:t:`Mislevy1989`, p. 61).</span>
+
+<span class="sd">The result holds every examinee's ability (ADR-0006), from the cycle its item estimates come from and before any</span>
+<span class="sd">correction, so that the abilities, the uncorrected item estimates and the log-likelihood go together; each ability's</span>
+<span class="sd">standard error is that of maximum likelihood, the inverse square root of the test information, there. An examinee left</span>
+<span class="sd">out has the ability :math:`\infty` or :math:`-\infty`, as maximum likelihood gives responses all right or all wrong. JML</span>
+<span class="sd">needs complete responses, as its sources write it, an examinee's number correct out of every item (:cite:t:`Wright1977`,</span>
+<span class="sd">p. 282), and :py:class:`irtlib.mml.MMLCalibrator` calibrates incomplete ones (ADR-0006).</span>
+
+<span class="sd">On two SAT tests of 78 and 60 items, the largest difference between the joint and conditional estimates of the Rasch</span>
+<span class="sd">difficulties was 0.097 and 0.126, against conditional standard errors of at most 0.008</span>
+<span class="sd">(:cite:t:`Haberman2004`, pp. 44-45). In :cite:t:`Robitzsch2021`'s simulations, JML with the correction and extreme</span>
+<span class="sd">scores removed (p. 816) had a mean absolute bias below 0.025 (p. 821) in 54.2% of the conditions, against 100% for</span>
+<span class="sd">conditional maximum likelihood (p. 823, Table 2).</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._m_step</span><span class="w"> </span><span class="kn">import</span> <span class="n">_free_information</span><span class="p">,</span> <span class="n">_m_step</span><span class="p">,</span> <span class="n">_objective</span><span class="p">,</span> <span class="n">_standard_errors</span><span class="p">,</span> <span class="n">_to_items</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">_N_COLUMNS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ability</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbilityEstimates</span><span class="p">,</span> <span class="n">maximum_likelihood</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.bank</span><span class="w"> </span><span class="kn">import</span> <span class="n">IrtModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+  <span class="n">Calibration</span><span class="p">,</span>
+  <span class="n">ConvergenceWarning</span><span class="p">,</span>
+  <span class="n">Likelihood</span><span class="p">,</span>
+  <span class="n">_edited</span><span class="p">,</span>
+  <span class="n">_reject_separation</span><span class="p">,</span>
+  <span class="n">_valid_items</span><span class="p">,</span>
+  <span class="n">validate_responses</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">total_information</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">IntArray</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Groups</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The examinees kept, grouped so that the examinees of a group share an ability estimate."""</span>
+
+  <span class="n">patterns</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""The responses of the first examinee of each group, groups by items."""</span>
+  <span class="n">correct</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""The number of correct responses to each item in each group, groups by items."""</span>
+  <span class="n">total</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""The number of responses to each item in each group, its size, since every examinee answers every item."""</span>
+  <span class="n">sizes</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""The number of examinees in each group."""</span>
+  <span class="n">members</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""The group of each examinee kept, in the order of their rows."""</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">of</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kept</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rasch</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the examinees grouped by their number correct under the Rasch model, and by their responses otherwise."""</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">kept</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="n">kept</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">inverse</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="n">inverse</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">correct</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">first</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">members</span><span class="p">,</span> <span class="n">kept</span><span class="p">)</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">kept</span><span class="p">[</span><span class="n">first</span><span class="p">],</span> <span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">members</span><span class="p">)</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">separated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the items whose correct responses all come at abilities at or above, or at or below, the incorrect ones.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    theta : numpy.ndarray</span>
+<span class="sd">        The ability of each group.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        The indices of the items, among those kept, that the abilities separate.</span>
+<span class="sd">    """</span>
+    <span class="n">abilities</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">right</span><span class="p">,</span> <span class="n">wrong</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">correct</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">correct</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span>
+    <span class="n">lowest_right</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">abilities</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">highest_right</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">abilities</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">lowest_wrong</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wrong</span><span class="p">,</span> <span class="n">abilities</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">highest_wrong</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">wrong</span><span class="p">,</span> <span class="n">abilities</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">lowest_right</span> <span class="o">&gt;=</span> <span class="n">highest_wrong</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">highest_right</span> <span class="o">&lt;=</span> <span class="n">lowest_wrong</span><span class="p">))</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Fit</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The state of a calibration: the item parameters and the abilities of the groups, and how its cycles went."""</span>
+
+  <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""The index of each item's slope, intercept and logits of c and d among the free parameters, -1 for a fixed one."""</span>
+  <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""Each item's slope, intercept and logits of c and d."""</span>
+  <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""Each group's ability."""</span>
+  <span class="n">evaluations</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""The evaluations of each group's likelihood in the ability step that gave its ability, 0 for a starting one."""</span>
+  <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">change</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+  <span class="n">failure</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="JMLCalibrator">
+<a class="viewcode-back" href="../../api/jml.html#irtlib.jml.JMLCalibrator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JMLCalibrator</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Calibrate the Rasch model or the 2PL by joint maximum likelihood.</span>
+
+<span class="sd">  Each call to :py:meth:`calibrate` estimates the items of one complete response matrix together with the abilities</span>
+<span class="sd">  of its examinees, with no assumption about their distribution. The estimates are not consistent for a test of fixed</span>
+<span class="sd">  length; they serve comparisons of calibration methods and preliminary estimates. On short tests the 2PL's joint</span>
+<span class="sd">  maximum often does not exist, its slopes growing without bound; calibration then stops early with a</span>
+<span class="sd">  :py:class:`~irtlib.calibration.ConvergenceWarning`.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  model : irtlib.IrtModel or str, optional</span>
+<span class="sd">      ``"2PL"``, the default, estimates a slope and a difficulty per item, with the abilities given mean 0 and standard</span>
+<span class="sd">      deviation 1; ``"1PL"`` the Rasch model, every slope 1, with the difficulties given mean 0. The 1PL of</span>
+<span class="sd">      :py:class:`~irtlib.mml.MMLCalibrator` estimates one slope with abilities :math:`N(0, 1)` instead, so the two</span>
+<span class="sd">      compare only after a linear change of the ability scale (ADR-0008).</span>
+<span class="sd">  correct : bool or None, optional</span>
+<span class="sd">      Whether to multiply the difficulties of the Rasch model by ``(M - 1) / M``, for ``M`` items kept, once the</span>
+<span class="sd">      likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.</span>
+<span class="sd">  correct_errors : bool, optional</span>
+<span class="sd">      Whether to multiply the difficulties' standard errors by ``(M - 1) / M`` too, when the difficulties are</span>
+<span class="sd">      corrected. Default is False, which keeps the standard errors of the estimates before the correction.</span>
+<span class="sd">  tolerance : float, optional</span>
+<span class="sd">      The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step</span>
+<span class="sd">      and an ability step. Default is 1e-6.</span>
+<span class="sd">  max_cycles : int, optional</span>
+<span class="sd">      The most cycles a calibration runs before it stops unconverged. Default is 500.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``model`` is neither the 1PL nor the 2PL, ``correct`` is True for the 2PL, ``correct_errors`` is True where</span>
+<span class="sd">      the difficulties are not corrected, ``tolerance`` is not positive, or ``max_cycles`` is less than 1.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; responses = numpy.array([[1, 0], [1, 0], [0, 1], [1, 1], [0, 0]], dtype=float)</span>
+<span class="sd">  &gt;&gt;&gt; calibration = JMLCalibrator("1PL", correct=False).calibrate(responses)</span>
+<span class="sd">  &gt;&gt;&gt; calibration.estimates[:, 1].round(4)  # b_2 - b_1 = 2 log(2 / 1)</span>
+<span class="sd">  array([-0.6931,  0.6931])</span>
+<span class="sd">  """</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">IrtModel</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL2</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">correct_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">max_cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">IrtModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">match</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+      <span class="k">case</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span> <span class="o">|</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL2</span><span class="p">:</span>
+        <span class="k">pass</span>
+      <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"JMLCalibrator calibrates the 1PL and the 2PL, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">correct</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the correction (M - 1) / M is derived for the Rasch model, the 1PL, not the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tolerance</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tolerance must be positive, got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"max_cycles must be at least 1, got </span><span class="si">{</span><span class="n">max_cycles</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_correct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span> <span class="k">if</span> <span class="n">correct</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">correct</span>
+    <span class="k">if</span> <span class="n">correct_errors</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"correct_errors multiplies the standard errors by the correction (M - 1) / M, which this calibrator does not "</span>
+        <span class="sa">f</span><span class="s2">"apply: the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2"> with correct=</span><span class="si">{</span><span class="n">correct</span><span class="si">}</span><span class="s2">"</span>
+      <span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_correct_errors</span> <span class="o">=</span> <span class="n">correct_errors</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span> <span class="o">=</span> <span class="n">max_cycles</span>
+
+<div class="viewcode-block" id="JMLCalibrator.calibrate">
+<a class="viewcode-back" href="../../api/jml.html#irtlib.jml.JMLCalibrator.calibrate">[docs]</a>
+  <span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Estimate the items of a complete response matrix, with the abilities of its examinees.</span>
+
+<span class="sd">    Examinees with no item or every item correct have no finite ability estimate and are left out, as are items</span>
+<span class="sd">    answered correctly by every examinee or by none, repeatedly until neither is left.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    responses : numpy.ndarray</span>
+<span class="sd">        The response matrix: one row per examinee, one column per item, holding 1 or 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Calibration</span>
+<span class="sd">        The estimates ``[a, b, 0, 1]``, their standard errors, and the joint log-likelihood at the estimates, before</span>
+<span class="sd">        any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates</span>
+<span class="sd">        and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's</span>
+<span class="sd">        ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with standard</span>
+<span class="sd">        errors one over the square root of the test information at the estimates before any correction, and the</span>
+<span class="sd">        evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the ability</span>
+<span class="sd">        ``inf`` or ``-inf``, for every item kept right or wrong, standard error ``inf`` and 0 evaluations. Abilities at</span>
+<span class="sd">        the corrected difficulties are :py:func:`irtlib.ability.maximum_likelihood`'s, called as</span>
+<span class="sd">        ``maximum_likelihood(responses[:, kept], calibration.estimates[kept])`` for the items with estimates,</span>
+<span class="sd">        ``kept = ~numpy.isnan(calibration.estimates[:, 1])``. If the stopping rule is not met within ``max_cycles``,</span>
+<span class="sd">        the 2PL's abilities separate an item's correct responses from its incorrect ones, or an item step gives a slope</span>
+<span class="sd">        that is not positive, the result holds the last complete cycle, says so, and a</span>
+<span class="sd">        :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an item's information</span>
+<span class="sd">        cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the responses fail :py:func:`irtlib.calibration.validate_responses` or have a missing response; no item is</span>
+<span class="sd">        left once examinees and items are left out; under the Rasch model, the joint likelihood has no maximum, which</span>
+<span class="sd">        the error explains by the two groups of items the responses split into; under the 2PL, every examinee kept has</span>
+<span class="sd">        the same number correct, which leaves the starting abilities no spread; or an item's information is singular</span>
+<span class="sd">        during the cycles.</span>
+<span class="sd">    """</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"joint maximum likelihood needs complete responses; irtlib.mml.MMLCalibrator calibrates responses with "</span>
+        <span class="s2">"missing entries"</span>
+      <span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">kept</span><span class="p">,</span> <span class="n">examinees</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">_edited</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">)</span>
+    <span class="n">rasch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span>
+    <span class="k">if</span> <span class="n">rasch</span><span class="p">:</span>
+      <span class="n">_reject_separation</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">_Groups</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">)</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">_start</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fit</span><span class="o">.</span><span class="n">failure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"calibration stopped after </span><span class="si">{</span><span class="n">fit</span><span class="o">.</span><span class="n">cycles</span><span class="si">}</span><span class="s2"> cycles: </span><span class="si">{</span><span class="n">fit</span><span class="o">.</span><span class="n">failure</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ConvergenceWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">kept_errors</span> <span class="o">=</span> <span class="n">_standard_errors</span><span class="p">(</span>
+      <span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">_free_information</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; an item may "</span>
+        <span class="s2">"have no finite estimate"</span><span class="p">,</span>
+        <span class="ne">RuntimeWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="n">estimates</span> <span class="o">=</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">abilities</span> <span class="o">=</span> <span class="n">_abilities</span><span class="p">(</span><span class="n">fit</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">estimates</span><span class="p">,</span> <span class="n">matrix</span><span class="p">[:,</span> <span class="n">items</span><span class="p">],</span> <span class="n">examinees</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct</span><span class="p">:</span>
+      <span class="c1"># the difficulties are centred at 0 by the scale's identification</span>
+      <span class="n">factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+      <span class="n">estimates</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_correct_errors</span> <span class="ow">and</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kept_errors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">factor</span>
+    <span class="n">estimates</span> <span class="o">=</span> <span class="n">_every_item</span><span class="p">(</span><span class="n">estimates</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="p">[</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
+      <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
+      <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
+      <span class="n">standard_errors</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">kept_errors</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_every_item</span><span class="p">(</span><span class="n">kept_errors</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">_N_COLUMNS</span><span class="p">),</span>
+      <span class="n">log_likelihood</span><span class="o">=</span><span class="n">_objective</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">correct</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="p">()),</span>
+      <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">,</span>
+      <span class="c1"># the free item parameters and the abilities of the examinees kept, less the constraints of the scale: one for</span>
+      <span class="c1"># the Rasch model's mean difficulty, two for the 2PL's mean and standard deviation of the abilities</span>
+      <span class="n">n_parameters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="mi">2</span><span class="p">),</span>
+      <span class="n">item_parameters</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+      <span class="n">cycles</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">cycles</span><span class="p">,</span>
+      <span class="n">converged</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">failure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
+      <span class="n">change</span><span class="o">=</span><span class="n">fit</span><span class="o">.</span><span class="n">change</span><span class="p">,</span>
+      <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">abilities</span><span class="o">=</span><span class="n">abilities</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">_Groups</span><span class="p">,</span> <span class="n">fit</span><span class="p">:</span> <span class="n">_Fit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="n">rasch</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Fit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run cycles of an item and an ability step until the rule is met, the cycles run out, or a slope has no estimate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    groups : _Groups</span>
+<span class="sd">        The examinees kept, grouped.</span>
+<span class="sd">    fit : _Fit</span>
+<span class="sd">        The starting item parameters and abilities.</span>
+<span class="sd">    columns : numpy.ndarray</span>
+<span class="sd">        The column of the responses of each item kept, for the messages.</span>
+<span class="sd">    rasch : bool</span>
+<span class="sd">        Whether the model is the Rasch model.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    _Fit</span>
+<span class="sd">        The item parameters and the abilities of the last complete cycle, on the identified scale; the complete cycles</span>
+<span class="sd">        run; the largest change of an item parameter in the last of them; and None if the rule was met, or else why</span>
+<span class="sd">        the cycles stopped short of it.</span>
+<span class="sd">    """</span>
+    <span class="n">free</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">change</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="n">separated</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="k">if</span> <span class="n">rasch</span> <span class="k">else</span> <span class="n">groups</span><span class="o">.</span><span class="n">separated</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">separated</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">failure</span> <span class="o">=</span> <span class="p">(</span>
+          <span class="sa">f</span><span class="s2">"the abilities separate the correct and incorrect responses to the items in columns "</span>
+          <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">columns</span><span class="p">[</span><span class="n">separated</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, so their slopes have no finite estimate"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">cycle</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">failure</span><span class="p">)</span>
+      <span class="n">stepped</span> <span class="o">=</span> <span class="n">_m_step</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">correct</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="p">())</span>
+      <span class="n">negative</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">stepped</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">negative</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="n">largest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">stepped</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
+        <span class="n">failure</span> <span class="o">=</span> <span class="p">(</span>
+          <span class="sa">f</span><span class="s2">"the item step of the next cycle gave the items in columns </span><span class="si">{</span><span class="n">columns</span><span class="p">[</span><span class="n">negative</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2"> a slope that is not "</span>
+          <span class="sa">f</span><span class="s2">"positive, and the item in column </span><span class="si">{</span><span class="n">columns</span><span class="p">[</span><span class="n">largest</span><span class="p">]</span><span class="si">}</span><span class="s2"> the largest slope, </span><span class="si">{</span><span class="n">stepped</span><span class="p">[</span><span class="n">largest</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">cycle</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">failure</span><span class="p">)</span>
+      <span class="n">abilities</span> <span class="o">=</span> <span class="n">maximum_likelihood</span><span class="p">(</span><span class="n">groups</span><span class="o">.</span><span class="n">patterns</span><span class="p">,</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">stepped</span><span class="p">))</span>
+      <span class="n">stepped</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_identified</span><span class="p">(</span><span class="n">stepped</span><span class="p">,</span> <span class="n">abilities</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">sizes</span><span class="p">,</span> <span class="n">rasch</span><span class="o">=</span><span class="n">rasch</span><span class="p">)</span>
+      <span class="n">evaluations</span> <span class="o">=</span> <span class="n">abilities</span><span class="o">.</span><span class="n">evaluations</span>
+      <span class="n">change</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">stepped</span><span class="p">[</span><span class="n">free</span><span class="p">]</span> <span class="o">-</span> <span class="n">values</span><span class="p">[</span><span class="n">free</span><span class="p">])))</span>
+      <span class="n">values</span> <span class="o">=</span> <span class="n">stepped</span>
+      <span class="k">if</span> <span class="n">change</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">cycle</span><span class="p">,</span> <span class="n">change</span><span class="p">)</span>
+    <span class="n">failure</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the last cycle changed an item parameter by </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, above the tolerance </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">failure</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_start</span><span class="p">(</span><span class="n">groups</span><span class="p">:</span> <span class="n">_Groups</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rasch</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Fit</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the starting item parameters and abilities, on the identified scale.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  _Fit</span>
+<span class="sd">      The index of each item parameter among the free ones, and the starting item parameters and abilities.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the 2PL's starting abilities have no spread, every examinee kept having the same number correct.</span>
+<span class="sd">  """</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">scores</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scores</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_items</span> <span class="o">-</span> <span class="n">scores</span><span class="p">))</span>
+  <span class="n">totals</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">correct</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+  <span class="n">difficulty</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">groups</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">totals</span><span class="p">)</span> <span class="o">/</span> <span class="n">totals</span><span class="p">)</span>
+  <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">],</span> <span class="p">(</span><span class="n">n_items</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">difficulty</span> <span class="o">-</span> <span class="n">difficulty</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+  <span class="n">index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_items</span><span class="p">,</span> <span class="n">_N_COLUMNS</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">rasch</span><span class="p">:</span>
+    <span class="n">index</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">)</span>
+  <span class="n">index</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+  <span class="n">index</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_items</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">scores</span> <span class="o">==</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="sa">f</span><span class="s2">"every examinee kept has </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> correct, so the 2PL's abilities, standardized to fix its scale, start "</span>
+      <span class="s2">"with no spread"</span>
+    <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">values</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">_identified</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">groups</span><span class="o">.</span><span class="n">sizes</span><span class="p">,</span> <span class="n">rasch</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_Fit</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_identified</span><span class="p">(</span>
+  <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">sizes</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">rasch</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the item parameters and abilities moved along the ability scale to its identified position.</span>
+
+<span class="sd">  For the Rasch model, the difficulties have mean 0; for the 2PL, the abilities of the examinees, each group counted</span>
+<span class="sd">  by its size, have mean 0 and standard deviation 1. The joint likelihood does not change.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[numpy.ndarray, numpy.ndarray]</span>
+<span class="sd">      The item parameters and the abilities on the identified scale.</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="n">rasch</span><span class="p">:</span>
+    <span class="c1"># the slopes are 1, so each difficulty is the negated intercept</span>
+    <span class="n">location</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])),</span> <span class="mf">1.0</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">location</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">sizes</span><span class="p">))</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">average</span><span class="p">((</span><span class="n">theta</span> <span class="o">-</span> <span class="n">location</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">sizes</span><span class="p">)))</span>
+  <span class="c1"># theta = scale * theta' + location turns slope * theta + intercept into (slope * scale) theta' + (intercept + slope *</span>
+  <span class="c1"># location)</span>
+  <span class="n">moved</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">moved</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">location</span>
+  <span class="n">moved</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">scale</span>
+  <span class="k">return</span> <span class="n">moved</span><span class="p">,</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">location</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_abilities</span><span class="p">(</span>
+  <span class="n">fit</span><span class="p">:</span> <span class="n">_Fit</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">_Groups</span><span class="p">,</span> <span class="n">estimates</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">examinees</span><span class="p">:</span> <span class="n">BoolArray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return every examinee's ability: its group's if it is kept, and otherwise the infinite one of its responses.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  fit : _Fit</span>
+<span class="sd">      The calibration's state, whose abilities go with ``estimates``.</span>
+<span class="sd">  groups : _Groups</span>
+<span class="sd">      The examinees kept, grouped.</span>
+<span class="sd">  estimates : numpy.ndarray</span>
+<span class="sd">      The estimates of the items kept, before any correction.</span>
+<span class="sd">  responses : numpy.ndarray</span>
+<span class="sd">      Every examinee's responses to the items kept.</span>
+<span class="sd">  examinees : numpy.ndarray</span>
+<span class="sd">      The mask of the examinees kept among the rows.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  irtlib.ability.AbilityEstimates</span>
+<span class="sd">      Each examinee's ability, its standard error at ``estimates``, and the evaluations that gave it.</span>
+<span class="sd">  """</span>
+  <span class="c1"># an examinee left out answered every item kept right, or every one wrong</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">responses</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">theta</span><span class="p">[</span><span class="n">examinees</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">[</span><span class="n">groups</span><span class="o">.</span><span class="n">members</span><span class="p">]</span>
+  <span class="n">standard_errors</span><span class="p">[</span><span class="n">examinees</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_information</span><span class="p">(</span><span class="n">fit</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">estimates</span><span class="p">)</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)[</span><span class="n">groups</span><span class="o">.</span><span class="n">members</span><span class="p">]</span>
+  <span class="n">evaluations</span><span class="p">[</span><span class="n">examinees</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">evaluations</span><span class="p">[</span><span class="n">groups</span><span class="o">.</span><span class="n">members</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">standard_errors</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_every_item</span><span class="p">(</span><span class="n">kept</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">fill</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return rows for every column of the responses: those of the items kept, and ``fill`` for the others."""</span>
+  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="n">rows</span><span class="p">[</span><span class="n">items</span><span class="p">]</span> <span class="o">=</span> <span class="n">kept</span>
+  <span class="k">return</span> <span class="n">rows</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

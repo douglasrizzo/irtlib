@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Bibliography &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Contributing" href="contributing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Bibliography</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="bibliography">
+<h1>Bibliography<a class="headerlink" href="#bibliography" title="Link to this heading">#</a></h1>
+<div class="docutils container" id="id1">
+<div role="list" class="citation-list">
+<div class="citation" id="id2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Aka74<span class="fn-bracket">]</span></span>
+<p>Hirotugu Akaike. A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control</em>, 19(6):716–723, 1974. Not openly available; Vrieze (2012) describes the criterion. <a class="reference external" href="https://doi.org/10.1109/TAC.1974.1100705">doi:10.1109/TAC.1974.1100705</a>.</p>
+</div>
+<div class="citation" id="id3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Alb92<span class="fn-bracket">]</span></span>
+<p>James H. Albert. Bayesian estimation of normal ogive item response curves using Gibbs sampling. <em>Journal of Educational Statistics</em>, 17(3):251–269, 1992. Not openly available; Sheng (2008) describes the method. <a class="reference external" href="https://doi.org/10.3102/10769986017003251">doi:10.3102/10769986017003251</a>.</p>
+</div>
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>And70<span class="fn-bracket">]</span></span>
+<p>Erling B. Andersen. Asymptotic properties of conditional maximum-likelihood estimators. <em>Journal of the Royal Statistical Society: Series B (Methodological)</em>, 32(2):283–301, 1970. Not openly available; Haberman (2004) describes conditional estimation. <a class="reference external" href="https://doi.org/10.1111/j.2517-6161.1970.tb00842.x">doi:10.1111/j.2517-6161.1970.tb00842.x</a>.</p>
+</div>
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>And72<span class="fn-bracket">]</span></span>
+<p>Erling B. Andersen. The numerical solution of a set of conditional estimation equations. <em>Journal of the Royal Statistical Society: Series B (Methodological)</em>, 34(1):42–54, 1972. Not openly available; Haberman (2004) describes the Newton-Raphson solution. <a class="reference external" href="https://doi.org/10.1111/j.2517-6161.1972.tb00887.x">doi:10.1111/j.2517-6161.1972.tb00887.x</a>.</p>
+</div>
+<div class="citation" id="id6" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Bak87<span class="fn-bracket">]</span></span>
+<p>Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. <em>Applied Psychological Measurement</em>, 11(2):111–141, 1987. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/103398">https://hdl.handle.net/11299/103398</a>. <a class="reference external" href="https://doi.org/10.1177/014662168701100201">doi:10.1177/014662168701100201</a>.</p>
+</div>
+<div class="citation" id="id7" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BH96<span class="fn-bracket">]</span></span>
+<p>Frank B. Baker and Michael R. Harwell. Computing elementary symmetric functions and their derivatives: a didactic. <em>Applied Psychological Measurement</em>, 20(2):169–192, 1996. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/119090">https://hdl.handle.net/11299/119090</a>. <a class="reference external" href="https://doi.org/10.1177/014662169602000206">doi:10.1177/014662169602000206</a>.</p>
+</div>
+<div class="citation" id="id8" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BOPA10<span class="fn-bracket">]</span></span>
+<p>Juan Ramón Barrada, Julio Olea, Vicente Ponsoda, and Francisco José Abad. A method for the comparison of item selection rules in computerized adaptive testing. <em>Applied Psychological Measurement</em>, 34(6):438–452, 2010. Open copy: <a class="reference external" href="https://personal.unizar.es/barrada/papers/10_APM_Barrada.pdf">https://personal.unizar.es/barrada/papers/10_APM_Barrada.pdf</a>. <a class="reference external" href="https://doi.org/10.1177/0146621610370152">doi:10.1177/0146621610370152</a>.</p>
+</div>
+<div class="citation" id="id9" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BL81<span class="fn-bracket">]</span></span>
+<p>Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED207996.pdf">https://files.eric.ed.gov/fulltext/ED207996.pdf</a>. <a class="reference external" href="https://doi.org/10.1002/j.2333-8504.1981.tb01255.x">doi:10.1002/j.2333-8504.1981.tb01255.x</a>.</p>
+</div>
+<div class="citation" id="id10" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Bat20<span class="fn-bracket">]</span></span>
+<p>Michela Battauz. Regularized estimation of the four-parameter logistic model. <em>Psych</em>, 2(4):269–278, 2020. Open access. <a class="reference external" href="https://doi.org/10.3390/psych2040020">doi:10.3390/psych2040020</a>.</p>
+</div>
+<div class="citation" id="id11" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BWD20<span class="fn-bracket">]</span></span>
+<p>Marie Beisemann, Ortrud Wartlick, and Philipp Doebler. Comparison of recent acceleration techniques for the EM algorithm in one- and two-parameter logistic IRT models. <em>Psych</em>, 2(4):209–252, 2020. Open access. <a class="reference external" href="https://doi.org/10.3390/psych2040018">doi:10.3390/psych2040018</a>.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BA81<span class="fn-bracket">]</span></span>
+<p>R. Darrell Bock and Murray Aitkin. Marginal maximum likelihood estimation of item parameters: application of an EM algorithm. <em>Psychometrika</em>, 46(4):443–459, 1981. Not openly available; Baker (1987) describes the method. <a class="reference external" href="https://doi.org/10.1007/BF02293801">doi:10.1007/BF02293801</a>.</p>
+</div>
+<div class="citation" id="id13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BM82<span class="fn-bracket">]</span></span>
+<p>R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. <em>Applied Psychological Measurement</em>, 6(4):431–444, 1982. Open copy: <a class="reference external" href="http://purl.umn.edu/93227">http://purl.umn.edu/93227</a>. <a class="reference external" href="https://doi.org/10.1177/014662168200600405">doi:10.1177/014662168200600405</a>.</p>
+</div>
+<div class="citation" id="id14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Cai10<span class="fn-bracket">]</span></span>
+<p>Li Cai. High-dimensional exploratory item factor analysis by a Metropolis-Hastings Robbins-Monro algorithm. <em>Psychometrika</em>, 75(1):33–57, 2010. Open access. <a class="reference external" href="https://doi.org/10.1007/s11336-009-9136-x">doi:10.1007/s11336-009-9136-x</a>.</p>
+</div>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Cha18<span class="fn-bracket">]</span></span>
+<p>R. Philip Chalmers. Numerical approximation of the observed information matrix with Oakes' identity. <em>British Journal of Mathematical and Statistical Psychology</em>, 71(3):415–436, 2018. Open copy: <a class="reference external" href="https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bmsp.12127">https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/bmsp.12127</a>. <a class="reference external" href="https://doi.org/10.1111/bmsp.12127">doi:10.1111/bmsp.12127</a>.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Cha26<span class="fn-bracket">]</span></span>
+<p>R. Philip Chalmers. <em>mirt: Multidimensional Item Response Theory</em>. 2026. R package version 1.48, reference manual dated 2026-10-06. Open access. URL: <a class="reference external" href="https://cran.r-project.org/package=mirt">https://cran.r-project.org/package=mirt</a>.</p>
+</div>
+<div class="citation" id="id17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Cul16<span class="fn-bracket">]</span></span>
+<p>Steven Andrew Culpepper. Revisiting the 4-parameter item response model: Bayesian estimation and application. <em>Psychometrika</em>, 81(4):1142–1163, 2016. Not openly available; Zhang, Lu, Du and Zhang (2020) describe the method. <a class="reference external" href="https://doi.org/10.1007/s11336-015-9477-6">doi:10.1007/s11336-015-9477-6</a>.</p>
+</div>
+<div class="citation" id="id18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>DLR77<span class="fn-bracket">]</span></span>
+<p>A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from incomplete data via the EM algorithm. <em>Journal of the Royal Statistical Society: Series B (Methodological)</em>, 39(1):1–22, 1977. Not openly available; Woodruff and Hanson (1996) describe the method. <a class="reference external" href="https://doi.org/10.1111/j.2517-6161.1977.tb01600.x">doi:10.1111/j.2517-6161.1977.tb01600.x</a>.</p>
+</div>
+<div class="citation" id="id19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>DV20<span class="fn-bracket">]</span></span>
+<p>Yu Du and Ravi Varadhan. SQUAREM: an R package for off-the-shelf acceleration of EM, MM and other EM-like monotone algorithms. <em>Journal of Statistical Software</em>, 92(7):1–41, 2020. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v092.i07">doi:10.18637/jss.v092.i07</a>.</p>
+</div>
+<div class="citation" id="id20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Eng87<span class="fn-bracket">]</span></span>
+<p>R. J. H. Engelen. A review of different estimation procedures in the Rasch model. Research Report 87-6, University of Twente, Department of Education, Enschede, 1987. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED310126.pdf">https://files.eric.ed.gov/fulltext/ED310126.pdf</a>.</p>
+</div>
+<div class="citation" id="id21" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>GR92<span class="fn-bracket">]</span></span>
+<p>Andrew Gelman and Donald B. Rubin. Inference from iterative simulation using multiple sequences. <em>Statistical Science</em>, 7(4):457–472, 1992. Open copy: <a class="reference external" href="https://sites.stat.columbia.edu/gelman/research/published/itsim.pdf">https://sites.stat.columbia.edu/gelman/research/published/itsim.pdf</a>. <a class="reference external" href="https://doi.org/10.1214/ss/1177011136">doi:10.1214/ss/1177011136</a>.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Gus80<span class="fn-bracket">]</span></span>
+<p>Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. <em>Educational and Psychological Measurement</em>, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. <a class="reference external" href="https://doi.org/10.1177/001316448004000214">doi:10.1177/001316448004000214</a>.</p>
+</div>
+<div class="citation" id="id23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Hab04<span class="fn-bracket">]</span></span>
+<p>Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/EJ1110899.pdf">https://files.eric.ed.gov/fulltext/EJ1110899.pdf</a>. <a class="reference external" href="https://doi.org/10.1002/j.2333-8504.2004.tb01947.x">doi:10.1002/j.2333-8504.2004.tb01947.x</a>.</p>
+</div>
+<div class="citation" id="id24" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HB91<span class="fn-bracket">]</span></span>
+<p>Michael R. Harwell and Frank B. Baker. The use of prior distributions in marginalized Bayesian item parameter estimation: a didactic. <em>Applied Psychological Measurement</em>, 15(4):375–389, 1991. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/114468">https://hdl.handle.net/11299/114468</a>. <a class="reference external" href="https://doi.org/10.1177/014662169101500409">doi:10.1177/014662169101500409</a>.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>KC07<span class="fn-bracket">]</span></span>
+<p>Taehoon Kang and Troy T. Chen. An investigation of the performance of the generalized S-X² item-fit index for polytomous IRT models. ACT Research Report Series 2007-1, ACT, Inc., Iowa City, Iowa, 2007. Open copy: <a class="reference external" href="https://www.act.org/content/dam/act/unsecured/documents/ACT_RR2007-1.pdf">https://www.act.org/content/dam/act/unsecured/documents/ACT_RR2007-1.pdf</a>.</p>
+</div>
+<div class="citation" id="id26" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>KB07<span class="fn-bracket">]</span></span>
+<p>Jee-Seon Kim and Daniel M. Bolt. Estimating item response theory models using Markov chain Monte Carlo methods. <em>Educational Measurement: Issues and Practice</em>, 26(4):38–51, 2007. Open copy: <a class="reference external" href="https://www.ncme.org/wp-content/uploads/2025/10/Module-27-Markov-chain-Monte-Carlo-Estimation-Kim-1.pdf">https://www.ncme.org/wp-content/uploads/2025/10/Module-27-Markov-chain-Monte-Carlo-Estimation-Kim-1.pdf</a>. <a class="reference external" href="https://doi.org/10.1111/j.1745-3992.2007.00107.x">doi:10.1111/j.1745-3992.2007.00107.x</a>.</p>
+</div>
+<div class="citation" id="id27" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>LR10<span class="fn-bracket">]</span></span>
+<p>Eric Loken and Kelly L. Rulison. Estimation of a four-parameter item response theory model. <em>British Journal of Mathematical and Statistical Psychology</em>, 63(3):509–525, 2010. Open copy (accepted manuscript): <a class="reference external" href="https://web.archive.org/web/20240708235413/https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf">https://web.archive.org/web/20240708235413/https://libres.uncg.edu/ir/uncg/f/K_Rulison_Estimation_2010.pdf</a>. <a class="reference external" href="https://doi.org/10.1348/000711009X474502">doi:10.1348/000711009X474502</a>.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Lou82<span class="fn-bracket">]</span></span>
+<p>Thomas A. Louis. Finding the observed information matrix when using the EM algorithm. <em>Journal of the Royal Statistical Society: Series B (Methodological)</em>, 44(2):226–233, 1982. Not openly available; Monroe and Cai (2013) describe the method. <a class="reference external" href="https://doi.org/10.1111/j.2517-6161.1982.tb01203.x">doi:10.1111/j.2517-6161.1982.tb01203.x</a>.</p>
+</div>
+<div class="citation" id="id30" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Mag13<span class="fn-bracket">]</span></span>
+<p>David Magis. A note on the item information function of the four-parameter logistic model. <em>Applied Psychological Measurement</em>, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. <a class="reference external" href="https://doi.org/10.1177/0146621613475471">doi:10.1177/0146621613475471</a>.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MRaiche12<span class="fn-bracket">]</span></span>
+<p>David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. <em>Journal of Statistical Software</em>, 48(8):1–31, 2012. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v048.i08">doi:10.18637/jss.v048.i08</a>.</p>
+</div>
+<div class="citation" id="id31" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MRaicheB22<span class="fn-bracket">]</span></span>
+<p>David Magis, Gilles Raîche, and Juan Ramón Barrada. <em>catR: Generation of IRT Response Patterns under Computerized Adaptive Testing</em>. 2022. R package version 3.17, reference manual, published on CRAN 2022-06-24. Open access. URL: <a class="reference external" href="https://cran.r-project.org/package=catR">https://cran.r-project.org/package=catR</a>.</p>
+</div>
+<div class="citation" id="id32" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MR91<span class="fn-bracket">]</span></span>
+<p>Xiao-Li Meng and Donald B. Rubin. Using EM to obtain asymptotic variance-covariance matrices: the SEM algorithm. <em>Journal of the American Statistical Association</em>, 86(416):899–909, 1991. Not openly available; Pritikin (2016) describes the method. <a class="reference external" href="https://doi.org/10.1080/01621459.1991.10475130">doi:10.1080/01621459.1991.10475130</a>.</p>
+</div>
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Mis86<span class="fn-bracket">]</span></span>
+<p>Robert J. Mislevy. Bayes modal estimation in item response models. <em>Psychometrika</em>, 51(2):177–195, 1986. Not openly available; Harwell and Baker (1991) describe the method. <a class="reference external" href="https://doi.org/10.1007/BF02293979">doi:10.1007/BF02293979</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MS89<span class="fn-bracket">]</span></span>
+<p>Robert J. Mislevy and Martha L. Stocking. A consumer's guide to LOGIST and BILOG. <em>Applied Psychological Measurement</em>, 13(1):57–75, 1989. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/107035">https://hdl.handle.net/11299/107035</a>. <a class="reference external" href="https://doi.org/10.1177/014662168901300106">doi:10.1177/014662168901300106</a>.</p>
+</div>
+<div class="citation" id="id35" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MC13<span class="fn-bracket">]</span></span>
+<p>Scott Monroe and Li Cai. Estimation of a Ramsay-curve item response theory model by the Metropolis-Hastings Robbins-Monro algorithm. CRESST Report 834, University of California, Los Angeles, National Center for Research on Evaluation, Standards, and Student Testing, Los Angeles, CA, 2013. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED555725.pdf">https://files.eric.ed.gov/fulltext/ED555725.pdf</a>.</p>
+</div>
+<div class="citation" id="id36" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Oak99<span class="fn-bracket">]</span></span>
+<p>David Oakes. Direct calculation of the information matrix via the EM algorithm. <em>Journal of the Royal Statistical Society: Series B (Statistical Methodology)</em>, 61(2):479–482, 1999. Not openly available; Chalmers (2018) describes the method. <a class="reference external" href="https://doi.org/10.1111/1467-9868.00188">doi:10.1111/1467-9868.00188</a>.</p>
+</div>
+<div class="citation" id="id37" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>OT00<span class="fn-bracket">]</span></span>
+<p>Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. <em>Applied Psychological Measurement</em>, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. <a class="reference external" href="https://doi.org/10.1177/01466216000241003">doi:10.1177/01466216000241003</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PJ99a<span class="fn-bracket">]</span></span>
+<p>Richard J. Patz and Brian W. Junker. A straightforward approach to Markov chain Monte Carlo methods for item response models. <em>Journal of Educational and Behavioral Statistics</em>, 24(2):146–178, 1999. Not openly available; Kim and Bolt (2007) describe the method. <a class="reference external" href="https://doi.org/10.3102/10769986024002146">doi:10.3102/10769986024002146</a>.</p>
+</div>
+<div class="citation" id="id39" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PJ99b<span class="fn-bracket">]</span></span>
+<p>Richard J. Patz and Brian W. Junker. Applications and extensions of MCMC in IRT: multiple item types, missing data, and rated responses. <em>Journal of Educational and Behavioral Statistics</em>, 24(4):342–366, 1999. Not openly available; Kim and Bolt (2007) describe the sampling it extends, citing this paper as their 1999a. <a class="reference external" href="https://doi.org/10.3102/10769986024004342">doi:10.3102/10769986024004342</a>.</p>
+</div>
+<div class="citation" id="id40" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Pri16<span class="fn-bracket">]</span></span>
+<p>Joshua N. Pritikin. A computational note on the application of the supplemented EM algorithm to item response models. arXiv:1605.00860, 2016. Open access. URL: <a class="reference external" href="https://arxiv.org/abs/1605.00860">https://arxiv.org/abs/1605.00860</a>, <a class="reference external" href="https://doi.org/10.48550/arXiv.1605.00860">doi:10.48550/arXiv.1605.00860</a>.</p>
+</div>
+<div class="citation" id="id41" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Pri17<span class="fn-bracket">]</span></span>
+<p>Joshua N. Pritikin. A comparison of parameter covariance estimation methods for item response models in an expectation-maximization framework. <em>Cogent Psychology</em>, 4(1):1279435, 2017. Open access. <a class="reference external" href="https://doi.org/10.1080/23311908.2017.1279435">doi:10.1080/23311908.2017.1279435</a>.</p>
+</div>
+<div class="citation" id="id42" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Ram75<span class="fn-bracket">]</span></span>
+<p>J. O. Ramsay. Solving implicit equations in psychometric data analysis. <em>Psychometrika</em>, 40(3):337–360, 1975. Not openly available. <a class="reference external" href="https://doi.org/10.1007/BF02291762">doi:10.1007/BF02291762</a>.</p>
+</div>
+<div class="citation" id="id43" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Rob21<span class="fn-bracket">]</span></span>
+<p>Alexander Robitzsch. A comprehensive simulation study of estimation methods for the Rasch model. <em>Stats</em>, 4(4):814–836, 2021. Open access. <a class="reference external" href="https://doi.org/10.3390/stats4040048">doi:10.3390/stats4040048</a>.</p>
+</div>
+<div class="citation" id="id44" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Rob22<span class="fn-bracket">]</span></span>
+<p>Alexander Robitzsch. Four-parameter guessing model and related item response models. <em>Mathematical and Computational Applications</em>, 27(6):95, 2022. Open access. <a class="reference external" href="https://doi.org/10.3390/mca27060095">doi:10.3390/mca27060095</a>.</p>
+</div>
+<div class="citation" id="id45" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Sch78<span class="fn-bracket">]</span></span>
+<p>Gideon Schwarz. Estimating the dimension of a model. <em>The Annals of Statistics</em>, 6(2):461–464, 1978. Open copy: <a class="reference external" href="https://projecteuclid.org/journals/annals-of-statistics/volume-6/issue-2/Estimating-the-Dimension-of-a-Model/10.1214/aos/1176344136.pdf">https://projecteuclid.org/journals/annals-of-statistics/volume-6/issue-2/Estimating-the-Dimension-of-a-Model/10.1214/aos/1176344136.pdf</a>. <a class="reference external" href="https://doi.org/10.1214/aos/1176344136">doi:10.1214/aos/1176344136</a>.</p>
+</div>
+<div class="citation" id="id46" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>She08<span class="fn-bracket">]</span></span>
+<p>Yanyan Sheng. Markov chain Monte Carlo estimation of normal ogive IRT models in MATLAB. <em>Journal of Statistical Software</em>, 25(8):1–15, 2008. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v025.i08">doi:10.18637/jss.v025.i08</a>.</p>
+</div>
+<div class="citation" id="id47" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Thi82<span class="fn-bracket">]</span></span>
+<p>David Thissen. Marginal maximum likelihood estimation for the one-parameter logistic model. <em>Psychometrika</em>, 47(2):175–186, 1982. Not openly available; Baker (1987) describes the method. <a class="reference external" href="https://doi.org/10.1007/BF02296273">doi:10.1007/BF02296273</a>.</p>
+</div>
+<div class="citation" id="id48" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Vri12<span class="fn-bracket">]</span></span>
+<p>Scott I. Vrieze. Model selection and psychological theory: a discussion of the differences between the Akaike information criterion (AIC) and the Bayesian information criterion (BIC). <em>Psychological Methods</em>, 17(2):228–243, 2012. Open copy (author manuscript): <a class="reference external" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3366160/">https://pmc.ncbi.nlm.nih.gov/articles/PMC3366160/</a>. <a class="reference external" href="https://doi.org/10.1037/a0027127">doi:10.1037/a0027127</a>.</p>
+</div>
+<div class="citation" id="id49" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WF17<span class="fn-bracket">]</span></span>
+<p>Niels G. Waller and Leah Feuerstahler. Bayesian modal estimation of the four-parameter item response model in real, realistic, and idealized data sets. <em>Multivariate Behavioral Research</em>, 52(3):350–370, 2017. Not openly available; Harwell and Baker (1991) describe the Bayes modal estimation it applies. <a class="reference external" href="https://doi.org/10.1080/00273171.2017.1292893">doi:10.1080/00273171.2017.1292893</a>.</p>
+</div>
+<div class="citation" id="id50" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>War89<span class="fn-bracket">]</span></span>
+<p>Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. <em>Psychometrika</em>, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, <a class="reference external" href="https://hdl.handle.net/11244/5356">https://hdl.handle.net/11244/5356</a>, derives the same results. <a class="reference external" href="https://doi.org/10.1007/BF02294627">doi:10.1007/BF02294627</a>.</p>
+</div>
+<div class="citation" id="id51" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WH96<span class="fn-bracket">]</span></span>
+<p>David J. Woodruff and Bradley A. Hanson. Estimation of item response models using the EM algorithm for finite mixtures. ACT Research Report Series 96-6, ACT, Inc., Iowa City, Iowa, 1996. Open copy: <a class="reference external" href="https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf">https://www.act.org/content/dam/act/unsecured/documents/ACT_RR96-06.pdf</a>.</p>
+</div>
+<div class="citation" id="id52" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WD77<span class="fn-bracket">]</span></span>
+<p>Benjamin D. Wright and Graham A. Douglas. Best procedures for sample-free item analysis. <em>Applied Psychological Measurement</em>, 1(2):281–295, 1977. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/98553">https://hdl.handle.net/11299/98553</a>. <a class="reference external" href="https://doi.org/10.1177/014662167700100216">doi:10.1177/014662167700100216</a>.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WM82<span class="fn-bracket">]</span></span>
+<p>Benjamin D. Wright and Geoffrey N. Masters. <em>Rating Scale Analysis</em>. MESA Press, Chicago, 1982. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf">https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf</a>.</p>
+</div>
+<div class="citation" id="id53" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WS79<span class="fn-bracket">]</span></span>
+<p>Benjamin D. Wright and Mark H. Stone. <em>Best Test Design</em>. MESA Press, Chicago, 1979. Open copy: <a class="reference external" href="https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf">https://www.rasch.org/BTD_RSA/pdf/Best%20Test%20Design.pdf</a>.</p>
+</div>
+<div class="citation" id="id55" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Yen81<span class="fn-bracket">]</span></span>
+<p>Wendy M. Yen. Using simulation results to choose a latent trait model. <em>Applied Psychological Measurement</em>, 5(2):245–262, 1981. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/100381">https://hdl.handle.net/11299/100381</a>. <a class="reference external" href="https://doi.org/10.1177/014662168100500212">doi:10.1177/014662168100500212</a>.</p>
+</div>
+<div class="citation" id="id56" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Zei06<span class="fn-bracket">]</span></span>
+<p>Achim Zeileis. Object-oriented computation of sandwich estimators. <em>Journal of Statistical Software</em>, 16(9):1–16, 2006. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v016.i09">doi:10.18637/jss.v016.i09</a>.</p>
+</div>
+<div class="citation" id="id57" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>ZLDZ20<span class="fn-bracket">]</span></span>
+<p>Jiwei Zhang, Jing Lu, Hang Du, and Zhaoyuan Zhang. Gibbs-slice sampling algorithm for estimating the four-parameter logistic model. <em>Frontiers in Psychology</em>, 11:2121, 2020. Open access. <a class="reference external" href="https://doi.org/10.3389/fpsyg.2020.02121">doi:10.3389/fpsyg.2020.02121</a>.</p>
+</div>
+<div class="citation" id="id58" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>ZW22<span class="fn-bracket">]</span></span>
+<p>Xue Zhang and Chun Wang. Modified item-fit indices for dichotomous IRT models with missing data. <em>Applied Psychological Measurement</em>, 46(8):705–719, 2022. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED628568.pdf">https://files.eric.ed.gov/fulltext/ED628568.pdf</a>. <a class="reference external" href="https://doi.org/10.1177/01466216221125176">doi:10.1177/01466216221125176</a>.</p>
+</div>
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="contributing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/references.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

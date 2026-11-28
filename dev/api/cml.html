@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Conditional Maximum Likelihood – irtlib.cml &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/cml';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Joint Maximum Likelihood – irtlib.jml" href="jml.html" />
+    <link rel="prev" title="Marginal Maximum Likelihood – irtlib.mml" href="mml.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="irt.html">Item Response Functions – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Item Bank – <code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.ItemBank</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature.html">Quadrature and Ability Priors – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration Results – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.calibration</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="mml.html">Marginal Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Conditional Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="jml.html">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ability.html">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="fit.html">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing Responses – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.drawing</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="typing.html">Array Types – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.typing</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Conditional Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-irtlib.cml">
+<span id="conditional-maximum-likelihood-irtlib-cml"></span><h1>Conditional Maximum Likelihood – <a class="reference internal" href="#module-irtlib.cml" title="irtlib.cml"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a><a class="headerlink" href="#module-irtlib.cml" title="Link to this heading">#</a></h1>
+<p>Conditional maximum likelihood calibration of the Rasch model.</p>
+<p>In the Rasch model an examinee’s number of correct responses is a sufficient statistic for its ability, so the
+likelihood of the responses given each examinee’s number correct holds the item difficulties alone, and “does not
+depend on the distribution function” of ability <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">Haberman, 2004</a>]</span> (p. 35). Its maximizers, the conditional
+maximum likelihood (CML) estimates, are consistent as the number of examinees grows (<span class="bibtex-citation" id="id2">Andersen [<a class="reference internal" href="../references.html#id4" title="Erling B. Andersen. Asymptotic properties of conditional maximum-likelihood estimators. Journal of the Royal Statistical Society: Series B (Methodological), 32(2):283–301, 1970. Not openly available; Haberman (2004) describes conditional estimation. doi:10.1111/j.2517-6161.1970.tb00842.x.">1970</a>]</span>, p. 286,
+Theorem 1), though “not in general … efficient” (p. 284).</p>
+<p>Write <span class="math notranslate nohighlight">\(\varepsilon_i = e^{-b_i}\)</span> for item <span class="math notranslate nohighlight">\(i\)</span>’s easiness, the item parameter of Gustafsson’s
+multiplicative form of the model (<span class="bibtex-citation" id="id3">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 379, Equation 1), <span class="math notranslate nohighlight">\(s_i\)</span> for its number of
+correct responses and <span class="math notranslate nohighlight">\(n_r\)</span> for the number of examinees with <span class="math notranslate nohighlight">\(r\)</span> correct, out of <span class="math notranslate nohighlight">\(M\)</span> items. The
+conditional likelihood is <span class="math notranslate nohighlight">\(\prod_i \varepsilon_i^{s_i} / \prod_{r=1}^{M-1} \gamma_r^{n_r}\)</span>, where the
+elementary symmetric function <span class="math notranslate nohighlight">\(\gamma_r\)</span> is the sum, over every set of <span class="math notranslate nohighlight">\(r\)</span> items, of the product of their
+easiness values (p. 379, Equations 5 and 6). Its logarithm, the conditional log-likelihood, is
+<span class="math notranslate nohighlight">\(-\sum_i s_i b_i - \sum_r n_r \log \gamma_r\)</span>; the marginal log-likelihood adds to it the log-likelihood of the
+numbers correct (<span class="bibtex-citation" id="id4">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, pp. 35-36), so the two are not compared (ADR-0006).</p>
+<p>For an examinee with no item or every item correct, “both sides are equal to one” in the conditional likelihood
+(<span class="bibtex-citation" id="id5">Engelen [<a class="reference internal" href="../references.html#id20" title="R. J. H. Engelen. A review of different estimation procedures in the Rasch model. Research Report 87-6, University of Twente, Department of Education, Enschede, 1987. Open copy: https://files.eric.ed.gov/fulltext/ED310126.pdf.">1987</a>]</span>, p. 11), and items answered correctly by every examinee or by none have no estimate
+(<span class="bibtex-citation" id="id6">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 379): both are left out, the examinees first and then the items, repeatedly until
+neither is left, since leaving an item out can leave an examinee with no item or every item correct. The items left
+out get no estimate.</p>
+<p>Even then the conditional likelihood can lack a maximum. It has none exactly when, for some number correct between 1
+and <span class="math notranslate nohighlight">\(M - 2\)</span> and some cut of the item totals, the examinees with at most that many correct answered no item below
+the cut and the others every item above it (<span class="bibtex-citation" id="id7">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, pp. 37-38, Theorem 10, whose bounds on the item
+totals, <span class="math notranslate nohighlight">\(n_0\)</span> and <span class="math notranslate nohighlight">\(n - n_0\)</span>, are 0 and <span class="math notranslate nohighlight">\(n\)</span> once the examinees are left out). The likelihood then rises
+without bound as the two groups of items move apart, so that under the sum to zero no difficulty has a finite
+estimate, and calibration raises an error naming the groups.</p>
+<p>The estimates solve the likelihood equations</p>
+<div class="math notranslate nohighlight">
+\[s_i = \sum_{r=1}^{M-1} n_r \pi_{ri}, \qquad \pi_{ri} = \frac{\varepsilon_i \gamma_{r-1}^{(i)}}{\gamma_r},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\gamma_{r-1}^{(i)}\)</span>, the derivative of <span class="math notranslate nohighlight">\(\gamma_r\)</span> with respect to <span class="math notranslate nohighlight">\(\varepsilon_i\)</span>, is the
+symmetric function of order <span class="math notranslate nohighlight">\(r - 1\)</span> of every item but <span class="math notranslate nohighlight">\(i\)</span> (<span class="bibtex-citation" id="id8">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 380, Equation 7),
+and <span class="math notranslate nohighlight">\(\pi_{ri}\)</span> is the probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span> given <span class="math notranslate nohighlight">\(r\)</span> correct
+(<span class="bibtex-citation" id="id9">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, pp. 15-16). The difficulties are identified by summing to zero (ADR-0008), as
+<span class="bibtex-citation" id="id10">Andersen [<a class="reference internal" href="../references.html#id5" title="Erling B. Andersen. The numerical solution of a set of conditional estimation equations. Journal of the Royal Statistical Society: Series B (Methodological), 34(1):42–54, 1972. Not openly available; Haberman (2004) describes the Newton-Raphson solution. doi:10.1111/j.2517-6161.1972.tb00887.x.">1972</a>]</span> (p. 45) identifies them; <span class="bibtex-citation" id="id11">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span> (p. 380) sets one easiness to 1 instead.</p>
+<p>The equations are solved by Newton-Raphson (<span class="bibtex-citation" id="id12">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, p. 43). The gradient of the conditional
+log-likelihood with respect to <span class="math notranslate nohighlight">\(b_i\)</span> is <span class="math notranslate nohighlight">\(\sum_r n_r \pi_{ri} - s_i\)</span>, and its Hessian is <span class="math notranslate nohighlight">\(-V\)</span>, where
+<span class="math notranslate nohighlight">\(V_{ij} = \sum_{r=1}^{M-1} n_r v_{rij}\)</span> is the conditional covariance of the item scores given the numbers
+correct (p. 39), with <span class="math notranslate nohighlight">\(v_{rii} = \pi_{ri} - \pi_{ri}^2\)</span> and, for <span class="math notranslate nohighlight">\(i \neq j\)</span>,
+<span class="math notranslate nohighlight">\(v_{rij} = \pi_{rij} - \pi_{ri} \pi_{rj}\)</span> (pp. 27-28, 43). Here
+<span class="math notranslate nohighlight">\(\pi_{rij} = \varepsilon_i \varepsilon_j \gamma_{r-2}^{(i,j)} / \gamma_r\)</span>, the probability of correct responses
+to both items, where <span class="math notranslate nohighlight">\(\gamma_{r-2}^{(i,j)}\)</span>, the second derivative of <span class="math notranslate nohighlight">\(\gamma_r\)</span> with respect to
+<span class="math notranslate nohighlight">\(\varepsilon_i\)</span> and <span class="math notranslate nohighlight">\(\varepsilon_j\)</span>, is the symmetric function of order <span class="math notranslate nohighlight">\(r - 2\)</span> of every item but
+<span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span> (<span class="bibtex-citation" id="id13">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 380). <span class="math notranslate nohighlight">\(V\)</span> has rank <span class="math notranslate nohighlight">\(M - 1\)</span>
+(<span class="bibtex-citation" id="id14">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, p. 39), so a step solves the system in its Moore-Penrose inverse <span class="math notranslate nohighlight">\(V^+\)</span>: Haberman’s
+iteration sets the first difficulty to 0 through a matrix <span class="math notranslate nohighlight">\(K\)</span> (pp. 26, 43), and for difficulties that sum to
+zero, the centred parameters of p. 21, it reads <span class="math notranslate nohighlight">\(b_{t+1} = b_t + V^+ (\sum_r n_r \pi_r - s)\)</span>. Each step is
+halved, up to 30 times, until the conditional log-likelihood does not fall, which the sources do not do: from the
+starting values below, full steps diverged on two items answered 11 to 1. The iterations start from
+<span class="bibtex-citation" id="id15">Andersen [<a class="reference internal" href="../references.html#id5" title="Erling B. Andersen. The numerical solution of a set of conditional estimation equations. Journal of the Royal Statistical Society: Series B (Methodological), 34(1):42–54, 1972. Not openly available; Haberman (2004) describes the Newton-Raphson solution. doi:10.1111/j.2517-6161.1972.tb00887.x.">1972</a>]</span>’s (p. 52, Equation 40) values, <span class="math notranslate nohighlight">\(b_i = \log((N - s_i) / s_i)\)</span> centred to sum to zero,
+computed over the <span class="math notranslate nohighlight">\(N\)</span> examinees kept where Andersen counts every examinee. They stop when no difficulty changes
+by more than the tolerance, <span class="math notranslate nohighlight">\(10^{-5}\)</span> by default, in an iteration (<span class="bibtex-citation" id="id16">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span>, p. 44), counting
+only a full step: a step that halving shrank below the tolerance can lie far from the maximum. Without extreme items,
+Newton-Raphson usually takes 4 to 5 iterations (<span class="bibtex-citation" id="id17">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 383).</p>
+<p>The symmetric functions come from the summation algorithm, which adds one item at a time,
+<span class="math notranslate nohighlight">\(\gamma_r(\varepsilon_1, \dots, \varepsilon_t) = \gamma_r(\varepsilon_1, \dots, \varepsilon_{t-1}) +
+\varepsilon_t \gamma_{r-1}(\varepsilon_1, \dots, \varepsilon_{t-1})\)</span> from <span class="math notranslate nohighlight">\(\gamma_0 = 1\)</span>, with no subtraction,
+so that it stays accurate on long tests (<span class="bibtex-citation" id="id18">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 381, Equation 10). Run with an item’s easiness,
+or a pair’s, set to zero, it gives the first and second derivatives (p. 382; <span class="bibtex-citation" id="id19">Baker and Harwell [<a class="reference internal" href="../references.html#id7" title="Frank B. Baker and Michael R. Harwell. Computing elementary symmetric functions and their derivatives: a didactic. Applied Psychological Measurement, 20(2):169–192, 1996. Open copy: https://hdl.handle.net/11299/119090. doi:10.1177/014662169602000206.">1996</a>]</span>, pp. 182-183), so
+that an iteration costs a number of operations growing as <span class="math notranslate nohighlight">\(M^4\)</span> (p. 190). The recursion runs on the logarithms
+of the functions, which departs from the sources: those of orders near <span class="math notranslate nohighlight">\(M/2\)</span> grow with the test until they
+reach “the limit set by the size of the floating point numbers” (<span class="bibtex-citation" id="id20">Gustafsson [<a class="reference internal" href="../references.html#id22" title="Jan-Eric Gustafsson. A solution of the conditional estimation problem for long tests in the Rasch model for dichotomous items. Educational and Psychological Measurement, 40(2):377–385, 1980. Not openly available; Baker and Harwell (1996) describe the method. doi:10.1177/001316448004000214.">1980</a>]</span>, p. 383).</p>
+<p>The standard error of each difficulty is the square root of the diagonal of <span class="math notranslate nohighlight">\(V^+\)</span> at the estimates.
+<span class="bibtex-citation" id="id21">Haberman [<a class="reference internal" href="../references.html#id23" title="Shelby J. Haberman. Joint and conditional maximum likelihood estimation for the Rasch model for binary responses. Research Report RR-04-20, Educational Testing Service, Princeton, NJ, 2004. Open copy: https://files.eric.ed.gov/fulltext/EJ1110899.pdf. doi:10.1002/j.2333-8504.2004.tb01947.x.">2004</a>]</span> (p. 40) takes it from <span class="math notranslate nohighlight">\(K V^- K^T\)</span> for the first difficulty set to 0; for difficulties
+that sum to zero, centring that covariance gives <span class="math notranslate nohighlight">\(V^+\)</span>. <span class="bibtex-citation" id="id22">Andersen [<a class="reference internal" href="../references.html#id5" title="Erling B. Andersen. The numerical solution of a set of conditional estimation equations. Journal of the Royal Statistical Society: Series B (Methodological), 34(1):42–54, 1972. Not openly available; Haberman (2004) describes the Newton-Raphson solution. doi:10.1111/j.2517-6161.1972.tb00887.x.">1972</a>]</span> (p. 50) estimates the
+covariance by the inverse of the information as well.</p>
+<p>CML needs complete responses: for responses missing at random, “ordinary CML” “will likely fail”
+(<span class="bibtex-citation" id="id23">Robitzsch [<a class="reference internal" href="../references.html#id43" title="Alexander Robitzsch. A comprehensive simulation study of estimation methods for the Rasch model. Stats, 4(4):814–836, 2021. Open access. doi:10.3390/stats4040048.">2021</a>]</span>, p. 827), and <a class="reference internal" href="mml.html#irtlib.mml.MMLCalibrator" title="irtlib.mml.MMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.mml.MMLCalibrator</span></code></a> calibrates incomplete responses
+(ADR-0006).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="irtlib.cml.CMLCalibrator">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.cml.</span></span><span class="sig-name descname"><span class="pre">CMLCalibrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/irtlib/cml.html#CMLCalibrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.cml.CMLCalibrator" title="Link to this definition">#</a></dt>
+<dd><p>Calibrate the Rasch model by conditional maximum likelihood.</p>
+<p>Each call to <a class="reference internal" href="#irtlib.cml.CMLCalibrator.calibrate" title="irtlib.cml.CMLCalibrator.calibrate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">calibrate()</span></code></a> estimates the difficulties of the items of one complete response matrix, with
+every slope 1, from the likelihood of the responses given each examinee’s number correct, whatever the
+distribution of ability. The difficulties sum to zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tolerance</strong><span class="classifier">float, optional</span></dt><dd><p>The stopping rule: calibration stops when no difficulty changes by more than this in an iteration. Default is
+1e-5.</p>
+</dd>
+<dt><strong>max_cycles</strong><span class="classifier">int, optional</span></dt><dd><p>The most iterations a calibration runs before it stops unconverged. Default is 100.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">tolerance</span></code> is not positive, or <code class="docutils literal notranslate"><span class="pre">max_cycles</span></code> is less than 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibration</span> <span class="o">=</span> <span class="n">CMLCalibrator</span><span class="p">()</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calibration</span><span class="o">.</span><span class="n">estimates</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># b_2 - b_1 = log(2 / 1)</span>
+<span class="go">array([-0.3466,  0.3466])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="irtlib.cml.CMLCalibrator.calibrate">
+<span class="sig-name descname"><span class="pre">calibrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><span class="pre">Calibration</span></a></span></span><a class="reference internal" href="../_modules/irtlib/cml.html#CMLCalibrator.calibrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.cml.CMLCalibrator.calibrate" title="Link to this definition">#</a></dt>
+<dd><p>Estimate the difficulties of the items of a complete response matrix.</p>
+<p>Examinees with no item or every item correct change no estimate and are left out, as are items answered
+correctly by every examinee or by none, repeatedly until neither is left.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The response matrix: one row per examinee, one column per item, holding 1 or 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Calibration</dt><dd><p>The estimates <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">b,</span> <span class="pre">0,</span> <span class="pre">1]</span></code>, the standard errors of the difficulties and the conditional log-likelihood at
+them, of the examinees and items kept; the result has no grid. An item left out has a NaN difficulty and
+standard error, and the result’s bank leaves it out, with a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> naming it. If the stopping
+rule, a full step within the tolerance, is not met within <code class="docutils literal notranslate"><span class="pre">max_cycles</span></code>, or no halving of a step keeps the
+log-likelihood from falling, the result says so and a <a class="reference internal" href="calibration.html#irtlib.calibration.ConvergenceWarning" title="irtlib.calibration.ConvergenceWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConvergenceWarning</span></code></a> is
+issued; if the information matrix cannot be inverted at the estimates, the result has no standard errors and
+a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> is issued.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If the responses fail <a class="reference internal" href="calibration.html#irtlib.calibration.validate_responses" title="irtlib.calibration.validate_responses"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.calibration.validate_responses()</span></code></a> or have a missing response; no item
+is left once examinees and items are left out; the conditional likelihood has no maximum, which the error
+explains by the two groups of items the responses split into; or the information matrix is singular during
+the iterations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mml.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Marginal Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="jml.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.cml.CMLCalibrator"><code class="docutils literal notranslate"><span class="pre">CMLCalibrator</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.cml.CMLCalibrator.calibrate"><code class="docutils literal notranslate"><span class="pre">CMLCalibrator.calibrate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api/cml.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.calibration &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/calibration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.calibration</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.calibration</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The response matrix and the result that every calibrator shares (ADR-0006).</span>
+
+<span class="sd">A response matrix has one row per examinee and one column per item, and holds 1 for a correct response, 0 for an</span>
+<span class="sd">incorrect one and NaN where the examinee did not answer the item. Conditional and joint maximum likelihood share the</span>
+<span class="sd">leaving out of the examinees and items that have no finite estimate, documented with :py:mod:`irtlib.cml` and</span>
+<span class="sd">:py:mod:`irtlib.jml`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">response_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ability</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbilityEstimates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.bank</span><span class="w"> </span><span class="kn">import</span> <span class="n">ItemBank</span><span class="p">,</span> <span class="n">_generated_names</span><span class="p">,</span> <span class="n">_listed</span><span class="p">,</span> <span class="n">_violations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MIN_EXTENDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuadratureGrid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">IntArray</span>
+
+<span class="n">_GRID_NODES</span> <span class="o">=</span> <span class="mi">61</span>
+
+
+<div class="viewcode-block" id="ConvergenceWarning">
+<a class="viewcode-back" href="../../api/calibration.html#irtlib.calibration.ConvergenceWarning">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConvergenceWarning</span><span class="p">(</span><span class="ne">RuntimeWarning</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">"""A calibration ran out of cycles before its stopping rule was met."""</span></div>
+
+
+
+<div class="viewcode-block" id="Likelihood">
+<a class="viewcode-back" href="../../api/calibration.html#irtlib.calibration.Likelihood">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Likelihood</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">"""The likelihood a calibration maximizes, whose logarithm at the estimates it reports.</span>
+
+<span class="sd">  ``MARGINAL`` is the likelihood of the item parameters with abilities integrated out over a grid, which marginal</span>
+<span class="sd">  maximum likelihood maximizes; ``CONDITIONAL`` the likelihood of the responses given each examinee's number</span>
+<span class="sd">  correct, which conditional maximum likelihood maximizes; ``JOINT`` the likelihood of the responses given every</span>
+<span class="sd">  examinee's ability, which joint maximum likelihood maximizes over the abilities and the item parameters together. A</span>
+<span class="sd">  member equals its name in lower case.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; Likelihood("conditional") is Likelihood.CONDITIONAL</span>
+<span class="sd">  True</span>
+<span class="sd">  """</span>
+
+  <span class="n">MARGINAL</span> <span class="o">=</span> <span class="s2">"marginal"</span>
+  <span class="n">CONDITIONAL</span> <span class="o">=</span> <span class="s2">"conditional"</span>
+  <span class="n">JOINT</span> <span class="o">=</span> <span class="s2">"joint"</span></div>
+
+
+
+<div class="viewcode-block" id="Calibration">
+<a class="viewcode-back" href="../../api/calibration.html#irtlib.calibration.Calibration">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Calibration</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The result of a calibration, by any method.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  estimates : numpy.ndarray</span>
+<span class="sd">      The estimates ``[a, b, c, d]`` of every item, one row per column of the response matrix, whether or not they are</span>
+<span class="sd">      valid for an item bank; NaN for a parameter of an item the method gives no estimate.</span>
+<span class="sd">  items : irtlib.ItemBank or None</span>
+<span class="sd">      The items whose estimates are valid in an item bank, every parameter finite with ``a &gt; 0`` and</span>
+<span class="sd">      ``0 &lt;= c &lt; d &lt;= 1``, each named ``item_`` and its column, as in a bank of every item; None if no item's</span>
+<span class="sd">      estimates are. The calibrator warns with a ``RuntimeWarning`` naming the items it leaves out, such as a</span>
+<span class="sd">      miskeyed item, whose slope is not positive.</span>
+<span class="sd">  standard_errors : numpy.ndarray or None</span>
+<span class="sd">      The standard errors of the estimates, in the shape of ``estimates``, NaN for a parameter not estimated;</span>
+<span class="sd">      None, with a warning, when the information matrix could not be inverted.</span>
+<span class="sd">  log_likelihood : float</span>
+<span class="sd">      The logarithm of the likelihood named by ``likelihood``, at the estimates, before any correction the method makes</span>
+<span class="sd">      to them once the likelihood is maximized; with priors, without the log-prior.</span>
+<span class="sd">  likelihood : Likelihood</span>
+<span class="sd">      The likelihood the calibration maximizes, given as a member or its name. Model comparison and S-X² take only</span>
+<span class="sd">      marginal ones.</span>
+<span class="sd">  n_parameters : int</span>
+<span class="sd">      The number of free parameters estimated: a parameter shared by every item counted once, and for the joint</span>
+<span class="sd">      likelihood the ability of every examinee kept, less one for each constraint that fixes the scale.</span>
+<span class="sd">  item_parameters : numpy.ndarray</span>
+<span class="sd">      The number of parameters estimated for each item, a parameter shared by every item counted for each.</span>
+<span class="sd">  cycles : int</span>
+<span class="sd">      The cycles of its algorithm the calibration ran, such as EM cycles, Newton-Raphson iterations, or the item and</span>
+<span class="sd">      ability steps of joint maximum likelihood.</span>
+<span class="sd">  converged : bool</span>
+<span class="sd">      Whether the stopping rule was met; if not, the calibration ran out of cycles or could not go on, and warned with</span>
+<span class="sd">      :py:class:`ConvergenceWarning`.</span>
+<span class="sd">  change : float</span>
+<span class="sd">      The stopping rule's final value: the largest change of an estimated item parameter in the last cycle; for</span>
+<span class="sd">      Newton-Raphson, in the cycle's full step, before any halving.</span>
+<span class="sd">  grid : irtlib.quadrature.QuadratureGrid or None</span>
+<span class="sd">      The nodes abilities were integrated over, which item fit uses too: set when the likelihood is marginal, and None</span>
+<span class="sd">      otherwise, since no other likelihood integrates over abilities.</span>
+<span class="sd">  abilities : irtlib.ability.AbilityEstimates or None</span>
+<span class="sd">      The abilities estimated with the items, one per row of the response matrix, at the estimates before any</span>
+<span class="sd">      correction: set when the likelihood is joint, and None otherwise, since no other likelihood estimates them.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``likelihood`` names no :py:class:`Likelihood`; ``grid`` is set for a likelihood that is not marginal, or</span>
+<span class="sd">      missing for a marginal one; or ``abilities`` is set for a likelihood that is not joint, or missing for a joint</span>
+<span class="sd">      one.</span>
+<span class="sd">  """</span>
+
+  <span class="n">estimates</span><span class="p">:</span> <span class="n">FloatArray</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">ItemBank</span> <span class="o">|</span> <span class="kc">None</span>
+  <span class="n">standard_errors</span><span class="p">:</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span>
+  <span class="n">log_likelihood</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">likelihood</span><span class="p">:</span> <span class="n">Likelihood</span>
+  <span class="n">n_parameters</span><span class="p">:</span> <span class="nb">int</span>
+  <span class="n">item_parameters</span><span class="p">:</span> <span class="n">IntArray</span>
+  <span class="n">cycles</span><span class="p">:</span> <span class="nb">int</span>
+  <span class="n">converged</span><span class="p">:</span> <span class="nb">bool</span>
+  <span class="n">change</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span> <span class="o">|</span> <span class="kc">None</span>
+  <span class="n">abilities</span><span class="p">:</span> <span class="n">AbilityEstimates</span> <span class="o">|</span> <span class="kc">None</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read the likelihood as a :py:class:`Likelihood`, and check that the grid and the abilities match it."""</span>
+    <span class="c1"># a member equals its name in lower case, so "marginal" is read as Likelihood.MARGINAL</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"likelihood"</span><span class="p">,</span> <span class="n">Likelihood</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="p">))</span>
+    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="ow">is</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">MARGINAL</span><span class="p">):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"a calibration has a grid exactly when its likelihood is marginal; this one's is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abilities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="ow">is</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">JOINT</span><span class="p">):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"a calibration has abilities exactly when its likelihood is joint; this one's is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_marginal</span><span class="p">(</span><span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuadratureGrid</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the grid of a calibration, after checking that its likelihood is the marginal one a statistic needs.</span>
+
+<span class="sd">  Model comparison and item fit call it on every calibration they take, so that none compares a log-likelihood of</span>
+<span class="sd">  another kind with a marginal one, or integrates over a grid the calibration never used.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  calibration : Calibration</span>
+<span class="sd">      The calibration the statistic is computed from.</span>
+<span class="sd">  statistic : str</span>
+<span class="sd">      The statistic's name, for the error.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  irtlib.quadrature.QuadratureGrid</span>
+<span class="sd">      The nodes the calibration integrated abilities over.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the calibration's likelihood is not marginal, so that it has no grid and its log-likelihood compares with</span>
+<span class="sd">      no marginal one.</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="n">calibration</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="sa">f</span><span class="s2">"for </span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">, a calibration must be of the marginal likelihood, which integrates abilities over a grid; "</span>
+      <span class="sa">f</span><span class="s2">"this one's likelihood is </span><span class="si">{</span><span class="n">calibration</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">calibration</span><span class="o">.</span><span class="n">grid</span>
+
+
+<div class="viewcode-block" id="validate_responses">
+<a class="viewcode-back" href="../../api/calibration.html#irtlib.calibration.validate_responses">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return a response matrix as a new float array, after checking its type, its shape, its values and its items.</span>
+
+<span class="sd">  The matrix must have at least one examinee and one item, and every item must be answered by some examinee; an</span>
+<span class="sd">  examinee who answered no item is accepted. Booleans and integers are read as 1 and 0.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix: one row per examinee, one column per item, holding 1, 0 or NaN.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      A float copy of the responses, of the same shape.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the matrix is not two-dimensional or is empty, holds a value other than 0, 1 and NaN, or has an item no</span>
+<span class="sd">      examinee answered.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; validate_responses(numpy.array([[1, 0], [numpy.nan, 1]]))</span>
+<span class="sd">  array([[ 1.,  0.],</span>
+<span class="sd">         [nan,  1.]])</span>
+<span class="sd">  """</span>
+  <span class="n">matrix</span> <span class="o">=</span> <span class="n">response_matrix</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"responses must hold at least one examinee and one item, got shape </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">unanswered</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">unanswered</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"no examinee answered the items in columns </span><span class="si">{</span><span class="n">unanswered</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">matrix</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_complete_responses</span><span class="p">(</span><span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">statistic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the responses as a float matrix, after checking that they are complete and match the calibration's items.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  calibration : Calibration</span>
+<span class="sd">      The calibration the statistic is computed from.</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix: one row per examinee, one column per item.</span>
+<span class="sd">  statistic : str</span>
+<span class="sd">      The statistic's name, for the errors.</span>
+<span class="sd">  reason : str</span>
+<span class="sd">      What the error for a missing response says after naming the statistic: why it needs complete responses, or</span>
+<span class="sd">      what to do instead.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      A float copy of the responses.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the responses fail :py:func:`validate_responses`, have a missing response, or do not have one column per</span>
+<span class="sd">      item of the calibration.</span>
+<span class="sd">  """</span>
+  <span class="n">matrix</span> <span class="o">=</span> <span class="n">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"complete responses are needed for </span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">; </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">calibration</span><span class="o">.</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_items</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the responses have </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> items, the calibration </span><span class="si">{</span><span class="n">n_items</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">matrix</span>
+
+
+<div class="viewcode-block" id="default_grid">
+<a class="viewcode-back" href="../../api/calibration.html#irtlib.calibration.default_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_grid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuadratureGrid</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the grid abilities are integrated over by default (ADR-0007).</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  irtlib.quadrature.QuadratureGrid</span>
+<span class="sd">      61 equally spaced nodes on [-6, 6], with equal weights.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; grid = default_grid()</span>
+<span class="sd">  &gt;&gt;&gt; grid.nodes.size, float(grid.nodes[0]), float(grid.nodes[-1])</span>
+<span class="sd">  (61, -6.0, 6.0)</span>
+<span class="sd">  """</span>
+  <span class="k">return</span> <span class="n">QuadratureGrid</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">_GRID_NODES</span><span class="p">,</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ItemBank</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return a calibration's bank, the estimated items valid in one, warning from a calibrator about the others.</span>
+
+<span class="sd">  Every calibrator builds the ``items`` of its :py:class:`Calibration` here, so the warning points at the caller of</span>
+<span class="sd">  the calibrator's method.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  estimates : numpy.ndarray</span>
+<span class="sd">      The estimates ``[a, b, c, d]`` of every item.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  irtlib.ItemBank or None</span>
+<span class="sd">      The items valid in a bank, each with the name it would have in a bank of every estimate, ``item_`` and its</span>
+<span class="sd">      row; None if no item is valid.</span>
+<span class="sd">  """</span>
+  <span class="n">names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_generated_names</span><span class="p">(</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+  <span class="n">violations</span> <span class="o">=</span> <span class="n">_violations</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span>
+  <span class="n">invalid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span>
+    <span class="n">invalid</span><span class="p">[</span><span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+  <span class="k">if</span> <span class="n">violations</span><span class="p">:</span>
+    <span class="n">rules</span> <span class="o">=</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">rule</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">_listed</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="w"> </span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">rule</span><span class="p">,</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the calibration's bank leaves out the items whose estimates are not valid in an item bank: </span><span class="si">{</span><span class="n">rules</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">estimates</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+      <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="s2">"; a slope that is not positive means the chance of a correct answer falls as ability rises, as for a "</span>
+        <span class="s2">"miskeyed item: reverse its scoring or remove it"</span>
+      <span class="p">)</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+  <span class="n">valid</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="o">~</span><span class="n">invalid</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">ItemBank</span><span class="p">(</span><span class="n">estimates</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_edited</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">:</span> <span class="n">Likelihood</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">BoolArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the responses of the examinees and items kept, and which they are, once those with no estimate are left out.</span>
+
+<span class="sd">  Examinees with no item or every item correct, and items answered correctly by every examinee or by none, are left</span>
+<span class="sd">  out, repeatedly until neither is left.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  matrix : numpy.ndarray</span>
+<span class="sd">      The complete response matrix.</span>
+<span class="sd">  likelihood : Likelihood</span>
+<span class="sd">      The likelihood the calibration maximizes, for the error.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]</span>
+<span class="sd">      The responses of the examinees and items kept, a mask of the examinees kept among the rows, and a mask of the</span>
+<span class="sd">      items kept among the columns.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If no item is kept.</span>
+<span class="sd">  """</span>
+  <span class="n">examinees</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">_kept</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+  <span class="c1"># _kept leaves no item rather than one, whose every examinee would have no item or every item correct</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="sa">f</span><span class="s2">"no item has a </span><span class="si">{</span><span class="n">likelihood</span><span class="si">}</span><span class="s2"> estimate: once the examinees with no item or every item correct are left out, "</span>
+      <span class="s2">"every item is answered correctly by every examinee or by none"</span>
+    <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">matrix</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="n">examinees</span><span class="p">,</span> <span class="n">items</span><span class="p">)],</span> <span class="n">examinees</span><span class="p">,</span> <span class="n">items</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reject_separation</span><span class="p">(</span><span class="n">kept</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">:</span> <span class="n">Likelihood</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Raise an error naming the split of the responses kept, if one leaves the Rasch model's likelihood no maximum.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  kept : numpy.ndarray</span>
+<span class="sd">      The responses of the examinees and items kept, as :py:func:`_edited` returns them.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      The mask of the items kept among the columns of the responses.</span>
+<span class="sd">  likelihood : Likelihood</span>
+<span class="sd">      The likelihood the calibration maximizes, for the error.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the responses split into two groups of items that the examinees with at most some number correct answered</span>
+<span class="sd">      none of, and the others all of.</span>
+<span class="sd">  """</span>
+  <span class="n">separation</span> <span class="o">=</span> <span class="n">_separation</span><span class="p">(</span><span class="n">kept</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">separation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span>
+  <span class="n">columns</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+  <span class="n">score</span><span class="p">,</span> <span class="n">easier</span><span class="p">,</span> <span class="n">harder</span> <span class="o">=</span> <span class="n">separation</span>
+  <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"no difficulty has a finite </span><span class="si">{</span><span class="n">likelihood</span><span class="si">}</span><span class="s2"> estimate: the examinees with at most </span><span class="si">{</span><span class="n">score</span><span class="si">}</span><span class="s2"> correct answered none of "</span>
+    <span class="sa">f</span><span class="s2">"the items in columns </span><span class="si">{</span><span class="n">columns</span><span class="p">[</span><span class="n">harder</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2"> correctly, and those with more answered all of the items in "</span>
+    <span class="sa">f</span><span class="s2">"columns </span><span class="si">{</span><span class="n">columns</span><span class="p">[</span><span class="n">easier</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, so the responses fix only that the first group is harder than the second"</span>
+  <span class="p">)</span>
+  <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_kept</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BoolArray</span><span class="p">,</span> <span class="n">BoolArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the examinees and items kept: none with no item or every item correct, none answered by all or none."""</span>
+  <span class="n">examinees</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[:,</span> <span class="n">items</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">kept_examinees</span> <span class="o">=</span> <span class="n">examinees</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">scores</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">scores</span> <span class="o">&lt;</span> <span class="n">items</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="n">totals</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">kept_examinees</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">kept_items</span> <span class="o">=</span> <span class="n">items</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">totals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">totals</span> <span class="o">&lt;</span> <span class="n">kept_examinees</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">kept_examinees</span><span class="p">,</span> <span class="n">examinees</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">kept_items</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">examinees</span><span class="p">,</span> <span class="n">items</span>
+    <span class="n">examinees</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">kept_examinees</span><span class="p">,</span> <span class="n">kept_items</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_separation</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">BoolArray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return a split of the responses that leaves the Rasch model's conditional and joint likelihoods no maximum, if any.</span>
+
+<span class="sd">  Haberman's Theorem 10, and his Theorem 1, which coincides with it on responses with no examinee who has no item or</span>
+<span class="sd">  every item correct and no item answered by every examinee or by none: a number correct and a cut of the item totals</span>
+<span class="sd">  such that the examinees with at most that many correct answered no item below the cut, and those with more answered</span>
+<span class="sd">  every item above it.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  matrix : numpy.ndarray</span>
+<span class="sd">      The complete responses of the examinees and items kept.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[int, numpy.ndarray, numpy.ndarray] or None</span>
+<span class="sd">      The number correct, the items above the cut and the items below it, as masks of the columns; None if no split</span>
+<span class="sd">      exists, and so the conditional and joint maximum likelihood estimates do.</span>
+<span class="sd">  """</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">scores</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+  <span class="n">totals</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+  <span class="c1"># each item's smallest number correct among the examinees who answered it correctly, and largest among those who</span>
+  <span class="c1"># did not: no examinee with at most s correct answered an item right exactly when its smallest exceeds s</span>
+  <span class="n">lowest_right</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">matrix</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+  <span class="n">highest_wrong</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">matrix</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+  <span class="c1"># the theorem's a, a number correct plus one half, lies strictly between 1 and M - 1, and its b, an item total plus</span>
+  <span class="c1"># one half, below the largest total; with no examinee left out, it lies between n_0 = 0 and n - n_0 = n as well</span>
+  <span class="k">for</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_items</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">cut</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">totals</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">:</span>
+      <span class="n">harder</span><span class="p">,</span> <span class="n">easier</span> <span class="o">=</span> <span class="n">totals</span> <span class="o">&lt;</span> <span class="n">cut</span><span class="p">,</span> <span class="n">totals</span> <span class="o">&gt;</span> <span class="n">cut</span>
+      <span class="c1"># Theorem 10's fifth condition holds whenever the first four do, since every examinee kept is low or high</span>
+      <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">lowest_right</span><span class="p">[</span><span class="n">harder</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">score</span><span class="p">)</span> <span class="ow">and</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">highest_wrong</span><span class="p">[</span><span class="n">easier</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">score</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">score</span><span class="p">,</span> <span class="n">easier</span><span class="p">,</span> <span class="n">harder</span>
+  <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

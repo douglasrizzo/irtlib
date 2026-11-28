@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Item Fit – irtlib.fit &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/fit';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model Comparison – irtlib.comparison" href="comparison.html" />
+    <link rel="prev" title="Ability Estimation – irtlib.ability" href="ability.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="irt.html">Item Response Functions – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Item Bank – <code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.ItemBank</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature.html">Quadrature and Ability Priors – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration Results – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.calibration</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="mml.html">Marginal Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="cml.html">Conditional Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="jml.html">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="ability.html">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing Responses – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.drawing</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="typing.html">Array Types – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.typing</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-irtlib.fit">
+<span id="item-fit-irtlib-fit"></span><h1>Item Fit – <a class="reference internal" href="#module-irtlib.fit" title="irtlib.fit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a><a class="headerlink" href="#module-irtlib.fit" title="Link to this heading">#</a></h1>
+<p>Item fit: Orlando and Thissen’s S-X² statistic for every model, and the mean squares of the Rasch model.</p>
+<p>Item fit compares, item by item, the responses a calibration predicts with those observed.</p>
+<p><strong>S-X².</strong> Orlando and Thissen group examinees by their number-correct score, which is observed, rather than by an
+ability estimate, whose groups depend on the model <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../references.html#id37" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">Orlando and Thissen, 2000</a>]</span> (p. 52). For item <span class="math notranslate nohighlight">\(i\)</span> of <span class="math notranslate nohighlight">\(M\)</span> and
+score <span class="math notranslate nohighlight">\(k = 1, \dots, M - 1\)</span>, with <span class="math notranslate nohighlight">\(N_k\)</span> examinees at score <span class="math notranslate nohighlight">\(k\)</span> and <span class="math notranslate nohighlight">\(O_{ik}\)</span> the observed
+proportion of them answering item <span class="math notranslate nohighlight">\(i\)</span> correctly,</p>
+<div class="math notranslate nohighlight">
+\[S\text{-}X^2_i = \sum_{k=1}^{M-1} N_k \frac{(O_{ik} - E_{ik})^2}{E_{ik}(1 - E_{ik})}\]</div>
+<p>(<span class="bibtex-citation" id="id2">Orlando and Thissen [<a class="reference internal" href="../references.html#id37" title="Maria Orlando and David Thissen. Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1):50–64, 2000. Not openly available; Kang and Chen (2007) describe the method. doi:10.1177/01466216000241003.">2000</a>]</span>, p. 54, Equation 13). The expected proportion is</p>
+<div class="math notranslate nohighlight">
+\[E_{ik} = \frac{\sum_q P_i(X_q)\, S^{*i}_{k-1}(X_q)\, A_q}{\sum_q S_k(X_q)\, A_q}\]</div>
+<p>(p. 54, Equation 12), where <span class="math notranslate nohighlight">\(S_k(X_q)\)</span> is the likelihood of a score of <span class="math notranslate nohighlight">\(k\)</span> at ability <span class="math notranslate nohighlight">\(X_q\)</span> and
+<span class="math notranslate nohighlight">\(S^{*i}_k\)</span> the same without item <span class="math notranslate nohighlight">\(i\)</span>, both from Lord and Wingersky’s recursion over items (p. 53,
+Equations 6-11): adding an item with probability <span class="math notranslate nohighlight">\(T\)</span> turns <span class="math notranslate nohighlight">\(S^*_k\)</span> into <span class="math notranslate nohighlight">\(T S^*_{k-1} + (1 - T)
+S^*_k\)</span>. The nodes and their normal masses <span class="math notranslate nohighlight">\(A_q\)</span> are the calibration’s grid.</p>
+<p>The two cells of each score row, incorrect and correct, are collapsed as mirt 1.48 collapses them (source
+<code class="docutils literal notranslate"><span class="pre">R/utils.R:2410-2546</span></code>): rows no examinee reached are dropped, a row with one examinee is merged into the next, the
+last into the one before, and while an expected count is below <code class="docutils literal notranslate"><span class="pre">min_expected</span></code>, the first such row is merged into
+its neighbour, the first row into the second, the last into the one before and any other into the neighbour with
+fewer examinees. Orlando and Thissen (p. 56) collapse from both ends toward the middle until every expected count is
+at least 1. The statistic sums <span class="math notranslate nohighlight">\((O - E)^2 / E\)</span> over the cells left, and its degrees of freedom are the rows
+left less the number of parameters estimated for the item (p. 56), floored at 0. An item whose collapsed table leaves
+no degrees of freedom, including one collapsed to a single row, which mirt skips, has none and no statistic.</p>
+<p>S-X² “cannot handle incomplete data directly” <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../references.html#id58" title="Xue Zhang and Chun Wang. Modified item-fit indices for dichotomous IRT models with missing data. Applied Psychological Measurement, 46(8):705–719, 2022. Open copy: https://files.eric.ed.gov/fulltext/ED628568.pdf. doi:10.1177/01466216221125176.">Zhang and Wang, 2022</a>]</span> (p. 705), so it needs complete responses
+(ADR-0006).</p>
+<p><strong>Mean squares.</strong> The weighted and unweighted mean squares compare each response with its expectation at the examinee’s
+estimated ability (<span class="bibtex-citation" id="id4">Wright and Masters [<a class="reference internal" href="../references.html#id54" title="Benjamin D. Wright and Geoffrey N. Masters. Rating Scale Analysis. MESA Press, Chicago, 1982. Open copy: https://www.rasch.org/BTD_RSA/pdf/Rating%20Scale%20Analysis.pdf.">1982</a>]</span>, pp. 97-99). Wright and Masters define them for the models of their book, all
+built from the Rasch model (p. 10; p. 100, Table 5.4a), whose model for dichotomous responses (p. 38, Equation 3.1.1) is
+the 1PL, every item with the same slope <span class="math notranslate nohighlight">\(a\)</span>, with person parameters <span class="math notranslate nohighlight">\(a\theta_j\)</span> and item parameters
+<span class="math notranslate nohighlight">\(ab_i\)</span>. For examinee <span class="math notranslate nohighlight">\(j\)</span> and item <span class="math notranslate nohighlight">\(i\)</span>, with <span class="math notranslate nohighlight">\(P_{ij}\)</span> the probability of a correct response at
+the examinee’s ability and <span class="math notranslate nohighlight">\(Q_{ij} = 1 - P_{ij}\)</span>, the score residual <span class="math notranslate nohighlight">\(y_{ij} = u_{ij} - P_{ij}\)</span> (p. 98,
+Equation 5.4.2) has variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> and kurtosis <span class="math notranslate nohighlight">\(C_{ij}\)</span> (p. 98, Equations 5.4.3 and 5.4.4), which for
+the two categories of a dichotomous item are</p>
+<div class="math notranslate nohighlight">
+\[W_{ij} = P_{ij} Q_{ij}, \quad C_{ij} = P_{ij} Q_{ij} (P_{ij}^3 + Q_{ij}^3),\]</div>
+<p>and the standardized residual is <span class="math notranslate nohighlight">\(z_{ij} = y_{ij} / W_{ij}^{1/2}\)</span> (p. 99, Equation 5.4.5). Over the <span class="math notranslate nohighlight">\(N\)</span>
+examinees, the unweighted and the weighted mean squares, which Wright and Masters write <span class="math notranslate nohighlight">\(u_i\)</span> and <span class="math notranslate nohighlight">\(v_i\)</span>, are</p>
+<div class="math notranslate nohighlight">
+\[U_i = \frac{1}{N} \sum_j z_{ij}^2, \quad
+V_i = \frac{\sum_j W_{ij} z_{ij}^2}{\sum_j W_{ij}} = \frac{\sum_j y_{ij}^2}{\sum_j W_{ij}}\]</div>
+<p>(p. 99, Equations 5.4.6 and 5.4.7). irtlib calls <span class="math notranslate nohighlight">\(U_i\)</span> the outfit and <span class="math notranslate nohighlight">\(V_i\)</span> the infit, as mirt 1.48 does
+(source <code class="docutils literal notranslate"><span class="pre">R/itemfit.R:584,</span> <span class="pre">588</span></code>). <span class="math notranslate nohighlight">\(U_i\)</span> is sensitive to unexpected responses of examinees for whom the item is
+far too easy or far too hard, and the weights <span class="math notranslate nohighlight">\(W_{ij}\)</span>, smallest for those examinees, lessen their influence on
+<span class="math notranslate nohighlight">\(V_i\)</span> (pp. 99, 101). When the data fit the model both have expectation 1, <span class="math notranslate nohighlight">\(U_i\)</span> with variance
+<span class="math notranslate nohighlight">\(\sum_j (C_{ij} / W_{ij}^2) / N^2 - 1 / N\)</span> (p. 100, Table 5.4a) and <span class="math notranslate nohighlight">\(V_i\)</span> with variance</p>
+<div class="math notranslate nohighlight">
+\[q_i^2 = \frac{\sum_j (C_{ij} - W_{ij}^2)}{\left(\sum_j W_{ij}\right)^2}\]</div>
+<p>(p. 101, Equation 5.4.8). The weighted mean square is standardized to</p>
+<div class="math notranslate nohighlight">
+\[t_i = (V_i^{1/3} - 1)(3 / q_i) + q_i / 3,\]</div>
+<p>which has a mean near 0 and a standard deviation near 1 when the data fit (p. 101; p. 100, Table 5.4a). Wright and
+Masters estimate the person and item parameters from the same data as the residuals, which lowers the expected mean
+square by the factor <span class="math notranslate nohighlight">\((M - 1)(N - 1) / (MN)\)</span> for <span class="math notranslate nohighlight">\(M\)</span> items (p. 101).</p>
+<p>The abilities are the EAP estimates of <a class="reference internal" href="ability.html#irtlib.ability.expected_a_posteriori" title="irtlib.ability.expected_a_posteriori"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.ability.expected_a_posteriori()</span></code></a> on the calibration’s grid,
+abilities normal with mean 0 and variance 1 (ADR-0006). mirt 1.48 takes EAP estimates by default too
+(<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:268,</span> <span class="pre">535-538</span></code>), on the grid of its <code class="docutils literal notranslate"><span class="pre">fscores</span></code>. irtlib follows mirt in three places that no source on
+the shelf covers: it standardizes <span class="math notranslate nohighlight">\(U_i\)</span> in the same way as <span class="math notranslate nohighlight">\(V_i\)</span>, with the standard deviation from Table
+5.4a in place of <span class="math notranslate nohighlight">\(q_i\)</span> (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:585,</span> <span class="pre">587</span></code>); it raises a variance <span class="math notranslate nohighlight">\(W_{ij}\)</span> whose square is below
+<span class="math notranslate nohighlight">\(10^{-5}\)</span> to <span class="math notranslate nohighlight">\(10^{-5/2}\)</span>, leaving <span class="math notranslate nohighlight">\(C_{ij}\)</span> and <span class="math notranslate nohighlight">\(y_{ij}\)</span> as they are (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:189-200</span></code>),
+so that a mean square’s variance can fall below 0, and its <span class="math notranslate nohighlight">\(t\)</span> is then NaN; and it caps the standard deviation of
+either mean square at 1.4142 before standardizing (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:586,</span> <span class="pre">591</span></code>). mirt computes the mean squares of any
+model from its probabilities (<code class="docutils literal notranslate"><span class="pre">R/personfit.R:181-194</span></code>), and with missing responses sums over the examinees who
+answered each item, with <span class="math notranslate nohighlight">\(N\)</span> their number (<code class="docutils literal notranslate"><span class="pre">R/itemfit.R:577-584</span></code>). Wright and Masters’ sums run over every
+examinee, with no rule for a missing response, so irtlib’s mean squares need complete responses (ADR-0006), and a
+calibration of the 1PL by marginal maximum likelihood, whose grid the abilities are estimated on.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="irtlib.fit.ItemFit">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">ItemFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.integer" title="(in NumPy v2.5)"><span class="pre">integer</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/irtlib/fit.html#ItemFit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.ItemFit" title="Link to this definition">#</a></dt>
+<dd><p>The S-X² statistic of each item, with its degrees of freedom and p-value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>statistic</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>S-X² of each item; NaN where no degrees of freedom are left after collapsing.</p>
+</dd>
+<dt><strong>df</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The degrees of freedom of each item’s statistic.</p>
+</dd>
+<dt><strong>p_value</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The probability of a statistic at least as large under the calibrated model; NaN where <code class="docutils literal notranslate"><span class="pre">df</span></code> is 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="irtlib.fit.MeanSquares">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">MeanSquares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infit_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/irtlib/fit.html#MeanSquares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.MeanSquares" title="Link to this definition">#</a></dt>
+<dd><p>The outfit and infit mean squares of each item, each with its standardized value.</p>
+<p>Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
+from the same responses, as they are here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outfit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The unweighted mean square of each item, Wright and Masters’ <span class="math notranslate nohighlight">\(u_i\)</span>: the mean, over examinees, of the
+squared standardized residuals.</p>
+</dd>
+<dt><strong>outfit_t</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The outfit standardized by the same cube-root transformation as <code class="docutils literal notranslate"><span class="pre">infit_t</span></code>, with the outfit’s own standard
+deviation under the model; NaN where its variance under the model is not positive.</p>
+</dd>
+<dt><strong>infit</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The weighted mean square of each item, Wright and Masters’ <span class="math notranslate nohighlight">\(v_i\)</span>: the squared residuals summed over
+examinees, over the sum of their variances.</p>
+</dd>
+<dt><strong>infit_t</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where
+its variance under the model is not positive.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.fit.mean_squares">
+<span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">mean_squares</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><span class="pre">Calibration</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.fit.MeanSquares" title="irtlib.fit.MeanSquares"><span class="pre">MeanSquares</span></a></span></span><a class="reference internal" href="../_modules/irtlib/fit.html#mean_squares"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.mean_squares" title="Link to this definition">#</a></dt>
+<dd><p>Return the outfit and infit mean squares of every item of a 1PL calibration, from its responses.</p>
+<p>Each response is compared with its probability at the examinee’s EAP ability estimate on the calibration’s grid, with
+abilities normal with mean 0 and variance 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>calibration</strong><span class="classifier">Calibration</span></dt><dd><p>A calibration of the 1PL, whose items all have the same slope, <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">d</span> <span class="pre">=</span> <span class="pre">1</span></code>, of the marginal
+likelihood, on whose grid the abilities are estimated.</p>
+</dd>
+<dt><strong>responses</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The complete response matrix the calibration estimated its items from: one row per examinee, one column per
+item, 1 or 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>MeanSquares</dt><dd><p>Each item’s outfit and infit, and their standardized values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If the calibration’s items are not those of a 1PL, or its likelihood is not marginal, so that it has no grid;
+or the responses fail <a class="reference internal" href="calibration.html#irtlib.calibration.validate_responses" title="irtlib.calibration.validate_responses"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.calibration.validate_responses()</span></code></a>, have a missing response, or do not have
+one column per item of the calibration.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">irtlib.drawing</span><span class="w"> </span><span class="kn">import</span> <span class="n">draw_responses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">irtlib.mml</span><span class="w"> </span><span class="kn">import</span> <span class="n">MMLCalibrator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="n">draw_responses</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">500</span><span class="p">),</span> <span class="n">items</span><span class="p">,</span> <span class="n">rng</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span> <span class="o">=</span> <span class="n">mean_squares</span><span class="p">(</span><span class="n">MMLCalibrator</span><span class="p">(</span><span class="s2">"1PL"</span><span class="p">)</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">responses</span><span class="p">),</span> <span class="n">responses</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fit</span><span class="o">.</span><span class="n">outfit</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">fit</span><span class="o">.</span><span class="n">infit</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">(array([0.751, 0.772, 0.741, 0.723]), array([0.821, 0.807, 0.777, 0.791]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.fit.s_x2">
+<span class="sig-prename descclassname"><span class="pre">irtlib.fit.</span></span><span class="sig-name descname"><span class="pre">s_x2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><span class="pre">Calibration</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_expected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.fit.ItemFit" title="irtlib.fit.ItemFit"><span class="pre">ItemFit</span></a></span></span><a class="reference internal" href="../_modules/irtlib/fit.html#s_x2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.fit.s_x2" title="Link to this definition">#</a></dt>
+<dd><p>Return the S-X² item-fit statistic of every item of a calibration, from the responses it was calibrated on.</p>
+<p>Every item is evaluated at its estimates, including the items the calibration’s bank leaves out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>calibration</strong><span class="classifier">Calibration</span></dt><dd><p>The calibration whose items are evaluated, of the marginal likelihood, whose grid the expected counts are
+integrated over.</p>
+</dd>
+<dt><strong>responses</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The complete response matrix the calibration estimated its items from: one row per examinee, one column per
+item, 1 or 0.</p>
+</dd>
+<dt><strong>min_expected</strong><span class="classifier">float, optional</span></dt><dd><p>The smallest expected count a cell may keep after collapsing, at least 0. Default is 1. The expected counts
+are integrated over the calibration’s grid.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ItemFit</dt><dd><p>Each item’s statistic, degrees of freedom and p-value.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If the responses fail <a class="reference internal" href="calibration.html#irtlib.calibration.validate_responses" title="irtlib.calibration.validate_responses"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.calibration.validate_responses()</span></code></a>, have a missing response, or do
+not have one column per item of the calibration; <code class="docutils literal notranslate"><span class="pre">min_expected</span></code> is negative; or the calibration’s
+likelihood is not marginal, so that it has no grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ability.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="comparison.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.ItemFit"><code class="docutils literal notranslate"><span class="pre">ItemFit</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.MeanSquares"><code class="docutils literal notranslate"><span class="pre">MeanSquares</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.mean_squares"><code class="docutils literal notranslate"><span class="pre">mean_squares()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.fit.s_x2"><code class="docutils literal notranslate"><span class="pre">s_x2()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api/fit.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

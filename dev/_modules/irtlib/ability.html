@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.ability &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/ability';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.ability</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.ability</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""Ability estimation: each examinee's ability, with its standard error, from responses to items of known parameters.</span>
+
+<span class="sd">Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the</span>
+<span class="sd">examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column. It returns an</span>
+<span class="sd">:py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the</span>
+<span class="sd">estimator's objective or of its derivatives. An examinee's estimate depends only on the items it answered, so its row</span>
+<span class="sd">gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a</span>
+<span class="sd">sum over more terms, which can also move a search's last step and change its evaluation count by one, since the maximum</span>
+<span class="sd">likelihood and weighted likelihood searches, and MAP's under a normal prior, search every row of a matrix at once with</span>
+<span class="sd">the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses</span>
+<span class="sd">:math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and</span>
+<span class="sd">:math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.</span>
+
+<span class="sd">**Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /</span>
+<span class="sd">\sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with</span>
+<span class="sd">the ability and that of responses all incorrect falls, so their estimates are :math:`+\infty` and :math:`-\infty`</span>
+<span class="sd">(:cite:t:`Warm1989`, p. 442). As :math:`\theta \to -\infty` each :math:`P_i` tends to :math:`c_i`, and as :math:`\theta</span>
+<span class="sd">\to +\infty` to :math:`d_i`, so the likelihood tends to :math:`\prod_i c_i^{u_{ij}} (1 - c_i)^{1 - u_{ij}}` and to</span>
+<span class="sd">:math:`\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}`: under the 3PL and 4PL, responses that are neither all correct nor</span>
+<span class="sd">all incorrect can also have their supremum at an infinity. The maximum likelihood estimate is the maximizer over the</span>
+<span class="sd">extended real line: :math:`+\infty` or :math:`-\infty` wherever the likelihood comes closest to its supremum only in</span>
+<span class="sd">that limit, with standard error :math:`\infty`, since the information tends to 0 at either infinity. An examinee who</span>
+<span class="sd">answered no item has a constant likelihood, which every ability maximizes: its estimate is NaN, and its standard error</span>
+<span class="sd">:math:`\infty`, the information being 0. The caller has two ways to finite numbers, never used together:</span>
+
+<span class="sd">- ``bounds``: the estimate maximizes the likelihood within them, and responses all correct or all incorrect give the</span>
+<span class="sd">  bound they point to. Bounds are always set in practice (:cite:t:`Warm1989`, p. 442), and catR 3.17 sets them by</span>
+<span class="sd">  default: its default ``constantPatt = NULL`` estimates such responses by maximum likelihood too</span>
+<span class="sd">  (:cite:t:`Magis2022`, p. 115), which returns the end of its ``range`` that the score points to (source</span>
+<span class="sd">  ``R/thetaEst.R:9-10, 100-109``).</span>
+<span class="sd">- ``fallback``: another estimator, called once on the rows whose estimate is not finite, the unanswered rows</span>
+<span class="sd">  included, whose estimates, standard errors and evaluation counts replace theirs;</span>
+<span class="sd">  the ``from_fallback`` field of :py:class:`AbilityEstimates` marks those rows.</span>
+
+<span class="sd">Where an item answered has :math:`c_i &gt; 0` or :math:`d_i &lt; 1`, the likelihood can have several maxima, and the search</span>
+<span class="sd">evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope :math:`a_i`</span>
+<span class="sd">above 2.5, 0.12 apart on [-6, 6], and otherwise :math:`\lceil 40 \max_i a_i \rceil + 1`, 0.3 divided by the steepest</span>
+<span class="sd">slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12, up to 2,401 points, 0.005 apart, for</span>
+<span class="sd">slopes of 60 and above, so that a pathological slope cannot exhaust memory. It refines the best between its neighbours</span>
+<span class="sd">by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the parabola through the</span>
+<span class="sd">three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and bisecting</span>
+<span class="sd">the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP estimate</span>
+<span class="sd">below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second derivative is :math:`-I` (see the</span>
+<span class="sd">MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the points: the</span>
+<span class="sd">estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first derivative,</span>
+<span class="sd">found by the same bracketed Newton's method from the middle of the range. On about 38,000 random mixed patterns of 1 to</span>
+<span class="sd">60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201 points found the</span>
+<span class="sd">global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole range, with no</span>
+<span class="sd">points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items, half of them with</span>
+<span class="sd">slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001 in</span>
+<span class="sd">log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range</span>
+<span class="sd">starts as [-6, 6]. Beyond the lower end of the range, a correct response's probability is at most its value at the end,</span>
+<span class="sd">since it rises with the ability, and an incorrect one's at most :math:`1 - c_i`; beyond the upper end, a correct one's</span>
+<span class="sd">is at most :math:`d_i` and an incorrect one's at most its value at the end. While these bounds leave room beyond an end</span>
+<span class="sd">for a log-likelihood above both the best found and the two limits, that end moves out, twice as far each time, and the</span>
+<span class="sd">new stretch is searched the same way, with as many points as the range, so that their spacing doubles with each stretch.</span>
+<span class="sd">The estimate is then the infinity of the larger limit, :math:`-\infty` of two equal ones, if that limit is at least the</span>
+<span class="sd">best value found, within a relative :math:`10^{-12}`, and the best ability found otherwise. After 64 moves of an end,</span>
+<span class="sd">which only items of a vanishing discrimination need, the search stops at the best ability found and warns.</span>
+
+<span class="sd">mirt 1.48 also gives :math:`+\infty` or :math:`-\infty` to responses all correct or all incorrect</span>
+<span class="sd">(``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`, and NA to both</span>
+<span class="sd">for an examinee who answered no item (``R/fscores.internal.R:94-96, 185``). It searches the</span>
+<span class="sd">other responses with R's ``nlm`` from the EAP estimate, up to an ability of :math:`\pm 20` (``R/fscores.R:305``;</span>
+<span class="sd">``R/fscores.internal.R:687``), takes the standard error from ``nlm``'s numerical Hessian, the observed information</span>
+<span class="sd">(``R/fscores.internal.R:1072-1101``), which is :math:`I` for items with :math:`c_i = 0` and :math:`d_i = 1` (see the</span>
+<span class="sd">MAP estimate below), and turns an estimate whose standard error exceeds 30 into an infinity</span>
+<span class="sd">(``R/fscores.internal.R:1094-1096``), which irtlib does not do.</span>
+
+<span class="sd">**Maximum a posteriori.** The MAP, or Bayes modal, estimate maximizes the posterior, :math:`\log \pi(\theta) + \log</span>
+<span class="sd">L_j(\theta)` for a prior density :math:`\pi` (:cite:t:`Magis2012`, p. 5, Equation 5; :cite:t:`Warm1989`, p. 430). For a</span>
+<span class="sd">normal prior of variance :math:`\sigma^2` its standard error is :math:`1 / \sqrt{1 / \sigma^2 + I(\hat\theta)}`</span>
+<span class="sd">(:cite:t:`Magis2012`, p. 5, Equation 6). For any prior, irtlib takes :math:`1 / \sqrt{I(\hat\theta) -</span>
+<span class="sd">(\log\pi)''(\hat\theta)}`, with the prior's second derivative a central difference of step :math:`10^{-4}`: Equation 6</span>
+<span class="sd">for a normal prior, and for a uniform one, inside its support, the maximum likelihood standard error, as catR 3.17</span>
+<span class="sd">computes them (``R/semTheta.R:43-50, 82-89``). Where the difference is not finite, at the edge of a bounded prior's</span>
+<span class="sd">support, the prior adds nothing; where the sum is not positive, the standard error is :math:`\infty`. The search</span>
+<span class="sd">evaluates the log-posterior at equally spaced abilities within the bounds: under a normal prior whose precision :math:`1</span>
+<span class="sd">/ \sigma^2` is a finite positive float, as many as the maximum likelihood search for the same items, and under any other</span>
+<span class="sd">prior 201, 0.06 apart on [-6, 6]. Three or more tied at the maximum make a flat posterior, and the estimate is the</span>
+<span class="sd">middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so the</span>
+<span class="sd">estimate stays inside the prior's support and is the highest of the modes the points separate. With a normal prior</span>
+<span class="sd">:math:`N(\mu, \sigma^2)` the refinement is the maximum likelihood search's Newton's method, with :math:`-(\theta - \mu)</span>
+<span class="sd">/ \sigma^2` and :math:`-1 / \sigma^2` added to the derivatives, and on items that all have :math:`c_i = 0` and</span>
+<span class="sd">:math:`d_i = 1` the log-posterior is concave too, and the search skips the points as the maximum likelihood search does.</span>
+<span class="sd">With any other prior the refinement is SciPy's bounded search, ``scipy.optimize.minimize_scalar``. An examinee who</span>
+<span class="sd">answered no item gets the prior's mode.</span>
+
+<span class="sd">mirt 1.48 maximizes the same posterior with ``nlm`` and takes the standard error from ``nlm``'s numerical Hessian</span>
+<span class="sd">(``R/fscores.internal.R:684-703, 1047-1070``): the observed information plus the prior's precision. When every answered</span>
+<span class="sd">item has :math:`c_i = 0` and :math:`d_i = 1`, the observed information is :math:`I` exactly (:cite:t:`Warm1989`, p. 449,</span>
+<span class="sd">whose model fixes :math:`d_i = 1`, p. 428, Equation 1), and the two standard errors agree.</span>
+
+<span class="sd">**Expected a posteriori.** The EAP estimate is the mean of the examinee's posterior over the grid of</span>
+<span class="sd">:py:mod:`irtlib.quadrature`, and its standard error the posterior standard deviation (:cite:t:`Bock1982`, p. 433,</span>
+<span class="sd">Equations 4 and 5; :cite:t:`Magis2012`, pp. 5-6, Equations 10 and 11). It is finite whatever the responses, and an</span>
+<span class="sd">examinee who answered no item gets the prior's mean and standard deviation on the grid. irtlib's default grid and prior</span>
+<span class="sd">are mirt 1.48's: 121 nodes on [-6, 6] (``R/fscores.R:302, 318-319``; ``R/fscores.internal.R:231``) with the standard</span>
+<span class="sd">normal density at the nodes, normalized (``R/fscores.internal.R:316-317``). mirt gives NA to an examinee who answered no</span>
+<span class="sd">item.</span>
+
+<span class="sd">**Weighted likelihood.** Warm's estimate is the root of the modified score equation</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   \sum_i \frac{(u_{ij} - P_i) P_i'}{P_i Q_i} + \frac{J}{2 I} = 0, \quad J = \sum_i \frac{P_i' P_i''}{P_i Q_i}</span>
+
+<span class="sd">(:cite:t:`Warm1989`, p. 431, Equation 10; p. 430), the derivative of the log of the weighted likelihood</span>
+<span class="sd">:math:`w(\theta) L_j(\theta)`, with :math:`\partial \log w / \partial\theta = J / (2 I)`, which the estimate maximizes</span>
+<span class="sd">(p. 446, Equations A3 and A4). It removes the first-order bias of the maximum likelihood estimate (p. 427; p. 431,</span>
+<span class="sd">Theorem). When every :math:`c_i = 0`, :math:`w = I^{1/2}` (p. 431), in Warm's model, which fixes :math:`d_i = 1`</span>
+<span class="sd">(p. 428, Equation 1). The estimate's variance is asymptotically :math:`1 / I`, that of the maximum likelihood estimate</span>
+<span class="sd">(p. 431), and its standard error is :math:`1 / \sqrt{I(\hat\theta)}`, catR 3.17's default (``R/semTheta.R:90-96``);</span>
+<span class="sd">:cite:t:`Magis2012` (p. 6, Equation 14) give a corrected one, which irtlib does not use. The search evaluates the</span>
+<span class="sd">modified score at 121 equally spaced abilities within the bounds. Each change of sign from positive to negative,</span>
+<span class="sd">refined by Brent's method step for step as SciPy 1.18.1's ``scipy.optimize.brentq`` takes it (source</span>
+<span class="sd">``scipy/optimize/Zeros/brentq.c:36-130``), from the values of the scan at its ends, is a maximum of the weighted</span>
+<span class="sd">likelihood, and so is a bound the score points out of. Of several, the estimate is the one of largest weighted</span>
+<span class="sd">likelihood, ranked by integrating the score from the lower bound with ``scipy.integrate.quad``. Warm finds finite</span>
+<span class="sd">estimates for responses all correct or all incorrect on his tests (p. 443, Table 1), and :cite:t:`Magis2012` (p. 11)</span>
+<span class="sd">propose the estimator for them; irtlib's estimate lies within the bounds whatever the responses. An examinee who</span>
+<span class="sd">answered no item has no estimate, NaN, and standard error :math:`\infty`, as under maximum likelihood.</span>
+
+<span class="sd">mirt 1.48 maximizes :math:`\log L_j + \tfrac12 \log I` instead (``R/fscores.internal.R:705-738``), Warm's estimate when</span>
+<span class="sd">every answered item has :math:`c_i = 0` and :math:`d_i = 1`, and takes its standard error from ``nlm``'s numerical</span>
+<span class="sd">Hessian of that weighted log-likelihood (``R/fscores.internal.R:1103-1119``).</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegrationWarning</span><span class="p">,</span> <span class="n">quad</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">irt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">responses_and_items</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._search</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+  <span class="n">_SEARCH_POINTS</span><span class="p">,</span>
+  <span class="n">_BatchObjective</span><span class="p">,</span>
+  <span class="n">_Bounds</span><span class="p">,</span>
+  <span class="n">_brent</span><span class="p">,</span>
+  <span class="n">_brent_rows</span><span class="p">,</span>
+  <span class="n">_Derivatives</span><span class="p">,</span>
+  <span class="n">_Examinee</span><span class="p">,</span>
+  <span class="n">_maxima</span><span class="p">,</span>
+  <span class="n">_maximum</span><span class="p">,</span>
+  <span class="n">_PriorTerms</span><span class="p">,</span>
+  <span class="n">_Rows</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MIN_EXTENDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+  <span class="n">GridPrior</span><span class="p">,</span>
+  <span class="n">LogPrior</span><span class="p">,</span>
+  <span class="n">QuadratureGrid</span><span class="p">,</span>
+  <span class="n">_NormalLogPrior</span><span class="p">,</span>
+  <span class="n">normal_log_prior</span><span class="p">,</span>
+  <span class="n">posterior</span><span class="p">,</span>
+  <span class="n">posterior_mean</span><span class="p">,</span>
+  <span class="n">posterior_variance</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoolArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">IntArray</span>
+
+<span class="c1"># Step of the central difference that gives a prior's curvature at the posterior mode.</span>
+<span class="n">_CURVATURE_STEP</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="c1"># Points on which Warm's modified score is scanned to bracket its roots: 0.1 apart on [-6, 6].</span>
+<span class="n">_SCAN_POINTS</span> <span class="o">=</span> <span class="mi">121</span>
+<span class="c1"># How often the maximum likelihood search without bounds may move an end of its range out, doubling the distance each</span>
+<span class="c1"># time: past 6 * 2**64, about 1e20, only items of a vanishing discrimination still change the likelihood.</span>
+<span class="n">_MAX_EXTENSIONS</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="c1"># The package's directory, whose frames a warning skips, so that it points at the caller's line.</span>
+<span class="n">_PACKAGE</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">sep</span>
+<span class="c1"># How a warning about one examinee begins: the examinee's row in the response matrix.</span>
+<span class="n">_ROW</span> <span class="o">=</span> <span class="s2">"examinee in row </span><span class="si">{}</span><span class="s2">: "</span>
+<span class="n">_ROW_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^examinee in row (\d+): "</span><span class="p">)</span>
+<span class="c1"># Log-likelihoods closer than this, relative to their size, count as equal: the rounding of a sum over the items.</span>
+<span class="n">_RELATIVE_SLACK</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_grid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">QuadratureGrid</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the grid of EAP estimates without one, built once and never handed out."""</span>
+  <span class="k">return</span> <span class="n">QuadratureGrid</span><span class="o">.</span><span class="n">uniform</span><span class="p">()</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_prior</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">LogPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the standard normal prior of EAP and MAP estimates without one, built once."""</span>
+  <span class="k">return</span> <span class="n">normal_log_prior</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="AbilityEstimates">
+<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.AbilityEstimates">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Each examinee's ability estimate, its standard error, and the evaluations of the estimator's objective it took.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  theta : numpy.ndarray</span>
+<span class="sd">      The estimates, one per row of the response matrix.</span>
+<span class="sd">  standard_errors : numpy.ndarray</span>
+<span class="sd">      Their standard errors, by the estimator's formula.</span>
+<span class="sd">  evaluations : numpy.ndarray</span>
+<span class="sd">      For each examinee, the number of evaluations of the estimator's objective, the likelihood, the posterior or</span>
+<span class="sd">      Warm's modified score, or of the objective's derivatives, each ability of a grid counted once.</span>
+<span class="sd">  from_fallback : numpy.ndarray</span>
+<span class="sd">      For each examinee, whether its estimate, standard error and evaluations are those of the fallback estimator of</span>
+<span class="sd">      :py:func:`maximum_likelihood`; False everywhere for the other estimators.</span>
+<span class="sd">  """</span>
+
+  <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span>
+  <span class="n">standard_errors</span><span class="p">:</span> <span class="n">FloatArray</span>
+  <span class="n">evaluations</span><span class="p">:</span> <span class="n">IntArray</span>
+  <span class="n">from_fallback</span><span class="p">:</span> <span class="n">BoolArray</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_tol</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return ``tol`` as a float, after checking that it is positive.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  float</span>
+<span class="sd">      The tolerance.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``tol`` is not positive, NaN included.</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">tol</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tol must be positive, got </span><span class="si">{</span><span class="n">tol</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Bounds</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return ``bounds`` as floats, after checking that they are finite with low &lt; high.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[float, float]</span>
+<span class="sd">      The lower and the upper bound.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If either bound is not finite, or the lower bound is not below the upper one.</span>
+<span class="sd">  """</span>
+  <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">bounds</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">high</span><span class="p">)</span> <span class="ow">and</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"bounds must be finite with low &lt; high, got </span><span class="si">{</span><span class="n">bounds</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">low</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">high</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_answered</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]]:</span>
+<span class="w">  </span><span class="sd">"""Yield each examinee's responses and items, the items it did not answer left out."""</span>
+  <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">:</span>
+    <span class="n">answered</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">row</span><span class="p">[</span><span class="n">answered</span><span class="p">],</span> <span class="n">items</span><span class="p">[</span><span class="n">answered</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_estimates</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the estimates, standard errors and evaluation counts of the examinees, one tuple per examinee."""</span>
+  <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span>
+    <span class="n">theta</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">theta</span> <span class="k">for</span> <span class="n">theta</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">values</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+    <span class="n">standard_errors</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">se</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">values</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+    <span class="n">evaluations</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">evaluations</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">evaluations</span> <span class="ow">in</span> <span class="n">values</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+    <span class="n">from_fallback</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+  <span class="p">)</span>
+
+
+<div class="viewcode-block" id="expected_a_posteriori">
+<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.expected_a_posteriori">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expected_a_posteriori</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">grid_prior</span><span class="p">:</span> <span class="n">GridPrior</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's EAP estimate, the mean of its posterior over a grid, with the posterior standard deviation.</span>
+
+<span class="sd">  Every estimate is finite, whatever the responses; an examinee who answered no item gets the prior's mean and standard</span>
+<span class="sd">  deviation on the grid. The evaluation count is the number of grid nodes.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or</span>
+<span class="sd">      False for an incorrect one, and NaN for a missing one.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a &gt; 0``</span>
+<span class="sd">      and ``0 &lt;= c &lt; d &lt;= 1``.</span>
+<span class="sd">  grid : QuadratureGrid or None, optional</span>
+<span class="sd">      The nodes the posterior is computed on. Default is ``QuadratureGrid.uniform()``, 121 nodes on [-6, 6].</span>
+<span class="sd">  log_prior : LogPrior or None, optional</span>
+<span class="sd">      The prior's log-density. Default is ``normal_log_prior()``, the standard normal.</span>
+<span class="sd">  grid_prior : GridPrior or None, optional</span>
+<span class="sd">      A grid and prior evaluated once, in place of ``grid`` and ``log_prior``, for a caller that estimates with the</span>
+<span class="sd">      same ones many times. Default is None.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  AbilityEstimates</span>
+<span class="sd">      The posterior means, the posterior standard deviations and the grid's size, one of each per examinee.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``grid_prior`` is given together with ``grid`` or ``log_prior``. Also if ``items`` is not an ``(n, 4)``</span>
+<span class="sd">      matrix, ``responses`` is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-prior</span>
+<span class="sd">      is NaN or +inf at a node or has no mass on the grid.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])</span>
+<span class="sd">  &gt;&gt;&gt; estimates = expected_a_posteriori(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)</span>
+<span class="sd">  &gt;&gt;&gt; estimates.theta.round(4), estimates.standard_errors.round(4)</span>
+<span class="sd">  (array([-0.2809,  0.8555]), array([0.7837, 0.828 ]))</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="n">grid_prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">_default_grid</span><span class="p">()</span> <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">grid</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">nodes</span>
+    <span class="n">post</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">(</span>
+      <span class="n">irt</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">),</span> <span class="n">grid</span><span class="p">,</span> <span class="n">_default_prior</span><span class="p">()</span> <span class="k">if</span> <span class="n">log_prior</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">log_prior</span>
+    <span class="p">)</span>
+  <span class="k">elif</span> <span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">log_prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">grid_prior</span><span class="o">.</span><span class="n">nodes</span>
+    <span class="n">post</span> <span class="o">=</span> <span class="n">grid_prior</span><span class="o">.</span><span class="n">posterior</span><span class="p">(</span><span class="n">irt</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">))</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"grid_prior replaces grid and log_prior: give either grid_prior or them"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">n_examinees</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span>
+    <span class="n">theta</span><span class="o">=</span><span class="n">posterior_mean</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">nodes</span><span class="p">),</span>
+    <span class="n">standard_errors</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">posterior_variance</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)),</span>
+    <span class="n">evaluations</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_examinees</span><span class="p">,</span> <span class="n">nodes</span><span class="o">.</span><span class="n">size</span><span class="p">),</span>
+    <span class="n">from_fallback</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_examinees</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">),</span>
+  <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="maximum_a_posteriori">
+<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.maximum_a_posteriori">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">maximum_a_posteriori</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">),</span>
+  <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's MAP estimate, the mode of its posterior within the bounds, with its standard error.</span>
+
+<span class="sd">  The estimate is the highest mode the search finds, inside the prior's support, and finite whatever the responses; an</span>
+<span class="sd">  examinee who answered no item gets the prior's mode. The evaluation count is the number of evaluations of the</span>
+<span class="sd">  posterior or of its derivatives.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or</span>
+<span class="sd">      False for an incorrect one, and NaN for a missing one.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a &gt; 0``</span>
+<span class="sd">      and ``0 &lt;= c &lt; d &lt;= 1``.</span>
+<span class="sd">  log_prior : LogPrior or None, optional</span>
+<span class="sd">      The prior's log-density. Default is ``normal_log_prior()``, the standard normal.</span>
+<span class="sd">  bounds : tuple[float, float], optional</span>
+<span class="sd">      The range the mode is searched in. Default is ``(THETA_MIN_EXTENDED, THETA_MAX_EXTENDED)``, [-6, 6].</span>
+<span class="sd">  tol : float, optional</span>
+<span class="sd">      The absolute tolerance of the refinement, in the ability scale. Default is 1e-6.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  AbilityEstimates</span>
+<span class="sd">      The modes, their standard errors, ``inf`` where the information and the prior's curvature give none, and the</span>
+<span class="sd">      evaluation counts.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``tol`` is not positive, ``bounds`` is not a finite interval, ``items`` is not an ``(n, 4)`` matrix,</span>
+<span class="sd">      ``responses`` is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-posterior is</span>
+<span class="sd">      not finite at any search point.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])</span>
+<span class="sd">  &gt;&gt;&gt; estimates = maximum_a_posteriori(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)</span>
+<span class="sd">  &gt;&gt;&gt; estimates.theta.round(4), estimates.standard_errors.round(4)</span>
+<span class="sd">  (array([-0.2728,  0.823 ]), array([0.8029, 0.8002]))</span>
+<span class="sd">  """</span>
+  <span class="n">log_prior</span> <span class="o">=</span> <span class="n">_default_prior</span><span class="p">()</span> <span class="k">if</span> <span class="n">log_prior</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">log_prior</span>
+  <span class="n">bounds</span> <span class="o">=</span> <span class="n">_check_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+  <span class="n">tol</span> <span class="o">=</span> <span class="n">_check_tol</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">responses_and_items</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">prior</span> <span class="o">=</span> <span class="n">_normal_prior_terms</span><span class="p">(</span><span class="n">log_prior</span><span class="p">)</span>
+  <span class="c1"># one examinee keeps the search of one row, which a step of an adaptive test calls and which has less to set up</span>
+  <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_posterior_modes</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_estimates</span><span class="p">(</span>
+    <span class="n">_posterior_mode</span><span class="p">(</span><span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span> <span class="ow">in</span> <span class="n">_answered</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_posterior_mode</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">,</span>
+  <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">,</span>
+  <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">prior</span><span class="p">:</span> <span class="n">_PriorTerms</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return one examinee's posterior mode, its standard error and the posterior evaluations it took.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[float, float, int]</span>
+<span class="sd">      The mode, its standard error and the number of evaluations of the posterior or of its derivatives.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the log-posterior is not finite at any search point.</span>
+<span class="sd">  """</span>
+  <span class="n">examinee</span> <span class="o">=</span> <span class="n">_Examinee</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">derivatives</span> <span class="o">=</span> <span class="n">_posterior_derivatives</span><span class="p">(</span><span class="n">examinee</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+  <span class="n">theta</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">evaluations</span> <span class="o">=</span> <span class="n">_maximum</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">theta</span><span class="p">:</span> <span class="n">examinee</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">log_prior</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+    <span class="n">bounds</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">,</span>
+    <span class="n">derivatives</span><span class="p">,</span>
+    <span class="n">concave</span><span class="o">=</span><span class="n">derivatives</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">examinee</span><span class="o">.</span><span class="n">concave</span><span class="p">,</span>
+    <span class="n">n_points</span><span class="o">=</span><span class="n">_SEARCH_POINTS</span> <span class="k">if</span> <span class="n">derivatives</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">examinee</span><span class="o">.</span><span class="n">search_points</span><span class="p">,</span>
+  <span class="p">)</span>
+  <span class="n">h</span> <span class="o">=</span> <span class="n">_CURVATURE_STEP</span>
+  <span class="n">below</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">above</span> <span class="o">=</span> <span class="n">log_prior</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">theta</span> <span class="o">-</span> <span class="n">h</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">theta</span> <span class="o">+</span> <span class="n">h</span><span class="p">]))</span>
+  <span class="n">curvature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">above</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">at</span> <span class="o">+</span> <span class="n">below</span><span class="p">)</span> <span class="o">/</span> <span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+  <span class="n">precision</span> <span class="o">=</span> <span class="n">irt</span><span class="o">.</span><span class="n">total_information</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">curvature</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">curvature</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">se</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+  <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">evaluations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_posterior_modes</span><span class="p">(</span>
+  <span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">prior</span><span class="p">:</span> <span class="n">_PriorTerms</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return what :py:func:`_posterior_mode` returns for each row, every row searched at once."""</span>
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">_Rows</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+  <span class="n">theta</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">evaluations</span> <span class="o">=</span> <span class="n">_maxima</span><span class="p">(</span><span class="n">_BatchObjective</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">prior</span><span class="p">),</span> <span class="n">rows</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+  <span class="n">h</span> <span class="o">=</span> <span class="n">_CURVATURE_STEP</span>
+  <span class="n">below</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">above</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">log_density</span><span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">h</span><span class="p">),</span> <span class="n">prior</span><span class="o">.</span><span class="n">log_density</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">prior</span><span class="o">.</span><span class="n">log_density</span><span class="p">(</span><span class="n">theta</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
+  <span class="n">curvature</span> <span class="o">=</span> <span class="p">(</span><span class="n">above</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">at</span> <span class="o">+</span> <span class="n">below</span><span class="p">)</span> <span class="o">/</span> <span class="n">h</span><span class="o">**</span><span class="mi">2</span>
+  <span class="n">precision</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">total_information</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">curvature</span><span class="p">),</span> <span class="n">curvature</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+  <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="n">positive</span> <span class="o">=</span> <span class="p">(</span><span class="n">precision</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span>
+  <span class="n">standard_errors</span><span class="p">[</span><span class="n">positive</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">precision</span><span class="p">[</span><span class="n">positive</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">standard_errors</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normal_prior_terms</span><span class="p">(</span><span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_PriorTerms</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return a normal prior's terms for the searches' derivatives; None for any other prior.</span>
+
+<span class="sd">  A normal prior whose precision, 1 / sd^2, is not a finite positive float, from a standard deviation near the floats'</span>
+<span class="sd">  limits, also gives None, leaving its posterior to the search without derivatives.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  _PriorTerms or None</span>
+<span class="sd">      The prior's log-density, mean and precision, or None.</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">log_prior</span><span class="p">,</span> <span class="n">_NormalLogPrior</span><span class="p">):</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="n">inverse</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">log_prior</span><span class="o">.</span><span class="n">sd</span>
+  <span class="n">precision</span> <span class="o">=</span> <span class="n">inverse</span> <span class="o">*</span> <span class="n">inverse</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">precision</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">_PriorTerms</span><span class="p">(</span><span class="n">log_prior</span><span class="p">,</span> <span class="n">log_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_posterior_derivatives</span><span class="p">(</span><span class="n">examinee</span><span class="p">:</span> <span class="n">_Examinee</span><span class="p">,</span> <span class="n">prior</span><span class="p">:</span> <span class="n">_PriorTerms</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Derivatives</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the log-posterior's first and second derivatives at one ability, under a normal prior's terms, or None.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  Callable or None</span>
+<span class="sd">      The derivatives as a function of one ability, or None without a normal prior.</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">derivatives</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">slope</span><span class="p">,</span> <span class="n">curvature</span> <span class="o">=</span> <span class="n">examinee</span><span class="o">.</span><span class="n">derivatives</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">slope</span> <span class="o">-</span> <span class="n">prior</span><span class="o">.</span><span class="n">precision</span> <span class="o">*</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">prior</span><span class="o">.</span><span class="n">mean</span><span class="p">),</span> <span class="n">curvature</span> <span class="o">-</span> <span class="n">prior</span><span class="o">.</span><span class="n">precision</span>
+
+  <span class="k">return</span> <span class="n">derivatives</span>
+
+
+<div class="viewcode-block" id="maximum_likelihood">
+<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.maximum_likelihood">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">maximum_likelihood</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">fallback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">],</span> <span class="n">AbilityEstimates</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's maximum likelihood estimate, with its standard error.</span>
+
+<span class="sd">  Without ``bounds`` the estimate maximizes the likelihood over the whole ability scale, infinities included: it is</span>
+<span class="sd">  ``inf`` or ``-inf`` where the likelihood comes closest to its supremum only in that limit, as it does for responses</span>
+<span class="sd">  all correct or all incorrect, and its standard error is then ``inf``. With ``bounds`` it maximizes the likelihood</span>
+<span class="sd">  within them, and is finite. An examinee who answered no item has no estimate, NaN, and standard error ``inf``. A</span>
+<span class="sd">  ``fallback`` replaces every estimate that is not finite, infinite or NaN.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or</span>
+<span class="sd">      False for an incorrect one, and NaN for a missing one.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a &gt; 0``</span>
+<span class="sd">      and ``0 &lt;= c &lt; d &lt;= 1``.</span>
+<span class="sd">  bounds : tuple[float, float] or None, optional</span>
+<span class="sd">      The range the estimate is searched in; responses all correct or all incorrect give the bound they point to.</span>
+<span class="sd">      Default is None, the whole ability scale.</span>
+<span class="sd">  fallback : Callable or None, optional</span>
+<span class="sd">      An estimator called as ``fallback(responses, items)``, once, on the rows whose estimate is not finite, such as</span>
+<span class="sd">      ``functools.partial(expected_a_posteriori, log_prior=normal_log_prior(0.0, 1.0))``; its estimates, standard</span>
+<span class="sd">      errors and evaluation counts replace theirs, and ``from_fallback`` marks them. Default is None, which keeps them.</span>
+<span class="sd">  tol : float, optional</span>
+<span class="sd">      The absolute tolerance of the search, in the ability scale. Default is 1e-6.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  AbilityEstimates</span>
+<span class="sd">      The estimates, their standard errors, and the number of evaluations of each examinee's likelihood or of its</span>
+<span class="sd">      derivatives.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If both ``bounds`` and ``fallback`` are given, ``bounds`` is not a finite interval, ``tol`` is not positive,</span>
+<span class="sd">      ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is not</span>
+<span class="sd">      0, 1 or NaN, or the fallback does not return one estimate per row it is given.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])</span>
+<span class="sd">  &gt;&gt;&gt; responses = numpy.array([[1, 0, numpy.nan], [1, 1, 1]])</span>
+<span class="sd">  &gt;&gt;&gt; maximum_likelihood(responses, items).theta.round(4)</span>
+<span class="sd">  array([-0.6463,     inf])</span>
+<span class="sd">  &gt;&gt;&gt; maximum_likelihood(responses, items, bounds=(-4.0, 4.0)).theta.round(4)</span>
+<span class="sd">  array([-0.6463,  4.    ])</span>
+<span class="sd">  &gt;&gt;&gt; estimates = maximum_likelihood(responses, items, fallback=expected_a_posteriori)</span>
+<span class="sd">  &gt;&gt;&gt; estimates.theta.round(4), estimates.from_fallback</span>
+<span class="sd">  (array([-0.6463,  0.8555]), array([False,  True]))</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fallback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"bounds and fallback cannot be given together: with bounds every estimate is finite"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">bounds</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_check_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+  <span class="n">tol</span> <span class="o">=</span> <span class="n">_check_tol</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">responses_and_items</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="c1"># one examinee keeps the search of one row, which a step of an adaptive test calls and which has less to set up</span>
+  <span class="n">estimates</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">_likelihood_maxima</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="k">else</span> <span class="n">_estimates</span><span class="p">(</span>
+      <span class="n">_likelihood_maximum</span><span class="p">(</span><span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span> <span class="ow">in</span> <span class="n">_answered</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+  <span class="n">replaced</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">fallback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">replaced</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">estimates</span>
+  <span class="n">substitute</span> <span class="o">=</span> <span class="n">_fallback_estimates</span><span class="p">(</span><span class="n">fallback</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">replaced</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">substitute</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">replaced</span><span class="o">.</span><span class="n">sum</span><span class="p">()),):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the fallback returned </span><span class="si">{</span><span class="n">substitute</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> estimates for </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">replaced</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2"> rows"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="n">theta</span><span class="p">,</span> <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">estimates</span><span class="o">.</span><span class="n">standard_errors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">estimates</span><span class="o">.</span><span class="n">evaluations</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">theta</span><span class="p">[</span><span class="n">replaced</span><span class="p">],</span> <span class="n">standard_errors</span><span class="p">[</span><span class="n">replaced</span><span class="p">]</span> <span class="o">=</span> <span class="n">substitute</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">substitute</span><span class="o">.</span><span class="n">standard_errors</span>
+  <span class="n">evaluations</span><span class="p">[</span><span class="n">replaced</span><span class="p">]</span> <span class="o">=</span> <span class="n">substitute</span><span class="o">.</span><span class="n">evaluations</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">standard_errors</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">from_fallback</span><span class="o">=</span><span class="n">replaced</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fallback_estimates</span><span class="p">(</span>
+  <span class="n">fallback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">],</span> <span class="n">AbilityEstimates</span><span class="p">],</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">BoolArray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the fallback's estimates of the given rows, its warnings re-issued with the rows of the whole matrix."""</span>
+  <span class="n">positions</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+  <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">caught</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"always"</span><span class="p">)</span>
+    <span class="n">substitute</span> <span class="o">=</span> <span class="n">fallback</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">rows</span><span class="p">],</span> <span class="n">items</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">caught</span><span class="p">:</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">_ROW_PATTERN</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">match</span><span class="p">:</span> <span class="n">_ROW</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">warning</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">warning</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">skip_file_prefixes</span><span class="o">=</span><span class="p">(</span><span class="n">_PACKAGE</span><span class="p">,))</span>
+  <span class="k">return</span> <span class="n">substitute</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_likelihood_maximum</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return one examinee's maximum likelihood estimate, its standard error and the likelihood evaluations it took."""</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="c1"># every ability maximizes the likelihood of no response, which gives no information</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span>
+  <span class="n">n_correct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">responses</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">n_correct</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="n">responses</span><span class="o">.</span><span class="n">size</span><span class="p">}:</span>
+    <span class="c1"># the likelihood of responses all correct rises with the ability, and that of responses all incorrect falls</span>
+    <span class="n">all_correct</span> <span class="o">=</span> <span class="n">n_correct</span> <span class="o">==</span> <span class="n">responses</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="n">all_correct</span> <span class="k">else</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">all_correct</span> <span class="k">else</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">irt</span><span class="o">.</span><span class="n">see</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">items</span><span class="p">),</span> <span class="mi">0</span>
+  <span class="n">examinee</span> <span class="o">=</span> <span class="n">_Examinee</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span> <span class="o">=</span> <span class="n">_supremum</span><span class="p">(</span><span class="n">examinee</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">evaluations</span> <span class="o">=</span> <span class="n">_maximum</span><span class="p">(</span>
+      <span class="n">examinee</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">,</span>
+      <span class="n">bounds</span><span class="p">,</span>
+      <span class="n">tol</span><span class="p">,</span>
+      <span class="n">examinee</span><span class="o">.</span><span class="n">derivatives</span><span class="p">,</span>
+      <span class="n">concave</span><span class="o">=</span><span class="n">examinee</span><span class="o">.</span><span class="n">concave</span><span class="p">,</span>
+      <span class="n">n_points</span><span class="o">=</span><span class="n">examinee</span><span class="o">.</span><span class="n">search_points</span><span class="p">,</span>
+    <span class="p">)</span>
+  <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">irt</span><span class="o">.</span><span class="n">see</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">evaluations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_likelihood_maxima</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return what :py:func:`_likelihood_maximum` returns for each row, every row searched at once."""</span>
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">_Rows</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">n_answered</span><span class="p">,</span> <span class="n">n_correct</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">batch</span><span class="o">.</span><span class="n">correct</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">all_correct</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_answered</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n_correct</span> <span class="o">==</span> <span class="n">n_answered</span><span class="p">)</span>
+  <span class="n">all_incorrect</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_answered</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n_correct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="c1"># the likelihood of responses all correct rises with the ability, and that of responses all incorrect falls</span>
+  <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span> <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">bounds</span>
+  <span class="n">theta</span><span class="p">[</span><span class="n">all_correct</span><span class="p">],</span> <span class="n">theta</span><span class="p">[</span><span class="n">all_incorrect</span><span class="p">]</span> <span class="o">=</span> <span class="n">high</span><span class="p">,</span> <span class="n">low</span>
+  <span class="n">mixed</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">n_correct</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n_correct</span> <span class="o">&lt;</span> <span class="n">n_answered</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">mixed</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="n">search</span> <span class="o">=</span> <span class="p">(</span><span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span> <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">bounds</span>
+    <span class="n">found</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">used</span> <span class="o">=</span> <span class="n">_maxima</span><span class="p">(</span><span class="n">_BatchObjective</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span> <span class="n">mixed</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+    <span class="n">theta</span><span class="p">[</span><span class="n">mixed</span><span class="p">],</span> <span class="n">evaluations</span><span class="p">[</span><span class="n">mixed</span><span class="p">]</span> <span class="o">=</span> <span class="n">found</span><span class="p">,</span> <span class="n">used</span>
+    <span class="k">if</span> <span class="n">bounds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">_settle_ends</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">mixed</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">_inverse_root_information</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inverse_root_information</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">_Rows</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return what :py:func:`irtlib.irt.see` gives for each row at its estimate where finite, and ``inf`` elsewhere."""</span>
+  <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
+  <span class="n">information</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">total_information</span><span class="p">(</span><span class="n">theta</span><span class="p">[</span><span class="n">finite</span><span class="p">],</span> <span class="n">finite</span><span class="p">)</span>
+  <span class="n">variance</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">information</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">finite</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">information</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">))</span>
+  <span class="n">standard_errors</span><span class="p">[</span><span class="n">finite</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">standard_errors</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_settle_ends</span><span class="p">(</span>
+  <span class="n">batch</span><span class="p">:</span> <span class="n">_Rows</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Settle each row's maximum over the extended real line, as :py:func:`_supremum` does, in ``theta``.</span>
+
+<span class="sd">  ``value`` is each row's log-likelihood at its maximum on [-6, 6]. A row whose range ends leave no room for a larger</span>
+<span class="sd">  log-likelihood beyond them is settled at once, at an infinity or at that maximum; the others search on as</span>
+<span class="sd">  :py:func:`_supremum` does, one row at a time, which also sets their ``evaluations``.</span>
+<span class="sd">  """</span>
+  <span class="n">lower_ceiling</span><span class="p">,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_ceiling</span><span class="p">,</span> <span class="n">upper_limit</span> <span class="o">=</span> <span class="n">_end_sums</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+  <span class="c1"># max takes the lower of two equal limits, as _supremum's does</span>
+  <span class="n">upper</span> <span class="o">=</span> <span class="n">upper_limit</span> <span class="o">&gt;</span> <span class="n">lower_limit</span>
+  <span class="n">largest</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="n">upper_limit</span><span class="p">,</span> <span class="n">lower_limit</span><span class="p">)</span>
+  <span class="n">target</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">largest</span><span class="p">)</span>
+  <span class="n">slack</span> <span class="o">=</span> <span class="n">_RELATIVE_SLACK</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+  <span class="n">unresolved</span> <span class="o">=</span> <span class="p">(</span><span class="n">lower_ceiling</span> <span class="o">&gt;</span> <span class="n">target</span> <span class="o">+</span> <span class="n">slack</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">upper_ceiling</span> <span class="o">&gt;</span> <span class="n">target</span> <span class="o">+</span> <span class="n">slack</span><span class="p">)</span>
+  <span class="n">infinite</span> <span class="o">=</span> <span class="o">~</span><span class="n">unresolved</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">largest</span> <span class="o">&gt;=</span> <span class="n">value</span> <span class="o">-</span> <span class="n">slack</span><span class="p">)</span>
+  <span class="n">theta</span><span class="p">[</span><span class="n">rows</span><span class="p">[</span><span class="n">infinite</span><span class="p">]]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="n">infinite</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="c1"># few rows need a wider range, mostly those of a near-flat likelihood, so they are searched on one at a time</span>
+  <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">[</span><span class="n">unresolved</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="p">[</span><span class="n">row</span><span class="p">]</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">correct</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">kept</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">theta</span><span class="p">[</span><span class="n">row</span><span class="p">],</span> <span class="n">evaluations</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">_supremum</span><span class="p">(</span><span class="n">_Examinee</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">kept</span><span class="p">]),</span> <span class="n">tol</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_end_sums</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">_Rows</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return what :py:func:`_end` sums for each row at -6 and at 6: the ceilings and the limits there."""</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">T</span>
+  <span class="n">log_p</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">irt</span><span class="o">.</span><span class="n">log_response_probabilities</span><span class="p">(</span><span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">log_q</span> <span class="o">=</span> <span class="n">irt</span><span class="o">.</span><span class="n">log_response_probabilities</span><span class="p">(</span><span class="n">THETA_MAX_EXTENDED</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+  <span class="n">correct</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">correct</span><span class="p">[</span><span class="n">rows</span><span class="p">]</span>
+  <span class="c1"># c = 0 and d = 1 give log(0) = -inf, a limit of 0</span>
+  <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+    <span class="n">terms</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">log_p</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">)),</span>
+      <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">)),</span>
+      <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">log_q</span><span class="p">),</span>
+      <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">)),</span>
+    <span class="p">)</span>
+  <span class="n">lower_ceiling</span><span class="p">,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_ceiling</span><span class="p">,</span> <span class="n">upper_limit</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="p">[</span><span class="n">rows</span><span class="p">],</span> <span class="n">term</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span>
+  <span class="p">)</span>
+  <span class="k">return</span> <span class="n">lower_ceiling</span><span class="p">,</span> <span class="n">lower_limit</span><span class="p">,</span> <span class="n">upper_ceiling</span><span class="p">,</span> <span class="n">upper_limit</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_End</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""One end of the search range, with the largest log-likelihood beyond it and the log-likelihood's limit there."""</span>
+
+  <span class="n">direction</span><span class="p">:</span> <span class="nb">float</span>
+<span class="w">  </span><span class="sd">"""-1 for the lower end, 1 for the upper one."""</span>
+  <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span>
+<span class="w">  </span><span class="sd">"""The ability at the end."""</span>
+  <span class="n">ceiling</span><span class="p">:</span> <span class="nb">float</span>
+<span class="w">  </span><span class="sd">"""The largest log-likelihood any ability beyond the end can have."""</span>
+  <span class="n">limit</span><span class="p">:</span> <span class="nb">float</span>
+<span class="w">  </span><span class="sd">"""The log-likelihood's limit as the ability goes to infinity in the end's direction."""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_end</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_End</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return an end of the search range: the largest log-likelihood any ability beyond it can have, and the limit."""</span>
+  <span class="n">log_p</span><span class="p">,</span> <span class="n">log_q</span> <span class="o">=</span> <span class="n">irt</span><span class="o">.</span><span class="n">log_response_probabilities</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">T</span>
+  <span class="n">correct</span> <span class="o">=</span> <span class="n">responses</span> <span class="o">==</span> <span class="mi">1</span>
+  <span class="c1"># c = 0 and d = 1 give log(0) = -inf, a limit of 0</span>
+  <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">ceiling</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">log_p</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">))</span>
+      <span class="n">limit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">c</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">ceiling</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">log_q</span><span class="p">)</span>
+      <span class="n">limit</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">correct</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">_End</span><span class="p">(</span><span class="n">direction</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">ceiling</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">limit</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_supremum</span><span class="p">(</span><span class="n">examinee</span><span class="p">:</span> <span class="n">_Examinee</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the ability that maximizes one examinee's likelihood over the extended real line, and the evaluations."""</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">_maximum</span><span class="p">(</span>
+      <span class="n">examinee</span><span class="o">.</span><span class="n">log_likelihood</span><span class="p">,</span>
+      <span class="n">bounds</span><span class="p">,</span>
+      <span class="n">tol</span><span class="p">,</span>
+      <span class="n">examinee</span><span class="o">.</span><span class="n">derivatives</span><span class="p">,</span>
+      <span class="n">concave</span><span class="o">=</span><span class="n">examinee</span><span class="o">.</span><span class="n">concave</span><span class="p">,</span>
+      <span class="n">n_points</span><span class="o">=</span><span class="n">examinee</span><span class="o">.</span><span class="n">search_points</span><span class="p">,</span>
+    <span class="p">)</span>
+
+  <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MAX_EXTENDED</span>
+  <span class="n">theta</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">evaluations</span> <span class="o">=</span> <span class="n">search</span><span class="p">((</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">))</span>
+  <span class="n">step</span> <span class="o">=</span> <span class="n">high</span> <span class="o">-</span> <span class="n">low</span>
+  <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_MAX_EXTENSIONS</span><span class="p">):</span>
+    <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">_end</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">examinee</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">examinee</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="n">_end</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">examinee</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">examinee</span><span class="o">.</span><span class="n">items</span><span class="p">)]</span>
+    <span class="n">largest</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ends</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s2">"limit"</span><span class="p">))</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">largest</span><span class="o">.</span><span class="n">limit</span><span class="p">)</span>
+    <span class="n">slack</span> <span class="o">=</span> <span class="n">_RELATIVE_SLACK</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+    <span class="n">unresolved</span> <span class="o">=</span> <span class="p">[</span><span class="n">end</span> <span class="k">for</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">ends</span> <span class="k">if</span> <span class="n">end</span><span class="o">.</span><span class="n">ceiling</span> <span class="o">&gt;</span> <span class="n">target</span> <span class="o">+</span> <span class="n">slack</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">unresolved</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">largest</span><span class="o">.</span><span class="n">limit</span> <span class="o">&gt;=</span> <span class="n">value</span> <span class="o">-</span> <span class="n">slack</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">largest</span><span class="o">.</span><span class="n">direction</span><span class="p">),</span> <span class="n">evaluations</span>
+      <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span>
+    <span class="k">for</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">unresolved</span><span class="p">:</span>
+      <span class="n">stretch</span> <span class="o">=</span> <span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">theta</span> <span class="o">-</span> <span class="n">step</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span><span class="o">.</span><span class="n">direction</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">theta</span> <span class="o">+</span> <span class="n">step</span><span class="p">)</span>
+      <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">stretch</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">stretch</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+      <span class="n">found</span><span class="p">,</span> <span class="n">found_value</span><span class="p">,</span> <span class="n">used</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="n">stretch</span><span class="p">)</span>
+      <span class="n">evaluations</span> <span class="o">+=</span> <span class="n">used</span>
+      <span class="k">if</span> <span class="n">found_value</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">:</span>
+        <span class="n">theta</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">found</span><span class="p">,</span> <span class="n">found_value</span>
+    <span class="n">step</span> <span class="o">*=</span> <span class="mi">2</span>
+  <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"the maximum likelihood search reached [</span><span class="si">{</span><span class="n">low</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">high</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">] without settling whether a larger likelihood lies "</span>
+    <span class="s2">"beyond; the estimate is the best ability found"</span><span class="p">,</span>
+    <span class="ne">RuntimeWarning</span><span class="p">,</span>
+    <span class="n">skip_file_prefixes</span><span class="o">=</span><span class="p">(</span><span class="n">_PACKAGE</span><span class="p">,),</span>
+  <span class="p">)</span>
+  <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">evaluations</span>
+
+
+<div class="viewcode-block" id="weighted_likelihood">
+<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.weighted_likelihood">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">weighted_likelihood</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+  <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
+  <span class="o">*</span><span class="p">,</span>
+  <span class="n">bounds</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">),</span>
+  <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's weighted likelihood estimate, Warm's, with its standard error.</span>
+
+<span class="sd">  The estimate is the root of Warm's modified score within the bounds; of several, the one of largest weighted</span>
+<span class="sd">  likelihood, and of none, the bound the score points to. An examinee who answered no item has no estimate, NaN, and</span>
+<span class="sd">  standard error ``inf``. The evaluation count is the number of modified-score evaluations. A ranking integral that does</span>
+<span class="sd">  not converge warns with :py:class:`scipy.integrate.IntegrationWarning`.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : array_like</span>
+<span class="sd">      The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or</span>
+<span class="sd">      False for an incorrect one, and NaN for a missing one.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      The items ``[a, b, c, d]``, a matrix of shape ``(n, 4)``, one row per column of ``responses``, with ``a &gt; 0``</span>
+<span class="sd">      and ``0 &lt;= c &lt; d &lt;= 1``.</span>
+<span class="sd">  bounds : tuple[float, float], optional</span>
+<span class="sd">      The range the estimate is searched in. Default is ``(THETA_MIN_EXTENDED, THETA_MAX_EXTENDED)``, [-6, 6].</span>
+<span class="sd">  tol : float, optional</span>
+<span class="sd">      The absolute tolerance of the root search, in the ability scale. Default is 1e-6.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  AbilityEstimates</span>
+<span class="sd">      The estimates, their standard errors, ``inf`` where the information is 0, and the evaluation counts.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``bounds`` is not a finite interval, ``tol`` is not positive, ``items`` is not an ``(n, 4)`` matrix,</span>
+<span class="sd">      ``responses`` is not a matrix with one column per item, or a response is not 0, 1 or NaN.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.95]])</span>
+<span class="sd">  &gt;&gt;&gt; estimates = weighted_likelihood(numpy.array([[1, 0, numpy.nan], [1, 1, 1]]), items)</span>
+<span class="sd">  &gt;&gt;&gt; estimates.theta.round(4), estimates.standard_errors.round(4)</span>
+<span class="sd">  (array([-0.5154,  1.8903]), array([1.4041, 1.9431]))</span>
+<span class="sd">  """</span>
+  <span class="n">bounds</span> <span class="o">=</span> <span class="n">_check_bounds</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+  <span class="n">tol</span> <span class="o">=</span> <span class="n">_check_tol</span><span class="p">(</span><span class="n">tol</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">responses_and_items</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_weighted_likelihood_roots</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+  <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="p">(</span><span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_answered</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)):</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">_weighted_likelihood_root</span><span class="p">(</span><span class="n">row_responses</span><span class="p">,</span> <span class="n">row_items</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">theta</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">))</span>
+    <span class="n">_warn_ranking</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_estimates</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_ranking</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Warn of each message from a row's ranking integrals, naming the row, from the line that called irtlib."""</span>
+  <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">_ROW</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="n">message</span><span class="p">,</span> <span class="n">IntegrationWarning</span><span class="p">,</span> <span class="n">skip_file_prefixes</span><span class="o">=</span><span class="p">(</span><span class="n">_PACKAGE</span><span class="p">,))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_weighted_likelihood_root</span><span class="p">(</span>
+  <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">  </span><span class="sd">"""Return one examinee's WLE, its standard error, the score evaluations it took and the ranking's warnings."""</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">responses</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+    <span class="c1"># every ability maximizes the weighted likelihood of no response, which gives no information</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+
+  <span class="n">examinee</span> <span class="o">=</span> <span class="n">_Examinee</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">score</span> <span class="o">=</span> <span class="n">examinee</span><span class="o">.</span><span class="n">modified_score_at</span>
+  <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="n">bounds</span>
+  <span class="n">scan</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">_SCAN_POINTS</span><span class="p">)</span>
+  <span class="n">values</span> <span class="o">=</span> <span class="n">examinee</span><span class="o">.</span><span class="n">modified_score</span><span class="p">(</span><span class="n">scan</span><span class="p">)</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">scan</span><span class="o">.</span><span class="n">size</span>
+  <span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">_brackets</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+    <span class="n">ends</span><span class="p">,</span> <span class="n">ends_values</span> <span class="o">=</span> <span class="n">scan</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">values</span><span class="p">[</span><span class="n">index</span> <span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">root</span><span class="p">,</span> <span class="n">used</span> <span class="o">=</span> <span class="n">_brent</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">ends</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ends</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ends_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ends_values</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">)</span>
+    <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="n">evaluations</span> <span class="o">+=</span> <span class="n">used</span>
+  <span class="n">candidates</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_outward_bounds</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bounds</span><span class="p">))</span>
+  <span class="n">messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">ranking_evaluations</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">_most_likely</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">candidates</span><span class="p">)</span>
+    <span class="n">evaluations</span> <span class="o">+=</span> <span class="n">ranking_evaluations</span>
+  <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">irt</span><span class="o">.</span><span class="n">see</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">items</span><span class="p">),</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">messages</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_brackets</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the flat indices where the modified score at the scan's points turns from + to -, along its last axis.</span>
+
+<span class="sd">  Each is a maximum of the weighted likelihood between a point and the next; a zero at the right is a valid end of</span>
+<span class="sd">  Brent's bracket.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The index of each such point, flat over the other axes.</span>
+<span class="sd">  """</span>
+  <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_outward_bounds</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the bounds that the modified score, at the scan's ends, points out of: maxima of the weighted likelihood."""</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">bound</span> <span class="k">for</span> <span class="n">bound</span><span class="p">,</span> <span class="n">outward</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">outward</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_weighted_likelihood_roots</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbilityEstimates</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return what :py:func:`_weighted_likelihood_root` returns for each row, every row's scan and roots at once.</span>
+
+<span class="sd">  The rows with several maxima, or none, are ranked one at a time, and those whose root search fails are searched</span>
+<span class="sd">  alone, so that each raises or warns as it does alone, in the order of the rows.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  AbilityEstimates</span>
+<span class="sd">      Each row's estimate, standard error and evaluations of the modified score.</span>
+<span class="sd">  """</span>
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">_Rows</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span>
+  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+  <span class="n">scans</span> <span class="o">=</span> <span class="n">_Scans</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">)</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">evaluations</span><span class="p">[</span><span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="n">_SCAN_POINTS</span>
+  <span class="n">numpy</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">evaluations</span><span class="p">,</span> <span class="n">rows</span><span class="p">[</span><span class="n">scans</span><span class="o">.</span><span class="n">owner</span><span class="p">],</span> <span class="n">scans</span><span class="o">.</span><span class="n">used</span><span class="p">)</span>
+  <span class="n">settled</span> <span class="o">=</span> <span class="n">scans</span><span class="o">.</span><span class="n">settled</span>
+  <span class="n">theta</span><span class="p">[</span><span class="n">rows</span><span class="p">[</span><span class="n">settled</span><span class="p">]]</span> <span class="o">=</span> <span class="n">scans</span><span class="o">.</span><span class="n">only_candidate</span><span class="p">(</span><span class="n">bounds</span><span class="p">)[</span><span class="n">settled</span><span class="p">]</span>
+  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="o">~</span><span class="n">settled</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+    <span class="n">examinee</span> <span class="o">=</span> <span class="n">_Examinee</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="p">[</span><span class="n">row</span><span class="p">]],</span> <span class="n">items</span><span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">answered</span><span class="p">[</span><span class="n">row</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="n">scans</span><span class="o">.</span><span class="n">failed</span><span class="p">[</span><span class="n">scans</span><span class="o">.</span><span class="n">of_row</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+      <span class="n">theta</span><span class="p">[</span><span class="n">row</span><span class="p">],</span> <span class="n">_</span><span class="p">,</span> <span class="n">evaluations</span><span class="p">[</span><span class="n">row</span><span class="p">],</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">_weighted_likelihood_root</span><span class="p">(</span>
+        <span class="n">examinee</span><span class="o">.</span><span class="n">responses</span><span class="p">,</span> <span class="n">examinee</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">tol</span>
+      <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">found</span><span class="p">,</span> <span class="n">ranking_evaluations</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">_most_likely</span><span class="p">(</span>
+        <span class="n">examinee</span><span class="o">.</span><span class="n">modified_score_at</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">scans</span><span class="o">.</span><span class="n">candidates</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">bounds</span><span class="p">)</span>
+      <span class="p">)</span>
+      <span class="n">theta</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">=</span> <span class="n">found</span>
+      <span class="n">evaluations</span><span class="p">[</span><span class="n">row</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ranking_evaluations</span>
+    <span class="n">_warn_ranking</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">AbilityEstimates</span><span class="p">(</span>
+    <span class="n">theta</span><span class="p">,</span> <span class="n">_inverse_root_information</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">theta</span><span class="p">),</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+  <span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Scans</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Many rows' scans of Warm's modified score, and the roots Brent's method finds in their brackets."""</span>
+
+  <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""The modified score of each row, by rows, at each of the scan's points."""</span>
+  <span class="n">owner</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""Each bracket's row, as its position among the rows scanned: in the order of the rows, and within each, of the</span>
+<span class="sd">  brackets."""</span>
+  <span class="n">roots</span><span class="p">:</span> <span class="n">FloatArray</span>
+<span class="w">  </span><span class="sd">"""Each bracket's root."""</span>
+  <span class="n">used</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""Each bracket's evaluations of the modified score, besides the two at its ends."""</span>
+  <span class="n">failed</span><span class="p">:</span> <span class="n">BoolArray</span>
+<span class="w">  </span><span class="sd">"""Whether each bracket's search failed, where it raises for the row alone."""</span>
+  <span class="n">starts</span><span class="p">:</span> <span class="n">IntArray</span>
+<span class="w">  </span><span class="sd">"""Where each row's brackets start, and after the last row's, where they end."""</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">of</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">_Rows</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the scans of the given rows at the scan's points within the bounds, and the roots in their brackets."""</span>
+    <span class="n">scan</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">bounds</span><span class="p">,</span> <span class="n">_SCAN_POINTS</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">modified_score_grid</span><span class="p">(</span><span class="n">scan</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="n">owner</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">_brackets</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">scan</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">roots</span><span class="p">,</span> <span class="n">used</span><span class="p">,</span> <span class="n">failed</span> <span class="o">=</span> <span class="n">_brent_rows</span><span class="p">(</span>
+      <span class="n">batch</span><span class="o">.</span><span class="n">modified_score</span><span class="p">,</span>
+      <span class="n">rows</span><span class="p">[</span><span class="n">owner</span><span class="p">],</span>
+      <span class="p">(</span><span class="n">scan</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">scan</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+      <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">owner</span><span class="p">,</span> <span class="n">index</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="n">owner</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+      <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">roots</span><span class="p">,</span> <span class="n">used</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">owner</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">rows</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">of_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">slice</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the brackets of the row at position ``k``, which are consecutive."""</span>
+    <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">n_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return each row's number of maxima of the weighted likelihood: roots, and bounds the score points out of."""</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starts</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">settled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoolArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return whether each row has a single maximum, found without a failed search."""</span>
+    <span class="n">failed</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">failed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_candidates</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">failed</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">only_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the maximum of each row that has one: its root, else the bound the score points out of."""</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">math</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">root</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">owner</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">roots</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">root</span><span class="p">),</span> <span class="n">bound</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">_Bounds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the maxima of the row at position ``k``, its roots then the bounds, in the order of the one-row search."""</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">roots</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">of_row</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="n">_outward_bounds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">bounds</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_most_likely</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">],</span> <span class="n">low</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">  </span><span class="sd">"""Return the candidate of largest weighted likelihood, the score evaluations spent, and quad's warnings."""</span>
+  <span class="c1"># The modified score is the derivative of the weighted log-likelihood, so its integral from the lower bound ranks the</span>
+  <span class="c1"># candidates by weighted likelihood</span>
+  <span class="n">heights</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">evaluations</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+    <span class="c1"># with full_output, quad returns its convergence warning instead of raising it</span>
+    <span class="n">height</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="o">*</span><span class="n">message</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">candidate</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">full_output</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+    <span class="n">evaluations</span> <span class="o">+=</span> <span class="n">info</span><span class="p">[</span><span class="s2">"neval"</span><span class="p">]</span>
+    <span class="n">messages</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">message</span><span class="p">[:</span><span class="mi">1</span><span class="p">])</span>
+  <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">heights</span><span class="p">))],</span> <span class="n">evaluations</span><span class="p">,</span> <span class="n">messages</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

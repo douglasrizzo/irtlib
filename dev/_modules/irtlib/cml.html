@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.cml &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/cml';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.cml</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.cml</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""Conditional maximum likelihood calibration of the Rasch model.</span>
+
+<span class="sd">In the Rasch model an examinee's number of correct responses is a sufficient statistic for its ability, so the</span>
+<span class="sd">likelihood of the responses given each examinee's number correct holds the item difficulties alone, and "does not</span>
+<span class="sd">depend on the distribution function" of ability :cite:p:`Haberman2004` (p. 35). Its maximizers, the conditional</span>
+<span class="sd">maximum likelihood (CML) estimates, are consistent as the number of examinees grows (:cite:t:`Andersen1970`, p. 286,</span>
+<span class="sd">Theorem 1), though "not in general ... efficient" (p. 284).</span>
+
+<span class="sd">Write :math:`\varepsilon_i = e^{-b_i}` for item :math:`i`'s easiness, the item parameter of Gustafsson's</span>
+<span class="sd">multiplicative form of the model (:cite:t:`Gustafsson1980`, p. 379, Equation 1), :math:`s_i` for its number of</span>
+<span class="sd">correct responses and :math:`n_r` for the number of examinees with :math:`r` correct, out of :math:`M` items. The</span>
+<span class="sd">conditional likelihood is :math:`\prod_i \varepsilon_i^{s_i} / \prod_{r=1}^{M-1} \gamma_r^{n_r}`, where the</span>
+<span class="sd">elementary symmetric function :math:`\gamma_r` is the sum, over every set of :math:`r` items, of the product of their</span>
+<span class="sd">easiness values (p. 379, Equations 5 and 6). Its logarithm, the conditional log-likelihood, is</span>
+<span class="sd">:math:`-\sum_i s_i b_i - \sum_r n_r \log \gamma_r`; the marginal log-likelihood adds to it the log-likelihood of the</span>
+<span class="sd">numbers correct (:cite:t:`Haberman2004`, pp. 35-36), so the two are not compared (ADR-0006).</span>
+
+<span class="sd">For an examinee with no item or every item correct, "both sides are equal to one" in the conditional likelihood</span>
+<span class="sd">(:cite:t:`Engelen1987`, p. 11), and items answered correctly by every examinee or by none have no estimate</span>
+<span class="sd">(:cite:t:`Gustafsson1980`, p. 379): both are left out, the examinees first and then the items, repeatedly until</span>
+<span class="sd">neither is left, since leaving an item out can leave an examinee with no item or every item correct. The items left</span>
+<span class="sd">out get no estimate.</span>
+
+<span class="sd">Even then the conditional likelihood can lack a maximum. It has none exactly when, for some number correct between 1</span>
+<span class="sd">and :math:`M - 2` and some cut of the item totals, the examinees with at most that many correct answered no item below</span>
+<span class="sd">the cut and the others every item above it (:cite:t:`Haberman2004`, pp. 37-38, Theorem 10, whose bounds on the item</span>
+<span class="sd">totals, :math:`n_0` and :math:`n - n_0`, are 0 and :math:`n` once the examinees are left out). The likelihood then rises</span>
+<span class="sd">without bound as the two groups of items move apart, so that under the sum to zero no difficulty has a finite</span>
+<span class="sd">estimate, and calibration raises an error naming the groups.</span>
+
+<span class="sd">The estimates solve the likelihood equations</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   s_i = \sum_{r=1}^{M-1} n_r \pi_{ri}, \qquad \pi_{ri} = \frac{\varepsilon_i \gamma_{r-1}^{(i)}}{\gamma_r},</span>
+
+<span class="sd">where :math:`\gamma_{r-1}^{(i)}`, the derivative of :math:`\gamma_r` with respect to :math:`\varepsilon_i`, is the</span>
+<span class="sd">symmetric function of order :math:`r - 1` of every item but :math:`i` (:cite:t:`Gustafsson1980`, p. 380, Equation 7),</span>
+<span class="sd">and :math:`\pi_{ri}` is the probability of a correct response to item :math:`i` given :math:`r` correct</span>
+<span class="sd">(:cite:t:`Haberman2004`, pp. 15-16). The difficulties are identified by summing to zero (ADR-0008), as</span>
+<span class="sd">:cite:t:`Andersen1972` (p. 45) identifies them; :cite:t:`Gustafsson1980` (p. 380) sets one easiness to 1 instead.</span>
+
+<span class="sd">The equations are solved by Newton-Raphson (:cite:t:`Haberman2004`, p. 43). The gradient of the conditional</span>
+<span class="sd">log-likelihood with respect to :math:`b_i` is :math:`\sum_r n_r \pi_{ri} - s_i`, and its Hessian is :math:`-V`, where</span>
+<span class="sd">:math:`V_{ij} = \sum_{r=1}^{M-1} n_r v_{rij}` is the conditional covariance of the item scores given the numbers</span>
+<span class="sd">correct (p. 39), with :math:`v_{rii} = \pi_{ri} - \pi_{ri}^2` and, for :math:`i \neq j`,</span>
+<span class="sd">:math:`v_{rij} = \pi_{rij} - \pi_{ri} \pi_{rj}` (pp. 27-28, 43). Here</span>
+<span class="sd">:math:`\pi_{rij} = \varepsilon_i \varepsilon_j \gamma_{r-2}^{(i,j)} / \gamma_r`, the probability of correct responses</span>
+<span class="sd">to both items, where :math:`\gamma_{r-2}^{(i,j)}`, the second derivative of :math:`\gamma_r` with respect to</span>
+<span class="sd">:math:`\varepsilon_i` and :math:`\varepsilon_j`, is the symmetric function of order :math:`r - 2` of every item but</span>
+<span class="sd">:math:`i` and :math:`j` (:cite:t:`Gustafsson1980`, p. 380). :math:`V` has rank :math:`M - 1`</span>
+<span class="sd">(:cite:t:`Haberman2004`, p. 39), so a step solves the system in its Moore-Penrose inverse :math:`V^+`: Haberman's</span>
+<span class="sd">iteration sets the first difficulty to 0 through a matrix :math:`K` (pp. 26, 43), and for difficulties that sum to</span>
+<span class="sd">zero, the centred parameters of p. 21, it reads :math:`b_{t+1} = b_t + V^+ (\sum_r n_r \pi_r - s)`. Each step is</span>
+<span class="sd">halved, up to 30 times, until the conditional log-likelihood does not fall, which the sources do not do: from the</span>
+<span class="sd">starting values below, full steps diverged on two items answered 11 to 1. The iterations start from</span>
+<span class="sd">:cite:t:`Andersen1972`'s (p. 52, Equation 40) values, :math:`b_i = \log((N - s_i) / s_i)` centred to sum to zero,</span>
+<span class="sd">computed over the :math:`N` examinees kept where Andersen counts every examinee. They stop when no difficulty changes</span>
+<span class="sd">by more than the tolerance, :math:`10^{-5}` by default, in an iteration (:cite:t:`Haberman2004`, p. 44), counting</span>
+<span class="sd">only a full step: a step that halving shrank below the tolerance can lie far from the maximum. Without extreme items,</span>
+<span class="sd">Newton-Raphson usually takes 4 to 5 iterations (:cite:t:`Gustafsson1980`, p. 383).</span>
+
+<span class="sd">The symmetric functions come from the summation algorithm, which adds one item at a time,</span>
+<span class="sd">:math:`\gamma_r(\varepsilon_1, \dots, \varepsilon_t) = \gamma_r(\varepsilon_1, \dots, \varepsilon_{t-1}) +</span>
+<span class="sd">\varepsilon_t \gamma_{r-1}(\varepsilon_1, \dots, \varepsilon_{t-1})` from :math:`\gamma_0 = 1`, with no subtraction,</span>
+<span class="sd">so that it stays accurate on long tests (:cite:t:`Gustafsson1980`, p. 381, Equation 10). Run with an item's easiness,</span>
+<span class="sd">or a pair's, set to zero, it gives the first and second derivatives (p. 382; :cite:t:`Baker1996`, pp. 182-183), so</span>
+<span class="sd">that an iteration costs a number of operations growing as :math:`M^4` (p. 190). The recursion runs on the logarithms</span>
+<span class="sd">of the functions, which departs from the sources: those of orders near :math:`M/2` grow with the test until they</span>
+<span class="sd">reach "the limit set by the size of the floating point numbers" (:cite:t:`Gustafsson1980`, p. 383).</span>
+
+<span class="sd">The standard error of each difficulty is the square root of the diagonal of :math:`V^+` at the estimates.</span>
+<span class="sd">:cite:t:`Haberman2004` (p. 40) takes it from :math:`K V^- K^T` for the first difficulty set to 0; for difficulties</span>
+<span class="sd">that sum to zero, centring that covariance gives :math:`V^+`. :cite:t:`Andersen1972` (p. 50) estimates the</span>
+<span class="sd">covariance by the inverse of the information as well.</span>
+
+<span class="sd">CML needs complete responses: for responses missing at random, "ordinary CML" "will likely fail"</span>
+<span class="sd">(:cite:t:`Robitzsch2021`, p. 827), and :py:class:`irtlib.mml.MMLCalibrator` calibrates incomplete responses</span>
+<span class="sd">(ADR-0006).</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+  <span class="n">Calibration</span><span class="p">,</span>
+  <span class="n">ConvergenceWarning</span><span class="p">,</span>
+  <span class="n">Likelihood</span><span class="p">,</span>
+  <span class="n">_edited</span><span class="p">,</span>
+  <span class="n">_reject_separation</span><span class="p">,</span>
+  <span class="n">_valid_items</span><span class="p">,</span>
+  <span class="n">validate_responses</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatArray</span>
+
+<span class="c1"># The most halvings of a Newton-Raphson step before the iterations stop at the maximum.</span>
+<span class="n">_STEP_HALVINGS</span> <span class="o">=</span> <span class="mi">30</span>
+
+
+<div class="viewcode-block" id="CMLCalibrator">
+<a class="viewcode-back" href="../../api/cml.html#irtlib.cml.CMLCalibrator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CMLCalibrator</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Calibrate the Rasch model by conditional maximum likelihood.</span>
+
+<span class="sd">  Each call to :py:meth:`calibrate` estimates the difficulties of the items of one complete response matrix, with</span>
+<span class="sd">  every slope 1, from the likelihood of the responses given each examinee's number correct, whatever the</span>
+<span class="sd">  distribution of ability. The difficulties sum to zero.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  tolerance : float, optional</span>
+<span class="sd">      The stopping rule: calibration stops when no difficulty changes by more than this in an iteration. Default is</span>
+<span class="sd">      1e-5.</span>
+<span class="sd">  max_cycles : int, optional</span>
+<span class="sd">      The most iterations a calibration runs before it stops unconverged. Default is 100.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``tolerance`` is not positive, or ``max_cycles`` is less than 1.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; responses = numpy.array([[1, 0], [1, 0], [0, 1], [1, 1], [0, 0]], dtype=float)</span>
+<span class="sd">  &gt;&gt;&gt; calibration = CMLCalibrator().calibrate(responses)</span>
+<span class="sd">  &gt;&gt;&gt; calibration.estimates[:, 1].round(4)  # b_2 - b_1 = log(2 / 1)</span>
+<span class="sd">  array([-0.3466,  0.3466])</span>
+<span class="sd">  """</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">max_cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tolerance</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tolerance must be positive, got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"max_cycles must be at least 1, got </span><span class="si">{</span><span class="n">max_cycles</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span> <span class="o">=</span> <span class="n">max_cycles</span>
+
+<div class="viewcode-block" id="CMLCalibrator.calibrate">
+<a class="viewcode-back" href="../../api/cml.html#irtlib.cml.CMLCalibrator.calibrate">[docs]</a>
+  <span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Estimate the difficulties of the items of a complete response matrix.</span>
+
+<span class="sd">    Examinees with no item or every item correct change no estimate and are left out, as are items answered</span>
+<span class="sd">    correctly by every examinee or by none, repeatedly until neither is left.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    responses : numpy.ndarray</span>
+<span class="sd">        The response matrix: one row per examinee, one column per item, holding 1 or 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Calibration</span>
+<span class="sd">        The estimates ``[1, b, 0, 1]``, the standard errors of the difficulties and the conditional log-likelihood at</span>
+<span class="sd">        them, of the examinees and items kept; the result has no grid. An item left out has a NaN difficulty and</span>
+<span class="sd">        standard error, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping</span>
+<span class="sd">        rule, a full step within the tolerance, is not met within ``max_cycles``, or no halving of a step keeps the</span>
+<span class="sd">        log-likelihood from falling, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is</span>
+<span class="sd">        issued; if the information matrix cannot be inverted at the estimates, the result has no standard errors and</span>
+<span class="sd">        a ``RuntimeWarning`` is issued.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the responses fail :py:func:`irtlib.calibration.validate_responses` or have a missing response; no item</span>
+<span class="sd">        is left once examinees and items are left out; the conditional likelihood has no maximum, which the error</span>
+<span class="sd">        explains by the two groups of items the responses split into; or the information matrix is singular during</span>
+<span class="sd">        the iterations.</span>
+<span class="sd">    """</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"conditional maximum likelihood needs complete responses; irtlib.mml.MMLCalibrator calibrates responses "</span>
+        <span class="s2">"with missing entries"</span>
+      <span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">kept</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">_edited</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">CONDITIONAL</span><span class="p">)</span>
+    <span class="n">_reject_separation</span><span class="p">(</span><span class="n">kept</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">Likelihood</span><span class="o">.</span><span class="n">CONDITIONAL</span><span class="p">)</span>
+    <span class="n">totals</span> <span class="o">=</span> <span class="n">kept</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">score_counts</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">kept</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">minlength</span><span class="o">=</span><span class="n">totals</span><span class="o">.</span><span class="n">size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="c1"># Andersen's (1972) starting values: the log-odds of an incorrect response, centred</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">kept</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">totals</span><span class="p">)</span> <span class="o">/</span> <span class="n">totals</span><span class="p">)</span>
+    <span class="n">difficulty</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">failure</span> <span class="o">=</span> <span class="n">_newton_raphson</span><span class="p">(</span>
+      <span class="n">start</span> <span class="o">-</span> <span class="n">start</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="p">,</span> <span class="n">max_cycles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">failure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">"calibration stopped after </span><span class="si">{</span><span class="n">cycles</span><span class="si">}</span><span class="s2"> iterations: </span><span class="si">{</span><span class="n">failure</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ConvergenceWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">variances</span> <span class="o">=</span> <span class="n">_variances</span><span class="p">(</span><span class="n">_derivatives</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">variances</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; the responses "</span>
+        <span class="s2">"may leave an item no finite estimate"</span><span class="p">,</span>
+        <span class="ne">RuntimeWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="n">estimates</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">estimates</span><span class="p">[</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">difficulty</span>
+    <span class="n">standard_errors</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">variances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">estimates</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+      <span class="n">standard_errors</span><span class="p">[</span><span class="n">items</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
+      <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
+      <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
+      <span class="n">standard_errors</span><span class="o">=</span><span class="n">standard_errors</span><span class="p">,</span>
+      <span class="n">log_likelihood</span><span class="o">=</span><span class="n">_log_likelihood</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">),</span>
+      <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">CONDITIONAL</span><span class="p">,</span>
+      <span class="n">n_parameters</span><span class="o">=</span><span class="n">difficulty</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">item_parameters</span><span class="o">=</span><span class="n">items</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+      <span class="n">cycles</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span>
+      <span class="n">converged</span><span class="o">=</span><span class="n">failure</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
+      <span class="n">change</span><span class="o">=</span><span class="n">change</span><span class="p">,</span>
+      <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">abilities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_newton_raphson</span><span class="p">(</span>
+  <span class="n">difficulty</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">totals</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_cycles</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Run Newton-Raphson iterations, each step halved until the log-likelihood does not fall, until the rule is met.</span>
+
+<span class="sd">  The rule is met when a full step, taken without halving, changes no difficulty by more than ``tolerance``.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  tuple[numpy.ndarray, int, float, str or None]</span>
+<span class="sd">      The difficulties; the iterations run; the largest change of a difficulty in the last iteration's full step,</span>
+<span class="sd">      before any halving; and None if the rule was met, or else why the iterations stopped short of it.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the information matrix is singular.</span>
+<span class="sd">  """</span>
+  <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">_log_likelihood</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">)</span>
+  <span class="n">change</span><span class="p">,</span> <span class="n">halvings</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_cycles</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">gradient</span><span class="p">,</span> <span class="n">information</span> <span class="o">=</span> <span class="n">_derivatives</span><span class="p">(</span><span class="n">difficulty</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">_solve</span><span class="p">(</span><span class="n">information</span><span class="p">,</span> <span class="n">gradient</span><span class="p">)</span>
+    <span class="n">change</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">step</span><span class="p">)))</span>
+    <span class="c1"># Full steps from Andersen's starting values diverged on 8 of 391 random data sets with an estimate, each left</span>
+    <span class="c1"># with two items, such as two items answered 11 to 1; with halving, all 391 converged, within 7 iterations</span>
+    <span class="c1"># (measured 2026-11-27).</span>
+    <span class="k">for</span> <span class="n">halvings</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">_STEP_HALVINGS</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="n">trial</span> <span class="o">=</span> <span class="n">difficulty</span> <span class="o">+</span> <span class="n">step</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="n">halvings</span>
+      <span class="n">trial_log_likelihood</span> <span class="o">=</span> <span class="n">_log_likelihood</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">totals</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">)</span>
+      <span class="c1"># accept a step that does not lower the log-likelihood beyond rounding</span>
+      <span class="k">if</span> <span class="n">trial_log_likelihood</span> <span class="o">&gt;=</span> <span class="n">log_likelihood</span> <span class="o">-</span> <span class="mf">1e-12</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">):</span>
+        <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="c1"># stalled: a halved step is no evidence of a maximum, which a full step within the tolerance would be</span>
+      <span class="k">return</span> <span class="p">(</span>
+        <span class="n">difficulty</span><span class="p">,</span>
+        <span class="n">cycle</span><span class="p">,</span>
+        <span class="n">change</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"halving the Newton-Raphson step </span><span class="si">{</span><span class="n">_STEP_HALVINGS</span><span class="si">}</span><span class="s2"> times did not keep the conditional log-likelihood from "</span>
+        <span class="sa">f</span><span class="s2">"falling, with a full step of </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="c1"># the conditional log-likelihood is the same for difficulties shifted by a constant, so centring keeps it</span>
+    <span class="n">difficulty</span><span class="p">,</span> <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">trial</span> <span class="o">-</span> <span class="n">trial</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">trial_log_likelihood</span>
+    <span class="c1"># a halved step under the tolerance can lie far from the maximum, so only a full one meets the rule</span>
+    <span class="k">if</span> <span class="n">halvings</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">change</span> <span class="o">&lt;=</span> <span class="n">tolerance</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">difficulty</span><span class="p">,</span> <span class="n">cycle</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="kc">None</span>
+  <span class="k">if</span> <span class="n">halvings</span><span class="p">:</span>
+    <span class="n">failure</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the last Newton-Raphson step was halved </span><span class="si">{</span><span class="n">halvings</span><span class="si">}</span><span class="s2"> times"</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">failure</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the last Newton-Raphson step changed a difficulty by </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, above the tolerance </span><span class="si">{</span><span class="n">tolerance</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span>
+  <span class="k">return</span> <span class="n">difficulty</span><span class="p">,</span> <span class="n">max_cycles</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">failure</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_symmetric_functions</span><span class="p">(</span><span class="n">log_easiness</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the logarithms of the elementary symmetric functions of every order, by the summation algorithm.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  log_easiness : numpy.ndarray</span>
+<span class="sd">      The logarithms of the easiness values, ``-b``, of the items on the last axis; ``-inf`` leaves an item out.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The logarithms of the symmetric functions of orders 0 to the number of items on the last axis, ``-inf`` for an</span>
+<span class="sd">      order above the number of items not left out.</span>
+<span class="sd">  """</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">log_easiness</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">log_gamma</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="o">*</span><span class="n">log_easiness</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_items</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+  <span class="n">log_gamma</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+  <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_items</span><span class="p">):</span>
+    <span class="n">log_gamma</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">item</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">logaddexp</span><span class="p">(</span>
+      <span class="n">log_gamma</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">item</span> <span class="o">+</span> <span class="mi">2</span><span class="p">],</span> <span class="n">log_easiness</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_gamma</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span> <span class="n">item</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+  <span class="k">return</span> <span class="n">log_gamma</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_likelihood</span><span class="p">(</span><span class="n">difficulty</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">totals</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the conditional log-likelihood of the item totals and the counts of examinees by number correct."""</span>
+  <span class="n">log_gamma</span> <span class="o">=</span> <span class="n">_log_symmetric_functions</span><span class="p">(</span><span class="o">-</span><span class="n">difficulty</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="o">-</span><span class="n">totals</span> <span class="o">@</span> <span class="n">difficulty</span> <span class="o">-</span> <span class="n">score_counts</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">log_gamma</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_derivatives</span><span class="p">(</span><span class="n">difficulty</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">totals</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">score_counts</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the gradient of the conditional log-likelihood in the difficulties, and its information matrix V."""</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">difficulty</span><span class="o">.</span><span class="n">size</span>
+  <span class="n">log_easiness</span> <span class="o">=</span> <span class="o">-</span><span class="n">difficulty</span>
+  <span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">n_items</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="c1"># every item; every item but one, in turn; every item but a pair, for each pair</span>
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">log_easiness</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span> <span class="o">+</span> <span class="n">first</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="n">rows</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+  <span class="n">batch</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">rows</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>
+  <span class="n">pairs</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">first</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+  <span class="n">batch</span><span class="p">[</span><span class="n">pairs</span><span class="p">,</span> <span class="n">first</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>
+  <span class="n">batch</span><span class="p">[</span><span class="n">pairs</span><span class="p">,</span> <span class="n">second</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>
+  <span class="n">log_gamma</span> <span class="o">=</span> <span class="n">_log_symmetric_functions</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+  <span class="n">orders</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_items</span><span class="p">)</span>  <span class="c1"># the numbers correct of the examinees kept</span>
+  <span class="n">full</span> <span class="o">=</span> <span class="n">log_gamma</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">orders</span><span class="p">]</span>
+  <span class="c1"># the probability of a correct response to an item given r correct, items by orders</span>
+  <span class="n">single</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_easiness</span><span class="p">[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_gamma</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span><span class="p">,</span> <span class="n">orders</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">full</span><span class="p">)</span>
+  <span class="c1"># the same for both items of a pair, from the functions of order r - 2, which is 0 for r = 1</span>
+  <span class="n">without_pair</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">first</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">),</span> <span class="n">log_gamma</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span> <span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">both</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="n">log_easiness</span><span class="p">[</span><span class="n">first</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_easiness</span><span class="p">[</span><span class="n">second</span><span class="p">])[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">without_pair</span><span class="p">[:,</span> <span class="n">orders</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">full</span><span class="p">)</span>
+  <span class="n">counts</span> <span class="o">=</span> <span class="n">score_counts</span><span class="p">[</span><span class="n">orders</span><span class="p">]</span>
+  <span class="n">information</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_items</span><span class="p">,</span> <span class="n">n_items</span><span class="p">))</span>
+  <span class="n">information</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">rows</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">single</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">single</span><span class="p">))</span> <span class="o">@</span> <span class="n">counts</span>
+  <span class="n">information</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">]</span> <span class="o">=</span> <span class="n">information</span><span class="p">[</span><span class="n">second</span><span class="p">,</span> <span class="n">first</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">both</span> <span class="o">-</span> <span class="n">single</span><span class="p">[</span><span class="n">first</span><span class="p">]</span> <span class="o">*</span> <span class="n">single</span><span class="p">[</span><span class="n">second</span><span class="p">])</span> <span class="o">@</span> <span class="n">counts</span>
+  <span class="k">return</span> <span class="n">single</span> <span class="o">@</span> <span class="n">counts</span> <span class="o">-</span> <span class="n">totals</span><span class="p">,</span> <span class="n">information</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_centred_inverse</span><span class="p">(</span><span class="n">information</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the Moore-Penrose inverse of an information matrix whose null space is spanned by the vector of ones.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The inverse, which maps a vector summing to zero to the difficulties that sum to zero.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  numpy.linalg.LinAlgError</span>
+<span class="sd">      If the matrix has a null space beyond the vector of ones.</span>
+<span class="sd">  """</span>
+  <span class="n">n_items</span> <span class="o">=</span> <span class="n">information</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="c1"># adding s 11^T / n gives the vector of ones the eigenvalue s, of the size of the others, and inverting it there</span>
+  <span class="c1"># adds 11^T / (s n) to the inverse, which is taken off again</span>
+  <span class="n">scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">information</span><span class="p">))</span> <span class="o">/</span> <span class="n">n_items</span>
+  <span class="n">ones</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_items</span><span class="p">,</span> <span class="n">n_items</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_items</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">information</span> <span class="o">+</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">ones</span><span class="p">)</span> <span class="o">-</span> <span class="n">ones</span> <span class="o">/</span> <span class="n">scale</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_solve</span><span class="p">(</span><span class="n">information</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">gradient</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the Newton-Raphson step, the Moore-Penrose inverse of the information times the gradient.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The change of each difficulty.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the information matrix is singular.</span>
+<span class="sd">  """</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_centred_inverse</span><span class="p">(</span><span class="n">information</span><span class="p">)</span> <span class="o">@</span> <span class="n">gradient</span>
+  <span class="k">except</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"the information matrix of the difficulties is singular, so the items cannot be estimated"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_variances</span><span class="p">(</span><span class="n">information</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the variances of the difficulties, or None if the information cannot be inverted or one is not positive."""</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">variances</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">_centred_inverse</span><span class="p">(</span><span class="n">information</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="k">except</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">variances</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">variances</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)):</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">variances</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

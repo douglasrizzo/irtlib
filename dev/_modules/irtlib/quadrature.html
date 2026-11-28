@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.quadrature &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/quadrature';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.quadrature</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.quadrature</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""The quadrature grid, the ability priors, and each examinee's posterior over the grid.</span>
+
+<span class="sd">Calibration and ability estimation both integrate over ability, and both replace the integral by a sum over the nodes</span>
+<span class="sd">:math:`X_q`, :math:`q = 1, \dots, Q`, of a grid. Each node carries a mass :math:`A_q`, the probability of a discrete</span>
+<span class="sd">prior distribution at that node, and the masses sum to 1 (:cite:t:`Bock1982`, p. 433, Equation 6). A grid holds the</span>
+<span class="sd">nodes and a weight :math:`w_q` for each, and a prior is a log-density :math:`\log \pi`. A node's mass is its weight</span>
+<span class="sd">times the prior density there, normalized:</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   A_q = \frac{w_q\,\pi(X_q)}{\sum_{h=1}^{Q} w_h\,\pi(X_h)}.</span>
+
+<span class="sd">The equal weights of :py:meth:`QuadratureGrid.uniform` cancel, which leaves the prior density at the nodes, normalized:</span>
+<span class="sd">the masses :cite:t:`Bock1981` (p. 449) take for a normal prior, and for any other. Those nodes are evenly spaced, as</span>
+<span class="sd">Bock and Mislevy's are: Gauss-Hermite quadrature, they note, has less advantage for the likelihoods of adaptive testing</span>
+<span class="sd">(p. 433). The default grid has 121 nodes on the extended ability range :math:`[-6, 6]`, a spacing of 0.1: about the</span>
+<span class="sd">spacing of the 80 points between :math:`\pm 4` standard deviations that Bock and Mislevy (p. 433) suggest to keep</span>
+<span class="sd">precision down to a posterior standard deviation of 0.2.</span>
+
+<span class="sd">Examinee :math:`j`'s likelihood at a node, :math:`L_j(X_q)`, is the product over the items :math:`i` it answered of</span>
+<span class="sd">:math:`P_i(X_q)^{u_{ij}} [1 - P_i(X_q)]^{1 - u_{ij}}` (:cite:t:`Bock1982`, p. 433, Equation 3), and its posterior</span>
+<span class="sd">mass at the node is</span>
+
+<span class="sd">.. math::</span>
+
+<span class="sd">   \frac{L_j(X_q)\,A_q}{\sum_{h=1}^{Q} L_j(X_h)\,A_h}.</span>
+
+<span class="sd">The mean of the posterior over the nodes is the EAP estimate of the examinee's ability, and its variance serves as</span>
+<span class="sd">the estimate's error variance: the square of the posterior standard deviation (:cite:t:`Bock1982`, p. 432; p. 433,</span>
+<span class="sd">Equations 4 and 5). An examinee who answered no item has :math:`L_j = 1` at every node, and its posterior is the</span>
+<span class="sd">masses. Bock and Mislevy apply Sheppard's correction to the posterior variance (p. 433); :py:func:`posterior_variance`</span>
+<span class="sd">does not.</span>
+
+<span class="sd">The log-likelihoods accumulate as sums over the items (:cite:t:`Bock1982`, p. 432), so :py:func:`posterior` takes</span>
+<span class="sd">each examinee's log-likelihood at the nodes, whatever the response function that gave it. It adds the log of each</span>
+<span class="sd">node's weight and prior density, and shifts each examinee's row by its maximum before exponentiating, so that the</span>
+<span class="sd">likelihood of a long response pattern does not underflow. A :py:class:`GridPrior` evaluates and checks a prior on a</span>
+<span class="sd">grid's nodes once, for a caller that computes many posteriors with the same grid and prior.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">override</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">,</span> <span class="n">THETA_MIN_EXTENDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatArray</span>
+
+<span class="nb">type</span> <span class="n">LogPrior</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FloatArray</span><span class="p">],</span> <span class="n">FloatArray</span><span class="p">]</span>
+<span class="sd">"""A log prior density: maps an array of abilities to their log-densities, elementwise, without writing to the array."""</span>
+
+<span class="n">_MIN_NODES</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">_POSTERIOR_NDIM</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="c1"># from this sd up, a squared standardized deviation overflows only beyond 1e54 from the mean, where NumPy warns of it</span>
+<span class="n">_UNGUARDED_SD</span> <span class="o">=</span> <span class="mf">1e-100</span>
+
+
+<div class="viewcode-block" id="normal_log_prior">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.normal_log_prior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normal_log_prior</span><span class="p">(</span><span class="n">mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sd</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the log-density of a normal prior with the given mean and standard deviation.</span>
+
+<span class="sd">  The prior pickles, equals any prior this function returns for the same arguments, and its repr is the call that</span>
+<span class="sd">  builds it.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  mean : float, optional</span>
+<span class="sd">      Mean of the prior. Default is 0.</span>
+<span class="sd">  sd : float, optional</span>
+<span class="sd">      Standard deviation of the prior. Default is 1.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  LogPrior</span>
+<span class="sd">      A vectorized callable mapping abilities to their log-densities under the prior.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``mean`` is not finite, or ``sd`` is not finite and positive.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; normal_log_prior(mean=0.5, sd=2.0)</span>
+<span class="sd">  normal_log_prior(mean=0.5, sd=2.0)</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">mean</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"mean must be finite, got </span><span class="si">{</span><span class="n">mean</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sd</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sd must be positive and finite, got </span><span class="si">{</span><span class="n">sd</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_NormalLogPrior</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">sd</span><span class="p">))</span></div>
+
+
+
+<span class="c1"># The priors are module-level classes rather than closures, so that an object holding one pickles, as one sent to a</span>
+<span class="c1"># worker process must.</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_NormalLogPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The normal log-density that :py:func:`normal_log_prior` returns."""</span>
+
+  <span class="n">mean</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">sd</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">_log_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">  </span><span class="sd">"""log(sd) + log(2 pi) / 2, the part of the log-density that does not depend on the ability."""</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compute the part of the log-density that does not depend on the ability."""</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_log_scale"</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the log-density at each ability."""</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd</span> <span class="o">&gt;=</span> <span class="n">_UNGUARDED_SD</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_density</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">over</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_density</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">_log_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the log-density at each ability, a squared deviation that overflows giving -inf."""</span>
+    <span class="c1"># from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi</span>
+    <span class="c1"># times it, or a squared deviation over it can overflow</span>
+    <span class="n">deviation</span> <span class="o">=</span> <span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sd</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">deviation</span> <span class="o">*</span> <span class="n">deviation</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_scale</span>
+
+  <span class="nd">@override</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the call to :py:func:`normal_log_prior` that builds this prior."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"normal_log_prior(mean=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="si">!r}</span><span class="s2">, sd=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sd</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<div class="viewcode-block" id="uniform_log_prior">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.uniform_log_prior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">uniform_log_prior</span><span class="p">(</span><span class="n">low</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the log-density of a uniform prior on ``[low, high]``.</span>
+
+<span class="sd">  The log-density is minus the log of the width inside the bounds, the bounds included, and -inf outside them. The</span>
+<span class="sd">  prior pickles, equals any prior this function returns for the same arguments, and its repr is the call that builds</span>
+<span class="sd">  it.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  low : float, optional</span>
+<span class="sd">      Lower bound of the prior's support. Default is ``irtlib.irt.THETA_MIN_EXTENDED``.</span>
+<span class="sd">  high : float, optional</span>
+<span class="sd">      Upper bound of the prior's support. Default is ``irtlib.irt.THETA_MAX_EXTENDED``.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  LogPrior</span>
+<span class="sd">      A vectorized callable mapping abilities to their log-densities under the prior.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If either bound is not finite or ``high &lt;= low``.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; uniform_log_prior()</span>
+<span class="sd">  uniform_log_prior(low=-6.0, high=6.0)</span>
+<span class="sd">  """</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">low</span><span class="p">)</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">high</span><span class="p">)):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"low and high must be finite, got low=</span><span class="si">{</span><span class="n">low</span><span class="si">}</span><span class="s2">, high=</span><span class="si">{</span><span class="n">high</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">high</span> <span class="o">&lt;=</span> <span class="n">low</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"high must be greater than low, got low=</span><span class="si">{</span><span class="n">low</span><span class="si">}</span><span class="s2">, high=</span><span class="si">{</span><span class="n">high</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_UniformLogPrior</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">low</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">high</span><span class="p">))</span></div>
+
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_UniformLogPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The uniform log-density that :py:func:`uniform_log_prior` returns."""</span>
+
+  <span class="n">low</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">high</span><span class="p">:</span> <span class="nb">float</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the log-density at each ability: minus the log of the width inside the bounds, -inf outside."""</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="p">(</span><span class="n">theta</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">theta</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inside</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">high</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="p">))),</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+
+  <span class="nd">@override</span>
+  <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the call to :py:func:`uniform_log_prior` that builds this prior."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"uniform_log_prior(low=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">low</span><span class="si">!r}</span><span class="s2">, high=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">high</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="c1"># eq=False: generated equality and hashing would compare the arrays, which raises; a grid is compared by identity</span>
+<div class="viewcode-block" id="QuadratureGrid">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.QuadratureGrid">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuadratureGrid</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The nodes abilities are integrated over, each with a weight.</span>
+
+<span class="sd">  A node's mass is proportional to its weight times the prior density there, so the weights take part in the</span>
+<span class="sd">  posterior itself; equal weights, as :py:meth:`uniform` builds, cancel in the normalization. Two grids are equal only</span>
+<span class="sd">  if they are the same object, and a grid can be a set member or a dictionary key.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  nodes : numpy.ndarray</span>
+<span class="sd">      One-dimensional array of finite abilities.</span>
+<span class="sd">  weights : numpy.ndarray</span>
+<span class="sd">      One-dimensional array of finite, positive weights, one per node.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the arrays are not one-dimensional, differ in length, have fewer than two entries, or hold nodes that are</span>
+<span class="sd">      not finite or weights that are not finite and positive.</span>
+<span class="sd">  """</span>
+
+  <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span>
+  <span class="n">weights</span><span class="p">:</span> <span class="n">FloatArray</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Validate the nodes and weights."""</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="s2">"nodes and weights must be one-dimensional"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"nodes and weights must have the same length, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="n">_MIN_NODES</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"a grid needs at least </span><span class="si">{</span><span class="n">_MIN_NODES</span><span class="si">}</span><span class="s2"> nodes, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="s2">"nodes must be finite"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="s2">"weights must be finite and positive"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuadratureGrid.uniform">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.QuadratureGrid.uniform">[docs]</a>
+  <span class="nd">@classmethod</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">uniform</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">121</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a grid of equally spaced nodes from ``low`` to ``high``, each weighing the spacing.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_nodes : int, optional</span>
+<span class="sd">        Number of nodes, both bounds included. Default is 121, a spacing of 0.1 on the default bounds.</span>
+<span class="sd">    low : float, optional</span>
+<span class="sd">        First node. Default is ``irtlib.irt.THETA_MIN_EXTENDED``.</span>
+<span class="sd">    high : float, optional</span>
+<span class="sd">        Last node. Default is ``irtlib.irt.THETA_MAX_EXTENDED``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    QuadratureGrid</span>
+<span class="sd">        The grid, with every weight equal to the spacing of the nodes.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``n_nodes &lt; 2`` or ``high &lt;= low``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; grid = QuadratureGrid.uniform()</span>
+<span class="sd">    &gt;&gt;&gt; grid.nodes.size, float(grid.nodes[0]), float(grid.nodes[-1]), float(grid.weights[0])</span>
+<span class="sd">    (121, -6.0, 6.0, 0.1)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">n_nodes</span> <span class="o">&lt;</span> <span class="n">_MIN_NODES</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"n_nodes must be at least </span><span class="si">{</span><span class="n">_MIN_NODES</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">n_nodes</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">high</span> <span class="o">&lt;=</span> <span class="n">low</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"high must be greater than low, got low=</span><span class="si">{</span><span class="n">low</span><span class="si">}</span><span class="s2">, high=</span><span class="si">{</span><span class="n">high</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">,</span> <span class="p">(</span><span class="n">high</span> <span class="o">-</span> <span class="n">low</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_nodes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># eq=False: a precomputed prior holds arrays, so it is compared by identity, like a grid</span>
+<div class="viewcode-block" id="GridPrior">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.GridPrior">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GridPrior</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""A prior over the nodes of a grid, evaluated and checked once, for posteriors computed many times on them.</span>
+
+<span class="sd">  It keeps copies of the grid's nodes and of each node's log weight plus log prior density, so changing the grid's</span>
+<span class="sd">  arrays afterwards does not change it. :py:meth:`posterior` returns what :py:func:`posterior` returns for the same</span>
+<span class="sd">  grid and prior, without evaluating the prior again.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  grid : QuadratureGrid</span>
+<span class="sd">      The nodes and their weights.</span>
+<span class="sd">  log_prior : LogPrior</span>
+<span class="sd">      Vectorized log-density of the prior.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the log-prior is NaN or +inf at a node, or -inf at every node.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; prior = GridPrior(QuadratureGrid.uniform(3, -1.0, 1.0), uniform_log_prior(-1.0, 1.0))</span>
+<span class="sd">  &gt;&gt;&gt; prior.posterior(numpy.log(numpy.array([[0.2, 0.5, 0.8]]))).round(4)</span>
+<span class="sd">  array([[0.1333, 0.3333, 0.5333]])</span>
+<span class="sd">  """</span>
+
+  <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span>
+  <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span>
+  <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">  </span><span class="sd">"""The grid's nodes when the prior was evaluated, read-only."""</span>
+  <span class="n">_node_log_masses</span><span class="p">:</span> <span class="n">FloatArray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">  </span><span class="sd">"""Each node's log weight plus log prior density, checked."""</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Copy the grid's nodes, and evaluate and check the prior on them, both read-only."""</span>
+    <span class="n">nodes</span><span class="p">,</span> <span class="n">log_masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">_log_masses</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_prior</span><span class="p">)</span>
+    <span class="n">nodes</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">log_masses</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"nodes"</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_node_log_masses"</span><span class="p">,</span> <span class="n">log_masses</span><span class="p">)</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Restore the fields from ``state``, with the nodes and log-masses read-only."""</span>
+    <span class="c1"># NumPy's pickling does not keep an array's read-only flag; the state is the dataclass's, each field's value in the</span>
+    <span class="c1"># fields' order</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)),</span> <span class="n">state</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+      <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_node_log_masses</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GridPrior.posterior">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.GridPrior.posterior">[docs]</a>
+  <span class="k">def</span><span class="w"> </span><span class="nf">posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return each examinee's posterior over the nodes, from its log-likelihood at them.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    log_likelihood : numpy.ndarray</span>
+<span class="sd">        Each examinee's log-likelihood at each node, shape ``(examinees, nodes)``; -inf where the likelihood is 0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        The posterior probabilities, shape ``(examinees, nodes)``, each row summing to 1.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``log_likelihood`` is not of shape ``(examinees, nodes)``, if the log-likelihood is NaN or +inf at a node,</span>
+<span class="sd">        or if an examinee's posterior has no mass at any node.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_posterior</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_node_log_masses</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the log of each node's weight times the prior density there, unnormalized, after checking it."""</span>
+  <span class="n">log_masses</span> <span class="o">=</span> <span class="n">log_prior</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">+</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_masses</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">log_masses</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"the log-prior is NaN or +inf at some node"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_masses</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">"the prior has no mass at any node of the grid"</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">log_masses</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalized</span><span class="p">(</span><span class="n">log_masses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the exponential of log-masses normalized along the last axis, each row shifted by its maximum first."""</span>
+  <span class="n">masses</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_masses</span> <span class="o">-</span> <span class="n">log_masses</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+  <span class="k">return</span> <span class="n">masses</span> <span class="o">/</span> <span class="n">masses</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="prior_masses">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.prior_masses">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">prior_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the prior's mass at each node of a grid: the node's weight times the prior density there, normalized.</span>
+
+<span class="sd">  The masses are the posterior of an examinee who answered no item.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  grid : QuadratureGrid</span>
+<span class="sd">      The nodes and their weights.</span>
+<span class="sd">  log_prior : LogPrior</span>
+<span class="sd">      Vectorized log-density of the prior.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      One mass per node, summing to 1.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the log-prior is NaN or +inf at a node, or -inf at every node.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; prior_masses(QuadratureGrid.uniform(4, -1.0, 2.0), uniform_log_prior(-1.0, 2.0))</span>
+<span class="sd">  array([0.25, 0.25, 0.25, 0.25])</span>
+<span class="sd">  """</span>
+  <span class="k">return</span> <span class="n">_normalized</span><span class="p">(</span><span class="n">_log_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="posterior">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">posterior</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's posterior over the nodes of a grid, from its log-likelihood at the nodes.</span>
+
+<span class="sd">  An examinee's posterior mass at a node is proportional to the node's weight times the prior density and the</span>
+<span class="sd">  likelihood there. A row of zeros, the log-likelihood of an examinee who answered no item, gives the prior's masses.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  log_likelihood : numpy.ndarray</span>
+<span class="sd">      Each examinee's log-likelihood at each node, shape ``(examinees, nodes)``; -inf where the likelihood is 0.</span>
+<span class="sd">  grid : QuadratureGrid</span>
+<span class="sd">      The nodes and their weights.</span>
+<span class="sd">  log_prior : LogPrior</span>
+<span class="sd">      Vectorized log-density of the prior.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The posterior probabilities, shape ``(examinees, nodes)``, each row summing to 1.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``log_likelihood`` is not of shape ``(examinees, nodes)``, if the log-prior or the log-likelihood is NaN or</span>
+<span class="sd">      +inf at a node, or if an examinee's posterior has no mass at any node.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; grid = QuadratureGrid.uniform(3, -1.0, 1.0)</span>
+<span class="sd">  &gt;&gt;&gt; likelihood = numpy.array([[0.2, 0.5, 0.8], [1.0, 1.0, 1.0]])</span>
+<span class="sd">  &gt;&gt;&gt; posterior(numpy.log(likelihood), grid, uniform_log_prior(-1.0, 1.0)).round(4)</span>
+<span class="sd">  array([[0.1333, 0.3333, 0.5333],</span>
+<span class="sd">         [0.3333, 0.3333, 0.3333]])</span>
+<span class="sd">  """</span>
+  <span class="k">return</span> <span class="n">_posterior</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">,</span> <span class="n">_log_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">))</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_posterior</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">log_masses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each examinee's posterior from its log-likelihood at the nodes and the nodes' checked log-masses."""</span>
+  <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+  <span class="n">n_nodes</span> <span class="o">=</span> <span class="n">log_masses</span><span class="o">.</span><span class="n">size</span>
+  <span class="k">if</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="n">_POSTERIOR_NDIM</span> <span class="ow">or</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_nodes</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="sa">f</span><span class="s2">"log_likelihood must have one row per examinee and one column per node, shape (examinees, </span><span class="si">{</span><span class="n">n_nodes</span><span class="si">}</span><span class="s2">), got "</span>
+      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">log_likelihood</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="c1"># finite terms can overflow to -inf, and +inf meets the prior's -inf as NaN: the checks below name both</span>
+  <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">over</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+    <span class="n">log_joint</span> <span class="o">=</span> <span class="n">log_likelihood</span> <span class="o">+</span> <span class="n">log_masses</span>
+  <span class="c1"># a log-joint finite at every node has mass in every row and no NaN or +inf log-likelihood, so it passes both checks</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_joint</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+    <span class="n">undefined</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)</span> <span class="o">|</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">))</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">undefined</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the log-likelihood is NaN or +inf for the examinees in rows </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">undefined</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">massless</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">log_joint</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">massless</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the posterior has no mass at any node for the examinees in rows </span><span class="si">{</span><span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">massless</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_normalized</span><span class="p">(</span><span class="n">log_joint</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="posterior_mean">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior_mean">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">posterior_mean</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the mean of each examinee's posterior over the nodes.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  post : numpy.ndarray</span>
+<span class="sd">      Posterior probabilities, shape ``(examinees, nodes)``, as :py:func:`posterior` returns.</span>
+<span class="sd">  nodes : numpy.ndarray</span>
+<span class="sd">      The nodes the probabilities refer to.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The probability-weighted mean of the nodes, one per examinee.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; posterior_mean(numpy.array([[0.25, 0.5, 0.25], [0.0, 0.5, 0.5]]), numpy.array([-1.0, 0.0, 1.0]))</span>
+<span class="sd">  array([0. , 0.5])</span>
+<span class="sd">  """</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">post</span> <span class="o">*</span> <span class="n">nodes</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="posterior_variance">
+<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior_variance">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">posterior_variance</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the variance of each examinee's posterior over the nodes.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  post : numpy.ndarray</span>
+<span class="sd">      Posterior probabilities, shape ``(examinees, nodes)``, as :py:func:`posterior` returns.</span>
+<span class="sd">  nodes : numpy.ndarray</span>
+<span class="sd">      The nodes the probabilities refer to.</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  numpy.ndarray</span>
+<span class="sd">      The probability-weighted mean of the squared distances between the nodes and the examinee's</span>
+<span class="sd">      :py:func:`posterior_mean`, one per examinee.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; posterior_variance(numpy.array([[0.25, 0.5, 0.25], [0.0, 0.5, 0.5]]), numpy.array([-1.0, 0.0, 1.0]))</span>
+<span class="sd">  array([0.5 , 0.25])</span>
+<span class="sd">  """</span>
+  <span class="n">mean</span> <span class="o">=</span> <span class="n">posterior_mean</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">post</span> <span class="o">*</span> <span class="p">(</span><span class="n">nodes</span> <span class="o">-</span> <span class="n">mean</span><span class="p">[:,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

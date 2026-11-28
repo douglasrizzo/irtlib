@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Ability Estimation – irtlib.ability &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/ability';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Item Fit – irtlib.fit" href="fit.html" />
+    <link rel="prev" title="Joint Maximum Likelihood – irtlib.jml" href="jml.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="irt.html">Item Response Functions – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Item Bank – <code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.ItemBank</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="quadrature.html">Quadrature and Ability Priors – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration Results – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.calibration</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="mml.html">Marginal Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="cml.html">Conditional Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="jml.html">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="fit.html">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="comparison.html">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing Responses – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.drawing</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="typing.html">Array Types – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.typing</span></code></a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-irtlib.ability">
+<span id="ability-estimation-irtlib-ability"></span><h1>Ability Estimation – <a class="reference internal" href="#module-irtlib.ability" title="irtlib.ability"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a><a class="headerlink" href="#module-irtlib.ability" title="Link to this heading">#</a></h1>
+<p>Ability estimation: each examinee’s ability, with its standard error, from responses to items of known parameters.</p>
+<p>Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the
+examinee did not answer the item, and the items, one row <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code> per column. It returns an
+<a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>: for each examinee an estimate, its standard error and the number of evaluations of the
+estimator’s objective or of its derivatives. An examinee’s estimate depends only on the items it answered, so its row
+gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a
+sum over more terms, which can also move a search’s last step and change its evaluation count by one, since the maximum
+likelihood and weighted likelihood searches, and MAP’s under a normal prior, search every row of a matrix at once with
+the arithmetic of one row. Below, <span class="math notranslate nohighlight">\(L_j(\theta)\)</span> is the likelihood of examinee <span class="math notranslate nohighlight">\(j\)</span>’s responses
+<span class="math notranslate nohighlight">\(u_{ij}\)</span>, the product of <span class="math notranslate nohighlight">\(P_i^{u_{ij}} Q_i^{1 - u_{ij}}\)</span> over the items <span class="math notranslate nohighlight">\(i\)</span> it answered, and
+<span class="math notranslate nohighlight">\(I(\theta)\)</span> the test information of those items, both as <a class="reference internal" href="irt.html#module-irtlib.irt" title="irtlib.irt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a> defines them.</p>
+<p><strong>Maximum likelihood.</strong> The estimate maximizes <span class="math notranslate nohighlight">\(L_j(\theta)\)</span>, and its standard error is <span class="math notranslate nohighlight">\(1 /
+\sqrt{I(\hat\theta)}\)</span> (<span class="bibtex-citation" id="id1">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with
+the ability and that of responses all incorrect falls, so their estimates are <span class="math notranslate nohighlight">\(+\infty\)</span> and <span class="math notranslate nohighlight">\(-\infty\)</span>
+(<span class="bibtex-citation" id="id2">Warm [<a class="reference internal" href="../references.html#id50" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">1989</a>]</span>, p. 442). As <span class="math notranslate nohighlight">\(\theta \to -\infty\)</span> each <span class="math notranslate nohighlight">\(P_i\)</span> tends to <span class="math notranslate nohighlight">\(c_i\)</span>, and as <span class="math notranslate nohighlight">\(\theta
+\to +\infty\)</span> to <span class="math notranslate nohighlight">\(d_i\)</span>, so the likelihood tends to <span class="math notranslate nohighlight">\(\prod_i c_i^{u_{ij}} (1 - c_i)^{1 - u_{ij}}\)</span> and to
+<span class="math notranslate nohighlight">\(\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}\)</span>: under the 3PL and 4PL, responses that are neither all correct nor
+all incorrect can also have their supremum at an infinity. The maximum likelihood estimate is the maximizer over the
+extended real line: <span class="math notranslate nohighlight">\(+\infty\)</span> or <span class="math notranslate nohighlight">\(-\infty\)</span> wherever the likelihood comes closest to its supremum only in
+that limit, with standard error <span class="math notranslate nohighlight">\(\infty\)</span>, since the information tends to 0 at either infinity. An examinee who
+answered no item has a constant likelihood, which every ability maximizes: its estimate is NaN, and its standard error
+<span class="math notranslate nohighlight">\(\infty\)</span>, the information being 0. The caller has two ways to finite numbers, never used together:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bounds</span></code>: the estimate maximizes the likelihood within them, and responses all correct or all incorrect give the
+bound they point to. Bounds are always set in practice (<span class="bibtex-citation" id="id3">Warm [<a class="reference internal" href="../references.html#id50" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">1989</a>]</span>, p. 442), and catR 3.17 sets them by
+default: its default <code class="docutils literal notranslate"><span class="pre">constantPatt</span> <span class="pre">=</span> <span class="pre">NULL</span></code> estimates such responses by maximum likelihood too
+(<span class="bibtex-citation" id="id4">Magis <em>et al.</em> [<a class="reference internal" href="../references.html#id31" title="David Magis, Gilles Raîche, and Juan Ramón Barrada. catR: Generation of IRT Response Patterns under Computerized Adaptive Testing. 2022. R package version 3.17, reference manual, published on CRAN 2022-06-24. Open access. URL: https://cran.r-project.org/package=catR.">2022</a>]</span>, p. 115), which returns the end of its <code class="docutils literal notranslate"><span class="pre">range</span></code> that the score points to (source
+<code class="docutils literal notranslate"><span class="pre">R/thetaEst.R:9-10,</span> <span class="pre">100-109</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fallback</span></code>: another estimator, called once on the rows whose estimate is not finite, the unanswered rows
+included, whose estimates, standard errors and evaluation counts replace theirs;
+the <code class="docutils literal notranslate"><span class="pre">from_fallback</span></code> field of <a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a> marks those rows.</p></li>
+</ul>
+<p>Where an item answered has <span class="math notranslate nohighlight">\(c_i &gt; 0\)</span> or <span class="math notranslate nohighlight">\(d_i &lt; 1\)</span>, the likelihood can have several maxima, and the search
+evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope <span class="math notranslate nohighlight">\(a_i\)</span>
+above 2.5, 0.12 apart on [-6, 6], and otherwise <span class="math notranslate nohighlight">\(\lceil 40 \max_i a_i \rceil + 1\)</span>, 0.3 divided by the steepest
+slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12, up to 2,401 points, 0.005 apart, for
+slopes of 60 and above, so that a pathological slope cannot exhaust memory. It refines the best between its neighbours
+by Newton’s method on the log-likelihood’s first and second derivatives, from the vertex of the parabola through the
+three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and bisecting
+the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP estimate
+below. When every item answered has <span class="math notranslate nohighlight">\(c_i = 0\)</span> and <span class="math notranslate nohighlight">\(d_i = 1\)</span>, the second derivative is <span class="math notranslate nohighlight">\(-I\)</span> (see the
+MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the points: the
+estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first derivative,
+found by the same bracketed Newton’s method from the middle of the range. On about 38,000 random mixed patterns of 1 to
+60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201 points found the
+global maximum on [-6, 6] every time and 81 points missed it once, while Brent’s method over the whole range, with no
+points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items, half of them with
+slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001 in
+log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range
+starts as [-6, 6]. Beyond the lower end of the range, a correct response’s probability is at most its value at the end,
+since it rises with the ability, and an incorrect one’s at most <span class="math notranslate nohighlight">\(1 - c_i\)</span>; beyond the upper end, a correct one’s
+is at most <span class="math notranslate nohighlight">\(d_i\)</span> and an incorrect one’s at most its value at the end. While these bounds leave room beyond an end
+for a log-likelihood above both the best found and the two limits, that end moves out, twice as far each time, and the
+new stretch is searched the same way, with as many points as the range, so that their spacing doubles with each stretch.
+The estimate is then the infinity of the larger limit, <span class="math notranslate nohighlight">\(-\infty\)</span> of two equal ones, if that limit is at least the
+best value found, within a relative <span class="math notranslate nohighlight">\(10^{-12}\)</span>, and the best ability found otherwise. After 64 moves of an end,
+which only items of a vanishing discrimination need, the search stops at the best ability found and warns.</p>
+<p>mirt 1.48 also gives <span class="math notranslate nohighlight">\(+\infty\)</span> or <span class="math notranslate nohighlight">\(-\infty\)</span> to responses all correct or all incorrect
+(<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:397-405</span></code>), with no standard error, NA, where irtlib’s is <span class="math notranslate nohighlight">\(\infty\)</span>, and NA to both
+for an examinee who answered no item (<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:94-96,</span> <span class="pre">185</span></code>). It searches the
+other responses with R’s <code class="docutils literal notranslate"><span class="pre">nlm</span></code> from the EAP estimate, up to an ability of <span class="math notranslate nohighlight">\(\pm 20\)</span> (<code class="docutils literal notranslate"><span class="pre">R/fscores.R:305</span></code>;
+<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:687</span></code>), takes the standard error from <code class="docutils literal notranslate"><span class="pre">nlm</span></code>’s numerical Hessian, the observed information
+(<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:1072-1101</span></code>), which is <span class="math notranslate nohighlight">\(I\)</span> for items with <span class="math notranslate nohighlight">\(c_i = 0\)</span> and <span class="math notranslate nohighlight">\(d_i = 1\)</span> (see the
+MAP estimate below), and turns an estimate whose standard error exceeds 30 into an infinity
+(<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:1094-1096</span></code>), which irtlib does not do.</p>
+<p><strong>Maximum a posteriori.</strong> The MAP, or Bayes modal, estimate maximizes the posterior, <span class="math notranslate nohighlight">\(\log \pi(\theta) + \log
+L_j(\theta)\)</span> for a prior density <span class="math notranslate nohighlight">\(\pi\)</span> (<span class="bibtex-citation" id="id5">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>, p. 5, Equation 5; <span class="bibtex-citation" id="id6">Warm [<a class="reference internal" href="../references.html#id50" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">1989</a>]</span>, p. 430). For a
+normal prior of variance <span class="math notranslate nohighlight">\(\sigma^2\)</span> its standard error is <span class="math notranslate nohighlight">\(1 / \sqrt{1 / \sigma^2 + I(\hat\theta)}\)</span>
+(<span class="bibtex-citation" id="id7">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>, p. 5, Equation 6). For any prior, irtlib takes <span class="math notranslate nohighlight">\(1 / \sqrt{I(\hat\theta) -
+(\log\pi)''(\hat\theta)}\)</span>, with the prior’s second derivative a central difference of step <span class="math notranslate nohighlight">\(10^{-4}\)</span>: Equation 6
+for a normal prior, and for a uniform one, inside its support, the maximum likelihood standard error, as catR 3.17
+computes them (<code class="docutils literal notranslate"><span class="pre">R/semTheta.R:43-50,</span> <span class="pre">82-89</span></code>). Where the difference is not finite, at the edge of a bounded prior’s
+support, the prior adds nothing; where the sum is not positive, the standard error is <span class="math notranslate nohighlight">\(\infty\)</span>. The search
+evaluates the log-posterior at equally spaced abilities within the bounds: under a normal prior whose precision <span class="math notranslate nohighlight">\(1
+/ \sigma^2\)</span> is a finite positive float, as many as the maximum likelihood search for the same items, and under any other
+prior 201, 0.06 apart on [-6, 6]. Three or more tied at the maximum make a flat posterior, and the estimate is the
+middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so the
+estimate stays inside the prior’s support and is the highest of the modes the points separate. With a normal prior
+<span class="math notranslate nohighlight">\(N(\mu, \sigma^2)\)</span> the refinement is the maximum likelihood search’s Newton’s method, with <span class="math notranslate nohighlight">\(-(\theta - \mu)
+/ \sigma^2\)</span> and <span class="math notranslate nohighlight">\(-1 / \sigma^2\)</span> added to the derivatives, and on items that all have <span class="math notranslate nohighlight">\(c_i = 0\)</span> and
+<span class="math notranslate nohighlight">\(d_i = 1\)</span> the log-posterior is concave too, and the search skips the points as the maximum likelihood search does.
+With any other prior the refinement is SciPy’s bounded search, <code class="docutils literal notranslate"><span class="pre">scipy.optimize.minimize_scalar</span></code>. An examinee who
+answered no item gets the prior’s mode.</p>
+<p>mirt 1.48 maximizes the same posterior with <code class="docutils literal notranslate"><span class="pre">nlm</span></code> and takes the standard error from <code class="docutils literal notranslate"><span class="pre">nlm</span></code>’s numerical Hessian
+(<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:684-703,</span> <span class="pre">1047-1070</span></code>): the observed information plus the prior’s precision. When every answered
+item has <span class="math notranslate nohighlight">\(c_i = 0\)</span> and <span class="math notranslate nohighlight">\(d_i = 1\)</span>, the observed information is <span class="math notranslate nohighlight">\(I\)</span> exactly (<span class="bibtex-citation" id="id8">Warm [<a class="reference internal" href="../references.html#id50" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">1989</a>]</span>, p. 449,
+whose model fixes <span class="math notranslate nohighlight">\(d_i = 1\)</span>, p. 428, Equation 1), and the two standard errors agree.</p>
+<p><strong>Expected a posteriori.</strong> The EAP estimate is the mean of the examinee’s posterior over the grid of
+<a class="reference internal" href="quadrature.html#module-irtlib.quadrature" title="irtlib.quadrature"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a>, and its standard error the posterior standard deviation (<span class="bibtex-citation" id="id9">Bock and Mislevy [<a class="reference internal" href="../references.html#id13" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>]</span>, p. 433,
+Equations 4 and 5; <span class="bibtex-citation" id="id10">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>, pp. 5-6, Equations 10 and 11). It is finite whatever the responses, and an
+examinee who answered no item gets the prior’s mean and standard deviation on the grid. irtlib’s default grid and prior
+are mirt 1.48’s: 121 nodes on [-6, 6] (<code class="docutils literal notranslate"><span class="pre">R/fscores.R:302,</span> <span class="pre">318-319</span></code>; <code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:231</span></code>) with the standard
+normal density at the nodes, normalized (<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:316-317</span></code>). mirt gives NA to an examinee who answered no
+item.</p>
+<p><strong>Weighted likelihood.</strong> Warm’s estimate is the root of the modified score equation</p>
+<div class="math notranslate nohighlight">
+\[\sum_i \frac{(u_{ij} - P_i) P_i'}{P_i Q_i} + \frac{J}{2 I} = 0, \quad J = \sum_i \frac{P_i' P_i''}{P_i Q_i}\]</div>
+<p>(<span class="bibtex-citation" id="id11">Warm [<a class="reference internal" href="../references.html#id50" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">1989</a>]</span>, p. 431, Equation 10; p. 430), the derivative of the log of the weighted likelihood
+<span class="math notranslate nohighlight">\(w(\theta) L_j(\theta)\)</span>, with <span class="math notranslate nohighlight">\(\partial \log w / \partial\theta = J / (2 I)\)</span>, which the estimate maximizes
+(p. 446, Equations A3 and A4). It removes the first-order bias of the maximum likelihood estimate (p. 427; p. 431,
+Theorem). When every <span class="math notranslate nohighlight">\(c_i = 0\)</span>, <span class="math notranslate nohighlight">\(w = I^{1/2}\)</span> (p. 431), in Warm’s model, which fixes <span class="math notranslate nohighlight">\(d_i = 1\)</span>
+(p. 428, Equation 1). The estimate’s variance is asymptotically <span class="math notranslate nohighlight">\(1 / I\)</span>, that of the maximum likelihood estimate
+(p. 431), and its standard error is <span class="math notranslate nohighlight">\(1 / \sqrt{I(\hat\theta)}\)</span>, catR 3.17’s default (<code class="docutils literal notranslate"><span class="pre">R/semTheta.R:90-96</span></code>);
+<span class="bibtex-citation" id="id12">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span> (p. 6, Equation 14) give a corrected one, which irtlib does not use. The search evaluates the
+modified score at 121 equally spaced abilities within the bounds. Each change of sign from positive to negative,
+refined by Brent’s method step for step as SciPy 1.18.1’s <code class="docutils literal notranslate"><span class="pre">scipy.optimize.brentq</span></code> takes it (source
+<code class="docutils literal notranslate"><span class="pre">scipy/optimize/Zeros/brentq.c:36-130</span></code>), from the values of the scan at its ends, is a maximum of the weighted
+likelihood, and so is a bound the score points out of. Of several, the estimate is the one of largest weighted
+likelihood, ranked by integrating the score from the lower bound with <code class="docutils literal notranslate"><span class="pre">scipy.integrate.quad</span></code>. Warm finds finite
+estimates for responses all correct or all incorrect on his tests (p. 443, Table 1), and <span class="bibtex-citation" id="id13">Magis and Raîche [<a class="reference internal" href="../references.html#id29" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span> (p. 11)
+propose the estimator for them; irtlib’s estimate lies within the bounds whatever the responses. An examinee who
+answered no item has no estimate, NaN, and standard error <span class="math notranslate nohighlight">\(\infty\)</span>, as under maximum likelihood.</p>
+<p>mirt 1.48 maximizes <span class="math notranslate nohighlight">\(\log L_j + \tfrac12 \log I\)</span> instead (<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:705-738</span></code>), Warm’s estimate when
+every answered item has <span class="math notranslate nohighlight">\(c_i = 0\)</span> and <span class="math notranslate nohighlight">\(d_i = 1\)</span>, and takes its standard error from <code class="docutils literal notranslate"><span class="pre">nlm</span></code>’s numerical
+Hessian of that weighted log-likelihood (<code class="docutils literal notranslate"><span class="pre">R/fscores.internal.R:1103-1119</span></code>).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="irtlib.ability.AbilityEstimates">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">irtlib.ability.</span></span><span class="sig-name descname"><span class="pre">AbilityEstimates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standard_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.integer" title="(in NumPy v2.5)"><span class="pre">integer</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_fallback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool" title="(in NumPy v2.5)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/irtlib/ability.html#AbilityEstimates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.ability.AbilityEstimates" title="Link to this definition">#</a></dt>
+<dd><p>Each examinee’s ability estimate, its standard error, and the evaluations of the estimator’s objective it took.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The estimates, one per row of the response matrix.</p>
+</dd>
+<dt><strong>standard_errors</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Their standard errors, by the estimator’s formula.</p>
+</dd>
+<dt><strong>evaluations</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>For each examinee, the number of evaluations of the estimator’s objective, the likelihood, the posterior or
+Warm’s modified score, or of the objective’s derivatives, each ability of a grid counted once.</p>
+</dd>
+<dt><strong>from_fallback</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>For each examinee, whether its estimate, standard error and evaluations are those of the fallback estimator of
+<a class="reference internal" href="#irtlib.ability.maximum_likelihood" title="irtlib.ability.maximum_likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">maximum_likelihood()</span></code></a>; False everywhere for the other estimators.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.ability.expected_a_posteriori">
+<span class="sig-prename descclassname"><span class="pre">irtlib.ability.</span></span><span class="sig-name descname"><span class="pre">expected_a_posteriori</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quadrature.html#irtlib.quadrature.QuadratureGrid" title="irtlib.quadrature.QuadratureGrid"><span class="pre">QuadratureGrid</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_prior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quadrature.html#irtlib.quadrature.LogPrior" title="irtlib.quadrature.LogPrior"><span class="pre">LogPrior</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_prior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quadrature.html#irtlib.quadrature.GridPrior" title="irtlib.quadrature.GridPrior"><span class="pre">GridPrior</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><span class="pre">AbilityEstimates</span></a></span></span><a class="reference internal" href="../_modules/irtlib/ability.html#expected_a_posteriori"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.ability.expected_a_posteriori" title="Link to this definition">#</a></dt>
+<dd><p>Return each examinee’s EAP estimate, the mean of its posterior over a grid, with the posterior standard deviation.</p>
+<p>Every estimate is finite, whatever the responses; an examinee who answered no item gets the prior’s mean and standard
+deviation on the grid. The evaluation count is the number of grid nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>, with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>
+and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">c</span> <span class="pre">&lt;</span> <span class="pre">d</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>grid</strong><span class="classifier">QuadratureGrid or None, optional</span></dt><dd><p>The nodes the posterior is computed on. Default is <code class="docutils literal notranslate"><span class="pre">QuadratureGrid.uniform()</span></code>, 121 nodes on [-6, 6].</p>
+</dd>
+<dt><strong>log_prior</strong><span class="classifier">LogPrior or None, optional</span></dt><dd><p>The prior’s log-density. Default is <code class="docutils literal notranslate"><span class="pre">normal_log_prior()</span></code>, the standard normal.</p>
+</dd>
+<dt><strong>grid_prior</strong><span class="classifier">GridPrior or None, optional</span></dt><dd><p>A grid and prior evaluated once, in place of <code class="docutils literal notranslate"><span class="pre">grid</span></code> and <code class="docutils literal notranslate"><span class="pre">log_prior</span></code>, for a caller that estimates with the
+same ones many times. Default is None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>AbilityEstimates</dt><dd><p>The posterior means, the posterior standard deviations and the grid’s size, one of each per examinee.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">grid_prior</span></code> is given together with <code class="docutils literal notranslate"><span class="pre">grid</span></code> or <code class="docutils literal notranslate"><span class="pre">log_prior</span></code>. Also if <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>
+matrix, <code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-prior
+is NaN or +inf at a node or has no mass on the grid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span> <span class="o">=</span> <span class="n">expected_a_posteriori</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">estimates</span><span class="o">.</span><span class="n">standard_errors</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([-0.2809,  0.8555]), array([0.7837, 0.828 ]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.ability.maximum_a_posteriori">
+<span class="sig-prename descclassname"><span class="pre">irtlib.ability.</span></span><span class="sig-name descname"><span class="pre">maximum_a_posteriori</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_prior</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quadrature.html#irtlib.quadrature.LogPrior" title="irtlib.quadrature.LogPrior"><span class="pre">LogPrior</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(-6.0,</span> <span class="pre">6.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><span class="pre">AbilityEstimates</span></a></span></span><a class="reference internal" href="../_modules/irtlib/ability.html#maximum_a_posteriori"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.ability.maximum_a_posteriori" title="Link to this definition">#</a></dt>
+<dd><p>Return each examinee’s MAP estimate, the mode of its posterior within the bounds, with its standard error.</p>
+<p>The estimate is the highest mode the search finds, inside the prior’s support, and finite whatever the responses; an
+examinee who answered no item gets the prior’s mode. The evaluation count is the number of evaluations of the
+posterior or of its derivatives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>, with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>
+and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">c</span> <span class="pre">&lt;</span> <span class="pre">d</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>log_prior</strong><span class="classifier">LogPrior or None, optional</span></dt><dd><p>The prior’s log-density. Default is <code class="docutils literal notranslate"><span class="pre">normal_log_prior()</span></code>, the standard normal.</p>
+</dd>
+<dt><strong>bounds</strong><span class="classifier">tuple[float, float], optional</span></dt><dd><p>The range the mode is searched in. Default is <code class="docutils literal notranslate"><span class="pre">(THETA_MIN_EXTENDED,</span> <span class="pre">THETA_MAX_EXTENDED)</span></code>, [-6, 6].</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>The absolute tolerance of the refinement, in the ability scale. Default is 1e-6.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>AbilityEstimates</dt><dd><p>The modes, their standard errors, <code class="docutils literal notranslate"><span class="pre">inf</span></code> where the information and the prior’s curvature give none, and the
+evaluation counts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">tol</span></code> is not positive, <code class="docutils literal notranslate"><span class="pre">bounds</span></code> is not a finite interval, <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix,
+<code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-posterior is
+not finite at any search point.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span> <span class="o">=</span> <span class="n">maximum_a_posteriori</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">estimates</span><span class="o">.</span><span class="n">standard_errors</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([-0.2728,  0.823 ]), array([0.8029, 0.8002]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.ability.maximum_likelihood">
+<span class="sig-prename descclassname"><span class="pre">irtlib.ability.</span></span><span class="sig-name descname"><span class="pre">maximum_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><span class="pre">AbilityEstimates</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><span class="pre">AbilityEstimates</span></a></span></span><a class="reference internal" href="../_modules/irtlib/ability.html#maximum_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.ability.maximum_likelihood" title="Link to this definition">#</a></dt>
+<dd><p>Return each examinee’s maximum likelihood estimate, with its standard error.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">bounds</span></code> the estimate maximizes the likelihood over the whole ability scale, infinities included: it is
+<code class="docutils literal notranslate"><span class="pre">inf</span></code> or <code class="docutils literal notranslate"><span class="pre">-inf</span></code> where the likelihood comes closest to its supremum only in that limit, as it does for responses
+all correct or all incorrect, and its standard error is then <code class="docutils literal notranslate"><span class="pre">inf</span></code>. With <code class="docutils literal notranslate"><span class="pre">bounds</span></code> it maximizes the likelihood
+within them, and is finite. An examinee who answered no item has no estimate, NaN, and standard error <code class="docutils literal notranslate"><span class="pre">inf</span></code>. A
+<code class="docutils literal notranslate"><span class="pre">fallback</span></code> replaces every estimate that is not finite, infinite or NaN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>, with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>
+and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">c</span> <span class="pre">&lt;</span> <span class="pre">d</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>bounds</strong><span class="classifier">tuple[float, float] or None, optional</span></dt><dd><p>The range the estimate is searched in; responses all correct or all incorrect give the bound they point to.
+Default is None, the whole ability scale.</p>
+</dd>
+<dt><strong>fallback</strong><span class="classifier">Callable or None, optional</span></dt><dd><p>An estimator called as <code class="docutils literal notranslate"><span class="pre">fallback(responses,</span> <span class="pre">items)</span></code>, once, on the rows whose estimate is not finite, such as
+<code class="docutils literal notranslate"><span class="pre">functools.partial(expected_a_posteriori,</span> <span class="pre">log_prior=normal_log_prior(0.0,</span> <span class="pre">1.0))</span></code>; its estimates, standard
+errors and evaluation counts replace theirs, and <code class="docutils literal notranslate"><span class="pre">from_fallback</span></code> marks them. Default is None, which keeps them.</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>The absolute tolerance of the search, in the ability scale. Default is 1e-6.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>AbilityEstimates</dt><dd><p>The estimates, their standard errors, and the number of evaluations of each examinee’s likelihood or of its
+derivatives.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If both <code class="docutils literal notranslate"><span class="pre">bounds</span></code> and <code class="docutils literal notranslate"><span class="pre">fallback</span></code> are given, <code class="docutils literal notranslate"><span class="pre">bounds</span></code> is not a finite interval, <code class="docutils literal notranslate"><span class="pre">tol</span></code> is not positive,
+<code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix, <code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, a response is not
+0, 1 or NaN, or the fallback does not return one estimate per row it is given.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">responses</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maximum_likelihood</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([-0.6463,     inf])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maximum_likelihood</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">))</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([-0.6463,  4.    ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span> <span class="o">=</span> <span class="n">maximum_likelihood</span><span class="p">(</span><span class="n">responses</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">expected_a_posteriori</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">estimates</span><span class="o">.</span><span class="n">from_fallback</span>
+<span class="go">(array([-0.6463,  0.8555]), array([False,  True]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.ability.weighted_likelihood">
+<span class="sig-prename descclassname"><span class="pre">irtlib.ability.</span></span><span class="sig-name descname"><span class="pre">weighted_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(-6.0,</span> <span class="pre">6.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><span class="pre">AbilityEstimates</span></a></span></span><a class="reference internal" href="../_modules/irtlib/ability.html#weighted_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.ability.weighted_likelihood" title="Link to this definition">#</a></dt>
+<dd><p>Return each examinee’s weighted likelihood estimate, Warm’s, with its standard error.</p>
+<p>The estimate is the root of Warm’s modified score within the bounds; of several, the one of largest weighted
+likelihood, and of none, the bound the score points to. An examinee who answered no item has no estimate, NaN, and
+standard error <code class="docutils literal notranslate"><span class="pre">inf</span></code>. The evaluation count is the number of modified-score evaluations. A ranking integral that does
+not converge warns with <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.IntegrationWarning.html#scipy.integrate.IntegrationWarning" title="(in SciPy v1.18.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">scipy.integrate.IntegrationWarning</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>, with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>
+and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">c</span> <span class="pre">&lt;</span> <span class="pre">d</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>.</p>
+</dd>
+<dt><strong>bounds</strong><span class="classifier">tuple[float, float], optional</span></dt><dd><p>The range the estimate is searched in. Default is <code class="docutils literal notranslate"><span class="pre">(THETA_MIN_EXTENDED,</span> <span class="pre">THETA_MAX_EXTENDED)</span></code>, [-6, 6].</p>
+</dd>
+<dt><strong>tol</strong><span class="classifier">float, optional</span></dt><dd><p>The absolute tolerance of the root search, in the ability scale. Default is 1e-6.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>AbilityEstimates</dt><dd><p>The estimates, their standard errors, <code class="docutils literal notranslate"><span class="pre">inf</span></code> where the information is 0, and the evaluation counts.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">bounds</span></code> is not a finite interval, <code class="docutils literal notranslate"><span class="pre">tol</span></code> is not positive, <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix,
+<code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, or a response is not 0, 1 or NaN.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span> <span class="o">=</span> <span class="n">weighted_likelihood</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">estimates</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">estimates</span><span class="o">.</span><span class="n">standard_errors</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([-0.5154,  1.8903]), array([1.4041, 1.9431]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="jml.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="fit.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.ability.AbilityEstimates"><code class="docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.ability.expected_a_posteriori"><code class="docutils literal notranslate"><span class="pre">expected_a_posteriori()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.ability.maximum_a_posteriori"><code class="docutils literal notranslate"><span class="pre">maximum_a_posteriori()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.ability.maximum_likelihood"><code class="docutils literal notranslate"><span class="pre">maximum_likelihood()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.ability.weighted_likelihood"><code class="docutils literal notranslate"><span class="pre">weighted_likelihood()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api/ability.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

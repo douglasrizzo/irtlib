@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>irtlib.mml &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/irtlib/mml';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">irtlib.mml</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for irtlib.mml</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">"""Marginal maximum likelihood calibration of the 1PL to 4PL with the EM algorithm, with optional priors.</span>
+
+<span class="sd">Calibration has to estimate item parameters without the examinees' abilities. Marginal maximum likelihood</span>
+<span class="sd">integrates the abilities out over a population distribution and maximizes the likelihood of the item parameters</span>
+<span class="sd">alone; Bock and Aitkin's EM algorithm makes it feasible for any number of items, with one small problem per item in</span>
+<span class="sd">each cycle :cite:p:`Bock1981` (pp. 444, 447).</span>
+
+<span class="sd">Ability is normal with mean 0 and variance 1 (ADR-0008), approximated on nodes :math:`X_q` with masses :math:`A_q`</span>
+<span class="sd">that sum to 1: the normal density at equally spaced nodes, normalized (:cite:t:`Bock1981`, p. 449). Examinee</span>
+<span class="sd">:math:`j`'s marginal probability is :math:`\tilde P_j = \sum_q L_j(X_q) A_q`, where :math:`L_j` is the product of</span>
+<span class="sd">:math:`P_i^{u_{ij}} (1 - P_i)^{1 - u_{ij}}` over the items :math:`i` examinee :math:`j` answered, and the marginal</span>
+<span class="sd">log-likelihood is :math:`\sum_j \log \tilde P_j` (:cite:t:`Bock1981`, pp. 445-446, Equations 6 and 8).</span>
+
+<span class="sd">Each cycle has two steps (:cite:t:`Baker1987`, p. 132, Equations 42-46; :cite:t:`Bock1981`, p. 447):</span>
+
+<span class="sd">- the E-step computes, for each item and node, the expected number of examinees answering the item there,</span>
+<span class="sd">  :math:`\bar N_{iq} = \sum_j L_j(X_q) A_q / \tilde P_j` over the examinees who answered it, and the expected number</span>
+<span class="sd">  answering it correctly, :math:`\bar r_{iq}`, the same sum weighted by :math:`u_{ij}`;</span>
+<span class="sd">- the M-step maximizes :math:`\sum_q [\bar r_{iq} \log P_i(X_q) + (\bar N_{iq} - \bar r_{iq}) \log Q_i(X_q)]` in the</span>
+<span class="sd">  item parameters, the grouped log-likelihood of :py:mod:`irtlib.irt`.</span>
+
+<span class="sd">The prior masses enter only through the expected counts. With missing responses the sums run over the examinees</span>
+<span class="sd">who answered each item, so the expected sample size :math:`\bar N_{iq}` is per item; the sources define it over</span>
+<span class="sd">complete response patterns, shared by every item.</span>
+
+<span class="sd">The M-step solves in mirt's parameters, the slope, the intercept and the logit of :math:`c`, by Fisher scoring with step</span>
+<span class="sd">halving (ADR-0007), on all free parameters at once: the system is one block per item unless a parameter is shared. The</span>
+<span class="sd">1PL shares one slope, estimated, with abilities :math:`N(0, 1)` (:cite:t:`Thissen1982`, pp. 175-176, Equation 1); fixing</span>
+<span class="sd">the slope at 1 for every item gives the model with slopes 1 and abilities :math:`N(0, 1)` (ADR-0008). No cycle decreases</span>
+<span class="sd">the marginal likelihood :cite:p:`Dempster1977` (p. 7, Theorem 1), and convergence is linear, slow near the solution</span>
+<span class="sd">(:cite:t:`Dempster1977`, p. 10; :cite:t:`Bock1981`, p. 447). A calibration stops when no estimated parameter changes by</span>
+<span class="sd">more than its tolerance in a cycle (ADR-0007).</span>
+
+<span class="sd">With priors on the item parameters, the estimates are Bayes modal: they maximize the log-likelihood plus the</span>
+<span class="sd">log-prior, and the EM algorithm carries over with the derivatives of the log-prior added to the M-step</span>
+<span class="sd">(:cite:t:`Mislevy1986`, p. 182, Equation 14). The priors are mirt's, on mirt's parameters (ADR-0008): lognormal on</span>
+<span class="sd">the slope, whose log-density keeps the :math:`-\log a` term, normal on the intercept, and normal on the logit of</span>
+<span class="sd">:math:`c`, which keeps :math:`c` inside :math:`(0, 1)` (:cite:t:`Mislevy1986`, p. 183). In the M-step's scoring</span>
+<span class="sd">information, a log-prior's negative second derivative counts only where it is positive, so the system stays positive</span>
+<span class="sd">definite. The 3PL's likelihood is "nearly flat along one or more dimensions" (:cite:t:`Mislevy1986`, p. 189), which a</span>
+<span class="sd">prior on the logit of :math:`c` remedies. The 4PL adds an upper asymptote :math:`d &lt; 1`, for examinees of high ability</span>
+<span class="sd">who still miss an item (:cite:t:`Barton1981`, p. 2), estimated on its logit with a normal prior there; recovering it</span>
+<span class="sd">takes thousands of examinees (:cite:t:`Waller2017`, p. 19; :cite:t:`Culpepper2016`, Section 5).</span>
+
+<span class="sd">An EM cycle is a fixed-point iteration :math:`x_{n+1} = F(x_n)` of the vector :math:`x` of free parameters; the largest</span>
+<span class="sd">eigenvalue of :math:`F`'s Jacobian at the solution, the fraction of missing information, governs how slowly it converges</span>
+<span class="sd">(:cite:t:`Du2020`, p. 3). By default a calibration accelerates it with SQUAREM (:cite:t:`Du2020`, p. 4, Algorithm 1).</span>
+<span class="sd">From :math:`x_0`, two cycles give :math:`x_1 = F(x_0)` and :math:`x_2 = F(x_1)`; with :math:`r = x_1 - x_0`,</span>
+<span class="sd">:math:`v = x_2 - x_1 - r` and the steplength :math:`\alpha = -\lVert r \rVert / \lVert v \rVert`, the authors' default</span>
+<span class="sd">(p. 4), the extrapolation is :math:`x_0 - 2 \alpha r + \alpha^2 v`. Where its log-posterior is above that of</span>
+<span class="sd">:math:`x_2`, Algorithm 1's test with :math:`\eta = 0`, one cycle from it, the stabilization step, gives the next</span>
+<span class="sd">:math:`x_0`; elsewhere :math:`x_2` does. No cycle then lowers the log-posterior, as no cycle of plain EM does</span>
+<span class="sd">(:cite:t:`Dempster1977`, p. 6). The norms are Euclidean over the free parameters, a shared slope counted once, and an</span>
+<span class="sd">extrapolation with a parameter that is not finite, or a guessing parameter at or above its upper asymptote, is not kept.</span>
+<span class="sd">The extrapolation is not a cycle: the stopping rule applies to every cycle, an EM step with or without acceleration.</span>
+<span class="sd">mirt 1.48 accelerates by Ramsay's rule by default and offers SQUAREM (manual pp. 128-129); the maximum is the same</span>
+<span class="sd">(ADR-0007).</span>
+
+<span class="sd">The standard errors are the square roots of the inverse observed information at the estimates, by Oakes's identity</span>
+<span class="sd">:cite:p:`Oakes1999` (p. 480): the score of the marginal log-likelihood is the M-step's gradient at the E-step's own</span>
+<span class="sd">parameters (Equation 5), and its derivative as both move together is the observed-data Hessian, the sum of the</span>
+<span class="sd">complete-data Hessian and the missing information (Equation 6). That score, log-prior included, is differenced</span>
+<span class="sd">centrally with step :math:`10^{-5}`, the E-step recomputed at each shifted point, so the posterior precision takes in</span>
+<span class="sd">the log-prior's second derivative (:cite:t:`Mislevy1986`, p. 182, Equations 15-17); the result is symmetrized, which</span>
+<span class="sd">:cite:t:`Chalmers2018` (p. 17) finds improves it (ADR-0007). Chalmers (pp. 5-7), as mirt, differences only the missing</span>
+<span class="sd">information and takes the complete-data Hessian analytically; differencing the whole score keeps one path for every</span>
+<span class="sd">model and prior. The standard errors of :math:`a`, :math:`b = -\zeta / \lambda`, :math:`c` and :math:`d` follow by</span>
+<span class="sd">the delta method.</span>
+
+<span class="sd">Starting values are the slope 0.851, the intercept :math:`\Phi^{-1}(p_i) \cdot 1.702 / \sqrt{0.75}`, or 2 where</span>
+<span class="sd">:math:`p_i` is 0 or 1, the guessing parameter 0.15 and the upper asymptote 0.85, where :math:`p_i` is item :math:`i`'s</span>
+<span class="sd">proportion correct among the examinees who answered it: mirt's starting values, computed over answered responses only</span>
+<span class="sd">(ADR-0007); :cite:t:`Bock1981` (p. 458) name the inverse normal of the proportion correct as a starting intercept.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_never</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">logit</span><span class="p">,</span> <span class="n">logsumexp</span><span class="p">,</span> <span class="n">ndtri</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">._m_step</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+  <span class="n">_GUESSING</span><span class="p">,</span>
+  <span class="n">_INTERCEPT</span><span class="p">,</span>
+  <span class="n">_SLOPE</span><span class="p">,</span>
+  <span class="n">_UPPER</span><span class="p">,</span>
+  <span class="n">_counted</span><span class="p">,</span>
+  <span class="n">_free_gradient</span><span class="p">,</span>
+  <span class="n">_m_step</span><span class="p">,</span>
+  <span class="n">_prior_terms</span><span class="p">,</span>
+  <span class="n">_PriorTerm</span><span class="p">,</span>
+  <span class="n">_standard_errors</span><span class="p">,</span>
+  <span class="n">_to_items</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._responses</span><span class="w"> </span><span class="kn">import</span> <span class="n">_N_COLUMNS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.bank</span><span class="w"> </span><span class="kn">import</span> <span class="n">IrtModel</span><span class="p">,</span> <span class="n">ItemBank</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">ConvergenceWarning</span><span class="p">,</span> <span class="n">Likelihood</span><span class="p">,</span> <span class="n">_valid_items</span><span class="p">,</span> <span class="n">default_grid</span><span class="p">,</span> <span class="n">validate_responses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.irt</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_likelihood</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quadrature</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">_log_masses</span><span class="p">,</span> <span class="n">normal_log_prior</span><span class="p">,</span> <span class="n">posterior</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">IntArray</span>
+
+<span class="c1"># mirt's starting slope, 0.5 on the normal-ogive scale times 1.702, and the scale of its starting intercept</span>
+<span class="n">_START_SLOPE</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">1.702</span>
+<span class="n">_START_INTERCEPT_SCALE</span> <span class="o">=</span> <span class="mf">1.702</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
+<span class="c1"># mirt's starting guessing parameter and upper asymptote (source R/04-PrepData.R:70-71), and its starting intercept</span>
+<span class="c1"># where the proportion correct is 0 or 1 (R/05-model.elements.R:63-64)</span>
+<span class="n">_START_GUESSING</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">_START_UPPER</span> <span class="o">=</span> <span class="mf">0.85</span>
+<span class="n">_START_EXTREME_INTERCEPT</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="c1"># mirt's central-difference step for Oakes's identity (ADR-0007)</span>
+<span class="n">_OAKES_STEP</span> <span class="o">=</span> <span class="mf">1e-5</span>
+<span class="c1"># abilities are normal with mean 0 and variance 1 (ADR-0008)</span>
+<span class="n">_ABILITY_PRIOR</span> <span class="o">=</span> <span class="n">normal_log_prior</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Priors">
+<a class="viewcode-back" href="../../api/mml.html#irtlib.mml.Priors">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Priors</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Priors on the parameters of every item, each given as a mean and a standard deviation (ADR-0008).</span>
+
+<span class="sd">  A prior applies to each item's parameter, and once to a parameter the items share, such as the 1PL's slope.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  slope : tuple[float, float] or None</span>
+<span class="sd">      The mean and standard deviation of the log of every slope: a lognormal prior on the slope.</span>
+<span class="sd">  intercept : tuple[float, float] or None</span>
+<span class="sd">      The mean and standard deviation of a normal prior on every intercept, ``-a * b``. It keeps the estimates of</span>
+<span class="sd">      items answered correctly by everyone or by no one finite.</span>
+<span class="sd">  guessing : tuple[float, float] or None</span>
+<span class="sd">      The mean and standard deviation of a normal prior on the logit of every guessing parameter; for the 3PL and</span>
+<span class="sd">      4PL.</span>
+<span class="sd">  upper : tuple[float, float] or None</span>
+<span class="sd">      The mean and standard deviation of a normal prior on the logit of every upper asymptote; for the 4PL.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If a mean is not finite, or a standard deviation is not finite and positive.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; Priors(guessing=(-1.386, 0.5)).guessing</span>
+<span class="sd">  (-1.386, 0.5)</span>
+<span class="sd">  """</span>
+
+  <span class="n">slope</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">intercept</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">guessing</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="n">upper</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check each prior's mean and standard deviation."""</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="p">[</span>
+      <span class="p">(</span><span class="s2">"slope"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">"intercept"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">"guessing"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">guessing</span><span class="p">),</span>
+      <span class="p">(</span><span class="s2">"upper"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper</span><span class="p">),</span>
+    <span class="p">]:</span>
+      <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># noqa: PLR2004 - a mean and a standard deviation</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> prior must be a mean and a standard deviation, got </span><span class="si">{</span><span class="n">prior</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+      <span class="n">mean</span><span class="p">,</span> <span class="n">sd</span> <span class="o">=</span> <span class="n">prior</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span> <span class="ow">and</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sd</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"the </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> prior must be a finite mean and a finite, positive standard deviation, got </span><span class="si">{</span><span class="n">prior</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Acceleration">
+<a class="viewcode-back" href="../../api/mml.html#irtlib.mml.Acceleration">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Acceleration</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">"""How :py:class:`MMLCalibrator` accelerates its EM cycles.</span>
+
+<span class="sd">  ``"squarem"`` extrapolates from every two cycles and keeps an extrapolation only where its log-posterior is above</span>
+<span class="sd">  the second cycle's, so no cycle lowers the log-posterior; ``"none"`` runs plain EM. Both reach the same maximum by</span>
+<span class="sd">  the same stopping rule, ``"squarem"`` in fewer cycles. A member equals its value, so either can be passed where an</span>
+<span class="sd">  acceleration is expected.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; Acceleration("squarem") is Acceleration.SQUAREM</span>
+<span class="sd">  True</span>
+<span class="sd">  """</span>
+
+  <span class="n">NONE</span> <span class="o">=</span> <span class="s2">"none"</span>
+  <span class="n">SQUAREM</span> <span class="o">=</span> <span class="s2">"squarem"</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prior_terms_of</span><span class="p">(</span><span class="n">priors</span><span class="p">:</span> <span class="n">Priors</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_PriorTerm</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return priors as terms of the M-step's objective, one per parameter column."""</span>
+  <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+    <span class="n">_PriorTerm</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">prior</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">prior</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="p">[</span>
+      <span class="p">(</span><span class="n">_SLOPE</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">slope</span><span class="p">),</span>
+      <span class="p">(</span><span class="n">_INTERCEPT</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">intercept</span><span class="p">),</span>
+      <span class="p">(</span><span class="n">_GUESSING</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">guessing</span><span class="p">),</span>
+      <span class="p">(</span><span class="n">_UPPER</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">upper</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+  <span class="p">)</span>
+
+
+<div class="viewcode-block" id="marginal_log_likelihood">
+<a class="viewcode-back" href="../../api/mml.html#irtlib.mml.marginal_log_likelihood">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">marginal_log_likelihood</span><span class="p">(</span><span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the marginal log-likelihood of a response matrix, with abilities normal with mean 0 and variance 1.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  responses : numpy.ndarray</span>
+<span class="sd">      The response matrix: one row per examinee, one column per item, holding 1, 0 or NaN for a missing response.</span>
+<span class="sd">  items : numpy.ndarray</span>
+<span class="sd">      A matrix of items ``[a, b, c, d]``, one row per column of ``responses``.</span>
+<span class="sd">  grid : irtlib.quadrature.QuadratureGrid, optional</span>
+<span class="sd">      The nodes the abilities are integrated over. Default is 61 equally spaced nodes on [-6, 6].</span>
+
+<span class="sd">  Returns</span>
+<span class="sd">  -------</span>
+<span class="sd">  float</span>
+<span class="sd">      The log-likelihood, summed over examinees.</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  TypeError</span>
+<span class="sd">      If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If the responses fail :py:func:`irtlib.calibration.validate_responses`, or ``items`` is not a matrix of four</span>
+<span class="sd">      columns with one row per item.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; round(marginal_log_likelihood(numpy.array([[1.0], [0.0]]), numpy.array([[1.0, 0.0, 0.0, 1.0]])), 6)</span>
+<span class="sd">  -1.386294</span>
+<span class="sd">  """</span>
+  <span class="n">matrix</span> <span class="o">=</span> <span class="n">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+  <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span> <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_grid</span><span class="p">()</span>
+  <span class="k">return</span> <span class="n">_marginal</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">items</span><span class="p">),</span> <span class="n">grid</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_marginal</span><span class="p">(</span><span class="n">log_likelihoods</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the marginal log-likelihood from each examinee's log-likelihood at the grid's nodes."""</span>
+  <span class="c1"># in log space throughout, so that the masses of nodes far in the tails need not be representable</span>
+  <span class="n">log_masses</span> <span class="o">=</span> <span class="n">_log_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">_ABILITY_PRIOR</span><span class="p">)</span>
+  <span class="n">log_masses</span> <span class="o">-=</span> <span class="n">logsumexp</span><span class="p">(</span><span class="n">log_masses</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">log_likelihoods</span> <span class="o">+</span> <span class="n">log_masses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+
+
+<div class="viewcode-block" id="MMLCalibrator">
+<a class="viewcode-back" href="../../api/mml.html#irtlib.mml.MMLCalibrator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MMLCalibrator</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Calibrate the 1PL to 4PL by marginal maximum likelihood with the EM algorithm, with optional priors.</span>
+
+<span class="sd">  Each call to :py:meth:`calibrate` estimates the items of one response matrix, which may have missing responses.</span>
+<span class="sd">  Abilities are normal with mean 0 and variance 1. With priors on the item parameters, the estimates are Bayes modal:</span>
+<span class="sd">  they maximize the log-likelihood plus the log-prior.</span>
+
+<span class="sd">  Parameters</span>
+<span class="sd">  ----------</span>
+<span class="sd">  model : irtlib.IrtModel or str, optional</span>
+<span class="sd">      ``"2PL"``, the default, estimates a slope per item; ``"1PL"`` one slope shared by every item; ``"3PL"`` also a</span>
+<span class="sd">      guessing parameter per item, best with a guessing prior; ``"4PL"`` also an upper asymptote per item, best with</span>
+<span class="sd">      priors on both asymptotes and thousands of examinees.</span>
+<span class="sd">  fixed_slope : float, optional</span>
+<span class="sd">      A slope every item keeps instead of estimating it, with any model.</span>
+<span class="sd">  priors : Priors, optional</span>
+<span class="sd">      Priors on the slope, the intercept and the logits of the guessing parameter and upper asymptote of every item.</span>
+<span class="sd">  tolerance : float, optional</span>
+<span class="sd">      The stopping rule: calibration stops when no estimated parameter changes by more than this in a cycle, an</span>
+<span class="sd">      E-step and an M-step. Default is 1e-6.</span>
+<span class="sd">  max_cycles : int, optional</span>
+<span class="sd">      The most cycles a calibration runs before it stops unconverged. Default is 500.</span>
+<span class="sd">  acceleration : Acceleration or str, optional</span>
+<span class="sd">      ``"squarem"``, the default, extrapolates between cycles to reach the same estimates in fewer of them; the</span>
+<span class="sd">      extrapolations are not cycles. ``"none"`` runs plain EM.</span>
+<span class="sd">  grid : irtlib.quadrature.QuadratureGrid, optional</span>
+<span class="sd">      The nodes the abilities are integrated over. Default is 61 equally spaced nodes on [-6, 6].</span>
+
+<span class="sd">  Raises</span>
+<span class="sd">  ------</span>
+<span class="sd">  ValueError</span>
+<span class="sd">      If ``fixed_slope`` is not finite and positive; a slope prior comes with ``fixed_slope``, a guessing prior with</span>
+<span class="sd">      a model other than the 3PL and 4PL, or an upper prior with a model other than the 4PL; ``tolerance`` is not</span>
+<span class="sd">      positive; ``max_cycles`` is less than 1; or ``acceleration`` is not an :py:class:`Acceleration`.</span>
+
+<span class="sd">  Examples</span>
+<span class="sd">  --------</span>
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; responses = numpy.array([[1, 0, 1], [0, 0, 1], [1, 1, 0], [0, 1, 1], [1, 0, 0]], dtype=float)</span>
+<span class="sd">  &gt;&gt;&gt; calibration = MMLCalibrator("1PL").calibrate(responses)</span>
+<span class="sd">  &gt;&gt;&gt; calibration.converged, calibration.n_parameters</span>
+<span class="sd">  (True, 4)</span>
+<span class="sd">  """</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># noqa: PLR0913 - a calibrator takes its settings at construction (ADR-0006)</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">IrtModel</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL2</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">fixed_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">priors</span><span class="p">:</span> <span class="n">Priors</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">max_cycles</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="n">acceleration</span><span class="p">:</span> <span class="n">Acceleration</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Acceleration</span><span class="o">.</span><span class="n">SQUAREM</span><span class="p">,</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+  <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">IrtModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_acceleration</span> <span class="o">=</span> <span class="n">Acceleration</span><span class="p">(</span><span class="n">acceleration</span><span class="p">)</span>
+    <span class="k">match</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">:</span>
+      <span class="k">case</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span> <span class="o">|</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL2</span> <span class="o">|</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL3</span> <span class="o">|</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">:</span>
+        <span class="k">pass</span>
+      <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"MMLCalibrator calibrates the 1PL to the 4PL, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fixed_slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">fixed_slope</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fixed_slope</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"fixed_slope must be finite and positive, got </span><span class="si">{</span><span class="n">fixed_slope</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tolerance</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"tolerance must be positive, got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_cycles</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"max_cycles must be at least 1, got </span><span class="si">{</span><span class="n">max_cycles</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">priors</span> <span class="o">=</span> <span class="n">priors</span> <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Priors</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">priors</span><span class="o">.</span><span class="n">slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fixed_slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="s2">"a slope prior needs an estimated slope, not fixed_slope"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">priors</span><span class="o">.</span><span class="n">guessing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="n">IrtModel</span><span class="o">.</span><span class="n">PL3</span><span class="p">,</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">}:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"a guessing prior needs the 3PL or 4PL, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">priors</span><span class="o">.</span><span class="n">upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"an upper prior needs the 4PL, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span> <span class="o">=</span> <span class="n">_prior_terms_of</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_slope</span> <span class="o">=</span> <span class="n">fixed_slope</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span> <span class="o">=</span> <span class="n">tolerance</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span> <span class="o">=</span> <span class="n">max_cycles</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">grid</span> <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default_grid</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MMLCalibrator.calibrate">
+<a class="viewcode-back" href="../../api/mml.html#irtlib.mml.MMLCalibrator.calibrate">[docs]</a>
+  <span class="k">def</span><span class="w"> </span><span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">ItemBank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Calibration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Estimate the items of a response matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    responses : numpy.ndarray</span>
+<span class="sd">        The response matrix: one row per examinee, one column per item, holding 1, 0 or NaN for a missing response.</span>
+<span class="sd">    start : irtlib.ItemBank, optional</span>
+<span class="sd">        Items to start from, one per column; the 1PL starts from their mean slope. By default, the slope 0.851 and</span>
+<span class="sd">        an intercept from each item's proportion correct.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Calibration</span>
+<span class="sd">        The estimates, their standard errors and the log-likelihood at them, with the cycles run, which do not count</span>
+<span class="sd">        the extrapolations of an acceleration, and the largest change of a parameter in the last one. If the stopping</span>
+<span class="sd">        rule is not met within ``max_cycles``, the result says so and a</span>
+<span class="sd">        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted,</span>
+<span class="sd">        the result has no standard errors and a ``RuntimeWarning`` is issued; if an item's estimates are not valid in</span>
+<span class="sd">        an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves the item out and</span>
+<span class="sd">        a ``RuntimeWarning`` names it.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the responses are neither Booleans, integers nor floats.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the responses fail :py:func:`irtlib.calibration.validate_responses`; an item was answered correctly by</span>
+<span class="sd">        every examinee who answered it or by none, which leaves it no finite estimate; the expected information of</span>
+<span class="sd">        the parameters is singular; or ``start`` has a different number of items, or leaves an item's guessing</span>
+<span class="sd">        parameter at or above its upper asymptote.</span>
+<span class="sd">    """</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">validate_responses</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+    <span class="n">proportion</span> <span class="o">=</span> <span class="n">_proportion_correct</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="n">extreme</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">((</span><span class="n">proportion</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">proportion</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">extreme</span><span class="o">.</span><span class="n">size</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">column</span> <span class="o">==</span> <span class="n">_INTERCEPT</span> <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span><span class="p">):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"the items in columns </span><span class="si">{</span><span class="n">extreme</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2"> were answered correctly by every examinee who answered them or by "</span>
+        <span class="s2">"none, so they have no finite estimate; remove them, or give an intercept prior"</span>
+      <span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">start</span><span class="o">.</span><span class="n">n_items</span> <span class="o">!=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"start has </span><span class="si">{</span><span class="n">start</span><span class="o">.</span><span class="n">n_items</span><span class="si">}</span><span class="s2"> items, the responses </span><span class="si">{</span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">index</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_layout</span><span class="p">(</span><span class="n">proportion</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+    <span class="n">values</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cycle</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+    <span class="n">converged</span> <span class="o">=</span> <span class="n">change</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"calibration stopped after </span><span class="si">{</span><span class="n">cycles</span><span class="si">}</span><span class="s2"> cycles with a largest change of </span><span class="si">{</span><span class="n">change</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">, above the tolerance "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">ConvergenceWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="n">estimates</span> <span class="o">=</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">information</span> <span class="o">=</span> <span class="n">_observed_information</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span><span class="p">)</span>
+    <span class="n">standard_errors</span> <span class="o">=</span> <span class="n">_standard_errors</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">information</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">standard_errors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">"the information matrix could not be inverted, so the calibration reports no standard errors; the model "</span>
+        <span class="s2">"may not be identified by these responses"</span><span class="p">,</span>
+        <span class="ne">RuntimeWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+      <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Calibration</span><span class="p">(</span>
+      <span class="n">estimates</span><span class="o">=</span><span class="n">estimates</span><span class="p">,</span>
+      <span class="n">items</span><span class="o">=</span><span class="n">_valid_items</span><span class="p">(</span><span class="n">estimates</span><span class="p">),</span>
+      <span class="n">standard_errors</span><span class="o">=</span><span class="n">standard_errors</span><span class="p">,</span>
+      <span class="n">log_likelihood</span><span class="o">=</span><span class="n">marginal_log_likelihood</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">estimates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">),</span>
+      <span class="n">likelihood</span><span class="o">=</span><span class="n">Likelihood</span><span class="o">.</span><span class="n">MARGINAL</span><span class="p">,</span>
+      <span class="n">n_parameters</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">item_parameters</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+      <span class="n">cycles</span><span class="o">=</span><span class="n">cycles</span><span class="p">,</span>
+      <span class="n">converged</span><span class="o">=</span><span class="n">converged</span><span class="p">,</span>
+      <span class="n">change</span><span class="o">=</span><span class="n">change</span><span class="p">,</span>
+      <span class="n">grid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span>
+      <span class="n">abilities</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Run EM cycles until the stopping rule is met or the cycles run out.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[numpy.ndarray, int, float]</span>
+<span class="sd">        The parameters, the cycles run and the largest change of a free parameter in the last cycle.</span>
+<span class="sd">    """</span>
+    <span class="n">cycles</span> <span class="o">=</span> <span class="n">_Cycles</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_priors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tolerance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_cycles</span><span class="p">)</span>
+    <span class="k">match</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acceleration</span><span class="p">:</span>
+      <span class="k">case</span> <span class="n">Acceleration</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">cycles</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+          <span class="n">values</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+      <span class="k">case</span> <span class="n">Acceleration</span><span class="o">.</span><span class="n">SQUAREM</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">_squarem</span><span class="p">(</span><span class="n">cycles</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+      <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+        <span class="n">assert_never</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_acceleration</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">values</span><span class="p">,</span> <span class="n">cycles</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">cycles</span><span class="o">.</span><span class="n">change</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proportion</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">ItemBank</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">IntArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the index of each item parameter in the free parameters, and each item's starting parameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[numpy.ndarray, numpy.ndarray]</span>
+<span class="sd">        The index of each item's slope, intercept and logits of c and d in the free parameters, -1 for a fixed</span>
+<span class="sd">        parameter, the 1PL's slopes sharing one; and each item's starting slope, intercept and logits of c and d.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the start leaves an item's guessing parameter at or above its upper asymptote.</span>
+<span class="sd">    """</span>
+    <span class="n">n_items</span> <span class="o">=</span> <span class="n">proportion</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_items</span><span class="p">,</span> <span class="n">_N_COLUMNS</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">_START_SLOPE</span>
+      <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+        <span class="n">intercept</span> <span class="o">=</span> <span class="n">ndtri</span><span class="p">(</span><span class="n">proportion</span><span class="p">)</span> <span class="o">*</span> <span class="n">_START_INTERCEPT_SCALE</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">intercept</span><span class="p">),</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">_START_EXTREME_INTERCEPT</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">discrimination</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">difficulty</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_slope</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span> <span class="k">else</span> <span class="n">a</span>
+      <span class="c1"># the start's difficulties are kept whatever slope the items start from</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span>
+    <span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>  <span class="c1"># c = 0</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">in</span> <span class="p">{</span><span class="n">IrtModel</span><span class="o">.</span><span class="n">PL3</span><span class="p">,</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">}:</span>
+      <span class="n">guessing</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">pseudo_guessing</span> <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">logit</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">guessing</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">guessing</span><span class="p">,</span> <span class="n">_START_GUESSING</span><span class="p">))</span>
+    <span class="n">values</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>  <span class="c1"># d = 1</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">:</span>
+      <span class="n">upper</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">upper_asymptote</span> <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">logit</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">upper</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">_START_UPPER</span><span class="p">))</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_items</span><span class="p">,</span> <span class="n">_N_COLUMNS</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_slope</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fixed_slope</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL1</span><span class="p">:</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_items</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">)</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_items</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">n_items</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]):</span>
+      <span class="n">msg</span> <span class="o">=</span> <span class="s2">"start must leave every item's guessing parameter below its upper asymptote, with c = 0 taken as 0.15"</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">in</span> <span class="p">{</span><span class="n">IrtModel</span><span class="o">.</span><span class="n">PL3</span><span class="p">,</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">}:</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="n">IrtModel</span><span class="o">.</span><span class="n">PL4</span><span class="p">:</span>
+      <span class="n">index</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n_items</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">values</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_proportion_correct</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return each item's proportion correct among the examinees who answered it."""</span>
+  <span class="n">answered</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">answered</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">answered</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_expected_counts</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the E-step's expected numbers of correct responses and of responses, shape (nodes, items)."""</span>
+  <span class="k">return</span> <span class="n">_counts</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">values</span><span class="p">)),</span> <span class="n">grid</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_counts</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">log_likelihoods</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]:</span>
+<span class="w">  </span><span class="sd">"""Return the expected counts of the E-step from each examinee's log-likelihood at the grid's nodes."""</span>
+  <span class="n">answered</span> <span class="o">=</span> <span class="o">~</span><span class="n">numpy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+  <span class="n">posteriors</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">(</span><span class="n">log_likelihoods</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">_ABILITY_PRIOR</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">posteriors</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">answered</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">posteriors</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">answered</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Cycles</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""The EM cycles of one calibration, counted, with the largest change of a free parameter in the last one."""</span>
+
+  <span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span>
+  <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span>
+  <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span>
+  <span class="n">priors</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_PriorTerm</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+  <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span>
+  <span class="n">max_cycles</span><span class="p">:</span> <span class="nb">int</span>
+  <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">change</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether the stopping rule is met, the change is NaN, or the cycles have run out."""</span>
+    <span class="c1"># a NaN change stops the cycles too, and the calibration reports it as not converged</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_cycles</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">counts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the parameters after a cycle from ``values``, whose E-step's counts are computed unless given."""</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">counts</span> <span class="k">if</span> <span class="n">counts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_expected_counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+    <span class="n">new_values</span> <span class="o">=</span> <span class="n">_m_step</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">counts</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">)</span>
+    <span class="n">free</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">change</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">new_values</span><span class="p">[</span><span class="n">free</span><span class="p">]</span> <span class="o">-</span> <span class="n">values</span><span class="p">[</span><span class="n">free</span><span class="p">])))</span>
+    <span class="k">return</span> <span class="n">new_values</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="nf">expect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the E-step's counts at ``values`` and the log-posterior there: marginal log-likelihood plus log-prior."""</span>
+    <span class="n">log_likelihoods</span> <span class="o">=</span> <span class="n">log_likelihood</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">_to_items</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+    <span class="n">log_prior</span> <span class="o">=</span> <span class="n">_prior_terms</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors</span><span class="p">,</span> <span class="n">_counted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">log_likelihoods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">),</span> <span class="n">_marginal</span><span class="p">(</span><span class="n">log_likelihoods</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span> <span class="o">+</span> <span class="n">log_prior</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_squarem</span><span class="p">(</span><span class="n">cycles</span><span class="p">:</span> <span class="n">_Cycles</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Run SQUAREM's iterations from ``values`` until the stopping rule is met or the cycles run out."""</span>
+  <span class="n">counts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FloatArray</span><span class="p">,</span> <span class="n">FloatArray</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+  <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">counts</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cycles</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">first</span>
+    <span class="n">second</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cycles</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">second</span>
+    <span class="n">extrapolated</span> <span class="o">=</span> <span class="n">_extrapolated</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="n">cycles</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">counts</span><span class="p">,</span> <span class="n">objective</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">second</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extrapolated</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">extrapolated_counts</span><span class="p">,</span> <span class="n">extrapolated_objective</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">extrapolated</span><span class="p">)</span>
+      <span class="c1"># Du &amp; Varadhan's (2020) test with eta = 0; a log-posterior that is NaN fails it</span>
+      <span class="k">if</span> <span class="n">extrapolated_objective</span> <span class="o">&gt;</span> <span class="n">objective</span><span class="p">:</span>
+        <span class="c1"># the stabilization step</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">cycles</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">extrapolated</span><span class="p">,</span> <span class="n">extrapolated_counts</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">cycles</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+          <span class="k">return</span> <span class="n">values</span>
+        <span class="k">continue</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">second</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extrapolated</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return SQUAREM's extrapolation from the parameters of three successive cycles, or None if it is not kept."""</span>
+  <span class="n">point</span> <span class="o">=</span> <span class="n">_squarem_point</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">_free_vector</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">values</span> <span class="ow">in</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)))</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">point</span><span class="p">)):</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="n">free</span> <span class="o">=</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+  <span class="n">extrapolated</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+  <span class="n">extrapolated</span><span class="p">[</span><span class="n">free</span><span class="p">]</span> <span class="o">=</span> <span class="n">point</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="n">free</span><span class="p">]]</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">extrapolated</span><span class="p">[:,</span> <span class="n">_GUESSING</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">extrapolated</span><span class="p">[:,</span> <span class="n">_UPPER</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="kc">None</span>
+  <span class="k">return</span> <span class="n">extrapolated</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_squarem_point</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return SQUAREM's extrapolation from three successive iterates of a fixed-point iteration."""</span>
+  <span class="n">r</span> <span class="o">=</span> <span class="n">first</span> <span class="o">-</span> <span class="n">start</span>
+  <span class="n">v</span> <span class="o">=</span> <span class="n">second</span> <span class="o">-</span> <span class="n">first</span> <span class="o">-</span> <span class="n">r</span>
+  <span class="c1"># a v of zero makes the steplength infinite and the point not finite, which the caller refuses</span>
+  <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">over</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">start</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="n">alpha</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">v</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_free_vector</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the free parameters, a shared one once, from the rows of item parameters."""</span>
+  <span class="n">free</span> <span class="o">=</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+  <span class="n">vector</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="n">vector</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="n">free</span><span class="p">]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">free</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">vector</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_observed_information</span><span class="p">(</span>
+  <span class="n">matrix</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">IntArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">priors</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_PriorTerm</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
+<span class="w">  </span><span class="sd">"""Return the observed information of the free parameters by Oakes's identity, log-prior included."""</span>
+  <span class="c1"># The score is the M-step's gradient at the E-step's own parameters (Oakes, 1999, Equation 5); its central</span>
+  <span class="c1"># difference, the E-step recomputed at each shifted point, sums Oakes's two terms (Equation 6).</span>
+  <span class="n">free</span> <span class="o">=</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+  <span class="n">n_free</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="n">hessian</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_free</span><span class="p">,</span> <span class="n">n_free</span><span class="p">))</span>
+  <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_free</span><span class="p">):</span>
+    <span class="n">gradients</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sign</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">):</span>
+      <span class="n">shifted</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+      <span class="n">shifted</span><span class="p">[</span><span class="n">free</span><span class="p">]</span> <span class="o">+=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">_OAKES_STEP</span> <span class="o">*</span> <span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="n">free</span><span class="p">]</span> <span class="o">==</span> <span class="n">parameter</span><span class="p">)</span>
+      <span class="n">counts</span> <span class="o">=</span> <span class="n">_expected_counts</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">shifted</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+      <span class="n">gradients</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_free_gradient</span><span class="p">(</span><span class="n">shifted</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">grid</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="o">*</span><span class="n">counts</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">))</span>
+    <span class="n">hessian</span><span class="p">[:,</span> <span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">gradients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">gradients</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">_OAKES_STEP</span><span class="p">)</span>
+  <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">hessian</span> <span class="o">+</span> <span class="n">hessian</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
