@@ -301,19 +301,21 @@ def test_two_pl_estimates_maximize_the_joint_likelihood() -> None:
   np.testing.assert_array_equal(calibration.item_parameters, np.full(20, 2))
 
 
-def test_two_pl_standard_errors_invert_each_items_information() -> None:
-  """Each 2PL item's standard errors are those of the inverse of its information at the maximum, the abilities known,
-  the difficulty's by the delta method (Baker, 1987, p. 119; p. 114, Equation 8).
+def test_two_pl_covariances_invert_each_items_information() -> None:
+  """Each 2PL item's covariance of a and b is the inverse of its information at the maximum, the abilities known, taken
+  to b by the delta method (Baker, 1987, p. 119; p. 114, Equation 8), with standard errors the square roots of its
+  diagonal.
 
   Written out at the brute-force maximum: the information of an item's slope and intercept sums P Q (theta^2, theta;
-  theta, 1) over the examinees, and b = -intercept / slope has variance (b^2 var(slope) + var(intercept) + 2 b
-  cov) / slope^2. Fails if the information takes the abilities of the wrong examinees, or the delta method is wrong.
+  theta, 1) over the examinees, and b = -intercept / slope has covariance -(b var(slope) + cov) / slope with the slope
+  and variance (b^2 var(slope) + var(intercept) + 2 b cov) / slope^2. Fails if the information takes the abilities
+  of the wrong examinees, or the delta method is wrong.
   """
   slope, difficulty, theta, _ = _two_pl_maximum()
   calibration = _two_pl_calibration()
   weight = expit(slope * (theta[:, np.newaxis] - difficulty))
   weight *= 1 - weight
-  expected = np.empty((20, 2))
+  expected = np.empty((20, 2, 2))
   for item in range(20):
     information = np.array([
       [np.sum(weight[:, item] * theta**2), np.sum(weight[:, item] * theta)],
@@ -321,13 +323,17 @@ def test_two_pl_standard_errors_invert_each_items_information() -> None:
     ])
     (slope_variance, covariance), (_, intercept_variance) = np.linalg.inv(information)
     b = difficulty[item]
-    expected[item] = [
-      math.sqrt(slope_variance),
-      math.sqrt(b**2 * slope_variance + intercept_variance + 2 * b * covariance) / slope[item],
-    ]
+    expected[item, 0, 0] = slope_variance
+    expected[item, 0, 1] = expected[item, 1, 0] = -(b * slope_variance + covariance) / slope[item]
+    expected[item, 1, 1] = (b**2 * slope_variance + intercept_variance + 2 * b * covariance) / slope[item] ** 2
+  assert calibration.covariances is not None
+  np.testing.assert_allclose(calibration.covariances[:, :2, :2], expected, rtol=1e-4)
+  assert np.all(np.isnan(calibration.covariances[:, 2:]))
+  assert np.all(np.isnan(calibration.covariances[:, :, 2:]))
   assert calibration.standard_errors is not None
-  np.testing.assert_allclose(calibration.standard_errors[:, :2], expected, rtol=1e-4)
-  assert np.all(np.isnan(calibration.standard_errors[:, 2:]))
+  np.testing.assert_allclose(
+    calibration.standard_errors[:, :2], np.sqrt(np.diagonal(expected, axis1=1, axis2=2)), rtol=1e-4
+  )
 
 
 def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:

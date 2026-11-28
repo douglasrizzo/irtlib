@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-24 cards: 6 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
+24 cards: 7 ready, 4 needs-research, 4 needs-decision, 5 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -48,7 +48,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Generate banks of a chosen shape, and document the scaling constant D where users look](discovery/bank-generation.md) | discovery | 3 |
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | 3 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
-| [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
 
 ## Priority 2
 
@@ -66,6 +65,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
 | [Refuse items whose parameters are not finite in the ability estimators](estimation/non-finite-items.md) | estimation | fix | ready | XS |  | joint maximum likelihood abilities PR on 2026-11-28 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
+| [Draw the item response plots the maintainer chose](irt/plots.md) | irt | feature | ready | L |  | maintainer on 2026-11-28 after the plot catalogue |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md) | setup of irtlib |
 | [Write the guides](maintenance/docs-guides.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
@@ -75,13 +75,12 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
 | [Find how EAP abilities lower the mean squares on data that fit the Rasch model](discovery/mean-squares-eap.md) | discovery | research | needs-research | S |  | mean-squares PR on 2026-11-27 |
-| [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | needs-decision | S |  | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Keep the 2PL's joint maximum likelihood slopes finite on short tests](estimation/jml-slope-limits.md) | estimation | feature | blocked | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
 | [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
 | [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | blocked | S |  | joint maximum likelihood PR on 2026-11-27 |
-| [Draw the documentation's figures](maintenance/docs-figures.md) | maintenance | docs | blocked | M | [irt-plots](discovery/irt-plots.md) | maintainer on 2026-11-28 |
+| [Draw the documentation's figures](maintenance/docs-figures.md) | maintenance | docs | blocked | M | [plots](irt/plots.md) | maintainer on 2026-11-28 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 

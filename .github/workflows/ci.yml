@@ -163,14 +163,15 @@ jobs:
 
       - name: Install the wheel into a clean environment
         run: |
-          # The locked runtime dependencies go in first, so the tests run on the releases uv.lock pins;
-          # the wheel then brings what its metadata names, NumPy and SciPy, which are already there. The
-          # export leaves out every dependency group, the benchmarks' catsim among them (ADR-0002).
-          uv export --frozen --no-dev --no-emit-project --no-hashes --output-file "$RUNNER_TEMP/runtime.txt"
+          # The locked runtime dependencies and the plot extra, whose matplotlib the tests of irtlib.plot
+          # import, go in first, so the tests run on the releases uv.lock pins; the wheel with its plot
+          # extra then brings what its metadata names, NumPy, SciPy and matplotlib, which are already
+          # there. The export leaves out every dependency group, the benchmarks' catsim among them (ADR-0002).
+          uv export --frozen --no-dev --extra plot --no-emit-project --no-hashes --output-file "$RUNNER_TEMP/runtime.txt"
           uv venv --python 3.12 "$RUNNER_TEMP/wheel-venv"
           uv pip install --python "$RUNNER_TEMP/wheel-venv" -r "$RUNNER_TEMP/runtime.txt" pytest hypothesis
           wheel=(dist/*.whl)
-          uv pip install --python "$RUNNER_TEMP/wheel-venv" "${wheel[0]}"
+          uv pip install --python "$RUNNER_TEMP/wheel-venv" "${wheel[0]}[plot]"
           # Without the source tree, the only irtlib the tests can import is the installed wheel.
           rm -rf src
 

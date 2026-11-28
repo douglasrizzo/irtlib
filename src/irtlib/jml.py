@@ -7,7 +7,7 @@ from typing import Self
 
 import numpy
 
-from ._m_step import _free_information, _m_step, _objective, _standard_errors, _to_items
+from ._m_step import _covariances, _free_information, _m_step, _objective, _to_items
 from ._responses import _N_COLUMNS
 from .ability import AbilityEstimates, maximum_likelihood
 from .bank import IrtModel
@@ -111,8 +111,9 @@ class JMLCalibrator:
       Whether to multiply the difficulties of the Rasch model by ``(M - 1) / M``, for ``M`` items kept, once the
       likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.
   correct_errors : bool, optional
-      Whether to multiply the difficulties' standard errors by ``(M - 1) / M`` too, when the difficulties are
-      corrected. Default is False, which keeps the standard errors of the estimates before the correction.
+      Whether to multiply the difficulty's row and column of each item's covariances by ``(M - 1) / M`` too, and so
+      its standard error by that factor, when the difficulties are corrected. Default is False, which keeps the
+      covariances of the estimates before the correction.
   tolerance : float, optional
       The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step
       and an ability step. Default is 1e-6.
@@ -162,8 +163,8 @@ class JMLCalibrator:
     self._correct = self._model is IrtModel.PL1 if correct is None else correct
     if correct_errors and not self._correct:
       msg = (
-        "correct_errors multiplies the standard errors by the correction (M - 1) / M, which this calibrator does not "
-        f"apply: the {self._model} with correct={correct}"
+        "correct_errors multiplies the difficulties' covariances by the correction (M - 1) / M, which this calibrator "
+        f"does not apply: the {self._model} with correct={correct}"
       )
       raise ValueError(msg)
     self._correct_errors = correct_errors
@@ -184,9 +185,9 @@ class JMLCalibrator:
     Returns
     -------
     Calibration
-        The estimates ``[a, b, 0, 1]``, their standard errors, and the joint log-likelihood at the estimates, before
+        The estimates ``[a, b, 0, 1]``, their covariances, and the joint log-likelihood at the estimates, before
         any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates
-        and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's
+        and covariances, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's
         ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with standard
         errors one over the square root of the test information at the estimates before any correction, and the
         evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the ability
@@ -197,7 +198,8 @@ class JMLCalibrator:
         the 2PL's abilities separate an item's correct responses from its incorrect ones, or an item step gives a slope
         that is not positive, the result holds the last complete cycle, says so, and a
         :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an item's information
-        cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is issued.
+        cannot be inverted, or gives a variance that is not positive, the result has no covariances or standard errors
+        and a ``RuntimeWarning`` is issued.
 
     Raises
     ------
@@ -225,13 +227,13 @@ class JMLCalibrator:
     fit = self._cycle(groups, _start(groups, rasch=rasch), columns=numpy.flatnonzero(items), rasch=rasch)
     if fit.failure is not None:
       warnings.warn(f"calibration stopped after {fit.cycles} cycles: {fit.failure}", ConvergenceWarning, stacklevel=2)
-    kept_errors = _standard_errors(
+    kept_covariances = _covariances(
       fit.values, fit.index, _free_information(fit.values, fit.index, fit.theta, groups.total, ())
     )
-    if kept_errors is None:
+    if kept_covariances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no standard errors; an item may "
-        "have no finite estimate",
+        "the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "
+        "reports no covariances or standard errors; an item may have no finite estimate",
         RuntimeWarning,
         stacklevel=2,
       )
@@ -241,13 +243,14 @@ class JMLCalibrator:
       # the difficulties are centred at 0 by the scale's identification
       factor = (kept.shape[1] - 1) / kept.shape[1]
       estimates[:, 1] *= factor
-      if self._correct_errors and kept_errors is not None:
-        kept_errors[:, 1] *= factor
+      if self._correct_errors and kept_covariances is not None:
+        kept_covariances[:, 1, :] *= factor
+        kept_covariances[:, :, 1] *= factor
     estimates = _every_item(estimates, items, [1.0 if rasch else numpy.nan, numpy.nan, 0.0, 1.0])
     return Calibration(
       estimates=estimates,
       items=_valid_items(estimates),
-      standard_errors=None if kept_errors is None else _every_item(kept_errors, items, [numpy.nan] * _N_COLUMNS),
+      covariances=None if kept_covariances is None else _every_item(kept_covariances, items, numpy.nan),
       log_likelihood=_objective(fit.values, fit.index, fit.theta, groups.correct, groups.total, priors=()),
       likelihood=Likelihood.JOINT,
       # the free item parameters and the abilities of the examinees kept, less the constraints of the scale: one for
@@ -409,8 +412,8 @@ def _abilities(
   return AbilityEstimates(theta, standard_errors, evaluations, numpy.zeros(theta.size, dtype=bool))
 
 
-def _every_item(kept: FloatArray, items: BoolArray, fill: list[float]) -> FloatArray:
-  """Return rows for every column of the responses: those of the items kept, and ``fill`` for the others."""
-  rows = numpy.tile(fill, (items.size, 1))
+def _every_item(kept: FloatArray, items: BoolArray, fill: float | list[float]) -> FloatArray:
+  """Return an entry for every column of the responses: that of each item kept, and ``fill`` for the others."""
+  rows = numpy.full((items.size, *kept.shape[1:]), fill)
   rows[items] = kept
   return rows
