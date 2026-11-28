@@ -95,8 +95,15 @@ html_theme_options = {
   # The navbar shows every top-level entry of the table of contents without a "More" menu.
   "header_links_before_dropdown": 7,
   "navbar_end": ["navbar-icon-links", "theme-switcher"],
-  "logo": {"text": "irtlib"},
+  "logo": {
+    "image_light": "logo/horizontal-light.svg",
+    "image_dark": "logo/horizontal-dark.svg",
+  },
 }
+
+# The favicon is one file shown on the browser's own tab bar, whatever the page's color mode, so it
+# uses the tile version of the mark, which carries its own background.
+html_favicon = "logo/favicon.svg"
 
 html_static_path = ["_static"]
 # irtlib's colors on the theme's, for the light and the dark mode.

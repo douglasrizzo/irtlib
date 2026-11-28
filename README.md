@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/douglasrizzo/irtlib/dev/sphinx/logo/stacked-dark.svg" />
+    <img src="https://raw.githubusercontent.com/douglasrizzo/irtlib/dev/sphinx/logo/stacked-light.svg" alt="irtlib" width="180" />
+  </picture>
+</p>
+
 # irtlib
 
 irtlib implements item response theory for the unidimensional dichotomous logistic models, 1PL to
