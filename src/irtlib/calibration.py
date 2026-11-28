@@ -69,6 +69,10 @@ class Calibration:
   log_likelihood : float
       The logarithm of the likelihood named by ``likelihood``, at the estimates, before any correction the method makes
       to them once the likelihood is maximized; with priors, without the log-prior.
+  log_likelihoods : numpy.ndarray
+      The same logarithm at the end of each cycle of its algorithm the calibration ran, such as EM cycles,
+      Newton-Raphson iterations, or the item and ability steps of joint maximum likelihood; the last equal to
+      ``log_likelihood``, and with priors without the log-prior.
   likelihood : Likelihood
       The likelihood the calibration maximizes, given as a member or its name. Model comparison and S-X² take only
       marginal ones.
@@ -77,9 +81,6 @@ class Calibration:
       likelihood the ability of every examinee kept, less one for each constraint that fixes the scale.
   item_parameters : numpy.ndarray
       The number of parameters estimated for each item, a parameter shared by every item counted for each.
-  cycles : int
-      The cycles of its algorithm the calibration ran, such as EM cycles, Newton-Raphson iterations, or the item and
-      ability steps of joint maximum likelihood.
   converged : bool
       Whether the stopping rule was met; if not, the calibration ran out of cycles or could not go on, and warned with
       :py:class:`ConvergenceWarning`.
@@ -105,10 +106,10 @@ class Calibration:
   items: ItemBank | None
   covariances: FloatArray | None
   log_likelihood: float
+  log_likelihoods: FloatArray
   likelihood: Likelihood
   n_parameters: int
   item_parameters: IntArray
-  cycles: int
   converged: bool
   change: float
   grid: QuadratureGrid | None
@@ -137,6 +138,17 @@ class Calibration:
     if self.covariances is None:
       return None
     return numpy.sqrt(numpy.diagonal(self.covariances, axis1=1, axis2=2))
+
+  @property
+  def cycles(self) -> int:
+    """The cycles of its algorithm the calibration ran, one per value of ``log_likelihoods``.
+
+    Returns
+    -------
+    int
+        The number of cycles.
+    """
+    return self.log_likelihoods.size
 
 
 def _check_marginal(calibration: Calibration, statistic: str) -> QuadratureGrid:

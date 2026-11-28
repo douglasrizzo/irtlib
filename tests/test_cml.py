@@ -331,6 +331,29 @@ def test_a_halved_step_under_the_tolerance_is_not_convergence() -> None:
   np.testing.assert_allclose(calibration.estimates[:, 1], [-difference / 2, difference / 2], atol=0.2)
 
 
+@pytest.mark.parametrize(
+  "matrix",
+  [_LSAT6, np.repeat(np.array([[1, 0], [0, 1]], dtype=float), [1000, 1], axis=0)],
+  ids=["LSAT-6", "two items 1000 to 1"],
+)
+def test_log_likelihoods_are_those_after_each_iteration(matrix: FloatArray) -> None:
+  """The conditional log-likelihood recorded for each iteration is the brute-force one at the difficulties of a
+  calibration stopped after that iteration; the last is the calibration's own.
+
+  The two items' first step is halved 7 times, so a record of a refused trial, or of the log-likelihood before an
+  iteration's step rather than after it, fails.
+  """
+  calibration = CMLCalibrator(tolerance=1e-10).calibrate(matrix)
+  expected = []
+  for iterations in range(1, calibration.cycles):
+    with pytest.warns(ConvergenceWarning):
+      stopped = CMLCalibrator(tolerance=1e-10, max_cycles=iterations).calibrate(matrix)
+    expected.append(_brute_force_log_likelihood(stopped.estimates[:, 1], matrix))
+  expected.append(_brute_force_log_likelihood(calibration.estimates[:, 1], matrix))
+  np.testing.assert_allclose(calibration.log_likelihoods, expected, rtol=1e-12)
+  assert calibration.log_likelihoods[-1] == calibration.log_likelihood
+
+
 def test_the_result_is_a_conditional_calibration_without_a_grid() -> None:
   """The result names the conditional likelihood, has no grid, and counts one difficulty fewer than the items."""
   calibration = CMLCalibrator().calibrate(_LSAT7)

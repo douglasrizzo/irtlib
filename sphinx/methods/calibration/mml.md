@@ -93,6 +93,11 @@ counted once, and an extrapolation with a parameter that is not finite, or a gue
 above its upper asymptote, is not kept. The extrapolation is not a cycle: the stopping rule applies to
 every cycle, an EM step with or without acceleration.
 
+**The record of the cycles.** The result holds the marginal log-likelihood after each cycle, the
+extrapolations left out, and its last value is the calibration's log-likelihood. Without priors the
+record never falls; with priors it leaves out the log-prior, so it can fall where the log-posterior
+does not.
+
 **Standard errors and covariances.** The standard errors are the square roots of the inverse observed
 information at the estimates, by Oakes's identity {cite:p}`Oakes1999{p. 480}`: the score of the
 marginal log-likelihood is the M-step's gradient at the E-step's own parameters (Equation 5), and its

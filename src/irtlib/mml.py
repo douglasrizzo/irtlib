@@ -2,7 +2,7 @@
 
 import math
 import warnings
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import assert_never
 
@@ -308,12 +308,12 @@ class MMLCalibrator:
       msg = f"start has {start.n_items} items, the responses {matrix.shape[1]}"
       raise ValueError(msg)
     index, values = self._layout(proportion, start)
-    values, cycles, change = self._cycle(matrix, index, values)
-    converged = change <= self._tolerance
+    values, cycles = self._cycle(matrix, index, values)
+    converged = cycles.change <= self._tolerance
     if not converged:
       warnings.warn(
-        f"calibration stopped after {cycles} cycles with a largest change of {change:.3g}, above the tolerance "
-        f"{self._tolerance:g}",
+        f"calibration stopped after {cycles.count} cycles with a largest change of {cycles.change:.3g}, above the "
+        f"tolerance {self._tolerance:g}",
         ConvergenceWarning,
         stacklevel=2,
       )
@@ -330,35 +330,38 @@ class MMLCalibrator:
       estimates=estimates,
       items=_valid_items(estimates),
       covariances=covariances,
-      log_likelihood=marginal_log_likelihood(matrix, estimates, self._grid),
+      # the last cycle's E-step computed the marginal log-likelihood at the estimates
+      log_likelihood=cycles.log_likelihoods[-1],
+      log_likelihoods=numpy.array(cycles.log_likelihoods),
       likelihood=Likelihood.MARGINAL,
       n_parameters=int(index.max()) + 1,
       item_parameters=numpy.count_nonzero(index >= 0, axis=1),
-      cycles=cycles,
       converged=converged,
-      change=change,
+      change=cycles.change,
       grid=self._grid,
       abilities=None,
     )
 
-  def _cycle(self, matrix: FloatArray, index: IntArray, values: FloatArray) -> tuple[FloatArray, int, float]:
+  def _cycle(self, matrix: FloatArray, index: IntArray, values: FloatArray) -> tuple[FloatArray, "_Cycles"]:
     """Run EM cycles until the stopping rule is met or the cycles run out.
 
     Returns
     -------
-    tuple[numpy.ndarray, int, float]
-        The parameters, the cycles run and the largest change of a free parameter in the last cycle.
+    tuple[numpy.ndarray, _Cycles]
+        The parameters, and the cycles run, with the largest change of a free parameter in the last one and the
+        marginal log-likelihood after each.
     """
     cycles = _Cycles(matrix, index, self._grid, self._priors, self._tolerance, self._max_cycles)
+    counts = cycles.expect(values)[0]
     match self._acceleration:
       case Acceleration.NONE:
         while not cycles.done:
-          values = cycles.run(values)
+          values, counts = cycles.run(values, counts)
       case Acceleration.SQUAREM:
-        values = _squarem(cycles, values)
+        values = _squarem(cycles, values, counts)
       case _:
         assert_never(self._acceleration)
-    return values, cycles.count, cycles.change
+    return values, cycles
 
   def _layout(self, proportion: FloatArray, start: ItemBank | None) -> tuple[IntArray, FloatArray]:
     """Return the index of each item parameter in the free parameters, and each item's starting parameters.
@@ -437,7 +440,7 @@ def _counts(matrix: FloatArray, log_likelihoods: FloatArray, grid: QuadratureGri
 
 @dataclass(slots=True)
 class _Cycles:
-  """The EM cycles of one calibration, counted, with the largest change of a free parameter in the last one."""
+  """The EM cycles of one calibration: the marginal log-likelihood after each, and the last one's largest change."""
 
   matrix: FloatArray
   index: IntArray
@@ -445,8 +448,13 @@ class _Cycles:
   priors: tuple[_PriorTerm, ...]
   tolerance: float
   max_cycles: int
-  count: int = 0
   change: float = math.inf
+  log_likelihoods: list[float] = field(default_factory=list)
+
+  @property
+  def count(self) -> int:
+    """The cycles run."""
+    return len(self.log_likelihoods)
 
   @property
   def done(self) -> bool:
@@ -454,40 +462,47 @@ class _Cycles:
     # a NaN change stops the cycles too, and the calibration reports it as not converged
     return not self.change > self.tolerance or self.count >= self.max_cycles
 
-  def run(self, values: FloatArray, counts: tuple[FloatArray, FloatArray] | None = None) -> FloatArray:
-    """Return the parameters after a cycle from ``values``, whose E-step's counts are computed unless given."""
-    counts = counts if counts is not None else _expected_counts(self.matrix, values, self.grid)
+  def run(
+    self, values: FloatArray, counts: tuple[FloatArray, FloatArray]
+  ) -> tuple[FloatArray, tuple[FloatArray, FloatArray]]:
+    """Return the parameters after a cycle from ``values``, whose E-step's counts are given, and the counts at them."""
     new_values = _m_step(values, self.index, self.grid.nodes, *counts, priors=self.priors)
     free = self.index >= 0
-    self.count += 1
     self.change = float(numpy.max(numpy.abs(new_values[free] - values[free])))
-    return new_values
+    # the E-step at the new parameters, which the next cycle starts from, gives the marginal log-likelihood after this
+    # one, so recording it costs no evaluation of the likelihood
+    new_counts, marginal = self.expect(new_values)
+    self.log_likelihoods.append(marginal)
+    return new_values, new_counts
 
   def expect(self, values: FloatArray) -> tuple[tuple[FloatArray, FloatArray], float]:
-    """Return the E-step's counts at ``values`` and the log-posterior there: marginal log-likelihood plus log-prior."""
+    """Return the E-step's counts at ``values`` and the marginal log-likelihood there."""
     log_likelihoods = log_likelihood(self.grid.nodes, self.matrix, _to_items(values))
-    log_prior = _prior_terms(values, self.priors, _counted(self.index))[0]
-    return _counts(self.matrix, log_likelihoods, self.grid), _marginal(log_likelihoods, self.grid) + log_prior
+    return _counts(self.matrix, log_likelihoods, self.grid), _marginal(log_likelihoods, self.grid)
+
+  def log_posterior(self, values: FloatArray, marginal: float) -> float:
+    """Return the log-posterior at ``values``, the marginal log-likelihood there plus the log-prior."""
+    return marginal + _prior_terms(values, self.priors, _counted(self.index))[0]
 
 
-def _squarem(cycles: _Cycles, values: FloatArray) -> FloatArray:
-  """Run SQUAREM's iterations from ``values`` until the stopping rule is met or the cycles run out."""
-  counts: tuple[FloatArray, FloatArray] | None = None
+def _squarem(cycles: _Cycles, values: FloatArray, counts: tuple[FloatArray, FloatArray]) -> FloatArray:
+  """Run SQUAREM's iterations from ``values``, whose E-step's counts are given, until the rule or the cycles end."""
   while True:
-    first = cycles.run(values, counts)
+    first, first_counts = cycles.run(values, counts)
     if cycles.done:
       return first
-    second = cycles.run(first)
+    second, counts = cycles.run(first, first_counts)
     if cycles.done:
       return second
     extrapolated = _extrapolated(values, first, second, cycles.index)
-    counts, objective = cycles.expect(second)
     if extrapolated is not None:
-      extrapolated_counts, extrapolated_objective = cycles.expect(extrapolated)
-      # Du & Varadhan's (2020) test with eta = 0; a log-posterior that is NaN fails it
-      if extrapolated_objective > objective:
+      extrapolated_counts, extrapolated_marginal = cycles.expect(extrapolated)
+      # Du & Varadhan's (2020) test with eta = 0, against the second cycle's log-posterior, whose marginal
+      # log-likelihood that cycle recorded; a log-posterior that is NaN fails it
+      objective = cycles.log_posterior(second, cycles.log_likelihoods[-1])
+      if cycles.log_posterior(extrapolated, extrapolated_marginal) > objective:
         # the stabilization step
-        values, counts = cycles.run(extrapolated, extrapolated_counts), None
+        values, counts = cycles.run(extrapolated, extrapolated_counts)
         if cycles.done:
           return values
         continue
