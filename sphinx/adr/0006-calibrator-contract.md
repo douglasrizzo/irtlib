@@ -13,8 +13,7 @@ any method existed.
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
 4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
 mirt takes a missing response as `NA` (manual p. 123), which contributes no factor to the marginal
-likelihood (source `R/04-PrepData.R:107`). Conditional maximum likelihood maximizes the likelihood
-given each examinee's number correct, a part of the marginal one (Haberman, 2004, pp. 35-36).
+likelihood (source `R/04-PrepData.R:107`).
 
 ## Decision
 
@@ -62,5 +61,3 @@ given each examinee's number correct, a part of the marginal one (Haberman, 2004
   reserved code in the data.
 - Raising an error on non-convergence: it discards estimates a caller may want to inspect.
 - Abilities and fit inside the result: they need the responses, which the result does not keep.
-- A result type per likelihood: the shared fields repeated, and every reader checking the type.
-- A log-likelihood field per likelihood: fields most methods leave empty.

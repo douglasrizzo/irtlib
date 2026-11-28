@@ -21,6 +21,13 @@ For an examinee with no item or every item correct, "both sides are equal to one
 neither is left, since leaving an item out can leave an examinee with no item or every item correct. The items left
 out get no estimate.
 
+Even then the conditional likelihood can lack a maximum. It has none exactly when, for some number correct between 1
+and :math:`M - 2` and some cut of the item totals, the examinees with at most that many correct answered no item below
+the cut and the others every item above it (:cite:t:`Haberman2004`, pp. 37-38, Theorem 10, whose bounds on the item
+totals, :math:`n_0` and :math:`n - n_0`, are 0 and :math:`n` once the examinees are left out). The likelihood then rises
+without bound as the two groups of items move apart, so that under the sum to zero no difficulty has a finite
+estimate, and calibration raises an error naming the groups.
+
 The estimates solve the likelihood equations
 
 .. math::
@@ -48,9 +55,10 @@ zero, the centred parameters of p. 21, it reads :math:`b_{t+1} = b_t + V^+ (\sum
 halved, up to 30 times, until the conditional log-likelihood does not fall, which the sources do not do: from the
 starting values below, full steps diverged on two items answered 11 to 1. The iterations start from
 :cite:t:`Andersen1972`'s (p. 52, Equation 40) values, :math:`b_i = \log((N - s_i) / s_i)` centred to sum to zero,
-computed over the :math:`N` examinees kept where Andersen counts every examinee, and stop when no difficulty changes
-by more than the tolerance, :math:`10^{-5}` by default, in an iteration (:cite:t:`Haberman2004`, p. 44). Without
-extreme items, Newton-Raphson usually takes 4 to 5 iterations (:cite:t:`Gustafsson1980`, p. 383).
+computed over the :math:`N` examinees kept where Andersen counts every examinee. They stop when no difficulty changes
+by more than the tolerance, :math:`10^{-5}` by default, in an iteration (:cite:t:`Haberman2004`, p. 44), counting
+only a full step: a step that halving shrank below the tolerance can lie far from the maximum. Without extreme items,
+Newton-Raphson usually takes 4 to 5 iterations (:cite:t:`Gustafsson1980`, p. 383).
 
 The symmetric functions come from the summation algorithm, which adds one item at a time,
 :math:`\gamma_r(\varepsilon_1, \dots, \varepsilon_t) = \gamma_r(\varepsilon_1, \dots, \varepsilon_{t-1}) +
@@ -139,9 +147,10 @@ class CMLCalibrator:
         The estimates ``[1, b, 0, 1]``, the standard errors of the difficulties and the conditional log-likelihood at
         them, of the examinees and items kept; the result has no grid. An item left out has a NaN difficulty and
         standard error, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping
-        rule is not met within ``max_cycles``, the result says so and a
-        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted
-        at the estimates, the result has no standard errors and a ``RuntimeWarning`` is issued.
+        rule, a full step within the tolerance, is not met within ``max_cycles``, or no halving of a step keeps the
+        log-likelihood from falling, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is
+        issued; if the information matrix cannot be inverted at the estimates, the result has no standard errors and
+        a ``RuntimeWarning`` is issued.
 
     Raises
     ------
@@ -149,7 +158,9 @@ class CMLCalibrator:
         If the responses are neither Booleans, integers nor floats.
     ValueError
         If the responses fail :py:func:`irtlib.calibration.validate_responses` or have a missing response; no item
-        is left once examinees and items are left out; or the information matrix is singular during the iterations.
+        is left once examinees and items are left out; the conditional likelihood has no maximum, which the error
+        explains by the two groups of items the responses split into; or the information matrix is singular during
+        the iterations.
     """
     matrix = validate_responses(responses)
     if numpy.isnan(matrix).any():
@@ -158,28 +169,16 @@ class CMLCalibrator:
         "with missing entries"
       )
       raise ValueError(msg)
-    examinees, items = _kept(matrix)
-    # one item left would leave every examinee with no item or every item correct, so it is left out too
-    if not items.any():
-      msg = (
-        "no item has a conditional estimate: once the examinees with no item or every item correct are left out, "
-        "every item is answered correctly by every examinee or by none"
-      )
-      raise ValueError(msg)
-    kept = matrix[numpy.ix_(examinees, items)]
+    kept, items = _estimable(matrix)
     totals = kept.sum(axis=0)
     score_counts = numpy.bincount(kept.sum(axis=1).astype(int), minlength=totals.size + 1).astype(float)
     # Andersen's (1972) starting values: the log-odds of an incorrect response, centred
     start = numpy.log((kept.shape[0] - totals) / totals)
-    difficulty, cycles, change = self._iterate(start - start.mean(), totals, score_counts)
-    converged = change <= self._tolerance
-    if not converged:
-      warnings.warn(
-        f"calibration stopped after {cycles} iterations with a largest change of {change:.3g}, above the tolerance "
-        f"{self._tolerance:g}",
-        ConvergenceWarning,
-        stacklevel=2,
-      )
+    difficulty, cycles, change, failure = _newton_raphson(
+      start - start.mean(), totals, score_counts, tolerance=self._tolerance, max_cycles=self._max_cycles
+    )
+    if failure is not None:
+      warnings.warn(f"calibration stopped after {cycles} iterations: {failure}", ConvergenceWarning, stacklevel=2)
     variances = _variances(_derivatives(difficulty, totals, score_counts)[1])
     if variances is None:
       warnings.warn(
@@ -203,51 +202,99 @@ class CMLCalibrator:
       n_parameters=difficulty.size - 1,
       item_parameters=items.astype(int),
       cycles=cycles,
-      converged=converged,
+      converged=failure is None,
       change=change,
       grid=None,
     )
 
-  def _iterate(
-    self, difficulty: FloatArray, totals: FloatArray, score_counts: FloatArray
-  ) -> tuple[FloatArray, int, float]:
-    """Run Newton-Raphson iterations, each step halved until the log-likelihood does not fall, until the rule is met.
 
-    Returns
-    -------
-    tuple[numpy.ndarray, int, float]
-        The difficulties, the iterations run and the largest change of a difficulty in the last iteration.
+def _newton_raphson(
+  difficulty: FloatArray, totals: FloatArray, score_counts: FloatArray, *, tolerance: float, max_cycles: int
+) -> tuple[FloatArray, int, float, str | None]:
+  """Run Newton-Raphson iterations, each step halved until the log-likelihood does not fall, until the rule is met.
 
-    Raises
-    ------
-    ValueError
-        If the information matrix is singular.
-    """
-    log_likelihood = _log_likelihood(difficulty, totals, score_counts)
-    change = math.inf
-    cycles = 0
-    while cycles < self._max_cycles and change > self._tolerance:
-      cycles += 1
-      gradient, information = _derivatives(difficulty, totals, score_counts)
-      step = _solve(information, gradient)
-      # Full steps from Andersen's starting values diverged on 8 of 391 random data sets with an estimate, each left
-      # with two items, such as two items answered 11 to 1; with halving, all 391 converged, within 7 iterations
-      # (measured 2026-11-27).
-      for _ in range(_STEP_HALVINGS):
-        trial = difficulty + step
-        trial_log_likelihood = _log_likelihood(trial, totals, score_counts)
-        # accept a step that does not lower the log-likelihood beyond rounding
-        if trial_log_likelihood >= log_likelihood - 1e-12 * abs(log_likelihood):
-          break
-        step /= 2
-      else:
-        # no step along the Newton direction raises the log-likelihood: the iterations are at its maximum
-        return difficulty, cycles, 0.0
-      # the conditional log-likelihood is the same for difficulties shifted by a constant, so centring keeps it
-      trial -= trial.mean()
-      change = float(numpy.max(numpy.abs(trial - difficulty)))
-      difficulty, log_likelihood = trial, trial_log_likelihood
-    return difficulty, cycles, change
+  The rule is met when a full step, taken without halving, changes no difficulty by more than ``tolerance``.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, int, float, str or None]
+      The difficulties; the iterations run; the largest change of a difficulty in the last iteration's full step,
+      before any halving; and None if the rule was met, or else why the iterations stopped short of it.
+
+  Raises
+  ------
+  ValueError
+      If the information matrix is singular.
+  """
+  log_likelihood = _log_likelihood(difficulty, totals, score_counts)
+  change, halvings = math.inf, 0
+  for cycle in range(1, max_cycles + 1):
+    gradient, information = _derivatives(difficulty, totals, score_counts)
+    step = _solve(information, gradient)
+    change = float(numpy.max(numpy.abs(step)))
+    # Full steps from Andersen's starting values diverged on 8 of 391 random data sets with an estimate, each left
+    # with two items, such as two items answered 11 to 1; with halving, all 391 converged, within 7 iterations
+    # (measured 2026-11-27).
+    for halvings in range(_STEP_HALVINGS + 1):
+      trial = difficulty + step / 2**halvings
+      trial_log_likelihood = _log_likelihood(trial, totals, score_counts)
+      # accept a step that does not lower the log-likelihood beyond rounding
+      if trial_log_likelihood >= log_likelihood - 1e-12 * abs(log_likelihood):
+        break
+    else:
+      # stalled: a halved step is no evidence of a maximum, which a full step within the tolerance would be
+      return (
+        difficulty,
+        cycle,
+        change,
+        f"halving the Newton-Raphson step {_STEP_HALVINGS} times did not keep the conditional log-likelihood from "
+        f"falling, with a full step of {change:.3g}",
+      )
+    # the conditional log-likelihood is the same for difficulties shifted by a constant, so centring keeps it
+    difficulty, log_likelihood = trial - trial.mean(), trial_log_likelihood
+    # a halved step under the tolerance can lie far from the maximum, so only a full one meets the rule
+    if halvings == 0 and change <= tolerance:
+      return difficulty, cycle, change, None
+  if halvings:
+    failure = f"the last Newton-Raphson step was halved {halvings} times"
+  else:
+    failure = f"the last Newton-Raphson step changed a difficulty by {change:.3g}, above the tolerance {tolerance:g}"
+  return difficulty, max_cycles, change, failure
+
+
+def _estimable(matrix: FloatArray) -> tuple[FloatArray, BoolArray]:
+  """Return the responses of the examinees and items kept, and the items kept, once a maximum is known to exist.
+
+  Returns
+  -------
+  tuple[numpy.ndarray, numpy.ndarray]
+      The responses of the examinees and items kept, and a mask of the items kept among the columns.
+
+  Raises
+  ------
+  ValueError
+      If no item is kept, or the conditional likelihood of the responses kept has no maximum.
+  """
+  examinees, items = _kept(matrix)
+  # _kept leaves no item rather than one, whose every examinee would have no item or every item correct
+  if not items.any():
+    msg = (
+      "no item has a conditional estimate: once the examinees with no item or every item correct are left out, "
+      "every item is answered correctly by every examinee or by none"
+    )
+    raise ValueError(msg)
+  kept = matrix[numpy.ix_(examinees, items)]
+  separation = _separation(kept)
+  if separation is not None:
+    columns = numpy.flatnonzero(items)
+    score, easier, harder = separation
+    msg = (
+      f"no difficulty has a finite conditional estimate: the examinees with at most {score} correct answered none of "
+      f"the items in columns {columns[harder].tolist()} correctly, and those with more answered all of the items in "
+      f"columns {columns[easier].tolist()}, so the responses fix only that the first group is harder than the second"
+    )
+    raise ValueError(msg)
+  return kept, items
 
 
 def _kept(matrix: FloatArray) -> tuple[BoolArray, BoolArray]:
@@ -262,6 +309,39 @@ def _kept(matrix: FloatArray) -> tuple[BoolArray, BoolArray]:
     if numpy.array_equal(kept_examinees, examinees) and numpy.array_equal(kept_items, items):
       return examinees, items
     examinees, items = kept_examinees, kept_items
+
+
+def _separation(matrix: FloatArray) -> tuple[int, BoolArray, BoolArray] | None:
+  """Return a split of the responses that leaves the conditional likelihood no maximum, or None if there is none.
+
+  Haberman's Theorem 10 on responses with no examinee who has no item or every item correct and no item answered by
+  every examinee or by none: a number correct and a cut of the item totals such that the examinees with at most that
+  many correct answered no item below the cut, and those with more answered every item above it.
+
+  Parameters
+  ----------
+  matrix : numpy.ndarray
+      The complete responses of the examinees and items kept.
+
+  Returns
+  -------
+  tuple[int, numpy.ndarray, numpy.ndarray] or None
+      The number correct, the items above the cut and the items below it, as masks of the columns; None if no split
+      exists, and so the conditional maximum likelihood estimate does.
+  """
+  n_items = matrix.shape[1]
+  scores = matrix.sum(axis=1)
+  totals = matrix.sum(axis=0)
+  # the theorem's a, a number correct plus one half, lies strictly between 1 and M - 1, and its b, an item total plus
+  # one half, below the largest total; with no examinee left out, it lies between n_0 = 0 and n - n_0 = n as well
+  for score in range(1, n_items - 1):
+    low, high = scores <= score, scores > score
+    for cut in numpy.unique(totals)[:-1] + 0.5:
+      harder, easier = totals < cut, totals > cut
+      # Theorem 10's fifth condition holds whenever the first four do, since every examinee kept is low or high
+      if not matrix[numpy.ix_(low, harder)].any() and matrix[numpy.ix_(high, easier)].all():
+        return score, easier, harder
+  return None
 
 
 def _log_symmetric_functions(log_easiness: FloatArray) -> FloatArray:

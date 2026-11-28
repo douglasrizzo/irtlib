@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import itertools
 import math
+import re
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -246,23 +247,84 @@ def test_items_answered_by_every_examinee_left_have_no_estimate() -> None:
   np.testing.assert_array_equal(calibration.item_parameters, [0, 1, 1, 0])
 
 
-def test_responses_with_no_finite_estimate_are_flagged() -> None:
-  """Responses whose conditional likelihood has no maximum, though every item has right and wrong answers, return an
-  unconverged result with no standard errors, and warn.
+# Responses with no item answered by all or none whose conditional likelihood still has no maximum, each row one
+# examinee, with the number correct and the groups of columns Haberman's (2004, pp. 37-38) Theorem 10 splits them into:
+# the examinees with at most that many correct answered none of the harder group, and the others all of the easier.
+_NO_MAXIMUM = {
+  "two pairs": ([[1, 0, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 0, 1]], 1, [0, 1], [2, 3]),
+  "two pairs weighted": (
+    [[1, 0, 0, 0]] * 5 + [[0, 1, 0, 0]] * 5 + [[1, 1, 0, 0]] * 10 + [[1, 1, 1, 0]] * 5 + [[1, 1, 0, 1]] * 5,
+    1,
+    [0, 1],
+    [2, 3],
+  ),
+  "interleaved": (
+    [[1, 0, 1, 1], [0, 0, 1, 0], [1, 0, 0, 0], [1, 0, 1, 1], [1, 0, 1, 0], [1, 0, 1, 0], [1, 1, 1, 0]],
+    1,
+    [0, 2],
+    [1, 3],
+  ),
+  "interleaved, no 2 correct": (
+    [[1, 0, 0, 0], [0, 0, 1, 0], [1, 0, 0, 0], [0, 0, 1, 0], [1, 1, 1, 0], [1, 0, 1, 1]],
+    1,
+    [0, 2],
+    [1, 3],
+  ),
+  "after an item right for all": (
+    [[1, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 1, 1, 0, 0], [1, 1, 1, 1, 0], [1, 1, 1, 0, 1]],
+    1,
+    [1, 2],
+    [3, 4],
+  ),
+}
 
-  Examinees with one item right answered only the first two items, and those with more answered both, so the
-  difficulties split without bound (Haberman, 2004, pp. 37-38, Theorem 10). Fails if such responses crash, or return
-  as converged.
+
+@pytest.mark.parametrize(("rows", "score", "easier", "harder"), _NO_MAXIMUM.values(), ids=_NO_MAXIMUM)
+def test_responses_with_no_maximum_are_refused(
+  rows: list[list[int]], score: int, easier: list[int], harder: list[int]
+) -> None:
+  """Responses whose conditional likelihood has no maximum are refused, naming the two groups of items they split into.
+
+  In each, worked by hand, the examinees with at most ``score`` correct answered none of the harder items and the
+  others all of the easier ones, so the likelihood rises without bound as the groups move apart (Haberman, 2004,
+  pp. 37-38, Theorem 10), and under the sum to zero no difficulty has a finite estimate. Fails if such responses return
+  estimates: Newton-Raphson runs towards the supremum, where its steps underflow and pass the stopping rule, as they
+  did with differences between the groups of 35 to 124. The last case names the columns of the responses, not of the
+  items kept after the first, right for all, is left out.
   """
-  patterns = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [1, 1, 0, 0], [1, 1, 1, 0], [1, 1, 0, 1]], dtype=float)
-  matrix = np.repeat(patterns, [5, 5, 10, 5, 5], axis=0)
-  with (
-    pytest.warns(ConvergenceWarning, match="100 iterations"),
-    pytest.warns(RuntimeWarning, match="no standard errors"),
-  ):
-    calibration = CMLCalibrator().calibrate(matrix)
-  assert not calibration.converged
-  assert calibration.standard_errors is None
+  message = (
+    rf"at most {score} correct answered none of the items in columns {re.escape(str(harder))} correctly, and those "
+    rf"with more answered all of the items in columns {re.escape(str(easier))}"
+  )
+  with pytest.raises(ValueError, match=message):
+    CMLCalibrator().calibrate(np.array(rows, dtype=float))
+
+
+def test_responses_with_a_maximum_are_calibrated_however_close_to_a_split() -> None:
+  """Responses whose examinees at the cut's own number correct break every split of Theorem 10 are calibrated.
+
+  Three examinees answer the first item, the second, and the first and third. The two with one correct answered the
+  first item, of the largest total, and the second, of the smallest, so every cut of the totals leaves an item they
+  answered below it; the estimates are the brute-force maximum of the conditional likelihood. Fails if the examinees
+  with exactly the cut's number correct are left out of the low group, which finds a split here and refuses the
+  responses.
+  """
+  matrix = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]], dtype=float)
+  expected, _ = _brute_force_maximum(matrix)
+  np.testing.assert_allclose(CMLCalibrator().calibrate(matrix).estimates[:, 1], expected, atol=1e-6)
+
+
+def test_a_halved_step_under_the_tolerance_is_not_convergence() -> None:
+  """A step that halving shrank below the tolerance does not stop the iterations; only a full step can.
+
+  On two items answered 1,000 to 1, the first full step moves a difficulty by 499 and is halved 7 times, to 3.9. With a
+  tolerance of 4, stopping there leaves the difficulties 0.44 from the closed form of Andersen (1970, p. 299); the
+  next full step, of 0.29, meets the rule and leaves them within 0.2.
+  """
+  matrix = np.repeat(np.array([[1, 0], [0, 1]], dtype=float), [1000, 1], axis=0)
+  difference = math.log(1000)
+  calibration = CMLCalibrator(tolerance=4.0).calibrate(matrix)
+  np.testing.assert_allclose(calibration.estimates[:, 1], [-difference / 2, difference / 2], atol=0.2)
 
 
 def test_the_result_is_a_conditional_calibration_without_a_grid() -> None:

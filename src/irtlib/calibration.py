@@ -61,7 +61,8 @@ class Calibration:
   log_likelihood : float
       The logarithm of the likelihood named by ``likelihood``, at the estimates; with priors, without the log-prior.
   likelihood : Likelihood
-      The likelihood the calibration maximizes. Model comparison and S-X² take only marginal ones.
+      The likelihood the calibration maximizes, given as a member or its name. Model comparison and S-X² take only
+      marginal ones.
   n_parameters : int
       The number of parameters estimated, a parameter shared by every item counted once.
   item_parameters : numpy.ndarray
@@ -69,10 +70,11 @@ class Calibration:
   cycles : int
       The cycles of its algorithm the calibration ran, such as EM cycles or Newton-Raphson iterations.
   converged : bool
-      Whether the stopping rule was met; if not, the calibration ran out of cycles and warned with
+      Whether the stopping rule was met; if not, the calibration ran out of cycles or could not go on, and warned with
       :py:class:`ConvergenceWarning`.
   change : float
-      The stopping rule's final value: the largest change of an estimated parameter in the last cycle.
+      The stopping rule's final value: the largest change of an estimated parameter in the last cycle; for
+      Newton-Raphson, in the cycle's full step, before any halving.
   grid : irtlib.quadrature.QuadratureGrid or None
       The nodes abilities were integrated over, which item fit uses too: set when the likelihood is marginal, and None
       otherwise, since no other likelihood integrates over abilities.
@@ -80,7 +82,8 @@ class Calibration:
   Raises
   ------
   ValueError
-      If ``grid`` is set for a likelihood that is not marginal, or missing for a marginal one.
+      If ``likelihood`` names no :py:class:`Likelihood`, or ``grid`` is set for a likelihood that is not marginal, or
+      missing for a marginal one.
   """
 
   estimates: FloatArray
@@ -96,7 +99,9 @@ class Calibration:
   grid: QuadratureGrid | None
 
   def __post_init__(self) -> None:
-    """Check that the calibration has a grid exactly when its likelihood is marginal."""
+    """Read the likelihood as a :py:class:`Likelihood`, and check that a grid comes exactly with a marginal one."""
+    # a member equals its name in lower case, so "marginal" is read as Likelihood.MARGINAL
+    object.__setattr__(self, "likelihood", Likelihood(self.likelihood))
     if (self.grid is not None) != (self.likelihood is Likelihood.MARGINAL):
       msg = f"a calibration has a grid exactly when its likelihood is marginal; this one's is {self.likelihood}"
       raise ValueError(msg)
