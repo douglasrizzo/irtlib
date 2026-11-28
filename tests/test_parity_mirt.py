@@ -27,6 +27,7 @@ import numpy as np
 import pytest
 from scipy.integrate import quad
 from scipy.special import expit, logit, logsumexp
+from scipy.stats import lognorm, norm
 
 from irtlib import ItemBank, irt
 from irtlib.ability import (
@@ -36,7 +37,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.calibration import Calibration, default_grid
+from irtlib.calibration import Calibration, ConvergenceWarning, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
@@ -333,16 +334,48 @@ def test_acceleration_keeps_the_prior_estimates(case: dict[str, Any]) -> None:
       np.testing.assert_allclose(logit(accelerated[:, column]), logit(plain[:, column]), atol=_ESTIMATE_ATOL)
 
 
-@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
-def test_acceleration_halves_the_cycles(case: dict[str, Any]) -> None:
-  """SQUAREM reaches the prior cases' estimates in at most half the cycles of plain EM.
+def _scipy_log_prior(case: dict[str, Any], estimates: FloatArray) -> float:
+  """Return the log-prior of a prior case's estimates from scipy's densities, the 1PL's shared slope counted once."""
+  total = 0.0
+  for prior in case["priors"]:
+    mean, sd = prior["mean"], prior["sd"]
+    match prior["parameter"]:
+      case "a1":
+        slopes = estimates[:1, 0] if case["model"] == "1PL" else estimates[:, 0]
+        total += np.sum(lognorm.logpdf(slopes, s=sd, scale=np.exp(mean)))
+      case "d":
+        total += np.sum(norm.logpdf(-estimates[:, 0] * estimates[:, 1], mean, sd))
+      case "g":
+        total += np.sum(norm.logpdf(logit(estimates[:, 2]), mean, sd))
+      case _:
+        total += np.sum(norm.logpdf(logit(estimates[:, 3]), mean, sd))
+  return float(total)
 
-  Measured on 2026-11-27, it took 2.3 to 7.4 times fewer, 127 against 936 on the 4PL. Fails if the acceleration is
-  not applied, or its extrapolations are refused where they should be kept.
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_acceleration_moves_the_third_cycle_uphill(case: dict[str, Any]) -> None:
+  """After three cycles, SQUAREM's estimates are elsewhere than plain EM's, at a higher log-posterior.
+
+  The third cycle runs from the first extrapolation, which every prior case keeps, so a calibrator that ran plain EM
+  under ``"squarem"`` would return plain EM's three-cycle estimates. The log-posterior is the public marginal
+  log-likelihood plus scipy's prior densities. A converged accelerated calibration also takes fewer cycles.
   """
-  plain = _prior_calibration(case["id"], Acceleration.NONE)
-  accelerated = _prior_calibration(case["id"], Acceleration.SQUAREM)
-  assert accelerated.cycles <= plain.cycles / 2, (accelerated.cycles, plain.cycles)
+  matrix = responses(_MML_PRIORS["data"][case["data"]])
+  settings: dict[str, Any] = {**_prior_settings(case), "max_cycles": 3}
+  estimates, log_posteriors = {}, {}
+  for acceleration in Acceleration:
+    # a ConvergenceWarning, and on the 4PL one for an information matrix that cannot be inverted yet
+    with pytest.warns(RuntimeWarning) as caught:
+      calibration = MMLCalibrator(**settings, acceleration=acceleration).calibrate(matrix)
+    assert any(issubclass(warning.category, ConvergenceWarning) for warning in caught)
+    estimates[acceleration] = calibration.estimates
+    log_posteriors[acceleration] = marginal_log_likelihood(matrix, calibration.estimates) + _scipy_log_prior(
+      case, calibration.estimates
+    )
+  assert np.max(np.abs(estimates[Acceleration.SQUAREM] - estimates[Acceleration.NONE])) > 1e-3
+  assert log_posteriors[Acceleration.SQUAREM] > log_posteriors[Acceleration.NONE]
+  converged = {acceleration: _prior_calibration(case["id"], acceleration).cycles for acceleration in Acceleration}
+  assert converged[Acceleration.SQUAREM] < converged[Acceleration.NONE]
 
 
 @pytest.mark.parametrize(

@@ -14,13 +14,16 @@ from scipy.special import expit, logit
 from scipy.stats import lognorm, norm
 
 from irtlib import ItemBank
-from irtlib.calibration import ConvergenceWarning
+from irtlib.calibration import ConvergenceWarning, default_grid
 from irtlib.drawing import draw_responses
 from irtlib.mml import (
   Acceleration,
   MMLCalibrator,
   Priors,
+  _Cycles,  # noqa: PLC2701 - a NaN change cannot be produced through the public API
+  _expected_counts,  # noqa: PLC2701
   _extrapolated,  # noqa: PLC2701
+  _m_step,  # noqa: PLC2701 - SQUAREM's cycles are built by hand from the E-step and the M-step
   _prior_terms,  # noqa: PLC2701
   _PriorTerm,  # noqa: PLC2701 - the prior's derivatives are checked against scipy's densities
   _squarem_point,  # noqa: PLC2701 - the extrapolation is checked on linear iterations, where it has a closed form
@@ -121,6 +124,48 @@ def test_squarem_point_of_a_linear_iteration() -> None:
     first = fixed_point + contraction * (start - fixed_point)
     second = fixed_point + contraction * (first - fixed_point)
     np.testing.assert_allclose(_squarem_point(start, first, second), fixed_point, rtol=0, atol=1e-12)
+
+
+def test_squarem_cycles_from_a_kept_extrapolation_before_extrapolating_again() -> None:
+  """After a kept extrapolation, SQUAREM runs a cycle from it, then two more, before it extrapolates again.
+
+  The cycles on LSAT-7's 2PL, from slopes of 1 and difficulties of 0, are built here from the E-step and the M-step:
+  two cycles, Du & Varadhan's (2020, p. 4) extrapolation, kept since its log-likelihood is above the second cycle's,
+  and three cycles from it, the stabilization step first. A calibration of five cycles ends there. Without the
+  stabilization step, its third and fourth cycles would feed a second extrapolation from the first one, and its fifth
+  cycle would run from that.
+  """
+  n_items = _LSAT7.shape[1]
+  index = np.full((n_items, 4), -1)
+  index[:, 0] = np.arange(n_items)
+  index[:, 1] = np.arange(n_items, 2 * n_items)
+  grid = default_grid()
+
+  def cycle(values: FloatArray) -> FloatArray:
+    return _m_step(values, index, grid.nodes, *_expected_counts(_LSAT7, values, grid), priors=())
+
+  def items(values: FloatArray) -> FloatArray:
+    return _two_pl_items(values[:, 0], -values[:, 1] / values[:, 0])
+
+  start = np.tile([1.0, 0.0, -np.inf, np.inf], (n_items, 1))
+  first = cycle(start)
+  second = cycle(first)
+  r = first[:, :2] - start[:, :2]
+  v = second[:, :2] - first[:, :2] - r
+  alpha = -np.linalg.norm(r) / np.linalg.norm(v)
+  extrapolated = start.copy()
+  extrapolated[:, :2] = start[:, :2] - 2 * alpha * r + alpha**2 * v
+  assert marginal_log_likelihood(_LSAT7, items(extrapolated)) > marginal_log_likelihood(_LSAT7, items(second))
+  expected = items(cycle(cycle(cycle(extrapolated))))
+  with pytest.warns(ConvergenceWarning):
+    calibration = MMLCalibrator(max_cycles=5).calibrate(_LSAT7, start=ItemBank(items(start)))
+  np.testing.assert_allclose(calibration.estimates, expected, rtol=1e-12, atol=1e-14)
+
+
+def test_a_change_that_is_nan_stops_the_cycles() -> None:
+  """The cycles stop on a change that is NaN, which compares above no tolerance, rather than run to ``max_cycles``."""
+  cycles = _Cycles(_LSAT7, np.zeros((5, 4), dtype=int), default_grid(), (), 1e-6, 500, count=1, change=float("nan"))
+  assert cycles.done
 
 
 def test_extrapolation_counts_a_shared_slope_once() -> None:

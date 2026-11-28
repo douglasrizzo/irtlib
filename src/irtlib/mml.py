@@ -587,8 +587,9 @@ class _Cycles:
 
   @property
   def done(self) -> bool:
-    """Whether the stopping rule is met or the cycles have run out."""
-    return self.change <= self.tolerance or self.count >= self.max_cycles
+    """Whether the stopping rule is met, the change is NaN, or the cycles have run out."""
+    # a NaN change stops the cycles too, and the calibration reports it as not converged
+    return not self.change > self.tolerance or self.count >= self.max_cycles
 
   def run(self, values: FloatArray, counts: tuple[FloatArray, FloatArray] | None = None) -> FloatArray:
     """Return the parameters after a cycle from ``values``, whose E-step's counts are computed unless given."""
