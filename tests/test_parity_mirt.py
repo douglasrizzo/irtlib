@@ -14,7 +14,8 @@ responses counted, fails. The number of nodes cannot be checked this way: 41 or 
 range give the same log-likelihood within the tolerance. The response-function fixture holds items with fixed
 parameters instead of responses, and is checked against the 4PL information of Magis (2013, p. 307, Equation 6),
 written out. The ability fixture holds items with fixed parameters and response patterns, and its EAP estimates are
-checked against the posterior mean and standard deviation written out on mirt's grid.
+checked against the posterior mean and standard deviation written out on mirt's grid; the abilities of the
+mean-square cases are checked the same way, on irtlib's grid.
 """
 
 from __future__ import annotations
@@ -41,6 +42,8 @@ from irtlib.calibration import Calibration, ConvergenceWarning, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
+  _mean_squares,  # noqa: PLC2701 - mirt's guards are compared at the abilities it was given
+  mean_squares,
   s_x2,
 )
 from irtlib.mml import (
@@ -67,6 +70,11 @@ _ESTIMATE_ATOL = 1e-5
 _STANDARD_ERROR_RTOL = 1e-4
 # S-X² and its p-value at estimates that agree within _ESTIMATE_ATOL: a relative 1e-4.
 _S_X2_RTOL = 1e-4
+# The mean squares at estimates that agree within _ESTIMATE_ATOL: a relative 1e-4, as S-X²; they moved by 1.4e-6 at
+# most (measured 2026-11-27). Their standardized values divide that change by a standard deviation as small as 0.015
+# on these data, about 70 times larger: within 1e-3.
+_MEAN_SQUARE_RTOL = 1e-4
+_STANDARDIZED_ATOL = 1e-3
 
 _MML_EM = load("mml_em")
 _ITEM_FIT = load("item_fit")
@@ -230,6 +238,90 @@ def test_collapse_matches_mirt(table: int) -> None:
   observed, expected = _collapse(np.array(case["observed"]), np.array(case["expected"]), 1.0)
   np.testing.assert_array_equal(observed, case["collapsed_observed"])
   np.testing.assert_allclose(expected, case["collapsed_expected"], rtol=1e-13, atol=1e-13)
+
+
+# The mean squares and their standardized values, by mirt's names for them.
+_MEAN_SQUARES = {"outfit": "outfit", "outfit_t": "z_outfit", "infit": "infit", "infit_t": "z_infit"}
+
+
+def _rasch_items(case: dict[str, Any]) -> FloatArray:
+  """Return a Rasch fit's items as the 1PL's [a, b, 0, 1], with the common slope a the abilities' standard deviation."""
+  sd, intercept = case["sd"], np.array(case["intercept"])
+  return np.column_stack([
+    np.full(intercept.size, sd),
+    -intercept / sd,
+    np.zeros_like(intercept),
+    np.ones_like(intercept),
+  ])
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["mean_squares"], ids=operator.itemgetter("id"))
+def test_mean_square_fixture_abilities_are_eap_on_irtlibs_grid(case: dict[str, Any]) -> None:
+  """mirt's abilities of a Rasch fit are its standard deviation times the 1PL posterior mean on irtlib's grid.
+
+  The posterior weighs 61 nodes on [-6, 6] by the standard normal density and the Rasch likelihood of each pattern,
+  written out. Fails if the fixture's abilities were estimated on another grid or prior.
+  """
+  data = _ITEM_FIT["data"][case["data"]]
+  patterns = np.array([[float(char) for char in pattern] for pattern in data["patterns"]])
+  nodes = np.linspace(-6.0, 6.0, 61)
+  p = expit(case["sd"] * nodes[:, np.newaxis] + np.array(case["intercept"]))  # nodes x items
+  mass = np.exp(patterns @ np.log(p).T + (1 - patterns) @ np.log1p(-p).T - nodes**2 / 2)
+  mean = (mass @ nodes) / mass.sum(axis=1)
+  np.testing.assert_allclose(case["theta"], case["sd"] * mean, rtol=_CLOSED_FORM_RTOL)
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["mean_squares"], ids=operator.itemgetter("id"))
+def test_mean_squares_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """The mean squares and their standardized values match mirt's for a Rasch fit, at its estimates as a 1PL.
+
+  mirt's Rasch model, slopes 1 and the ability variance estimated, is the 1PL with a common slope equal to the ability
+  standard deviation. Fails if the abilities, the residuals, the variances or the standardization differ.
+  """
+  estimates = _rasch_items(case)
+  calibration = Calibration(
+    estimates=estimates,
+    items=ItemBank(estimates),
+    standard_errors=None,
+    log_likelihood=0.0,
+    n_parameters=0,
+    item_parameters=np.full(estimates.shape[0], 1),
+    cycles=0,
+    converged=True,
+    change=0.0,
+    grid=default_grid(),
+  )
+  fit = mean_squares(calibration, responses(_ITEM_FIT["data"][case["data"]]))
+  for name, mirt_name in _MEAN_SQUARES.items():
+    np.testing.assert_allclose(getattr(fit, name), case[mirt_name], rtol=_CLOSED_FORM_RTOL, err_msg=name)
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["mean_squares"], ids=operator.itemgetter("id"))
+def test_mean_squares_of_a_calibration(case: dict[str, Any]) -> None:
+  """The mean squares of MMLCalibrator's own 1PL calibration match mirt's for its Rasch fit of the same responses.
+
+  The 1PL's slope and intercepts agree with the Rasch fit's standard deviation and intercepts within _ESTIMATE_ATOL.
+  """
+  matrix = responses(_ITEM_FIT["data"][case["data"]])
+  fit = mean_squares(MMLCalibrator("1PL", tolerance=_ITEM_FIT["settings"]["tol"]).calibrate(matrix), matrix)
+  np.testing.assert_allclose(fit.outfit, case["outfit"], rtol=_MEAN_SQUARE_RTOL)
+  np.testing.assert_allclose(fit.infit, case["infit"], rtol=_MEAN_SQUARE_RTOL)
+  np.testing.assert_allclose(fit.outfit_t, case["z_outfit"], rtol=0, atol=_STANDARDIZED_ATOL)
+  np.testing.assert_allclose(fit.infit_t, case["z_infit"], rtol=0, atol=_STANDARDIZED_ATOL)
+
+
+def test_mean_square_guards() -> None:
+  """mirt's floor on a response's variance and its cap on a mean square's standard deviation are irtlib's.
+
+  Five responses, 7 or more logits from their item, have a variance whose square is below 1e-5, and the unweighted
+  mean square of every item, over eight examinees, a standard deviation above 1.4142. Fails if either guard is
+  dropped or moved.
+  """
+  case = _ITEM_FIT["mean_square_guards"]
+  log_p, log_q = irt.log_response_probabilities(np.array(case["theta"], dtype=float), np.array(case["items"]))
+  fit = _mean_squares(np.array(case["responses"], dtype=float), np.exp(log_p), np.exp(log_q))
+  for name, mirt_name in _MEAN_SQUARES.items():
+    np.testing.assert_allclose(getattr(fit, name), case[mirt_name], rtol=_CLOSED_FORM_RTOL, err_msg=name)
 
 
 # mirt's parameter names in its PRIOR syntax, and the Priors field and parameter column of each.

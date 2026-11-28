@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 11 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+20 cards: 10 ready, 2 needs-research, 2 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -61,17 +61,17 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
 | [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
-| [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Make the log-likelihood and the posterior of one examinee as fast as catsim's](irt/one-examinee-speed.md) | irt | fix | ready | S |  | benchmarks against catsim on 2026-11-27 |
-| [Reject the out-of-range inputs that the code moved from catsim accepts](irt/inherited-input-checks.md) | irt | fix | ready | XS |  | reviews of the moves on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
+| [Share the complete-response check of item fit and G²](maintenance/complete-responses-check.md) | maintenance | maintenance | ready | XS |  | mean-squares PR on 2026-11-27 |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
 
 ## Priority 4
 
 | Card | Area | Kind | Status | Effort | Blocked by | Raised by |
 |---|---|---|---|---|---|---|
+| [Find how EAP abilities lower the mean squares on data that fit the Rasch model](discovery/mean-squares-eap.md) | discovery | research | needs-research | S |  | mean-squares PR on 2026-11-27 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | needs-decision | S |  | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
