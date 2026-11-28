@@ -36,16 +36,16 @@ likelihood (source `R/04-PrepData.R:107`).
   marginal.
 - **Non-convergence.** A result whose stopping rule was not met is flagged, with a warning.
 - **Ability estimates and item fit** are functions of the responses and the items, a calibration's
-  for item fit, not part of the result: EAP abilities; S-X² with its degrees of freedom per item;
-  and the Rasch model's weighted and unweighted mean squares.
+  for item fit, not part of the result, even under joint maximum likelihood, which calls the
+  ability estimator: EAP abilities; S-X² with its degrees of freedom per item; and the Rasch model's
+  weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
-  them, with an error naming an alternative: conditional maximum likelihood, S-X² and the mean
-  squares.
+  them, with an error naming an alternative: conditional and joint maximum likelihood, S-X² and the
+  mean squares.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
-  priors and posterior, and the item bank; calibration, with the shared E-step and M-step below the
-  methods, each method computing its own standard errors from them; then ability estimation; then
-  fit, whose mean squares take ability estimates. Drawing responses is its own module; the
-  import-linter contract enforces the order.
+  priors and posterior, and the item bank; ability estimation, beside calibration's checks, result
+  and M-step; the methods, with their own standard errors; then fit. Drawing responses is its own
+  module; the import-linter contract enforces the order.
 
 ## Consequences
 

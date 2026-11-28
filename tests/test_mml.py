@@ -14,6 +14,7 @@ from scipy.special import expit, logit
 from scipy.stats import lognorm, norm
 
 from irtlib import ItemBank
+from irtlib._m_step import _m_step, _prior_terms, _PriorTerm  # noqa: PLC2701 - SQUAREM by hand, prior densities
 from irtlib.calibration import ConvergenceWarning, default_grid
 from irtlib.drawing import draw_responses
 from irtlib.mml import (
@@ -23,9 +24,6 @@ from irtlib.mml import (
   _Cycles,  # noqa: PLC2701 - a NaN change cannot be produced through the public API
   _expected_counts,  # noqa: PLC2701
   _extrapolated,  # noqa: PLC2701
-  _m_step,  # noqa: PLC2701 - SQUAREM's cycles are built by hand from the E-step and the M-step
-  _prior_terms,  # noqa: PLC2701
-  _PriorTerm,  # noqa: PLC2701 - the prior's derivatives are checked against scipy's densities
   _squarem_point,  # noqa: PLC2701 - the extrapolation is checked on linear iterations, where it has a closed form
   marginal_log_likelihood,
 )

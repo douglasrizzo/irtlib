@@ -143,7 +143,7 @@ within each number-correct group, 3.14 against their 3.1, but not on LSAT-7, 31.
 
 ## Joint maximum likelihood
 
-**Card:** [estimation/jml.md](../estimation/jml.md).
+**Implemented:** `irtlib.jml`, whose module docstring holds the design and its sources.
 
 Joint maximum likelihood estimates every ability with the items (Baker, 1987, p. 112). For the Rasch
 model with the number of items $M$ fixed, its difficulties converge to a limit that differs from the

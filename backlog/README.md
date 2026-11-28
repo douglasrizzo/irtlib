@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 9 ready, 2 needs-research, 3 needs-decision, 2 blocked, 4 parked.
+20 cards: 8 ready, 3 needs-research, 3 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -60,7 +60,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
-| [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Make the log-likelihood and the posterior of one examinee as fast as catsim's](irt/one-examinee-speed.md) | irt | fix | ready | S |  | benchmarks against catsim on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
@@ -75,6 +74,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Find how EAP abilities lower the mean squares on data that fit the Rasch model](discovery/mean-squares-eap.md) | discovery | research | needs-research | S |  | mean-squares PR on 2026-11-27 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | decision | needs-decision | S |  | maintainer during the rescope of 2026-11-27 |
 | [Calibrate by Markov chain Monte Carlo](estimation/bayesian-mcmc.md) | estimation | technique | ready | L |  | moved from catsim's backlog |
+| [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
