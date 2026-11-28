@@ -33,6 +33,6 @@ Options, to weigh now that the response functions are in `irtlib.irt`:
 
 1. Move the item response plots into irtlib behind an optional extra with matplotlib, which
    changes ADR-0002.
-2. Leave every plot in catsim, drawn from irtlib's quantities once catsim adopts irtlib.
+2. Leave every plot in catsim, drawn from irtlib's quantities, as catsim's plots are.
 
 No recommendation yet: the choice depends on whether irtlib's readers need plots without catsim.

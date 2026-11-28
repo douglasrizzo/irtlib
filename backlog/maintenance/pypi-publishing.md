@@ -13,8 +13,8 @@ raised_by: [setup of irtlib]
 ## Problem
 
 irtlib builds and tests its wheel in CI but publishes nothing. A release needs a license and
-documentation to point users to. catsim's own adoption of irtlib waits for this first release
-(ADR-0004).
+documentation to point users to. catsim depends on irtlib at a commit of `dev` until then, and
+catsim's next release waits for this one (ADR-0004).
 
 ## What irtlib and catsim have now
 
