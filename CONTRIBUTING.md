@@ -55,12 +55,12 @@ them yourself:
 uv run --group docs sphinx-build -b linkcheck sphinx sphinx/_build/linkcheck
 ```
 
-Links to the Python, NumPy and SciPy documentation come from those projects' intersphinx
+Links to the Python, NumPy, SciPy and matplotlib documentation come from those projects' intersphinx
 inventories. The build downloads each inventory and, when a site cannot be reached, reads the copy
 stored in `sphinx/_inventories/`. Refresh the stored copies with:
 
 ```bash
-cd sphinx && for p in python=https://docs.python.org/3/ numpy=https://numpy.org/doc/stable/ scipy=https://docs.scipy.org/doc/scipy/; do curl -fsSL -o "_inventories/${p%%=*}.inv" "${p#*=}objects.inv"; done
+cd sphinx && for p in python=https://docs.python.org/3/ numpy=https://numpy.org/doc/stable/ scipy=https://docs.scipy.org/doc/scipy/ matplotlib=https://matplotlib.org/stable/; do curl -fsSL -o "_inventories/${p%%=*}.inv" "${p#*=}objects.inv"; done
 ```
 
 ## Parity tests with mirt

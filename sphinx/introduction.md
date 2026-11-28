@@ -140,7 +140,7 @@ efficient when no candidate is true {cite:p}`Vrieze2012{Pages 10-11}`.
   integrate over, the ability priors, and each examinee's posterior over the grid.
 - {mod}`irtlib.mml`, {mod}`irtlib.cml` and {mod}`irtlib.jml` hold the calibrators. Each returns the
   same result, a {class}`~irtlib.calibration.Calibration` ({doc}`/adr/0006-calibrator-contract`).
-- {mod}`irtlib.ability` holds the ability estimators, {mod}`irtlib.fit` item fit and
+- {mod}`irtlib.ability` holds the ability estimators, {mod}`irtlib.fit` item and person fit, and
   {mod}`irtlib.comparison` model comparison.
 - {mod}`irtlib.drawing` draws responses from the model, for simulation and parameter-recovery
   studies. Every function that draws random numbers takes them from its `rng` argument

@@ -10,7 +10,7 @@ implementations, and its API.
 - {doc}`calibration/index`: marginal, conditional and joint maximum likelihood.
 - {doc}`ability/index`: maximum likelihood, maximum a posteriori, expected a posteriori and
   weighted likelihood.
-- {doc}`fit/index`: S-X² and the mean squares.
+- {doc}`fit/index`: S-X² and the mean squares of the items, and the mean squares of the examinees.
 - {doc}`comparison`: the likelihood-ratio test, AIC, BIC and $G^2$.
 
 ```{toctree}

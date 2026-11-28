@@ -1,4 +1,4 @@
-"""Tests of the S-X² item-fit statistic and the mean squares, beyond the parity tests with mirt.
+"""Tests of the S-X² item-fit statistic and the item and person mean squares, beyond the parity tests with mirt.
 
 Expected values come from enumerating response patterns, hand-worked collapsing and mean squares, S-X²'s rejection
 rate on data from the fitted model, and the mean squares' expectation on such data.
@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
+from scipy.special import expit
 
 from irtlib.cml import CMLCalibrator
 from irtlib.drawing import draw_responses
@@ -20,6 +21,7 @@ from irtlib.fit import (
   _mean_squares,  # noqa: PLC2701 - the mean squares are checked on hand-worked probabilities
   _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
   mean_squares,
+  person_mean_squares,
   s_x2,
 )
 from irtlib.mml import MMLCalibrator
@@ -285,3 +287,85 @@ def test_mean_squares_refuse_a_calibration_other_than_the_1pl(column: int, value
   estimates[2, column] = value
   with pytest.raises(ValueError, match="Rasch model"):
     mean_squares(dataclasses.replace(calibration, estimates=estimates), _LSAT7)
+
+
+# Three items whose probabilities of a correct response at ability 0 are .6, .4 and .5: a 3PL, a 4PL and a 4PL item.
+_HAND_WORKED_ITEMS = np.array([[1.0, 0.0, 0.2, 1.0], [1.3, 0.0, 0.0, 0.8], [2.0, 0.0, 0.1, 0.9]])
+
+
+def test_person_mean_squares_of_a_hand_worked_case() -> None:
+  """Each examinee's mean squares sum over the items the examinee answered, worked by hand.
+
+  At ability 0 the items' probabilities are .6, .4 and .5, so the variances PQ are .24, .24 and .25 and the
+  kurtoses PQ(P³ + Q³) .0672, .0672 and .0625. The person mean squares are the item ones summed over items (Wright &
+  Masters, 1982, p. 108, Equations 5.7.5-5.7.7; p. 109), with the outfit's variance of Table 5.4a (p. 100) over the
+  n items answered. The first examinee answers 1, 0, 1: squared residuals .16, .16, .25, outfit (2/3 + 2/3 + 1) / 3,
+  infit .57 / .73, and outfit variance (7/6 + 7/6 + 1) / 9 - 1/3. The second leaves the first item out and answers
+  1, 0: squared residuals .36 and .25, outfit (1.5 + 1) / 2, infit .61 / .49, and outfit variance (7/6 + 1) / 4 - 1/2.
+  Fails if a probability ignores the guessing or upper asymptote, a missing response is counted, or the outfit's
+  variance divides by the square of the number of all items.
+  """
+  fit = person_mean_squares(np.array([[1, 0, 1], [np.nan, 1, 0]]), _HAND_WORKED_ITEMS, [0.0, 0.0])
+  outfit = np.array([7 / 9, 1.25])
+  infit = np.array([0.57 / 0.73, 0.61 / 0.49])
+  outfit_sd = np.sqrt([1 / 27, 1 / 24])
+  infit_sd = np.sqrt([0.0192 / 0.73**2, 0.0096 / 0.49**2])
+  np.testing.assert_allclose(fit.outfit, outfit, rtol=1e-14)
+  np.testing.assert_allclose(fit.infit, infit, rtol=1e-14)
+  np.testing.assert_allclose(fit.outfit_t, (np.cbrt(outfit) - 1) * 3 / outfit_sd + outfit_sd / 3, rtol=1e-12)
+  np.testing.assert_allclose(fit.infit_t, (np.cbrt(infit) - 1) * 3 / infit_sd + infit_sd / 3, rtol=1e-12)
+
+
+@pytest.mark.parametrize("theta", [np.inf, -np.inf, np.nan])
+def test_person_mean_squares_are_nan_without_an_answer_or_a_finite_ability(theta: float) -> None:
+  """An examinee who answered no item, or whose ability is infinite or NaN, gets NaN throughout, silently.
+
+  The other examinee keeps the mean squares it has alone. Fails if a warning about dividing 0 by 0 escapes, if an
+  infinite ability gives mean squares, or if the NaN spreads to another examinee.
+  """
+  matrix = np.array([[1, 0, 1], [np.nan, np.nan, np.nan], [0, 1, 1]])
+  fit = person_mean_squares(matrix, _HAND_WORKED_ITEMS, [0.0, 0.0, theta])
+  alone = person_mean_squares(matrix[:1], _HAND_WORKED_ITEMS, [0.0])
+  for name in ("outfit", "outfit_t", "infit", "infit_t"):
+    values = getattr(fit, name)
+    assert np.isnan(values[1:]).all(), name
+    np.testing.assert_array_equal(values[:1], getattr(alone, name), err_msg=name)
+
+
+def test_person_mean_squares_need_one_number_per_examinee() -> None:
+  """Abilities of another length than the examinees', or that are not numbers, are refused, naming what they got."""
+  matrix = np.array([[1, 0, 1], [0, 1, 1]])
+  with pytest.raises(ValueError, match=r"one ability per row of responses, 2, got shape \(3,\)"):
+    person_mean_squares(matrix, _HAND_WORKED_ITEMS, [0.0, 0.5, 1.0])
+  with pytest.raises(TypeError, match="theta holds <U3 values; theta must hold numbers"):
+    person_mean_squares(matrix, _HAND_WORKED_ITEMS, ["0.0", "0.5"])
+
+
+def test_person_mean_squares_average_one_at_the_generating_abilities() -> None:
+  """On 4PL responses, at the abilities they were drawn at, the examinees' mean squares average their expectation, 1.
+
+  Thirty items with guessing up to .25 and upper asymptotes down to .9, and 4,000 examinees. At the generating
+  abilities each examinee's mean squares have expectation 1 (Wright & Masters, 1982, p. 108), with the variances of
+  Table 5.4a (p. 100) and Equation 5.7.7, written out here at the generating probabilities: the band is four standard
+  errors of their average. Fails if the probabilities ignore the guessing and the upper asymptote, which moves the
+  average outfit to 1.90 and the average infit to 1.19 (measured 2026-11-28), or if the mean squares are taken at
+  other abilities.
+  """
+  rng = np.random.default_rng(20261201)
+  n_items, n_examinees = 30, 4000
+  items = np.column_stack([
+    rng.uniform(0.8, 2.0, n_items),
+    np.linspace(-2.0, 2.0, n_items),
+    rng.uniform(0.0, 0.25, n_items),
+    rng.uniform(0.9, 1.0, n_items),
+  ])
+  theta = rng.normal(size=n_examinees)
+  slope, difficulty, guessing, upper = items.T
+  p = guessing + (upper - guessing) * expit(slope * (theta[:, np.newaxis] - difficulty))
+  variance = p * (1 - p)
+  kurtosis = variance * (p**3 + (1 - p) ** 3)
+  outfit_variance = np.sum(kurtosis / variance**2, axis=1) / n_items**2 - 1 / n_items
+  infit_variance = np.sum(kurtosis - variance**2, axis=1) / np.sum(variance, axis=1) ** 2
+  fit = person_mean_squares(draw_responses(theta, items, rng=rng), items, theta)
+  assert abs(fit.outfit.mean() - 1) < 4 * np.sqrt(outfit_variance.mean() / n_examinees)
+  assert abs(fit.infit.mean() - 1) < 4 * np.sqrt(infit_variance.mean() / n_examinees)
