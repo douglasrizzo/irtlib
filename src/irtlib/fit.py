@@ -22,10 +22,11 @@ _REMOVE_MISSING = "remove the examinees with missing responses"
 
 @dataclass(frozen=True, slots=True)
 class ItemFit:
-  """The S-X² statistic of each item, with its degrees of freedom and p-value, and the table it is computed from.
+  """S-X² of each item and the table it is computed from.
 
-  The table groups the examinees by their number correct, from 1 to M - 1 for M items, before any score group is
-  collapsed: column ``k - 1`` of ``observed`` and ``expected`` is the score group of number correct ``k``.
+  Each item has its statistic, degrees of freedom and p-value. The table groups the examinees by their number correct,
+  from 1 to M - 1 for M items, before any score group is collapsed: column ``k - 1`` of ``observed`` and ``expected``
+  is the score group of number correct ``k``.
 
   Parameters
   ----------
@@ -75,8 +76,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Returns
   -------
   ItemFit
-      Each item's statistic, degrees of freedom and p-value, and its observed and expected proportions correct in
-      each score group.
+      Each item's statistic, degrees of freedom and p-value, and the number of examinees in each score group with
+      each item's observed and expected proportions correct there.
 
   Raises
   ------
@@ -99,8 +100,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
     _item_statistic(group_sizes, correct[item], expected[item], min_expected, int(parameters))
     for item, parameters in enumerate(calibration.item_parameters)
   ]
-  statistic = numpy.array([value for value, _ in statistics], dtype=float)
-  df = numpy.array([degrees for _, degrees in statistics], dtype=int)
+  values, degrees = zip(*statistics, strict=True)
+  statistic, df = numpy.array(values, dtype=float), numpy.array(degrees, dtype=int)
   with numpy.errstate(invalid="ignore"):
     p_value = numpy.where(df > 0, chi2.sf(statistic, numpy.maximum(df, 1)), numpy.nan)
     observed = correct / group_sizes  # NaN in an empty score group

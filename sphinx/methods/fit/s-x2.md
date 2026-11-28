@@ -52,9 +52,9 @@ including one collapsed to a single row, has none and no statistic.
 ({doc}`ADR-0006 </adr/0006-calibrator-contract>`).
 
 **The table.** Besides each item's statistic, the result holds the table Equation 13 sums over
-before any row is collapsed: the number of examinees $N_k$ at each score $k = 1, \dots, M - 1$, and
-each item's observed and expected proportions correct, $O_{ik}$ and $E_{ik}$, at each: what a plot
-of an item's fit by score draws.
+before any row is collapsed: the number of examinees $N_k$ at each number correct
+$k = 1, \dots, M - 1$, and each item's observed and expected proportions correct, $O_{ik}$ and
+$E_{ik}$, at each.
 
 :::{dropdown} Comparison with mirt
 
@@ -65,10 +65,15 @@ of an item's fit by score draws.
   ({doc}`ADR-0003 </adr/0003-mirt-as-the-reference>`).
 - mirt skips an item whose table collapses to a single row; irtlib reports it with no degrees of
   freedom and no statistic.
-- The table before collapsing is the one mirt 1.48's `itemfit` returns with `return.tables = TRUE`
-  (manual p. 85; `R/itemfit.R:861-863`) and draws with `S_X2.plot` (`R/itemfit.R:838-859`). The
-  parity tests check the group sizes and observed proportions exactly, and the expected counts,
-  $N_k E_{ik}$, within a relative $10^{-10}$.
+- The table before collapsing holds what mirt 1.48's `itemfit` returns as `O.org` and `E.org` with
+  `return.tables = TRUE` (manual p. 85; `R/itemfit.R:861-863`), as proportions correct with the
+  group sizes rather than counts (`R/utils.R:2392-2408`; `R/itemfit.R:836-837`). `S_X2.plot` draws
+  it (`R/itemfit.R:838-859`), against the number correct by the code's default
+  `S_X2.plot_raw.score = TRUE` (`R/itemfit.R:265`), or against each number correct's EAP estimate
+  with `FALSE` (`R/itemfit.R:844-849`), the default the manual states (p. 85).
+- The parity tests check the group sizes and observed proportions exactly, and the expected counts,
+  $N_k E_{ik}$, within a relative $10^{-10}$. Their data leave no number correct without examinees,
+  the smallest group holding 20, so only the unit tests cover an empty one.
 :::
 
 ## Parameters
@@ -92,8 +97,8 @@ of an item's fit by score draws.
 1. Every item of the calibration gets a statistic, the items its bank leaves out included, unless its
    collapsed table leaves no degrees of freedom.
 2. A missing response, or a calibration whose likelihood is not marginal, raises an error.
-3. The table has a column for every score from 1 to $M - 1$, however the statistic collapses it; the
-   observed proportion at a score no examinee has is NaN.
+3. The table holds every number correct from 1 to $M - 1$, however the statistic collapses it; the
+   observed proportion at a number correct no examinee has is NaN.
 
 ## References
 

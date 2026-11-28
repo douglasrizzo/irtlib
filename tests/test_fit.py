@@ -147,7 +147,7 @@ def test_the_table_holds_every_score_group_before_collapsing() -> None:
   proportion, and matches the sizes, proportions correct and Equation 12 (2000, p. 54) worked out by enumerating the
   64 response patterns. Fails if the table is taken after collapsing, the observed proportions count incorrect
   responses, the expected ones leave the item in the likelihood of the other items' score, or the items' rows are
-  swapped.
+  swapped. The degrees of freedom, worked by hand, fail if the group of one examinee is not merged, or too much is.
   """
   rng = np.random.default_rng(4)
   items = np.column_stack([np.ones(6), np.linspace(-1.5, 1.5, 6), np.zeros(6), np.ones(6)])
@@ -161,8 +161,12 @@ def test_the_table_holds_every_score_group_before_collapsing() -> None:
   assert fit.group_sizes[:2].tolist() == [0, 1]
   np.testing.assert_allclose(fit.observed, observed, rtol=1e-14)
   np.testing.assert_allclose(fit.expected, _enumerated_expected(calibration), rtol=1e-10)
-  # the uncollapsed groups of number correct 2 to 5 leave 8 cells, less 4 groups and 2 parameters: 2 degrees of freedom
-  assert (fit.df < 2).all()
+  # with no minimum expected count, the group of number correct 2 merges into that of 3: 6 cells, less 3 groups and 2
+  # parameters, leave 1 degree of freedom for every item
+  assert s_x2(calibration, matrix, min_expected=0).df.tolist() == [1] * 6
+  # with the default minimum of 1, the easiest item expects 0.71 incorrect responses among the 30 examinees of number
+  # correct 5, so that group merges into that of 4 as well: 4 cells, less 2 groups and 2 parameters, leave none
+  assert fit.df.tolist() == [0, 1, 1, 1, 1, 1]
 
 
 def _counted_table(matrix: FloatArray) -> tuple[FloatArray, FloatArray]:

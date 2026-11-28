@@ -49,8 +49,8 @@ item_fit_case <- function(name, x, model) {
     p_value = as_array(statistics$p.S_X2),
     # one row per item, one column per number correct from 1 to M - 1; column 2 of a table is the correct responses
     table_sizes = as_array(rowSums(tables$O.org[[1L]])),
-    table_correct = t(sapply(tables$O.org, function(observed) observed[, 2L])),
-    table_expected = t(sapply(tables$E.org, function(expected) expected[, 2L]))
+    table_correct = do.call(rbind, lapply(tables$O.org, function(observed) observed[, 2L])),
+    table_expected = do.call(rbind, lapply(tables$E.org, function(expected) expected[, 2L]))
   )
 }
 
