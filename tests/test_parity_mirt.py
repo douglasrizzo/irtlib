@@ -182,15 +182,11 @@ def test_mml_standard_errors(case: dict[str, Any]) -> None:
 _ITEM_PARAMETERS = {"2pl": 2, "equal_slopes": 2, "fixed_slopes": 1}
 
 
-@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
-def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
-  """S-X², its degrees of freedom after collapsing and its p-value match mirt's at mirt's own estimates.
-
-  Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
-  """
+def _calibration_at_mirts_estimates(case: dict[str, Any]) -> Calibration:
+  """Return a marginal calibration on irtlib's default grid whose estimates are an item-fit case's mirt estimates."""
   slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
   estimates = _two_pl_items(slope, intercept)
-  calibration = Calibration(
+  return Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
     standard_errors=None,
@@ -204,10 +200,34 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
     grid=default_grid(),
     abilities=None,
   )
-  fit = s_x2(calibration, responses(_ITEM_FIT["data"][case["data"]]))
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """S-X², its degrees of freedom after collapsing and its p-value match mirt's at mirt's own estimates.
+
+  Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
+  """
+  fit = s_x2(_calibration_at_mirts_estimates(case), responses(_ITEM_FIT["data"][case["data"]]))
   np.testing.assert_array_equal(fit.df, case["df"])
   np.testing.assert_allclose(fit.statistic, case["s_x2"], rtol=_CLOSED_FORM_RTOL)
   np.testing.assert_allclose(fit.p_value, case["p_value"], rtol=_CLOSED_FORM_RTOL, atol=1e-14)
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_table_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """S-X²'s table before collapsing matches mirt's ``return.tables``, the table its ``S_X2.plot`` draws.
+
+  The group sizes, the observed proportions from mirt's correct responses, and the expected number correct, the group
+  size times the expected proportion, at every number correct from 1 to M - 1. Fails if the table were collapsed, or
+  an expected proportion differed in a score group that the statistic merges with another.
+  """
+  fit = s_x2(_calibration_at_mirts_estimates(case), responses(_ITEM_FIT["data"][case["data"]]))
+  sizes, correct = np.array(case["table_sizes"]), np.array(case["table_correct"])
+  np.testing.assert_array_equal(fit.group_sizes, sizes)
+  observed = np.divide(correct, sizes, out=np.full(correct.shape, np.nan), where=sizes > 0)
+  np.testing.assert_array_equal(fit.observed, observed)
+  np.testing.assert_allclose(fit.expected * fit.group_sizes, case["table_expected"], rtol=_CLOSED_FORM_RTOL)
 
 
 @pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))

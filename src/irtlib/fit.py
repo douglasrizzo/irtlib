@@ -22,7 +22,10 @@ _REMOVE_MISSING = "remove the examinees with missing responses"
 
 @dataclass(frozen=True, slots=True)
 class ItemFit:
-  """The S-X² statistic of each item, with its degrees of freedom and p-value.
+  """The S-X² statistic of each item, with its degrees of freedom and p-value, and the table it is computed from.
+
+  The table groups the examinees by their number correct, from 1 to M - 1 for M items, before any score group is
+  collapsed: column ``k - 1`` of ``observed`` and ``expected`` is the score group of number correct ``k``.
 
   Parameters
   ----------
@@ -32,11 +35,22 @@ class ItemFit:
       The degrees of freedom of each item's statistic.
   p_value : numpy.ndarray
       The probability of a statistic at least as large under the calibrated model; NaN where ``df`` is 0.
+  group_sizes : numpy.ndarray
+      The number of examinees in each score group, shape ``(M - 1,)``.
+  observed : numpy.ndarray
+      The proportion of each score group answering each item correctly, shape ``(M, M - 1)``, one row per item; NaN
+      in a score group no examinee is in.
+  expected : numpy.ndarray
+      The proportion the calibrated model expects to answer each item correctly in each score group, shape
+      ``(M, M - 1)``, one row per item.
   """
 
   statistic: FloatArray
   df: IntArray
   p_value: FloatArray
+  group_sizes: IntArray
+  observed: FloatArray
+  expected: FloatArray
 
 
 def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float = 1.0) -> ItemFit:
@@ -61,7 +75,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Returns
   -------
   ItemFit
-      Each item's statistic, degrees of freedom and p-value.
+      Each item's statistic, degrees of freedom and p-value, and its observed and expected proportions correct in
+      each score group.
 
   Raises
   ------
@@ -76,29 +91,44 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
     msg = f"min_expected must be at least 0, got {min_expected}"
     raise ValueError(msg)
   matrix = _complete_responses(calibration, responses, "S-X²", _REMOVE_MISSING)
-  items = calibration.estimates
   grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
-  probability = icc(grid.nodes, items).T  # items x nodes
-  expected = _expected_proportions(probability, masses)
-  scores = matrix.sum(axis=1).astype(int)
-  n_items = items.shape[0]
-  statistic = numpy.full(n_items, numpy.nan)
-  df = numpy.zeros(n_items, dtype=int)
-  for item in range(n_items):
-    observed = numpy.stack(
-      [numpy.bincount(scores, weights=(matrix[:, item] == value), minlength=n_items + 1)[1:-1] for value in (0, 1)],
-      axis=1,
-    )
-    expected_counts = observed.sum(axis=1, keepdims=True) * numpy.stack([1 - expected[item], expected[item]], axis=1)
-    observed, expected_counts = _collapse(observed, expected_counts, min_expected)
-    cells = expected_counts > 0
-    df[item] = max(int(cells.sum()) - observed.shape[0] - int(calibration.item_parameters[item]), 0)
-    if df[item] > 0:
-      statistic[item] = numpy.sum((observed[cells] - expected_counts[cells]) ** 2 / expected_counts[cells])
+  expected = _expected_proportions(icc(grid.nodes, calibration.estimates).T, masses)
+  group_sizes, correct = _score_groups(matrix)
+  statistics = [
+    _item_statistic(group_sizes, correct[item], expected[item], min_expected, int(parameters))
+    for item, parameters in enumerate(calibration.item_parameters)
+  ]
+  statistic = numpy.array([value for value, _ in statistics], dtype=float)
+  df = numpy.array([degrees for _, degrees in statistics], dtype=int)
   with numpy.errstate(invalid="ignore"):
     p_value = numpy.where(df > 0, chi2.sf(statistic, numpy.maximum(df, 1)), numpy.nan)
-  return ItemFit(statistic=statistic, df=df, p_value=p_value)
+    observed = correct / group_sizes  # NaN in an empty score group
+  return ItemFit(
+    statistic=statistic, df=df, p_value=p_value, group_sizes=group_sizes, observed=observed, expected=expected
+  )
+
+
+def _score_groups(matrix: FloatArray) -> tuple[IntArray, FloatArray]:
+  """Return the examinees at each number correct from 1 to M - 1, and each item's correct responses there."""
+  scores = matrix.sum(axis=1).astype(int)
+  length = matrix.shape[1] + 1  # numbers correct 0 to M
+  correct = numpy.stack([numpy.bincount(scores, weights=column, minlength=length)[1:-1] for column in matrix.T])
+  return numpy.bincount(scores, minlength=length)[1:-1], correct
+
+
+def _item_statistic(
+  group_sizes: IntArray, correct: FloatArray, expected: FloatArray, min_expected: float, n_parameters: int
+) -> tuple[float, int]:
+  """Return an item's S-X² and degrees of freedom after collapsing, NaN and 0 when no degree of freedom is left."""
+  counts = numpy.stack([group_sizes - correct, correct], axis=1)
+  expected_counts = group_sizes[:, numpy.newaxis] * numpy.stack([1 - expected, expected], axis=1)
+  counts, expected_counts = _collapse(counts, expected_counts, min_expected)
+  cells = expected_counts > 0
+  df = max(int(cells.sum()) - counts.shape[0] - n_parameters, 0)
+  if df == 0:
+    return math.nan, 0
+  return float(numpy.sum((counts[cells] - expected_counts[cells]) ** 2 / expected_counts[cells])), df
 
 
 def _summed_score_likelihoods(probability: FloatArray) -> FloatArray:

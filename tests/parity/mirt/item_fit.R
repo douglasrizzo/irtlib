@@ -3,7 +3,10 @@
 #
 # Each case records mirt's estimates, so the Python test computes S-X2 at the same parameters, and
 # mirt's S-X2, degrees of freedom and p-values. The fits use the settings of mml_em.R. S-X2 needs
-# complete responses, so the simulated data set has none missing.
+# complete responses, so the simulated data set has none missing. Each case also records the table
+# S-X2 is computed from before collapsing, itemfit(return.tables = TRUE)'s O.org and E.org, which
+# S_X2.plot draws: the number of examinees at each number correct from 1 to M - 1, and each item's
+# correct responses and expected number correct there.
 #
 # The collapse cases run mirt's own collapsing, collapseCells (R/utils.R:2410-2546), on random tables
 # of incorrect and correct counts by score, with empty rows, rows of one examinee, ties, small
@@ -34,6 +37,7 @@ item_fit_case <- function(name, x, model) {
   fitted <- fit(x, model, "Oakes")
   stopifnot(extract.mirt(fitted, "converged"))
   statistics <- itemfit(fitted, fit_stats = "S_X2", mincell = 1)
+  tables <- itemfit(fitted, fit_stats = "S_X2", mincell = 1, return.tables = TRUE)
   list(
     id = paste0(name, "/", model),
     data = name,
@@ -42,7 +46,11 @@ item_fit_case <- function(name, x, model) {
     intercept = item_values(fitted, "par", "d"),
     s_x2 = as_array(statistics$S_X2),
     df = as_array(as.integer(statistics$df.S_X2)),
-    p_value = as_array(statistics$p.S_X2)
+    p_value = as_array(statistics$p.S_X2),
+    # one row per item, one column per number correct from 1 to M - 1; column 2 of a table is the correct responses
+    table_sizes = as_array(rowSums(tables$O.org[[1L]])),
+    table_correct = t(sapply(tables$O.org, function(observed) observed[, 2L])),
+    table_expected = t(sapply(tables$E.org, function(expected) expected[, 2L]))
   )
 }
 
