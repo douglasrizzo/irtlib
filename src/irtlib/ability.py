@@ -281,7 +281,8 @@ def number_correct_eap(
   Raises
   ------
   ValueError
-      If ``items`` is not an ``(n, 4)`` matrix, or the log-prior is NaN or +inf at a node or has no mass on the grid.
+      If ``items`` is not an ``(n, 4)`` matrix, the log-prior is NaN or +inf at a node or has no mass on the grid, or a
+      number correct has probability 0 on the grid, as on a long test under a prior far from its items.
 
   Examples
   --------
@@ -297,6 +298,13 @@ def number_correct_eap(
   masses = prior_masses(grid, _default_prior() if log_prior is None else log_prior)
   joint = irt.number_correct_probabilities(grid.nodes, items).T * masses  # numbers correct x nodes
   probability = joint.sum(axis=1)
+  if not numpy.all(probability > 0):
+    empty = numpy.flatnonzero(~(probability > 0))
+    msg = (
+      f"{empty.size} numbers correct, from {empty[0]}, have probability 0 on the grid, so they have no posterior; "
+      "use a grid and prior that reach the abilities where they occur"
+    )
+    raise ValueError(msg)
   post = joint / probability[:, numpy.newaxis]
   return NumberCorrectEstimates(
     theta=posterior_mean(post, grid.nodes),

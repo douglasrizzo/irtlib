@@ -169,6 +169,8 @@ model comparison
 | $u_{ij}$ | examinee $j$'s response to item $i$: 1 if correct, 0 if not | an entry of `responses` |
 | $L_j(\theta)$ | likelihood of examinee $j$'s responses at ability $\theta$ | |
 | $S_k(\theta)$ | probability of a number correct of $k$ at ability $\theta$ | {func}`irtlib.irt.number_correct_probabilities` |
+| $\bar S_k$ | probability of a number correct of $k$ over the prior | `NumberCorrectEstimates.probability` |
+| $\pi(\theta)$ | prior density of ability | the `log_prior` argument |
 | $X_q$ | node $q$ of the quadrature grid | `QuadratureGrid.nodes` |
 | $A_q$ | prior mass at node $X_q$ | {func}`~irtlib.quadrature.prior_masses` |
 | $Q$ | number of nodes | |

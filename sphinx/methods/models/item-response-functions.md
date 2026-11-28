@@ -93,7 +93,7 @@ over the items $i$ the examinee answered {cite:p}`Magis2012{p. 4, Equation 2}`;
 
 **The probability of each number correct.** The probability $S_k(\theta)$ that an examinee of
 ability $\theta$ answers $k$ of $M$ items correctly, $k = 0, \dots, M$, sums the probabilities of
-the response patterns with $k$ correct {cite:p}`Thissen1995{p. 40, Equation 1}`. Lord and
+the response patterns with $k$ correct {cite:p}`Thissen1995{p. 42, Equation 15}`. Lord and
 Wingersky's recursion builds it one item at a time, without enumerating the patterns
 {cite:p}`Thissen1995{p. 42}`. With $S^{(i)}_k$ the probability of $k$ correct on the first $i$
 items, it starts from $S^{(1)}_0 = Q_1$ and $S^{(1)}_1 = P_1$, and adding item $i$ gives
@@ -105,7 +105,7 @@ $$
 
 where a term whose number correct is below 0 or above $i - 1$ is 0
 {cite:p}`Orlando2000{p. 53, Equations 6-10}`; {cite:p}`Thissen1995{p. 42, Equation 16}`.
-$S_k(\theta)$ is $S^{(M)}_k(\theta)$ (p. 53, Equation 11).
+$S_k(\theta)$ is $S^{(M)}_k(\theta)$ {cite:p}`Orlando2000{p. 53, Equation 11}`.
 
 **A reporting scale.** {func}`~irtlib.irt.theta_to_scale` takes abilities to scores on a reporting
 scale along the line through $(\theta_{min}, \text{scale}_{min})$ and

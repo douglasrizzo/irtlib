@@ -1180,6 +1180,19 @@ class TestExpectedAPosteriori:
 class TestNumberCorrectEap:
   """The EAP estimate of each number correct, its posterior standard deviation and the number's probability."""
 
+  def test_a_number_correct_with_no_probability_on_the_grid_raises(self) -> None:
+    """On 400 steep items at b = 0, a prior on [3, 6] gives the low numbers correct probability 0, which raises.
+
+    At theta >= 3 each item is answered correctly with probability at least 1 / (1 + e^-6), so none correct has
+    probability below (e^-6)^400, far under the smallest double. Fails if the call returns NaN estimates for those
+    numbers with a RuntimeWarning, as a division by the probability would, instead of an error that says why.
+    """
+    items = np.tile([2.0, 0.0, 0.0, 1.0], (400, 1))
+    grid = QuadratureGrid.uniform(21, 3.0, 6.0)
+
+    with pytest.raises(ValueError, match=r"numbers correct, from 0, have probability 0 on the grid"):
+      number_correct_eap(items, grid=grid, log_prior=uniform_log_prior(3.0, 6.0))
+
   def test_each_number_correct_pools_the_patterns_with_that_number(self) -> None:
     """Each number correct's posterior pools the 16 patterns of _ITEMS with that number, enumerated here.
 
