@@ -139,6 +139,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../api/index.html">
     API reference
   </a>
@@ -261,6 +268,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -392,32 +406,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for irtlib.comparison</h1><div class="highlight"><pre>
-<span></span><span class="sa">r</span><span class="sd">"""Comparison of calibrated models: the likelihood-ratio test, AIC, BIC and :math:`G^2`.</span>
-
-<span class="sd">A model with more parameters always fits at least as well; the question is whether the improvement outweighs the</span>
-<span class="sd">parameters spent. For :math:`k` estimated parameters and the maximized log-likelihood :math:`\log L`:</span>
-
-<span class="sd">- the likelihood-ratio statistic of nested models is :math:`-2` times the difference of their log-likelihoods,</span>
-<span class="sd">  "distributed as :math:`\chi^2`" with the difference in their numbers of parameters as its degrees of freedom</span>
-<span class="sd">  (:cite:t:`Orlando2000`, p. 51);</span>
-<span class="sd">- AIC is :math:`-2\log L + 2k` :cite:p:`Akaike1974` (p. 719);</span>
-<span class="sd">- BIC is :math:`-2\log L + k\log N` for :math:`N` examinees, Schwarz's criterion :cite:p:`Schwarz1978` (p. 461)</span>
-<span class="sd">  multiplied by :math:`-2`, with the sample size :cite:t:`Vrieze2012` (Page 10) uses;</span>
-<span class="sd">- :math:`G^2` compares the model with the general multinomial over response patterns,</span>
-<span class="sd">  :math:`2\sum_x r_x \log(r_x / (N \tilde P_x))` over the observed patterns :math:`x`, observed :math:`r_x` times</span>
-<span class="sd">  with marginal probability :math:`\tilde P_x` :cite:p:`Bock1981` (p. 450).</span>
-
-<span class="sd">BIC selects the true model as the sample grows, when it is among the candidates, and AIC does not; AIC is efficient</span>
-<span class="sd">when no candidate is true (:cite:t:`Vrieze2012`, Pages 10-11). :math:`G^2`'s degrees of freedom are</span>
-<span class="sd">:math:`2^M - 1 - k` for :math:`M` items, as in the values :cite:t:`Bock1981` (p. 455, Table 3) and</span>
-<span class="sd">:cite:t:`Thissen1982` (p. 178) report and as mirt 1.48 counts them, whatever the patterns observed; Bock and Aitkin's</span>
-<span class="sd">Equation 16 (p. 450) counts the observed patterns instead. The multinomial is not defined when responses are missing,</span>
-<span class="sd">so :math:`G^2` needs complete responses.</span>
-
-<span class="sd">With priors, the log-likelihood is the one at the Bayes modal estimates, without the log-prior. Every statistic here</span>
-<span class="sd">takes marginal log-likelihoods, and refuses a calibration of another likelihood, such as the conditional one of</span>
-<span class="sd">:py:mod:`irtlib.cml`, which is not on their scale (ADR-0006).</span>
-<span class="sd">"""</span>
+<span></span><span class="sd">"""Comparison of calibrated models: the likelihood-ratio test, AIC, BIC and G²."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
@@ -430,7 +419,7 @@
 
 
 <div class="viewcode-block" id="ChiSquareTest">
-<a class="viewcode-back" href="../../api/comparison.html#irtlib.comparison.ChiSquareTest">[docs]</a>
+<a class="viewcode-back" href="../../methods/comparison.html#irtlib.comparison.ChiSquareTest">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ChiSquareTest</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""A statistic referred to a chi-square distribution.</span>
@@ -452,7 +441,7 @@
 
 
 <div class="viewcode-block" id="aic">
-<a class="viewcode-back" href="../../api/comparison.html#irtlib.comparison.aic">[docs]</a>
+<a class="viewcode-back" href="../../methods/comparison.html#irtlib.comparison.aic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">aic</span><span class="p">(</span><span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the Akaike information criterion of a calibration; smaller is better.</span>
 
@@ -478,7 +467,7 @@
 
 
 <div class="viewcode-block" id="bic">
-<a class="viewcode-back" href="../../api/comparison.html#irtlib.comparison.bic">[docs]</a>
+<a class="viewcode-back" href="../../methods/comparison.html#irtlib.comparison.bic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bic</span><span class="p">(</span><span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">n_examinees</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the Bayesian information criterion of a calibration; smaller is better.</span>
 
@@ -509,7 +498,7 @@
 
 
 <div class="viewcode-block" id="likelihood_ratio">
-<a class="viewcode-back" href="../../api/comparison.html#irtlib.comparison.likelihood_ratio">[docs]</a>
+<a class="viewcode-back" href="../../methods/comparison.html#irtlib.comparison.likelihood_ratio">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">likelihood_ratio</span><span class="p">(</span><span class="n">restricted</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">general</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChiSquareTest</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the likelihood-ratio test of a restricted model against a more general one it is nested in.</span>
 
@@ -557,7 +546,7 @@
 
 
 <div class="viewcode-block" id="g2">
-<a class="viewcode-back" href="../../api/comparison.html#irtlib.comparison.g2">[docs]</a>
+<a class="viewcode-back" href="../../methods/comparison.html#irtlib.comparison.g2">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">g2</span><span class="p">(</span><span class="n">calibration</span><span class="p">:</span> <span class="n">Calibration</span><span class="p">,</span> <span class="n">responses</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChiSquareTest</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the :math:`G^2` statistic of a calibration against the general multinomial over response patterns.</span>
 

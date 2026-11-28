@@ -49,8 +49,8 @@ the models without the scaling constant that some programs multiply each $a_i$ b
 
 Each response also carries *information* about the ability: the more information a test's items
 give at an examinee's ability, the smaller the standard error of the estimate made from their
-responses {cite:p}`Magis2012{p. 4, Equation 3}`. The formulas of these quantities are in
-{mod}`irtlib.irt`.
+responses {cite:p}`Magis2012{p. 4, Equation 3}`. The formulas of these quantities are on the
+{doc}`/methods/models/item-response-functions` page.
 
 The ability scale has no natural origin or unit. Moving every ability and difficulty by one amount
 leaves every probability unchanged, and so does stretching the abilities and difficulties by one

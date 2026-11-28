@@ -141,6 +141,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="api/index.html">
     API reference
   </a>
@@ -272,6 +279,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="api/index.html">
     API reference
   </a>
@@ -383,22 +397,21 @@ interface may change before the first release.</p>
 <section id="calibrate-an-item-bank">
 <h2>Calibrate an item bank<a class="headerlink" href="#calibrate-an-item-bank" title="Link to this heading">#</a></h2>
 <p>Researchers estimate the items’ parameters, with their standard errors, from the responses of a
-sample of examinees: by marginal maximum likelihood for the 1PL to 4PL, which takes missing
-responses (<a class="reference internal" href="api/mml.html#module-irtlib.mml" title="irtlib.mml"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></a>), by
-conditional maximum likelihood for the Rasch model (<a class="reference internal" href="api/cml.html#module-irtlib.cml" title="irtlib.cml"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a>), or by joint maximum
-likelihood for the Rasch model and the 2PL (<a class="reference internal" href="api/jml.html#module-irtlib.jml" title="irtlib.jml"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></a>). Item fit (<a class="reference internal" href="api/fit.html#module-irtlib.fit" title="irtlib.fit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a>) and
-model comparison (<a class="reference internal" href="api/comparison.html#module-irtlib.comparison" title="irtlib.comparison"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a>) then check the calibration.</p>
+sample of examinees: by <a class="reference internal" href="methods/calibration/mml.html"><span class="doc">Marginal Maximum Likelihood</span></a> for the 1PL to 4PL, which takes missing
+responses, by <a class="reference internal" href="methods/calibration/cml.html"><span class="doc">Conditional Maximum Likelihood</span></a> for the Rasch model, or by
+<a class="reference internal" href="methods/calibration/jml.html"><span class="doc">Joint Maximum Likelihood</span></a> for the Rasch model and the 2PL. <a class="reference internal" href="methods/fit/index.html"><span class="doc">Item Fit</span></a> and
+<a class="reference internal" href="methods/comparison.html"><span class="doc">Model Comparison</span></a> then check the calibration.</p>
 </section>
 <section id="score-examinees">
 <h2>Score examinees<a class="headerlink" href="#score-examinees" title="Link to this heading">#</a></h2>
 <p>Researchers estimate each examinee’s ability, with its standard error, from responses to items of
-known parameters: by maximum likelihood, maximum a posteriori, expected a posteriori or weighted
-likelihood (<a class="reference internal" href="api/ability.html#module-irtlib.ability" title="irtlib.ability"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a>).</p>
+known parameters: by <a class="reference internal" href="methods/ability/ml.html"><span class="doc">Maximum Likelihood</span></a>, <a class="reference internal" href="methods/ability/map.html"><span class="doc">Maximum A Posteriori</span></a>,
+<a class="reference internal" href="methods/ability/eap.html"><span class="doc">Expected A Posteriori</span></a> or <a class="reference internal" href="methods/ability/wle.html"><span class="doc">Weighted Likelihood</span></a>.</p>
 </section>
 <section id="build-on-irtlib">
 <h2>Build on irtlib<a class="headerlink" href="#build-on-irtlib" title="Link to this heading">#</a></h2>
 <p>Package authors use irtlib’s item bank (<a class="reference internal" href="api/bank.html#irtlib.ItemBank" title="irtlib.ItemBank"><code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.ItemBank</span></code></a>), item response functions
-(<a class="reference internal" href="api/irt.html#module-irtlib.irt" title="irtlib.irt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a>) and quadrature grid (<a class="reference internal" href="api/quadrature.html#module-irtlib.quadrature" title="irtlib.quadrature"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a>).
+(<a class="reference internal" href="methods/models/item-response-functions.html#module-irtlib.irt" title="irtlib.irt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a>) and quadrature grid (<a class="reference internal" href="methods/models/quadrature.html#module-irtlib.quadrature" title="irtlib.quadrature"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a>).
 <a class="reference external" href="https://douglasrizzo.com.br/catsim/">catsim</a>, which computes and evaluates computerized adaptive
 tests, is built on them.</p>
 </section>
@@ -407,6 +420,7 @@ tests, is built on them.</p>
 <ul class="simple">
 <li><p>New to item response theory? The <a class="reference internal" href="introduction.html"><span class="doc">Introduction</span></a> explains the models and how calibration
 works, and <a class="reference internal" href="terms-and-notation.html"><span class="doc">Terms and Notation</span></a> lists the terms and symbols.</p></li>
+<li><p><a class="reference internal" href="methods/index.html"><span class="doc">Methods</span></a>: each method, with its formulas, its sources and the origin of each default.</p></li>
 <li><p>The <a class="reference internal" href="api/index.html"><span class="doc">API Reference</span></a> and the <a class="reference internal" href="architecture_decisions.html"><span class="doc">Architecture Decision Records</span></a>.</p></li>
 <li><p>The <a class="reference external" href="https://github.com/douglasrizzo/irtlib/blob/dev/backlog/README.md">backlog</a>: the methods
 planned next, and every other piece of planned work.</p></li>

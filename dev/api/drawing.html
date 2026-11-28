@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Array Types – irtlib.typing" href="typing.html" />
-    <link rel="prev" title="Model Comparison – irtlib.comparison" href="comparison.html" />
+    <link rel="prev" title="Calibration Results – irtlib.calibration" href="calibration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -139,6 +139,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -272,6 +279,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../methods/index.html">
+    Methods
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="index.html">
     API reference
@@ -357,16 +371,8 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="irt.html">Item Response Functions – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="bank.html">Item Bank – <code class="xref py py-class docutils literal notranslate"><span class="pre">irtlib.ItemBank</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="quadrature.html">Quadrature and Ability Priors – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.quadrature</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="calibration.html">Calibration Results – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.calibration</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="mml.html">Marginal Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.mml</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="cml.html">Conditional Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.cml</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="jml.html">Joint Maximum Likelihood – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.jml</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="ability.html">Ability Estimation – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="fit.html">Item Fit – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.fit</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="comparison.html">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Drawing Responses – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.drawing</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="typing.html">Array Types – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.typing</span></code></a></li>
 </ul>
@@ -434,13 +440,13 @@
 <p>Drawing responses from the model, for simulation and parameter-recovery studies.</p>
 <p><a class="reference internal" href="#irtlib.drawing.draw_responses" title="irtlib.drawing.draw_responses"><code class="xref py py-func docutils literal notranslate"><span class="pre">draw_responses()</span></code></a> draws each response on its own: examinee <span class="math notranslate nohighlight">\(j\)</span> answers item <span class="math notranslate nohighlight">\(i\)</span> correctly when a
 number drawn uniformly from <span class="math notranslate nohighlight">\([0, 1)\)</span> falls below <span class="math notranslate nohighlight">\(P_i(\theta_j)\)</span>, the probability of a correct response
-that <a class="reference internal" href="irt.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a> gives. Examinee <span class="math notranslate nohighlight">\(j\)</span>’s row takes the generator’s next <code class="docutils literal notranslate"><span class="pre">n_items</span></code> numbers after
+that <a class="reference internal" href="../methods/models/item-response-functions.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a> gives. Examinee <span class="math notranslate nohighlight">\(j\)</span>’s row takes the generator’s next <code class="docutils literal notranslate"><span class="pre">n_items</span></code> numbers after
 those of the examinees before it.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="irtlib.drawing.draw_responses">
 <span class="sig-prename descclassname"><span class="pre">irtlib.drawing.</span></span><span class="sig-name descname"><span class="pre">draw_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/random/generator.html#numpy.random.Generator" title="(in NumPy v2.5)"><span class="pre">Generator</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/irtlib/drawing.html#draw_responses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.drawing.draw_responses" title="Link to this definition">#</a></dt>
 <dd><p>Draw the responses of examinees of the given abilities to the given items, a response matrix.</p>
-<p>Each response is correct with the probability <a class="reference internal" href="irt.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a> gives, independently of the others. The
+<p>Each response is correct with the probability <a class="reference internal" href="../methods/models/item-response-functions.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a> gives, independently of the others. The
 numbers are drawn row by row, so drawing one examinee at a time from one generator gives the same rows.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -497,12 +503,12 @@ columns of finite numbers.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="comparison.html"
+       href="calibration.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Model Comparison – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></p>
+        <p class="prev-next-title">Calibration Results – <code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.calibration</span></code></p>
       </div>
     </a>
     <a class="right-next"

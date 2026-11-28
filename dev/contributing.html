@@ -142,6 +142,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="api/index.html">
     API reference
   </a>
@@ -266,6 +273,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -441,7 +455,8 @@ run Ruff, ty, pylint, vulture, typos and the check of the backlog’s index.</p>
 <section id="building-the-documentation">
 <h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading">#</a></h2>
 <p>The documentation site’s sources are in <code class="docutils literal notranslate"><span class="pre">sphinx/</span></code>: its pages, the ADRs and <code class="docutils literal notranslate"><span class="pre">references.bib</span></code>, with
-the rules for each kind of page in <code class="docutils literal notranslate"><span class="pre">sphinx/AGENTS.md</span></code>. Build the HTML pages with the command below,
+the rules for each kind of page in <code class="docutils literal notranslate"><span class="pre">sphinx/AGENTS.md</span></code>. Each method has a page in <code class="docutils literal notranslate"><span class="pre">sphinx/methods/</span></code>,
+written from <code class="docutils literal notranslate"><span class="pre">sphinx/methods/_template.md</span></code>. Build the HTML pages with the command below,
 which also installs Sphinx and its extensions (the <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependency group):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>sphinx-build<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>-W<span class="w"> </span>--keep-going<span class="w"> </span>sphinx<span class="w"> </span>sphinx/_build/html
 </pre></div>

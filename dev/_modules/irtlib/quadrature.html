@@ -139,6 +139,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../api/index.html">
     API reference
   </a>
@@ -261,6 +268,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -392,45 +406,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for irtlib.quadrature</h1><div class="highlight"><pre>
-<span></span><span class="sa">r</span><span class="sd">"""The quadrature grid, the ability priors, and each examinee's posterior over the grid.</span>
-
-<span class="sd">Calibration and ability estimation both integrate over ability, and both replace the integral by a sum over the nodes</span>
-<span class="sd">:math:`X_q`, :math:`q = 1, \dots, Q`, of a grid. Each node carries a mass :math:`A_q`, the probability of a discrete</span>
-<span class="sd">prior distribution at that node, and the masses sum to 1 (:cite:t:`Bock1982`, p. 433, Equation 6). A grid holds the</span>
-<span class="sd">nodes and a weight :math:`w_q` for each, and a prior is a log-density :math:`\log \pi`. A node's mass is its weight</span>
-<span class="sd">times the prior density there, normalized:</span>
-
-<span class="sd">.. math::</span>
-
-<span class="sd">   A_q = \frac{w_q\,\pi(X_q)}{\sum_{h=1}^{Q} w_h\,\pi(X_h)}.</span>
-
-<span class="sd">The equal weights of :py:meth:`QuadratureGrid.uniform` cancel, which leaves the prior density at the nodes, normalized:</span>
-<span class="sd">the masses :cite:t:`Bock1981` (p. 449) take for a normal prior, and for any other. Those nodes are evenly spaced, as</span>
-<span class="sd">Bock and Mislevy's are: Gauss-Hermite quadrature, they note, has less advantage for the likelihoods of adaptive testing</span>
-<span class="sd">(p. 433). The default grid has 121 nodes on the extended ability range :math:`[-6, 6]`, a spacing of 0.1: about the</span>
-<span class="sd">spacing of the 80 points between :math:`\pm 4` standard deviations that Bock and Mislevy (p. 433) suggest to keep</span>
-<span class="sd">precision down to a posterior standard deviation of 0.2.</span>
-
-<span class="sd">Examinee :math:`j`'s likelihood at a node, :math:`L_j(X_q)`, is the product over the items :math:`i` it answered of</span>
-<span class="sd">:math:`P_i(X_q)^{u_{ij}} [1 - P_i(X_q)]^{1 - u_{ij}}` (:cite:t:`Bock1982`, p. 433, Equation 3), and its posterior</span>
-<span class="sd">mass at the node is</span>
-
-<span class="sd">.. math::</span>
-
-<span class="sd">   \frac{L_j(X_q)\,A_q}{\sum_{h=1}^{Q} L_j(X_h)\,A_h}.</span>
-
-<span class="sd">The mean of the posterior over the nodes is the EAP estimate of the examinee's ability, and its variance serves as</span>
-<span class="sd">the estimate's error variance: the square of the posterior standard deviation (:cite:t:`Bock1982`, p. 432; p. 433,</span>
-<span class="sd">Equations 4 and 5). An examinee who answered no item has :math:`L_j = 1` at every node, and its posterior is the</span>
-<span class="sd">masses. Bock and Mislevy apply Sheppard's correction to the posterior variance (p. 433); :py:func:`posterior_variance`</span>
-<span class="sd">does not.</span>
-
-<span class="sd">The log-likelihoods accumulate as sums over the items (:cite:t:`Bock1982`, p. 432), so :py:func:`posterior` takes</span>
-<span class="sd">each examinee's log-likelihood at the nodes, whatever the response function that gave it. It adds the log of each</span>
-<span class="sd">node's weight and prior density, and shifts each examinee's row by its maximum before exponentiating, so that the</span>
-<span class="sd">likelihood of a long response pattern does not underflow. A :py:class:`GridPrior` evaluates and checks a prior on a</span>
-<span class="sd">grid's nodes once, for a caller that computes many posteriors with the same grid and prior.</span>
-<span class="sd">"""</span>
+<span></span><span class="sd">"""The quadrature grid, the ability priors, and each examinee's posterior over the grid."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
@@ -452,7 +428,7 @@
 
 
 <div class="viewcode-block" id="normal_log_prior">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.normal_log_prior">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.normal_log_prior">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">normal_log_prior</span><span class="p">(</span><span class="n">mean</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sd</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogPrior</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the log-density of a normal prior with the given mean and standard deviation.</span>
 
@@ -527,7 +503,7 @@
 
 
 <div class="viewcode-block" id="uniform_log_prior">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.uniform_log_prior">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.uniform_log_prior">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">uniform_log_prior</span><span class="p">(</span><span class="n">low</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LogPrior</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the log-density of a uniform prior on ``[low, high]``.</span>
 
@@ -587,7 +563,7 @@
 
 <span class="c1"># eq=False: generated equality and hashing would compare the arrays, which raises; a grid is compared by identity</span>
 <div class="viewcode-block" id="QuadratureGrid">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.QuadratureGrid">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.QuadratureGrid">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">QuadratureGrid</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""The nodes abilities are integrated over, each with a weight.</span>
@@ -632,7 +608,7 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="QuadratureGrid.uniform">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.QuadratureGrid.uniform">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.QuadratureGrid.uniform">[docs]</a>
   <span class="nd">@classmethod</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">uniform</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">121</span><span class="p">,</span> <span class="n">low</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MIN_EXTENDED</span><span class="p">,</span> <span class="n">high</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">THETA_MAX_EXTENDED</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a grid of equally spaced nodes from ``low`` to ``high``, each weighing the spacing.</span>
@@ -677,7 +653,7 @@
 
 <span class="c1"># eq=False: a precomputed prior holds arrays, so it is compared by identity, like a grid</span>
 <div class="viewcode-block" id="GridPrior">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.GridPrior">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.GridPrior">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GridPrior</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""A prior over the nodes of a grid, evaluated and checked once, for posteriors computed many times on them.</span>
@@ -731,7 +707,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">_node_log_masses</span><span class="o">.</span><span class="n">setflags</span><span class="p">(</span><span class="n">write</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GridPrior.posterior">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.GridPrior.posterior">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.GridPrior.posterior">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return each examinee's posterior over the nodes, from its log-likelihood at them.</span>
 
@@ -775,7 +751,7 @@
 
 
 <div class="viewcode-block" id="prior_masses">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.prior_masses">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.prior_masses">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">prior_masses</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the prior's mass at each node of a grid: the node's weight times the prior density there, normalized.</span>
 
@@ -808,7 +784,7 @@
 
 
 <div class="viewcode-block" id="posterior">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.posterior">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">posterior</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">QuadratureGrid</span><span class="p">,</span> <span class="n">log_prior</span><span class="p">:</span> <span class="n">LogPrior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return each examinee's posterior over the nodes of a grid, from its log-likelihood at the nodes.</span>
 
@@ -875,7 +851,7 @@
 
 
 <div class="viewcode-block" id="posterior_mean">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior_mean">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.posterior_mean">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">posterior_mean</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the mean of each examinee's posterior over the nodes.</span>
 
@@ -902,7 +878,7 @@
 
 
 <div class="viewcode-block" id="posterior_variance">
-<a class="viewcode-back" href="../../api/quadrature.html#irtlib.quadrature.posterior_variance">[docs]</a>
+<a class="viewcode-back" href="../../methods/models/quadrature.html#irtlib.quadrature.posterior_variance">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">posterior_variance</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatArray</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Return the variance of each examinee's posterior over the nodes.</span>
 

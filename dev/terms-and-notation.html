@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api/index.html" />
+    <link rel="next" title="Methods" href="methods/index.html" />
     <link rel="prev" title="Introduction" href="introduction.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -139,6 +139,13 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -268,6 +275,13 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -434,7 +448,7 @@ an examinee is a row of the response matrix.</p>
 trait</em> or <em>person parameter</em>. In the API: <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
 </dd>
 <dt>ability estimate <span class="math notranslate nohighlight">\(\hat{\theta}\)</span></dt><dd><p>The estimate of an examinee’s ability from its responses. In the API: the <code class="docutils literal notranslate"><span class="pre">theta</span></code> of an
-<a class="reference internal" href="api/ability.html#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>.</p>
+<a class="reference internal" href="methods/ability/index.html#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>.</p>
 </dd>
 <dt>item</dt><dd><p>One question of a test, scored correct or incorrect. In the API an item is a column of the
 response matrix and a row <span class="math notranslate nohighlight">\([a, b, c, d]\)</span> of an item matrix, <code class="docutils literal notranslate"><span class="pre">items</span></code>; in an item bank it also has a
@@ -462,17 +476,17 @@ high ability answers correctly. <span class="math notranslate nohighlight">\(1 -
 <code class="docutils literal notranslate"><span class="pre">ItemBank.upper_asymptote</span></code>; 1 under every model but the 4PL.</p>
 </dd>
 <dt>item characteristic curve <span class="math notranslate nohighlight">\(P_i(\theta)\)</span></dt><dd><p>The probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span> at ability <span class="math notranslate nohighlight">\(\theta\)</span>. Also called the <em>item
-response function</em> (IRF). <a class="reference internal" href="api/irt.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a>.</p>
+response function</em> (IRF). <a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a>.</p>
 </dd>
 <dt>item information <span class="math notranslate nohighlight">\(I_i(\theta)\)</span></dt><dd><p>The Fisher information of a response to item <span class="math notranslate nohighlight">\(i\)</span> about the ability at <span class="math notranslate nohighlight">\(\theta\)</span>.
-<a class="reference internal" href="api/irt.html#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.information()</span></code></a>.</p>
+<a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.information()</span></code></a>.</p>
 </dd>
-<dt>test information <span class="math notranslate nohighlight">\(I(\theta)\)</span></dt><dd><p>The sum of the information of a set of items. <a class="reference internal" href="api/irt.html#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.total_information()</span></code></a>.</p>
+<dt>test information <span class="math notranslate nohighlight">\(I(\theta)\)</span></dt><dd><p>The sum of the information of a set of items. <a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.total_information()</span></code></a>.</p>
 </dd>
 <dt>standard error <span class="math notranslate nohighlight">\(SE(\hat{\theta})\)</span></dt><dd><p>The uncertainty of an ability estimate, on the scale of <span class="math notranslate nohighlight">\(\theta\)</span>. Also called the <em>standard error
 of estimation</em> (SEE) or <em>standard error of measurement</em> (SEM). Each estimator computes it by its
 own formula; for maximum likelihood it is <span class="math notranslate nohighlight">\(1/\sqrt{I(\hat{\theta})}\)</span>. In the API: the
-<code class="docutils literal notranslate"><span class="pre">standard_errors</span></code> of an <a class="reference internal" href="api/ability.html#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>, and <a class="reference internal" href="api/irt.html#irtlib.irt.see" title="irtlib.irt.see"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.see()</span></code></a>.</p>
+<code class="docutils literal notranslate"><span class="pre">standard_errors</span></code> of an <a class="reference internal" href="methods/ability/index.html#irtlib.ability.AbilityEstimates" title="irtlib.ability.AbilityEstimates"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbilityEstimates</span></code></a>, and <a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.see" title="irtlib.irt.see"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.see()</span></code></a>.</p>
 </dd>
 </dl>
 </section>
@@ -497,8 +511,8 @@ score</em>.</p>
 These pages never say “estimation” alone where calibration and ability estimation could be
 confused.</p>
 </dd>
-<dt>calibrator</dt><dd><p>An object that calibrates items by one method: <a class="reference internal" href="api/mml.html#irtlib.mml.MMLCalibrator" title="irtlib.mml.MMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MMLCalibrator</span></code></a>,
-<a class="reference internal" href="api/cml.html#irtlib.cml.CMLCalibrator" title="irtlib.cml.CMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CMLCalibrator</span></code></a> or <a class="reference internal" href="api/jml.html#irtlib.jml.JMLCalibrator" title="irtlib.jml.JMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">JMLCalibrator</span></code></a>. Its <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> method
+<dt>calibrator</dt><dd><p>An object that calibrates items by one method: <a class="reference internal" href="methods/calibration/mml.html#irtlib.mml.MMLCalibrator" title="irtlib.mml.MMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MMLCalibrator</span></code></a>,
+<a class="reference internal" href="methods/calibration/cml.html#irtlib.cml.CMLCalibrator" title="irtlib.cml.CMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">CMLCalibrator</span></code></a> or <a class="reference internal" href="methods/calibration/jml.html#irtlib.jml.JMLCalibrator" title="irtlib.jml.JMLCalibrator"><code class="xref py py-class docutils literal notranslate"><span class="pre">JMLCalibrator</span></code></a>. Its <code class="docutils literal notranslate"><span class="pre">calibrate</span></code> method
 returns a <a class="reference internal" href="api/calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibration</span></code></a>.</p>
 </dd>
 <dt>marginal, conditional and joint likelihood</dt><dd><p>The likelihoods the three calibration methods maximize: with the abilities integrated out over a
@@ -509,15 +523,15 @@ In the API: <a class="reference internal" href="api/calibration.html#irtlib.cali
 </dd>
 <dt>quadrature grid</dt><dd><p>The abilities that calibration and ability estimation integrate over, the <em>nodes</em> <span class="math notranslate nohighlight">\(X_q\)</span>,
 <span class="math notranslate nohighlight">\(q = 1, \dots, Q\)</span>, each with a weight. Also called <em>quadrature points</em>. In the API:
-<a class="reference internal" href="api/quadrature.html#irtlib.quadrature.QuadratureGrid" title="irtlib.quadrature.QuadratureGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuadratureGrid</span></code></a>.</p>
+<a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.QuadratureGrid" title="irtlib.quadrature.QuadratureGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuadratureGrid</span></code></a>.</p>
 </dd>
 <dt>ability prior</dt><dd><p>A density of ability: the population distribution that marginal maximum likelihood integrates
 over, or the prior of a Bayesian ability estimate. Its <em>mass</em> <span class="math notranslate nohighlight">\(A_q\)</span> at node <span class="math notranslate nohighlight">\(X_q\)</span> is proportional
 to the node’s weight times the density there, and the masses sum to 1. In the API:
-<a class="reference internal" href="api/quadrature.html#irtlib.quadrature.normal_log_prior" title="irtlib.quadrature.normal_log_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">normal_log_prior()</span></code></a>, <a class="reference internal" href="api/quadrature.html#irtlib.quadrature.prior_masses" title="irtlib.quadrature.prior_masses"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_masses()</span></code></a>.</p>
+<a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.normal_log_prior" title="irtlib.quadrature.normal_log_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">normal_log_prior()</span></code></a>, <a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.prior_masses" title="irtlib.quadrature.prior_masses"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_masses()</span></code></a>.</p>
 </dd>
 <dt>item priors</dt><dd><p>Priors on the item parameters, under which the calibrated parameters are <em>Bayes modal</em> estimates:
-they maximize the likelihood times the priors. In the API: <a class="reference internal" href="api/mml.html#irtlib.mml.Priors" title="irtlib.mml.Priors"><code class="xref py py-class docutils literal notranslate"><span class="pre">Priors</span></code></a>.</p>
+they maximize the likelihood times the priors. In the API: <a class="reference internal" href="methods/calibration/mml.html#irtlib.mml.Priors" title="irtlib.mml.Priors"><code class="xref py py-class docutils literal notranslate"><span class="pre">Priors</span></code></a>.</p>
 </dd>
 <dt>cycle</dt><dd><p>One round of a calibration’s algorithm, such as an EM cycle. In the API: the <code class="docutils literal notranslate"><span class="pre">cycles</span></code> of a
 <a class="reference internal" href="api/calibration.html#irtlib.calibration.Calibration" title="irtlib.calibration.Calibration"><code class="xref py py-class docutils literal notranslate"><span class="pre">Calibration</span></code></a>; <code class="docutils literal notranslate"><span class="pre">converged</span></code> says whether its stopping rule was met.</p>
@@ -531,10 +545,10 @@ they maximize the likelihood times the priors. In the API: <a class="reference i
 </dd>
 <dt>estimator</dt><dd><p>A method of ability estimation: maximum likelihood (ML), maximum a posteriori (MAP, also called
 <em>Bayes modal</em>), expected a posteriori (EAP) or Warm’s weighted likelihood (WLE). In the API: the
-functions of <a class="reference internal" href="api/ability.html#module-irtlib.ability" title="irtlib.ability"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a>.</p>
+functions of <a class="reference internal" href="methods/ability/index.html#module-irtlib.ability" title="irtlib.ability"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.ability</span></code></a>.</p>
 </dd>
 <dt>posterior</dt><dd><p>An examinee’s distribution of ability given its responses: proportional to the prior times the
-likelihood. In the API: <a class="reference internal" href="api/quadrature.html#irtlib.quadrature.posterior" title="irtlib.quadrature.posterior"><code class="xref py py-func docutils literal notranslate"><span class="pre">posterior()</span></code></a>, over the nodes of a grid.</p>
+likelihood. In the API: <a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.posterior" title="irtlib.quadrature.posterior"><code class="xref py py-func docutils literal notranslate"><span class="pre">posterior()</span></code></a>, over the nodes of a grid.</p>
 </dd>
 </dl>
 </section>
@@ -542,10 +556,10 @@ likelihood. In the API: <a class="reference internal" href="api/quadrature.html#
 <h2>Checking a Calibration<a class="headerlink" href="#checking-a-calibration" title="Link to this heading">#</a></h2>
 <dl class="simple myst">
 <dt>item fit</dt><dd><p>How well the responses a calibration predicts for an item match those observed. In the API:
-<a class="reference internal" href="api/fit.html#irtlib.fit.s_x2" title="irtlib.fit.s_x2"><code class="xref py py-func docutils literal notranslate"><span class="pre">s_x2()</span></code></a> and <a class="reference internal" href="api/fit.html#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">mean_squares()</span></code></a>.</p>
+<a class="reference internal" href="methods/fit/s-x2.html#irtlib.fit.s_x2" title="irtlib.fit.s_x2"><code class="xref py py-func docutils literal notranslate"><span class="pre">s_x2()</span></code></a> and <a class="reference internal" href="methods/fit/mean-squares.html#irtlib.fit.mean_squares" title="irtlib.fit.mean_squares"><code class="xref py py-func docutils literal notranslate"><span class="pre">mean_squares()</span></code></a>.</p>
 </dd>
 <dt>model comparison</dt><dd><p>Whether a model with more parameters fits enough better to justify them. In the API: the
-functions of <a class="reference internal" href="api/comparison.html#module-irtlib.comparison" title="irtlib.comparison"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a>.</p>
+functions of <a class="reference internal" href="methods/comparison.html#module-irtlib.comparison" title="irtlib.comparison"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.comparison</span></code></a>.</p>
 </dd>
 </dl>
 </section>
@@ -589,7 +603,7 @@ functions of <a class="reference internal" href="api/comparison.html#module-irtl
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(P_i(\theta)\)</span></p></td>
 <td><p>probability of a correct response to item <span class="math notranslate nohighlight">\(i\)</span></p></td>
-<td><p><a class="reference internal" href="api/irt.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a></p></td>
+<td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.icc()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(Q_i(\theta)\)</span></p></td>
 <td><p><span class="math notranslate nohighlight">\(1 - P_i(\theta)\)</span>, probability of an incorrect response</p></td>
@@ -597,11 +611,11 @@ functions of <a class="reference internal" href="api/comparison.html#module-irtl
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(I_i(\theta)\)</span></p></td>
 <td><p>information of item <span class="math notranslate nohighlight">\(i\)</span></p></td>
-<td><p><a class="reference internal" href="api/irt.html#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.information()</span></code></a></p></td>
+<td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.information()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(I(\theta)\)</span></p></td>
 <td><p>test information, <span class="math notranslate nohighlight">\(\sum_i I_i(\theta)\)</span></p></td>
-<td><p><a class="reference internal" href="api/irt.html#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.total_information()</span></code></a></p></td>
+<td><p><a class="reference internal" href="methods/models/item-response-functions.html#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">irtlib.irt.total_information()</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(SE(\hat{\theta})\)</span></p></td>
 <td><p>standard error of the ability estimate</p></td>
@@ -621,7 +635,7 @@ functions of <a class="reference internal" href="api/comparison.html#module-irtl
 </tr>
 <tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(A_q\)</span></p></td>
 <td><p>prior mass at node <span class="math notranslate nohighlight">\(X_q\)</span></p></td>
-<td><p><a class="reference internal" href="api/quadrature.html#irtlib.quadrature.prior_masses" title="irtlib.quadrature.prior_masses"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_masses()</span></code></a></p></td>
+<td><p><a class="reference internal" href="methods/models/quadrature.html#irtlib.quadrature.prior_masses" title="irtlib.quadrature.prior_masses"><code class="xref py py-func docutils literal notranslate"><span class="pre">prior_masses()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p><span class="math notranslate nohighlight">\(Q\)</span></p></td>
 <td><p>number of nodes</p></td>
@@ -655,11 +669,11 @@ incorrect response. <span class="math notranslate nohighlight">\(I\)</span> alwa
       </div>
     </a>
     <a class="right-next"
-       href="api/index.html"
+       href="methods/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title">Methods</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

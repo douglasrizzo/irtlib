@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Item Response Functions &#8212; irtlib 0.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="../../_static/irtlib.css?v=b716008c" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'methods/models/item-response-functions';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Quadrature and Ability Priors" href="quadrature.html" />
+    <link rel="prev" title="Models" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">irtlib</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting-started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../architecture_decisions.html">
+    Architecture decisions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    Bibliography
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/douglasrizzo/irtlib" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Item Response Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quadrature.html">Quadrature and Ability Priors</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../calibration/index.html">Calibration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ability/index.html">Ability Estimation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fit/index.html">Item Fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comparison.html">Model Comparison</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Methods</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Models</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Item Response Functions</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="item-response-functions">
+<h1>Item Response Functions<a class="headerlink" href="#item-response-functions" title="Link to this heading">#</a></h1>
+<dl class="myst field-list simple">
+<dt class="field-odd">API<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#module-irtlib.irt" title="irtlib.irt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a></p>
+</dd>
+<dt class="field-even">Sources<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="bibtex-citation" id="id1">Magis [<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">2013</a>]</span>; <span class="bibtex-citation" id="id2">Magis and Raîche [<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">2012</a>]</span>; <span class="bibtex-citation" id="id3">Barton and Lord [<a class="reference internal" href="#id34" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">1981</a>]</span>; <span class="bibtex-citation" id="id4">Baker [<a class="reference internal" href="#id31" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">1987</a>]</span></p>
+</dd>
+</dl>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">#</a></h2>
+<p>Every method in irtlib rests on the same few quantities of the logistic models: the probability of a
+correct response, its derivatives, the information an item gives about the ability, and the
+likelihood of a set of responses. <a class="reference internal" href="#module-irtlib.irt" title="irtlib.irt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">irtlib.irt</span></code></a> computes them once, for every model from the 1PL
+to the 4PL, and the calibrators, the ability estimators and item fit call it, as catsim does. A
+package that builds on irtlib can call it too.</p>
+</section>
+<section id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<p>Under the four-parameter logistic model, an examinee of ability <span class="math notranslate nohighlight">\(\theta\)</span> answers item <span class="math notranslate nohighlight">\(i\)</span> correctly
+with probability</p>
+<div class="math notranslate nohighlight">
+\[P_i(\theta) = c_i + (d_i - c_i) F_i(\theta), \quad F_i(\theta) = \frac{1}{1 + e^{-a_i(\theta - b_i)}}\]</div>
+<p><span class="bibtex-citation" id="id5">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, p. 306, Equation 1]</span>, and incorrectly with probability <span class="math notranslate nohighlight">\(Q_i = 1 - P_i\)</span>. The 3PL
+fixes <span class="math notranslate nohighlight">\(d_i = 1\)</span>, and the 2PL also <span class="math notranslate nohighlight">\(c_i = 0\)</span> <span class="bibtex-citation" id="id6">[<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 3]</span>. The derivatives of <span class="math notranslate nohighlight">\(P_i\)</span> with
+respect to the ability are</p>
+<div class="math notranslate nohighlight">
+\[P_i' = a_i (d_i - c_i) F_i (1 - F_i), \quad P_i'' = a_i P_i' (1 - 2 F_i),\]</div>
+<p>the derivatives of <span class="bibtex-citation" id="id7">Barton and Lord [<a class="reference internal" href="#id34" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">1981</a>, p. A2]</span> written with <span class="math notranslate nohighlight">\(F_i\)</span> and their constant <span class="math notranslate nohighlight">\(D\)</span> set to 1;
+the first is also <span class="bibtex-citation" id="id8">Magis [<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">2013</a>, p. 306, Equations 4 and 5]</span>.</p>
+<p><strong>Information.</strong> The information item <span class="math notranslate nohighlight">\(i\)</span> gives about the ability is <span class="math notranslate nohighlight">\(I_i = P_i'^2 / (P_i Q_i)\)</span>
+<span class="bibtex-citation" id="id9">[<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 4, Equation 4]</span>, for the 4PL</p>
+<div class="math notranslate nohighlight">
+\[I_i(\theta) = \frac{a_i^2 (P_i - c_i)^2 (d_i - P_i)^2}{(d_i - c_i)^2 P_i Q_i}\]</div>
+<p><span class="bibtex-citation" id="id10">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, p. 307, Equation 6]</span>, and the test information <span class="math notranslate nohighlight">\(I(\theta)\)</span> is the sum of the
+information of its items <span class="bibtex-citation" id="id11">[<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 5, Equation 8]</span>.</p>
+<p><strong>Standard error and confidence interval.</strong> The maximum likelihood estimate of the ability is
+asymptotically normal, with variance the inverse of the test information
+<span class="bibtex-citation" id="id12">[<a class="reference internal" href="#id75" title="Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. Psychometrika, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, https://hdl.handle.net/11244/5356, derives the same results. doi:10.1007/BF02294627.">Warm, 1989</a>, p. 445]</span> and standard error <span class="math notranslate nohighlight">\(1 / \sqrt{I(\theta)}\)</span>
+<span class="bibtex-citation" id="id13">[<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 4, Equation 3]</span>. <a class="reference internal" href="#irtlib.irt.confidence_interval" title="irtlib.irt.confidence_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">confidence_interval()</span></code></a> is the interval this
+normal approximation gives, <span class="math notranslate nohighlight">\(\hat\theta \pm z \cdot SE\)</span>, with <span class="math notranslate nohighlight">\(z\)</span> the standard normal’s quantile at
+<span class="math notranslate nohighlight">\((1 + \text{confidence}) / 2\)</span>.</p>
+<p><strong>Reliability.</strong> The reliability of the test at <span class="math notranslate nohighlight">\(\theta\)</span> is <span class="math notranslate nohighlight">\(I(\theta) / (I(\theta) + 1 / \sigma^2)\)</span>,
+with the abilities’ variance <span class="math notranslate nohighlight">\(\sigma^2 = 1\)</span>, as they are <span class="math notranslate nohighlight">\(N(0, 1)\)</span>
+(<a class="reference internal" href="../../adr/0008-scale-priors-fixed-parameters.html"><span class="doc">ADR-0008</span></a>). For abilities <span class="math notranslate nohighlight">\(N(0, 1)\)</span>,
+<span class="bibtex-citation" id="id14">Bock and Mislevy [<a class="reference internal" href="#id38" title="R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4):431–444, 1982. Open copy: http://purl.umn.edu/93227. doi:10.1177/014662168200600405.">1982</a>, p. 437, Equation 7]</span> define a related reliability of the EAP estimate, one minus
+its posterior variance.</p>
+<p><strong>The ability of maximum information.</strong> An item is most informative at</p>
+<div class="math notranslate nohighlight">
+\[\theta^*_i = b_i + \frac{1}{a_i} \log \frac{x^*_i - c_i}{d_i - x^*_i}, \quad
+x^*_i = 2 \sqrt{\frac{-u_i}{3}} \cos\left\{\frac{1}{3} \arccos\left(-\frac{v_i}{2}
+\sqrt{\frac{27}{-u_i^3}}\right) + \frac{4 \pi}{3}\right\} + \frac{1}{2},\]</div>
+<p>with <span class="math notranslate nohighlight">\(u_i = -3/4 + (c_i + d_i - 2 c_i d_i)/2\)</span> and <span class="math notranslate nohighlight">\(v_i = (c_i + d_i - 1)/4\)</span>, where <span class="math notranslate nohighlight">\(x^*_i\)</span> is the
+probability of a correct response at <span class="math notranslate nohighlight">\(\theta^*_i\)</span> <span class="bibtex-citation" id="id15">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, pp. 308-309, Equations 13, 18 and 19]</span>. With <span class="math notranslate nohighlight">\(d_i = 1\)</span> it is <span class="math notranslate nohighlight">\(\theta^*_i = b_i + \log[(1 + \sqrt{1 + 8 c_i}) / 2] / a_i\)</span>
+(p. 310, Equation 23), and with <span class="math notranslate nohighlight">\(c_i + d_i = 1\)</span> it is <span class="math notranslate nohighlight">\(b_i\)</span> (pp. 309-310).</p>
+<p><strong>The integral of the information.</strong> Since <span class="math notranslate nohighlight">\(P_i' = a_i (P_i - c_i)(d_i - P_i) / (d_i - c_i)\)</span>
+<span class="bibtex-citation" id="id16">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, p. 306, Equation 5]</span>, changing the variable of integration from <span class="math notranslate nohighlight">\(\theta\)</span> to <span class="math notranslate nohighlight">\(P_i\)</span>
+in the information and splitting the result into partial fractions integrates an item’s information
+in closed form:</p>
+<div class="math notranslate nohighlight">
+\[\int_{\theta_L}^{\theta_U} I_i(\theta)\, d\theta = \frac{a_i}{d_i - c_i} \Big[ P_i - c_i d_i \log P_i +
+(1 - c_i)(1 - d_i) \log(1 - P_i) \Big]_{P_i(\theta_L)}^{P_i(\theta_U)},\]</div>
+<p>derived here rather than printed in a source.</p>
+<p><strong>The log-likelihood.</strong> The log-likelihood of examinee <span class="math notranslate nohighlight">\(j\)</span>’s responses <span class="math notranslate nohighlight">\(u_{ij}\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\log L_j(\theta) = \sum_i [u_{ij} \log P_i(\theta) + (1 - u_{ij}) \log Q_i(\theta)]\]</div>
+<p>over the items <span class="math notranslate nohighlight">\(i\)</span> the examinee answered <span class="bibtex-citation" id="id17">[<a class="reference internal" href="#id54" title="David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. Journal of Statistical Software, 48(8):1–31, 2012. Open access. doi:10.18637/jss.v048.i08.">Magis and Raîche, 2012</a>, p. 4, Equation 2]</span>;
+<span class="bibtex-citation" id="id18">[<a class="reference internal" href="#id34" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">Barton and Lord, 1981</a>, p. A1]</span>.</p>
+<p><strong>A reporting scale.</strong> <a class="reference internal" href="#irtlib.irt.theta_to_scale" title="irtlib.irt.theta_to_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a> takes abilities to scores on a reporting
+scale along the line through <span class="math notranslate nohighlight">\((\theta_{min}, \text{scale}_{min})\)</span> and
+<span class="math notranslate nohighlight">\((\theta_{max}, \text{scale}_{max})\)</span>, and <a class="reference internal" href="#irtlib.irt.scale_to_theta" title="irtlib.irt.scale_to_theta"><code class="xref py py-func docutils literal notranslate"><span class="pre">scale_to_theta()</span></code></a> takes them back.</p>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<p><strong>Items and shapes.</strong> The functions take one item as a row <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or
+several as a matrix of such rows, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with <span class="math notranslate nohighlight">\(a &gt; 0\)</span> and <span class="math notranslate nohighlight">\(0 \leq c &lt; d \leq 1\)</span>, and a
+response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the
+examinee did not answer the item. The models have no scaling constant
+(<a class="reference internal" href="../../adr/0001-scope.html"><span class="doc">ADR-0001</span></a>).</p>
+<p><strong>The derivatives calibration uses.</strong> Calibration solves for each item’s parameters, and reports
+their standard errors, from the derivatives of <span class="math notranslate nohighlight">\(P_i\)</span> with respect to those parameters, which every
+method that estimates items shares. It estimates them in four parameters
+(<a class="reference internal" href="../../adr/0007-mml-em-settings.html"><span class="doc">ADR-0007</span></a>): the slope <span class="math notranslate nohighlight">\(\lambda = a\)</span> and the intercept
+<span class="math notranslate nohighlight">\(\zeta = -ab\)</span>, so that <span class="math notranslate nohighlight">\(a(\theta - b) = \lambda\theta + \zeta\)</span>, and the logits <span class="math notranslate nohighlight">\(\gamma\)</span> of <span class="math notranslate nohighlight">\(c\)</span> and
+<span class="math notranslate nohighlight">\(\delta\)</span> of <span class="math notranslate nohighlight">\(d\)</span>. Every array of these derivatives has the four on its last axis, in that order. By
+the chain rule,</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial P}{\partial \lambda} = (d - c)\,\theta\,F(1 - F), \quad
+\frac{\partial P}{\partial \zeta} = (d - c)\,F(1 - F), \quad
+\frac{\partial P}{\partial \gamma} = c(1 - c)(1 - F), \quad
+\frac{\partial P}{\partial \delta} = d(1 - d)\,F,\]</div>
+<p>from the derivatives in <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(b\)</span> and <span class="math notranslate nohighlight">\(c\)</span> of <span class="bibtex-citation" id="id19">Barton and Lord [<a class="reference internal" href="#id34" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">1981</a>, p. A3]</span> and the derivative of the
+logistic function. A parameter at its bound, <span class="math notranslate nohighlight">\(c = 0\)</span> or <span class="math notranslate nohighlight">\(d = 1\)</span>, has derivative 0.</p>
+<p>For an item answered by <span class="math notranslate nohighlight">\(N_q\)</span> examinees at ability <span class="math notranslate nohighlight">\(X_q\)</span>, <span class="math notranslate nohighlight">\(r_q\)</span> of them correctly, the
+log-likelihood is <span class="math notranslate nohighlight">\(\sum_q [r_q \log P(X_q) + (N_q - r_q)\log Q(X_q)]\)</span>, the grouped form of
+<span class="bibtex-citation" id="id20">Baker [<a class="reference internal" href="#id31" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">1987</a>, p. 112, Equation 3]</span>. Its derivative in a parameter <span class="math notranslate nohighlight">\(\chi\)</span> is
+<span class="math notranslate nohighlight">\(\sum_q [r_q - N_q P(X_q)]\,(\partial P / \partial\chi) / (PQ)\)</span>, the form of
+<span class="bibtex-citation" id="id21">Barton and Lord [<a class="reference internal" href="#id34" title="Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: https://files.eric.ed.gov/fulltext/ED207996.pdf. doi:10.1002/j.2333-8504.1981.tb01255.x.">1981</a>, p. A2]</span> summed within each group; with <span class="math notranslate nohighlight">\(d = 1\)</span> the derivative in <span class="math notranslate nohighlight">\(\gamma\)</span> is the
+equation for the logit of <span class="math notranslate nohighlight">\(c\)</span> of <span class="bibtex-citation" id="id22">Mislevy [<a class="reference internal" href="#id58" title="Robert J. Mislevy. Bayes modal estimation in item response models. Psychometrika, 51(2):177–195, 1986. Not openly available; Harwell and Baker (1991) describe the method. doi:10.1007/BF02293979.">1986</a>, p. 184, Equation 22]</span>. The expected
+information of one response is <span class="math notranslate nohighlight">\((\partial P / \partial\chi)(\partial P / \partial\phi) / (PQ)\)</span>,
+Barton and Lord’s second derivative (p. A2) without its terms in <span class="math notranslate nohighlight">\(u - P\)</span>, whose expected value is 0.
+For the 2PL in these parameters the observed information equals the expected one
+<span class="bibtex-citation" id="id23">[<a class="reference internal" href="#id31" title="Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. Applied Psychological Measurement, 11(2):111–141, 1987. Open copy: https://hdl.handle.net/11299/103398. doi:10.1177/014662168701100201.">Baker, 1987</a>, p. 116]</span>.</p>
+<p><strong>Precision far from the difficulty.</strong> Nothing is computed by subtracting from 1. <span class="math notranslate nohighlight">\(F\)</span> and <span class="math notranslate nohighlight">\(1 - F\)</span>
+both come from the logit; <span class="math notranslate nohighlight">\(P = c + (d - c)F\)</span> and <span class="math notranslate nohighlight">\(Q = (1 - d) + (d - c)(1 - F)\)</span>; <span class="math notranslate nohighlight">\(\log P\)</span> and
+<span class="math notranslate nohighlight">\(\log Q\)</span> combine <span class="math notranslate nohighlight">\(\log c\)</span> or <span class="math notranslate nohighlight">\(\log(1 - d)\)</span> with <span class="math notranslate nohighlight">\(\log(d - c)\)</span> and <span class="math notranslate nohighlight">\(\log F\)</span> or <span class="math notranslate nohighlight">\(\log(1 - F)\)</span>. The
+ratios <span class="math notranslate nohighlight">\((d - c)F / P\)</span>, <span class="math notranslate nohighlight">\((d - c)(1 - F) / Q\)</span>, <span class="math notranslate nohighlight">\(c / P\)</span> and <span class="math notranslate nohighlight">\((1 - d) / Q\)</span> each lie between 0 and 1.
+The first is 0 / 0 only where <span class="math notranslate nohighlight">\(c = 0\)</span> and <span class="math notranslate nohighlight">\(F\)</span> has underflowed to 0, the second only where <span class="math notranslate nohighlight">\(d = 1\)</span>
+and <span class="math notranslate nohighlight">\(1 - F\)</span> has, and both take their limit there, 1. With <span class="math notranslate nohighlight">\(P - c = (d - c)F\)</span> and
+<span class="math notranslate nohighlight">\(d - P = (d - c)(1 - F)\)</span> <span class="bibtex-citation" id="id24">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, p. 306, Equation 3]</span>, the item information is
+<span class="math notranslate nohighlight">\(a^2 F (1 - F)\)</span> times the first two ratios.</p>
+<p><strong>Departures from the sources.</strong> Magis assumes <span class="math notranslate nohighlight">\(0 &lt; c_i &lt; 0.5\)</span> and <span class="math notranslate nohighlight">\(0.5 &lt; d_i &lt; 1\)</span>
+<span class="bibtex-citation" id="id25">[<a class="reference internal" href="#id55" title="David Magis. A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. doi:10.1177/0146621613475471.">Magis, 2013</a>, p. 306]</span>; <a class="reference internal" href="#irtlib.irt.max_info_theta" title="irtlib.irt.max_info_theta"><code class="xref py py-func docutils literal notranslate"><span class="pre">max_info_theta()</span></code></a> takes his Equation 19 for every item
+with <span class="math notranslate nohighlight">\(d_i &lt; 1\)</span>, and his Equation 23 for every item with <span class="math notranslate nohighlight">\(d_i = 1\)</span>. The closed form of the integral of
+the information has no published source; the
+<a class="reference external" href="https://github.com/douglasrizzo/irtlib/blob/dev/backlog/discovery/sources-wanted.md">sources wanted</a>
+list both.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+<span class="sd-summary-text">Comparison with mirt and catR</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<ul class="simple">
+<li><p>The reliability is mirt 1.48’s (<code class="docutils literal notranslate"><span class="pre">R/SingleGroup-methods.R:1474</span></code>), the curve that
+<code class="docutils literal notranslate"><span class="pre">plot(type</span> <span class="pre">=</span> <span class="pre">&quot;rxx&quot;)</span></code> draws; the parity tests check it against mirt’s recorded values within a
+relative <span class="math notranslate nohighlight">\(10^{-10}\)</span>.</p></li>
+<li><p>The closed-form integral of the information agrees with mirt 1.48’s <code class="docutils literal notranslate"><span class="pre">areainfo</span></code>, which integrates
+numerically (<code class="docutils literal notranslate"><span class="pre">R/areainfo.R:49-66</span></code>), within the same tolerance.</p></li>
+<li><p>The parameters calibration solves in are mirt’s (<a class="reference internal" href="../../adr/0007-mml-em-settings.html"><span class="doc">ADR-0007</span></a>).</p></li>
+<li><p>The probabilities and the information agree with catR 3.17’s on the recorded abilities and items
+within a relative <span class="math notranslate nohighlight">\(10^{-10}\)</span>, after the recorded values are checked against Magis’s equations
+written out (<a class="reference internal" href="../../adr/0003-mirt-as-the-reference.html"><span class="doc">ADR-0003</span></a>).</p></li>
+</ul>
+</div>
+</details></section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<p>The functions take abilities and items; these have defaults:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 26.0%" />
+<col style="width: 14.0%" />
+<col style="width: 34.0%" />
+<col style="width: 26.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default from</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code> of <a class="reference internal" href="#irtlib.irt.confidence_interval" title="irtlib.irt.confidence_interval"><code class="xref py py-func docutils literal notranslate"><span class="pre">confidence_interval()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.95</span></code></p></td>
+<td><p>The interval’s confidence level, strictly between 0 and 1.</p></td>
+<td><p>catsim’s, from which the function moved (<a class="reference internal" href="../../adr/0004-catsim-builds-on-irtlib.html"><span class="doc">ADR-0004</span></a>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scale_min</span></code>, <code class="docutils literal notranslate"><span class="pre">scale_max</span></code> of <a class="reference internal" href="#irtlib.irt.theta_to_scale" title="irtlib.irt.theta_to_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a> and <a class="reference internal" href="#irtlib.irt.scale_to_theta" title="irtlib.irt.scale_to_theta"><code class="xref py py-func docutils literal notranslate"><span class="pre">scale_to_theta()</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">100</span></code></p></td>
+<td><p>The reporting scale’s scores at the two abilities below.</p></td>
+<td><p>catsim’s (<a class="reference internal" href="../../adr/0004-catsim-builds-on-irtlib.html"><span class="doc">ADR-0004</span></a>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">theta_min</span></code>, <code class="docutils literal notranslate"><span class="pre">theta_max</span></code> of the same functions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-4</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
+<td><p>The abilities that map to <code class="docutils literal notranslate"><span class="pre">scale_min</span></code> and <code class="docutils literal notranslate"><span class="pre">scale_max</span></code>.</p></td>
+<td><p>catsim’s (<a class="reference internal" href="../../adr/0004-catsim-builds-on-irtlib.html"><span class="doc">ADR-0004</span></a>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="guarantees">
+<h2>Guarantees<a class="headerlink" href="#guarantees" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>Probabilities, information and log-likelihoods are finite at any finite ability, however far
+from an item’s difficulty.</p></li>
+<li><p>Items without information, or no items at all, give a test information of 0.</p></li>
+<li><p>A guessing parameter of 0 or an upper asymptote of 1 has derivative 0 in calibration’s
+parameters.</p></li>
+</ol>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id26">
+<div role="list" class="citation-list">
+<div class="citation" id="id31" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Bak87<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id20">2</a>,<a role="doc-backlink" href="#id23">3</a>)</span>
+<p>Frank B. Baker. Methodology review: item parameter estimation under the one-, two-, and three-parameter logistic models. <em>Applied Psychological Measurement</em>, 11(2):111–141, 1987. Open copy: <a class="reference external" href="https://hdl.handle.net/11299/103398">https://hdl.handle.net/11299/103398</a>. <a class="reference external" href="https://doi.org/10.1177/014662168701100201">doi:10.1177/014662168701100201</a>.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BL81<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id7">2</a>,<a role="doc-backlink" href="#id18">3</a>,<a role="doc-backlink" href="#id19">4</a>,<a role="doc-backlink" href="#id21">5</a>)</span>
+<p>Mark A. Barton and Frederic M. Lord. An upper asymptote for the three-parameter logistic item-response model. Research Report RR-81-20, Educational Testing Service, Princeton, NJ, 1981. Open copy: <a class="reference external" href="https://files.eric.ed.gov/fulltext/ED207996.pdf">https://files.eric.ed.gov/fulltext/ED207996.pdf</a>. <a class="reference external" href="https://doi.org/10.1002/j.2333-8504.1981.tb01255.x">doi:10.1002/j.2333-8504.1981.tb01255.x</a>.</p>
+</div>
+<div class="citation" id="id38" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id14">BM82</a><span class="fn-bracket">]</span></span>
+<p>R. Darrell Bock and Robert J. Mislevy. Adaptive EAP estimation of ability in a microcomputer environment. <em>Applied Psychological Measurement</em>, 6(4):431–444, 1982. Open copy: <a class="reference external" href="http://purl.umn.edu/93227">http://purl.umn.edu/93227</a>. <a class="reference external" href="https://doi.org/10.1177/014662168200600405">doi:10.1177/014662168200600405</a>.</p>
+</div>
+<div class="citation" id="id55" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Mag13<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id5">2</a>,<a role="doc-backlink" href="#id8">3</a>,<a role="doc-backlink" href="#id10">4</a>,<a role="doc-backlink" href="#id15">5</a>,<a role="doc-backlink" href="#id16">6</a>,<a role="doc-backlink" href="#id24">7</a>,<a role="doc-backlink" href="#id25">8</a>)</span>
+<p>David Magis. A note on the item information function of the four-parameter logistic model. <em>Applied Psychological Measurement</em>, 37(4):304–315, 2013. Not openly available; Magis and Raîche (2012) describe the model and its information function. <a class="reference external" href="https://doi.org/10.1177/0146621613475471">doi:10.1177/0146621613475471</a>.</p>
+</div>
+<div class="citation" id="id54" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MRaiche12<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id6">2</a>,<a role="doc-backlink" href="#id9">3</a>,<a role="doc-backlink" href="#id11">4</a>,<a role="doc-backlink" href="#id13">5</a>,<a role="doc-backlink" href="#id17">6</a>)</span>
+<p>David Magis and Gilles Raîche. Random generation of response patterns under computerized adaptive testing with the R package catR. <em>Journal of Statistical Software</em>, 48(8):1–31, 2012. Open access. <a class="reference external" href="https://doi.org/10.18637/jss.v048.i08">doi:10.18637/jss.v048.i08</a>.</p>
+</div>
+<div class="citation" id="id58" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id22">Mis86</a><span class="fn-bracket">]</span></span>
+<p>Robert J. Mislevy. Bayes modal estimation in item response models. <em>Psychometrika</em>, 51(2):177–195, 1986. Not openly available; Harwell and Baker (1991) describe the method. <a class="reference external" href="https://doi.org/10.1007/BF02293979">doi:10.1007/BF02293979</a>.</p>
+</div>
+<div class="citation" id="id75" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id12">War89</a><span class="fn-bracket">]</span></span>
+<p>Thomas A. Warm. Weighted likelihood estimation of ability in item response theory. <em>Psychometrika</em>, 54(3):427–450, 1989. Not openly available; Warm's (1985) dissertation, <a class="reference external" href="https://hdl.handle.net/11244/5356">https://hdl.handle.net/11244/5356</a>, derives the same results. <a class="reference external" href="https://doi.org/10.1007/BF02294627">doi:10.1007/BF02294627</a>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="module-irtlib.irt">
+<span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-irtlib.irt" title="Link to this heading">#</a></h2>
+<p>The item response functions of the 1PL to 4PL models, and the quantities derived from them.</p>
+<p>The functions take one item as a row <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or several as a matrix of such rows, shape
+<code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">c</span> <span class="pre">&lt;</span> <span class="pre">d</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>, and a response matrix with one row per examinee and one column per
+item, holding 1, 0 or NaN where the examinee did not answer the item.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="irtlib.irt.THETA_MAX_EXTENDED">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">THETA_MAX_EXTENDED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.0</span></span><a class="headerlink" href="#irtlib.irt.THETA_MAX_EXTENDED" title="Link to this definition">#</a></dt>
+<dd><p>The upper end of the extended ability range, which the default quadrature grid spans.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="irtlib.irt.THETA_MAX_TYPICAL">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">THETA_MAX_TYPICAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4.0</span></span><a class="headerlink" href="#irtlib.irt.THETA_MAX_TYPICAL" title="Link to this definition">#</a></dt>
+<dd><p>The upper end of the typical ability range, the default <code class="docutils literal notranslate"><span class="pre">theta_max</span></code> of <a class="reference internal" href="#irtlib.irt.theta_to_scale" title="irtlib.irt.theta_to_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="irtlib.irt.THETA_MIN_EXTENDED">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">THETA_MIN_EXTENDED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-6.0</span></span><a class="headerlink" href="#irtlib.irt.THETA_MIN_EXTENDED" title="Link to this definition">#</a></dt>
+<dd><p>The lower end of the extended ability range, which the default quadrature grid spans.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="irtlib.irt.THETA_MIN_TYPICAL">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">THETA_MIN_TYPICAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-4.0</span></span><a class="headerlink" href="#irtlib.irt.THETA_MIN_TYPICAL" title="Link to this definition">#</a></dt>
+<dd><p>The lower end of the typical ability range, the default <code class="docutils literal notranslate"><span class="pre">theta_min</span></code> of <a class="reference internal" href="#irtlib.irt.theta_to_scale" title="irtlib.irt.theta_to_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.confidence_interval">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">confidence_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#confidence_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.confidence_interval" title="Link to this definition">#</a></dt>
+<dd><p>Return the confidence interval of an ability estimate, centred on it, from its standard error <a class="reference internal" href="#irtlib.irt.see" title="irtlib.irt.see"><code class="xref py py-func docutils literal notranslate"><span class="pre">see()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>The estimated ability.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The administered items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+<dt><strong>confidence</strong><span class="classifier">float, optional</span></dt><dd><p>The confidence level, strictly between 0 and 1. Default is 0.95.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[float, float]</dt><dd><p>The lower and the upper bound of the interval, infinite when the items give no information at <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">confidence</span></code> is not strictly between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">confidence_interval</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">round</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="go">(-0.48, 1.48)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.icc">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">icc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#icc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.icc" title="Link to this definition">#</a></dt>
+<dd><p>Return the probability of a correct response to each item, its item characteristic curve.</p>
+<p>The probability rises with <code class="docutils literal notranslate"><span class="pre">theta</span></code> from the guessing parameter <code class="docutils literal notranslate"><span class="pre">c</span></code> to the upper asymptote <code class="docutils literal notranslate"><span class="pre">d</span></code>, and equals
+<code class="docutils literal notranslate"><span class="pre">(c</span> <span class="pre">+</span> <span class="pre">d)</span> <span class="pre">/</span> <span class="pre">2</span></code> at the difficulty <code class="docutils literal notranslate"><span class="pre">b</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray or numpy.float64</dt><dd><p>Every ability against every item, of shape <code class="docutils literal notranslate"><span class="pre">numpy.shape(theta)</span> <span class="pre">+</span> <span class="pre">items.shape[:-1]</span></code>: a float <code class="docutils literal notranslate"><span class="pre">theta</span></code> gives
+<code class="docutils literal notranslate"><span class="pre">(n,)</span></code> for <code class="docutils literal notranslate"><span class="pre">n</span></code> items and <code class="docutils literal notranslate"><span class="pre">k</span></code> abilities give <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">n)</span></code>. A float <code class="docutils literal notranslate"><span class="pre">theta</span></code> with a single item of shape
+<code class="docutils literal notranslate"><span class="pre">(4,)</span></code> gives a NumPy scalar, a <code class="docutils literal notranslate"><span class="pre">numpy.float64</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">icc</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.5   , 0.3459])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">icc</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span> <span class="n">items</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(3, 2)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.icc_derivatives">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">icc_derivatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#icc_derivatives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.icc_derivatives" title="Link to this definition">#</a></dt>
+<dd><p>Return the first and second derivatives of each item’s characteristic curve with respect to the ability.</p>
+<p>Both are finite at any finite ability, and tend to 0 far from the difficulty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[numpy.ndarray, numpy.ndarray]</dt><dd><p>The first and the second derivative of <a class="reference internal" href="#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">icc()</span></code></a>, every ability against every item, each of shape
+<code class="docutils literal notranslate"><span class="pre">numpy.shape(theta)</span> <span class="pre">+</span> <span class="pre">items.shape[:-1]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span><span class="p">,</span> <span class="n">second</span> <span class="o">=</span> <span class="n">icc_derivatives</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">first</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">second</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([0.5   , 0.1376]), array([0.    , 0.0636]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.info_integral">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">info_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#info_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.info_integral" title="Link to this definition">#</a></dt>
+<dd><p>Return the integral of each item’s <a class="reference internal" href="#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">information()</span></code></a> between two abilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lower</strong><span class="classifier">float</span></dt><dd><p>Lower integration bound, possibly <code class="docutils literal notranslate"><span class="pre">-inf</span></code>.</p>
+</dd>
+<dt><strong>upper</strong><span class="classifier">float</span></dt><dd><p>Upper integration bound, possibly <code class="docutils literal notranslate"><span class="pre">inf</span></code>.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>The integrals over <code class="docutils literal notranslate"><span class="pre">[lower,</span> <span class="pre">upper]</span></code>, of shape <code class="docutils literal notranslate"><span class="pre">items.shape[:-1]</span></code>; negated when <code class="docutils literal notranslate"><span class="pre">lower</span></code> is above
+<code class="docutils literal notranslate"><span class="pre">upper</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info_integral</span><span class="p">(</span><span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="go">array([0.7, 1.3])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.information">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.information" title="Link to this definition">#</a></dt>
+<dd><p>Return the Fisher information each item gives about the ability.</p>
+<p>An item is most informative near its difficulty, at <a class="reference internal" href="#irtlib.irt.max_info_theta" title="irtlib.irt.max_info_theta"><code class="xref py py-func docutils literal notranslate"><span class="pre">max_info_theta()</span></code></a>. Far from the difficulty the
+information tends to 0 and stays finite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Every ability against every item, of shape <code class="docutils literal notranslate"><span class="pre">numpy.shape(theta)</span> <span class="pre">+</span> <span class="pre">items.shape[:-1]</span></code>: a float <code class="docutils literal notranslate"><span class="pre">theta</span></code> gives
+<code class="docutils literal notranslate"><span class="pre">(n,)</span></code> for <code class="docutils literal notranslate"><span class="pre">n</span></code> items and <code class="docutils literal notranslate"><span class="pre">k</span></code> abilities give <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">n)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">information</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="go">array([0.25, 1.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.log_likelihood">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#log_likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.log_likelihood" title="Link to this definition">#</a></dt>
+<dd><p>Return the log-likelihood of each examinee’s responses at each ability.</p>
+<p>Each examinee’s log-likelihood sums the log-probabilities of <a class="reference internal" href="#irtlib.irt.log_response_probabilities" title="irtlib.irt.log_response_probabilities"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_response_probabilities()</span></code></a> over the items
+the examinee answered, and an examinee who answered no item has log-likelihood 0.
+<a class="reference internal" href="#irtlib.irt.log_likelihood_function" title="irtlib.irt.log_likelihood_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_likelihood_function()</span></code></a> computes the same values for many abilities, one call at a time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities, each with a finite logit <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">(theta</span> <span class="pre">-</span> <span class="pre">b)</span></code> for every item.</p>
+</dd>
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Every examinee at every ability, of shape <code class="docutils literal notranslate"><span class="pre">(n_examinees,)</span> <span class="pre">+</span> <span class="pre">numpy.shape(theta)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix, <code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, or a response
+is not 0, 1 or NaN.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_likelihood</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">]]),</span> <span class="n">items</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([-1.3863, -0.6931])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.log_likelihood_function">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">log_likelihood_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#log_likelihood_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.log_likelihood_function" title="Link to this definition">#</a></dt>
+<dd><p>Return the log-likelihood of each examinee’s responses as a function of the ability.</p>
+<p>The returned function gives, for any <code class="docutils literal notranslate"><span class="pre">theta</span></code>, the value of <a class="reference internal" href="#irtlib.irt.log_likelihood" title="irtlib.irt.log_likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">log_likelihood()</span></code></a>. The responses and items are
+checked here, once, and the terms that do not depend on the ability are computed here too. Changing <code class="docutils literal notranslate"><span class="pre">responses</span></code>
+or <code class="docutils literal notranslate"><span class="pre">items</span></code> afterwards does not change the function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>responses</strong><span class="classifier">array_like</span></dt><dd><p>The response matrix, one row per examinee and one column per item: 1 or True for a correct response, 0 or
+False for an incorrect one, and NaN for a missing one.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, one row per column of <code class="docutils literal notranslate"><span class="pre">responses</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Callable[[float | numpy.ndarray], numpy.ndarray]</dt><dd><p>The log-likelihood of every examinee at every ability <code class="docutils literal notranslate"><span class="pre">theta</span></code> whose logits <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">(theta</span> <span class="pre">-</span> <span class="pre">b)</span></code> are finite, of
+shape <code class="docutils literal notranslate"><span class="pre">(n_examinees,)</span> <span class="pre">+</span> <span class="pre">numpy.shape(theta)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>If the responses are neither Booleans, integers nor floats.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">items</span></code> is not an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code> matrix, <code class="docutils literal notranslate"><span class="pre">responses</span></code> is not a matrix with one column per item, or a response
+is not 0, 1 or NaN.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_lik</span> <span class="o">=</span> <span class="n">log_likelihood_function</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]]),</span> <span class="n">items</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_lik</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">log_lik</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([-1.3863]), array([[-1.3863, -1.6265]]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.log_likelihood_gradient">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">log_likelihood_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#log_likelihood_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.log_likelihood_gradient" title="Link to this definition">#</a></dt>
+<dd><p>Return the gradient of each item’s log-likelihood from response counts at given abilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The abilities, shape <code class="docutils literal notranslate"><span class="pre">(k,)</span></code>, such as the nodes of a quadrature grid.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>A matrix of items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with <span class="math notranslate nohighlight">\(0 \leq c &lt; d \leq 1\)</span>.</p>
+</dd>
+<dt><strong>correct</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The number of correct responses to each item at each ability, shape <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">n)</span></code>. Counts need not be integers,
+such as the expected counts of an E-step.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The number of responses to each item at each ability, shape <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">n)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>The gradient of each item’s log-likelihood, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with respect to the slope, the intercept, the
+logit of <code class="docutils literal notranslate"><span class="pre">c</span></code> and the logit of <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_likelihood_gradient</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]),</span> <span class="n">items</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">3.0</span><span class="p">]]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">4.0</span><span class="p">]]))</span>
+<span class="go">array([[0., 1., 0., 0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.log_response_probabilities">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">log_response_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#log_response_probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.log_response_probabilities" title="Link to this definition">#</a></dt>
+<dd><p>Return the log-probabilities of a correct and of an incorrect response to each item.</p>
+<p>They stay finite at any finite distance from the difficulty. Far below the difficulty the first tends to
+<code class="docutils literal notranslate"><span class="pre">log(c)</span></code>, far above it the second to <code class="docutils literal notranslate"><span class="pre">log(1</span> <span class="pre">-</span> <span class="pre">d)</span></code>, and without guessing or slipping they keep falling linearly
+in <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[numpy.ndarray, numpy.ndarray]</dt><dd><p>The logarithms of <a class="reference internal" href="#irtlib.irt.icc" title="irtlib.irt.icc"><code class="xref py py-func docutils literal notranslate"><span class="pre">icc()</span></code></a> and of its complement, every ability against every item, each of shape
+<code class="docutils literal notranslate"><span class="pre">numpy.shape(theta)</span> <span class="pre">+</span> <span class="pre">items.shape[:-1]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_p</span><span class="p">,</span> <span class="n">log_q</span> <span class="o">=</span> <span class="n">log_response_probabilities</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_p</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_q</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">(array([0.6]), array([0.4]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.max_info_theta">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">max_info_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#max_info_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.max_info_theta" title="Link to this definition">#</a></dt>
+<dd><p>Return the ability at which each item gives the most information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>A new array of shape <code class="docutils literal notranslate"><span class="pre">items.shape[:-1]</span></code>, one ability per item.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">max_info_theta</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">array([0.5   , 0.2671])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.parameter_information">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">parameter_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#parameter_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.parameter_information" title="Link to this definition">#</a></dt>
+<dd><p>Return each item’s expected information matrix from the number of responses at given abilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The abilities, shape <code class="docutils literal notranslate"><span class="pre">(k,)</span></code>, such as the nodes of a quadrature grid.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>A matrix of items <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with <span class="math notranslate nohighlight">\(0 \leq c &lt; d \leq 1\)</span>.</p>
+</dd>
+<dt><strong>total</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The number of responses to each item at each ability, shape <code class="docutils literal notranslate"><span class="pre">(k,</span> <span class="pre">n)</span></code>. Counts need not be integers.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>One symmetric matrix per item, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4,</span> <span class="pre">4)</span></code>, over the slope, the intercept, the logit of <code class="docutils literal notranslate"><span class="pre">c</span></code> and the
+logit of <code class="docutils literal notranslate"><span class="pre">d</span></code>. A parameter at its bound, <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">=</span> <span class="pre">0</span></code> or <code class="docutils literal notranslate"><span class="pre">d</span> <span class="pre">=</span> <span class="pre">1</span></code>, has a zero row and column.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">items</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parameter_information</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]),</span> <span class="n">items</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">4.0</span><span class="p">]]))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">array([[0., 0., 0., 0.],</span>
+<span class="go">       [0., 1., 0., 0.],</span>
+<span class="go">       [0., 0., 0., 0.],</span>
+<span class="go">       [0., 0., 0., 0.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.probability_gradient">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">probability_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#probability_gradient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.probability_gradient" title="Link to this definition">#</a></dt>
+<dd><p>Return the derivatives of the probability of a correct response in each item’s parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>, with
+<span class="math notranslate nohighlight">\(0 \leq c &lt; d \leq 1\)</span>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>numpy.ndarray</dt><dd><p>Every ability against every item, of shape <code class="docutils literal notranslate"><span class="pre">numpy.shape(theta)</span> <span class="pre">+</span> <span class="pre">items.shape[:-1]</span> <span class="pre">+</span> <span class="pre">(4,)</span></code>: the derivatives
+with respect to the slope, the intercept, the logit of <code class="docutils literal notranslate"><span class="pre">c</span></code> and the logit of <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probability_gradient</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+<span class="go">array([0.  , 0.25, 0.  , 0.  ])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.reliability">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">reliability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#reliability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.reliability" title="Link to this definition">#</a></dt>
+<dd><p>Return the reliability of the test at <code class="docutils literal notranslate"><span class="pre">theta</span></code>, from its <a class="reference internal" href="#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">total_information()</span></code></a>, for abilities N(0, 1).</p>
+<p>Values close to 1 mean a precise test.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>An ability.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The administered items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The reliability, between 0 and 1; 0 when the items give no information at <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reliability</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
+<span class="go">0.8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.scale_to_theta">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">scale_to_theta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#scale_to_theta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.scale_to_theta" title="Link to this definition">#</a></dt>
+<dd><p>Convert scores on a reporting scale back to abilities, the inverse of <a class="reference internal" href="#irtlib.irt.theta_to_scale" title="irtlib.irt.theta_to_scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a>.</p>
+<p>With the same four bounds, a score converted to an ability and back is the same score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>score</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>A score, or an array of scores.</p>
+</dd>
+<dt><strong>scale_min</strong><span class="classifier">float, optional</span></dt><dd><p>Score of <code class="docutils literal notranslate"><span class="pre">theta_min</span></code>. Default is 0.</p>
+</dd>
+<dt><strong>scale_max</strong><span class="classifier">float, optional</span></dt><dd><p>Score of <code class="docutils literal notranslate"><span class="pre">theta_max</span></code>. Default is 100.</p>
+</dd>
+<dt><strong>theta_min</strong><span class="classifier">float, optional</span></dt><dd><p>Ability mapped to <code class="docutils literal notranslate"><span class="pre">scale_min</span></code>. Default is <a class="reference internal" href="#irtlib.irt.THETA_MIN_TYPICAL" title="irtlib.irt.THETA_MIN_TYPICAL"><code class="xref py py-data docutils literal notranslate"><span class="pre">THETA_MIN_TYPICAL</span></code></a>, -4.</p>
+</dd>
+<dt><strong>theta_max</strong><span class="classifier">float, optional</span></dt><dd><p>Ability mapped to <code class="docutils literal notranslate"><span class="pre">scale_max</span></code>. Default is <a class="reference internal" href="#irtlib.irt.THETA_MAX_TYPICAL" title="irtlib.irt.THETA_MAX_TYPICAL"><code class="xref py py-data docutils literal notranslate"><span class="pre">THETA_MAX_TYPICAL</span></code></a>, 4.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or numpy.ndarray</dt><dd><p>The abilities, a float for a float <code class="docutils literal notranslate"><span class="pre">score</span></code> and an array of its shape otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">theta_max</span></code> is not greater than <code class="docutils literal notranslate"><span class="pre">theta_min</span></code>, or <code class="docutils literal notranslate"><span class="pre">scale_max</span></code> is not greater than <code class="docutils literal notranslate"><span class="pre">scale_min</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scale_to_theta</span><span class="p">(</span><span class="mf">75.0</span><span class="p">)</span>
+<span class="go">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale_to_theta</span><span class="p">(</span><span class="mf">500.0</span><span class="p">,</span> <span class="n">scale_min</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">scale_max</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
+<span class="go">0.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.see">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">see</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#see"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.see" title="Link to this definition">#</a></dt>
+<dd><p>Return the standard error of estimation at <code class="docutils literal notranslate"><span class="pre">theta</span></code>, the square root of the <a class="reference internal" href="#irtlib.irt.var" title="irtlib.irt.var"><code class="xref py py-func docutils literal notranslate"><span class="pre">var()</span></code></a>.</p>
+<p>It is in the units of the ability scale.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>An ability.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The administered items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The standard error, infinite when the items give no information at <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">see</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="go">2.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.theta_to_scale">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">theta_to_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#theta_to_scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.theta_to_scale" title="Link to this definition">#</a></dt>
+<dd><p>Convert abilities to scores on a reporting scale, such as 0 to 100 or 200 to 800.</p>
+<p><code class="docutils literal notranslate"><span class="pre">theta_min</span></code> becomes <code class="docutils literal notranslate"><span class="pre">scale_min</span></code> and <code class="docutils literal notranslate"><span class="pre">theta_max</span></code> becomes <code class="docutils literal notranslate"><span class="pre">scale_max</span></code>, and abilities between or beyond them
+follow the same line. <a class="reference internal" href="#irtlib.irt.scale_to_theta" title="irtlib.irt.scale_to_theta"><code class="xref py py-func docutils literal notranslate"><span class="pre">scale_to_theta()</span></code></a> is its inverse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>scale_min</strong><span class="classifier">float, optional</span></dt><dd><p>Score of <code class="docutils literal notranslate"><span class="pre">theta_min</span></code>. Default is 0.</p>
+</dd>
+<dt><strong>scale_max</strong><span class="classifier">float, optional</span></dt><dd><p>Score of <code class="docutils literal notranslate"><span class="pre">theta_max</span></code>. Default is 100.</p>
+</dd>
+<dt><strong>theta_min</strong><span class="classifier">float, optional</span></dt><dd><p>Ability mapped to <code class="docutils literal notranslate"><span class="pre">scale_min</span></code>. Default is <a class="reference internal" href="#irtlib.irt.THETA_MIN_TYPICAL" title="irtlib.irt.THETA_MIN_TYPICAL"><code class="xref py py-data docutils literal notranslate"><span class="pre">THETA_MIN_TYPICAL</span></code></a>, -4.</p>
+</dd>
+<dt><strong>theta_max</strong><span class="classifier">float, optional</span></dt><dd><p>Ability mapped to <code class="docutils literal notranslate"><span class="pre">scale_max</span></code>. Default is <a class="reference internal" href="#irtlib.irt.THETA_MAX_TYPICAL" title="irtlib.irt.THETA_MAX_TYPICAL"><code class="xref py py-data docutils literal notranslate"><span class="pre">THETA_MAX_TYPICAL</span></code></a>, 4.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or numpy.ndarray</dt><dd><p>The scores, a float for a float <code class="docutils literal notranslate"><span class="pre">theta</span></code> and an array of its shape otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If <code class="docutils literal notranslate"><span class="pre">theta_max</span></code> is not greater than <code class="docutils literal notranslate"><span class="pre">theta_min</span></code>, or <code class="docutils literal notranslate"><span class="pre">scale_max</span></code> is not greater than <code class="docutils literal notranslate"><span class="pre">scale_min</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">theta_to_scale</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="go">75.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">theta_to_scale</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale_min</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">scale_max</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
+<span class="go">500.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.total_information">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">total_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#total_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.total_information" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">total_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<dd><p>Return the test information of a set of items, the sum of their <a class="reference internal" href="#irtlib.irt.information" title="irtlib.irt.information"><code class="xref py py-func docutils literal notranslate"><span class="pre">information()</span></code></a>.</p>
+<p>Items without information, or no items at all, give 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float or numpy.ndarray</span></dt><dd><p>An ability, or an array of abilities.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>One item <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d]</span></code>, shape <code class="docutils literal notranslate"><span class="pre">(4,)</span></code>, or a matrix of items, shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float or numpy.ndarray</dt><dd><p>One value per ability: a float for a float <code class="docutils literal notranslate"><span class="pre">theta</span></code>, otherwise an array of the shape of <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">total_information</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="go">1.25</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="irtlib.irt.var">
+<span class="sig-prename descclassname"><span class="pre">irtlib.irt.</span></span><span class="sig-name descname"><span class="pre">var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NDArray</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating" title="(in NumPy v2.5)"><span class="pre">floating</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/irtlib/irt.html#var"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#irtlib.irt.var" title="Link to this definition">#</a></dt>
+<dd><p>Return the variance of the ability estimate at <code class="docutils literal notranslate"><span class="pre">theta</span></code>, the inverse of the <a class="reference internal" href="#irtlib.irt.total_information" title="irtlib.irt.total_information"><code class="xref py py-func docutils literal notranslate"><span class="pre">total_information()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>theta</strong><span class="classifier">float</span></dt><dd><p>An ability.</p>
+</dd>
+<dt><strong>items</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>The administered items, a matrix of shape <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">4)</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>The variance, infinite when the items give no information at <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">var</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]))</span>
+<span class="go">0.8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Models</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="quadrature.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Quadrature and Ability Priors</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">Motivation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#guarantees">Guarantees</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-irtlib.irt">API Reference</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.THETA_MAX_EXTENDED"><code class="docutils literal notranslate"><span class="pre">THETA_MAX_EXTENDED</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.THETA_MAX_TYPICAL"><code class="docutils literal notranslate"><span class="pre">THETA_MAX_TYPICAL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.THETA_MIN_EXTENDED"><code class="docutils literal notranslate"><span class="pre">THETA_MIN_EXTENDED</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.THETA_MIN_TYPICAL"><code class="docutils literal notranslate"><span class="pre">THETA_MIN_TYPICAL</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.confidence_interval"><code class="docutils literal notranslate"><span class="pre">confidence_interval()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.icc"><code class="docutils literal notranslate"><span class="pre">icc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.icc_derivatives"><code class="docutils literal notranslate"><span class="pre">icc_derivatives()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.info_integral"><code class="docutils literal notranslate"><span class="pre">info_integral()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.information"><code class="docutils literal notranslate"><span class="pre">information()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.log_likelihood"><code class="docutils literal notranslate"><span class="pre">log_likelihood()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.log_likelihood_function"><code class="docutils literal notranslate"><span class="pre">log_likelihood_function()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.log_likelihood_gradient"><code class="docutils literal notranslate"><span class="pre">log_likelihood_gradient()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.log_response_probabilities"><code class="docutils literal notranslate"><span class="pre">log_response_probabilities()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.max_info_theta"><code class="docutils literal notranslate"><span class="pre">max_info_theta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.parameter_information"><code class="docutils literal notranslate"><span class="pre">parameter_information()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.probability_gradient"><code class="docutils literal notranslate"><span class="pre">probability_gradient()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.reliability"><code class="docutils literal notranslate"><span class="pre">reliability()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.scale_to_theta"><code class="docutils literal notranslate"><span class="pre">scale_to_theta()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.see"><code class="docutils literal notranslate"><span class="pre">see()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.theta_to_scale"><code class="docutils literal notranslate"><span class="pre">theta_to_scale()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.total_information"><code class="docutils literal notranslate"><span class="pre">total_information()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irtlib.irt.var"><code class="docutils literal notranslate"><span class="pre">var()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/methods/models/item-response-functions.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026-2026, Douglas De Rizzo Meneghetti.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

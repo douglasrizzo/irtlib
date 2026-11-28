@@ -139,6 +139,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../../api/index.html">
     API reference
   </a>
@@ -261,6 +268,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getting-started.html">
     Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../methods/index.html">
+    Methods
   </a>
 </li>
 
@@ -392,132 +406,11 @@
                 <article class="bd-article">
                   
   <h1>Source code for irtlib.ability</h1><div class="highlight"><pre>
-<span></span><span class="sa">r</span><span class="sd">"""Ability estimation: each examinee's ability, with its standard error, from responses to items of known parameters.</span>
+<span></span><span class="sd">"""Ability estimation: each examinee's ability, with its standard error, from responses to items of known parameters.</span>
 
 <span class="sd">Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the</span>
-<span class="sd">examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column. It returns an</span>
-<span class="sd">:py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the</span>
-<span class="sd">estimator's objective or of its derivatives. An examinee's estimate depends only on the items it answered, so its row</span>
-<span class="sd">gives the same estimate alone as in any matrix: exactly where it answered every item, and otherwise to the rounding of a</span>
-<span class="sd">sum over more terms, which can also move a search's last step and change its evaluation count by one, since the maximum</span>
-<span class="sd">likelihood and weighted likelihood searches, and MAP's under a normal prior, search every row of a matrix at once with</span>
-<span class="sd">the arithmetic of one row. Below, :math:`L_j(\theta)` is the likelihood of examinee :math:`j`'s responses</span>
-<span class="sd">:math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items :math:`i` it answered, and</span>
-<span class="sd">:math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines them.</span>
-
-<span class="sd">**Maximum likelihood.** The estimate maximizes :math:`L_j(\theta)`, and its standard error is :math:`1 /</span>
-<span class="sd">\sqrt{I(\hat\theta)}` (:cite:t:`Magis2012`, p. 4, Equations 2 and 3). The likelihood of responses all correct rises with</span>
-<span class="sd">the ability and that of responses all incorrect falls, so their estimates are :math:`+\infty` and :math:`-\infty`</span>
-<span class="sd">(:cite:t:`Warm1989`, p. 442). As :math:`\theta \to -\infty` each :math:`P_i` tends to :math:`c_i`, and as :math:`\theta</span>
-<span class="sd">\to +\infty` to :math:`d_i`, so the likelihood tends to :math:`\prod_i c_i^{u_{ij}} (1 - c_i)^{1 - u_{ij}}` and to</span>
-<span class="sd">:math:`\prod_i d_i^{u_{ij}} (1 - d_i)^{1 - u_{ij}}`: under the 3PL and 4PL, responses that are neither all correct nor</span>
-<span class="sd">all incorrect can also have their supremum at an infinity. The maximum likelihood estimate is the maximizer over the</span>
-<span class="sd">extended real line: :math:`+\infty` or :math:`-\infty` wherever the likelihood comes closest to its supremum only in</span>
-<span class="sd">that limit, with standard error :math:`\infty`, since the information tends to 0 at either infinity. An examinee who</span>
-<span class="sd">answered no item has a constant likelihood, which every ability maximizes: its estimate is NaN, and its standard error</span>
-<span class="sd">:math:`\infty`, the information being 0. The caller has two ways to finite numbers, never used together:</span>
-
-<span class="sd">- ``bounds``: the estimate maximizes the likelihood within them, and responses all correct or all incorrect give the</span>
-<span class="sd">  bound they point to. Bounds are always set in practice (:cite:t:`Warm1989`, p. 442), and catR 3.17 sets them by</span>
-<span class="sd">  default: its default ``constantPatt = NULL`` estimates such responses by maximum likelihood too</span>
-<span class="sd">  (:cite:t:`Magis2022`, p. 115), which returns the end of its ``range`` that the score points to (source</span>
-<span class="sd">  ``R/thetaEst.R:9-10, 100-109``).</span>
-<span class="sd">- ``fallback``: another estimator, called once on the rows whose estimate is not finite, the unanswered rows</span>
-<span class="sd">  included, whose estimates, standard errors and evaluation counts replace theirs;</span>
-<span class="sd">  the ``from_fallback`` field of :py:class:`AbilityEstimates` marks those rows.</span>
-
-<span class="sd">Where an item answered has :math:`c_i &gt; 0` or :math:`d_i &lt; 1`, the likelihood can have several maxima, and the search</span>
-<span class="sd">evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope :math:`a_i`</span>
-<span class="sd">above 2.5, 0.12 apart on [-6, 6], and otherwise :math:`\lceil 40 \max_i a_i \rceil + 1`, 0.3 divided by the steepest</span>
-<span class="sd">slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12, up to 2,401 points, 0.005 apart, for</span>
-<span class="sd">slopes of 60 and above, so that a pathological slope cannot exhaust memory. It refines the best between its neighbours</span>
-<span class="sd">by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the parabola through the</span>
-<span class="sd">three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and bisecting</span>
-<span class="sd">the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP estimate</span>
-<span class="sd">below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second derivative is :math:`-I` (see the</span>
-<span class="sd">MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the points: the</span>
-<span class="sd">estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first derivative,</span>
-<span class="sd">found by the same bracketed Newton's method from the middle of the range. On about 38,000 random mixed patterns of 1 to</span>
-<span class="sd">60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201 points found the</span>
-<span class="sd">global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole range, with no</span>
-<span class="sd">points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items, half of them with</span>
-<span class="sd">slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001 in</span>
-<span class="sd">log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range</span>
-<span class="sd">starts as [-6, 6]. Beyond the lower end of the range, a correct response's probability is at most its value at the end,</span>
-<span class="sd">since it rises with the ability, and an incorrect one's at most :math:`1 - c_i`; beyond the upper end, a correct one's</span>
-<span class="sd">is at most :math:`d_i` and an incorrect one's at most its value at the end. While these bounds leave room beyond an end</span>
-<span class="sd">for a log-likelihood above both the best found and the two limits, that end moves out, twice as far each time, and the</span>
-<span class="sd">new stretch is searched the same way, with as many points as the range, so that their spacing doubles with each stretch.</span>
-<span class="sd">The estimate is then the infinity of the larger limit, :math:`-\infty` of two equal ones, if that limit is at least the</span>
-<span class="sd">best value found, within a relative :math:`10^{-12}`, and the best ability found otherwise. After 64 moves of an end,</span>
-<span class="sd">which only items of a vanishing discrimination need, the search stops at the best ability found and warns.</span>
-
-<span class="sd">mirt 1.48 also gives :math:`+\infty` or :math:`-\infty` to responses all correct or all incorrect</span>
-<span class="sd">(``R/fscores.internal.R:397-405``), with no standard error, NA, where irtlib's is :math:`\infty`, and NA to both</span>
-<span class="sd">for an examinee who answered no item (``R/fscores.internal.R:94-96, 185``). It searches the</span>
-<span class="sd">other responses with R's ``nlm`` from the EAP estimate, up to an ability of :math:`\pm 20` (``R/fscores.R:305``;</span>
-<span class="sd">``R/fscores.internal.R:687``), takes the standard error from ``nlm``'s numerical Hessian, the observed information</span>
-<span class="sd">(``R/fscores.internal.R:1072-1101``), which is :math:`I` for items with :math:`c_i = 0` and :math:`d_i = 1` (see the</span>
-<span class="sd">MAP estimate below), and turns an estimate whose standard error exceeds 30 into an infinity</span>
-<span class="sd">(``R/fscores.internal.R:1094-1096``), which irtlib does not do.</span>
-
-<span class="sd">**Maximum a posteriori.** The MAP, or Bayes modal, estimate maximizes the posterior, :math:`\log \pi(\theta) + \log</span>
-<span class="sd">L_j(\theta)` for a prior density :math:`\pi` (:cite:t:`Magis2012`, p. 5, Equation 5; :cite:t:`Warm1989`, p. 430). For a</span>
-<span class="sd">normal prior of variance :math:`\sigma^2` its standard error is :math:`1 / \sqrt{1 / \sigma^2 + I(\hat\theta)}`</span>
-<span class="sd">(:cite:t:`Magis2012`, p. 5, Equation 6). For any prior, irtlib takes :math:`1 / \sqrt{I(\hat\theta) -</span>
-<span class="sd">(\log\pi)''(\hat\theta)}`, with the prior's second derivative a central difference of step :math:`10^{-4}`: Equation 6</span>
-<span class="sd">for a normal prior, and for a uniform one, inside its support, the maximum likelihood standard error, as catR 3.17</span>
-<span class="sd">computes them (``R/semTheta.R:43-50, 82-89``). Where the difference is not finite, at the edge of a bounded prior's</span>
-<span class="sd">support, the prior adds nothing; where the sum is not positive, the standard error is :math:`\infty`. The search</span>
-<span class="sd">evaluates the log-posterior at equally spaced abilities within the bounds: under a normal prior whose precision :math:`1</span>
-<span class="sd">/ \sigma^2` is a finite positive float, as many as the maximum likelihood search for the same items, and under any other</span>
-<span class="sd">prior 201, 0.06 apart on [-6, 6]. Three or more tied at the maximum make a flat posterior, and the estimate is the</span>
-<span class="sd">middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so the</span>
-<span class="sd">estimate stays inside the prior's support and is the highest of the modes the points separate. With a normal prior</span>
-<span class="sd">:math:`N(\mu, \sigma^2)` the refinement is the maximum likelihood search's Newton's method, with :math:`-(\theta - \mu)</span>
-<span class="sd">/ \sigma^2` and :math:`-1 / \sigma^2` added to the derivatives, and on items that all have :math:`c_i = 0` and</span>
-<span class="sd">:math:`d_i = 1` the log-posterior is concave too, and the search skips the points as the maximum likelihood search does.</span>
-<span class="sd">With any other prior the refinement is SciPy's bounded search, ``scipy.optimize.minimize_scalar``. An examinee who</span>
-<span class="sd">answered no item gets the prior's mode.</span>
-
-<span class="sd">mirt 1.48 maximizes the same posterior with ``nlm`` and takes the standard error from ``nlm``'s numerical Hessian</span>
-<span class="sd">(``R/fscores.internal.R:684-703, 1047-1070``): the observed information plus the prior's precision. When every answered</span>
-<span class="sd">item has :math:`c_i = 0` and :math:`d_i = 1`, the observed information is :math:`I` exactly (:cite:t:`Warm1989`, p. 449,</span>
-<span class="sd">whose model fixes :math:`d_i = 1`, p. 428, Equation 1), and the two standard errors agree.</span>
-
-<span class="sd">**Expected a posteriori.** The EAP estimate is the mean of the examinee's posterior over the grid of</span>
-<span class="sd">:py:mod:`irtlib.quadrature`, and its standard error the posterior standard deviation (:cite:t:`Bock1982`, p. 433,</span>
-<span class="sd">Equations 4 and 5; :cite:t:`Magis2012`, pp. 5-6, Equations 10 and 11). It is finite whatever the responses, and an</span>
-<span class="sd">examinee who answered no item gets the prior's mean and standard deviation on the grid. irtlib's default grid and prior</span>
-<span class="sd">are mirt 1.48's: 121 nodes on [-6, 6] (``R/fscores.R:302, 318-319``; ``R/fscores.internal.R:231``) with the standard</span>
-<span class="sd">normal density at the nodes, normalized (``R/fscores.internal.R:316-317``). mirt gives NA to an examinee who answered no</span>
-<span class="sd">item.</span>
-
-<span class="sd">**Weighted likelihood.** Warm's estimate is the root of the modified score equation</span>
-
-<span class="sd">.. math::</span>
-
-<span class="sd">   \sum_i \frac{(u_{ij} - P_i) P_i'}{P_i Q_i} + \frac{J}{2 I} = 0, \quad J = \sum_i \frac{P_i' P_i''}{P_i Q_i}</span>
-
-<span class="sd">(:cite:t:`Warm1989`, p. 431, Equation 10; p. 430), the derivative of the log of the weighted likelihood</span>
-<span class="sd">:math:`w(\theta) L_j(\theta)`, with :math:`\partial \log w / \partial\theta = J / (2 I)`, which the estimate maximizes</span>
-<span class="sd">(p. 446, Equations A3 and A4). It removes the first-order bias of the maximum likelihood estimate (p. 427; p. 431,</span>
-<span class="sd">Theorem). When every :math:`c_i = 0`, :math:`w = I^{1/2}` (p. 431), in Warm's model, which fixes :math:`d_i = 1`</span>
-<span class="sd">(p. 428, Equation 1). The estimate's variance is asymptotically :math:`1 / I`, that of the maximum likelihood estimate</span>
-<span class="sd">(p. 431), and its standard error is :math:`1 / \sqrt{I(\hat\theta)}`, catR 3.17's default (``R/semTheta.R:90-96``);</span>
-<span class="sd">:cite:t:`Magis2012` (p. 6, Equation 14) give a corrected one, which irtlib does not use. The search evaluates the</span>
-<span class="sd">modified score at 121 equally spaced abilities within the bounds. Each change of sign from positive to negative,</span>
-<span class="sd">refined by Brent's method step for step as SciPy 1.18.1's ``scipy.optimize.brentq`` takes it (source</span>
-<span class="sd">``scipy/optimize/Zeros/brentq.c:36-130``), from the values of the scan at its ends, is a maximum of the weighted</span>
-<span class="sd">likelihood, and so is a bound the score points out of. Of several, the estimate is the one of largest weighted</span>
-<span class="sd">likelihood, ranked by integrating the score from the lower bound with ``scipy.integrate.quad``. Warm finds finite</span>
-<span class="sd">estimates for responses all correct or all incorrect on his tests (p. 443, Table 1), and :cite:t:`Magis2012` (p. 11)</span>
-<span class="sd">propose the estimator for them; irtlib's estimate lies within the bounds whatever the responses. An examinee who</span>
-<span class="sd">answered no item has no estimate, NaN, and standard error :math:`\infty`, as under maximum likelihood.</span>
-
-<span class="sd">mirt 1.48 maximizes :math:`\log L_j + \tfrac12 \log I` instead (``R/fscores.internal.R:705-738``), Warm's estimate when</span>
-<span class="sd">every answered item has :math:`c_i = 0` and :math:`d_i = 1`, and takes its standard error from ``nlm``'s numerical</span>
-<span class="sd">Hessian of that weighted log-likelihood (``R/fscores.internal.R:1103-1119``).</span>
+<span class="sd">examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column, and returns an</span>
+<span class="sd">:py:class:`AbilityEstimates`.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
@@ -592,7 +485,7 @@
 
 
 <div class="viewcode-block" id="AbilityEstimates">
-<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.AbilityEstimates">[docs]</a>
+<a class="viewcode-back" href="../../methods/ability/index.html#irtlib.ability.AbilityEstimates">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbilityEstimates</span><span class="p">:</span>
 <span class="w">  </span><span class="sd">"""Each examinee's ability estimate, its standard error, and the evaluations of the estimator's objective it took.</span>
@@ -676,7 +569,7 @@
 
 
 <div class="viewcode-block" id="expected_a_posteriori">
-<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.expected_a_posteriori">[docs]</a>
+<a class="viewcode-back" href="../../methods/ability/eap.html#irtlib.ability.expected_a_posteriori">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">expected_a_posteriori</span><span class="p">(</span>
   <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
   <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
@@ -689,6 +582,8 @@
 
 <span class="sd">  Every estimate is finite, whatever the responses; an examinee who answered no item gets the prior's mean and standard</span>
 <span class="sd">  deviation on the grid. The evaluation count is the number of grid nodes.</span>
+
+<span class="sd">  The :doc:`/methods/ability/eap` page gives the method, its sources and the origin of each default.</span>
 
 <span class="sd">  Parameters</span>
 <span class="sd">  ----------</span>
@@ -751,7 +646,7 @@
 
 
 <div class="viewcode-block" id="maximum_a_posteriori">
-<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.maximum_a_posteriori">[docs]</a>
+<a class="viewcode-back" href="../../methods/ability/map.html#irtlib.ability.maximum_a_posteriori">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">maximum_a_posteriori</span><span class="p">(</span>
   <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
   <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
@@ -765,6 +660,8 @@
 <span class="sd">  The estimate is the highest mode the search finds, inside the prior's support, and finite whatever the responses; an</span>
 <span class="sd">  examinee who answered no item gets the prior's mode. The evaluation count is the number of evaluations of the</span>
 <span class="sd">  posterior or of its derivatives.</span>
+
+<span class="sd">  The :doc:`/methods/ability/map` page gives the method, its sources and the origin of each default.</span>
 
 <span class="sd">  Parameters</span>
 <span class="sd">  ----------</span>
@@ -914,7 +811,7 @@
 
 
 <div class="viewcode-block" id="maximum_likelihood">
-<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.maximum_likelihood">[docs]</a>
+<a class="viewcode-back" href="../../methods/ability/ml.html#irtlib.ability.maximum_likelihood">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">maximum_likelihood</span><span class="p">(</span>
   <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
   <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
@@ -930,6 +827,8 @@
 <span class="sd">  all correct or all incorrect, and its standard error is then ``inf``. With ``bounds`` it maximizes the likelihood</span>
 <span class="sd">  within them, and is finite. An examinee who answered no item has no estimate, NaN, and standard error ``inf``. A</span>
 <span class="sd">  ``fallback`` replaces every estimate that is not finite, infinite or NaN.</span>
+
+<span class="sd">  The :doc:`/methods/ability/ml` page gives the method, its sources and the origin of each default.</span>
 
 <span class="sd">  Parameters</span>
 <span class="sd">  ----------</span>
@@ -1203,7 +1102,7 @@
 
 
 <div class="viewcode-block" id="weighted_likelihood">
-<a class="viewcode-back" href="../../api/ability.html#irtlib.ability.weighted_likelihood">[docs]</a>
+<a class="viewcode-back" href="../../methods/ability/wle.html#irtlib.ability.weighted_likelihood">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">weighted_likelihood</span><span class="p">(</span>
   <span class="n">responses</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
   <span class="n">items</span><span class="p">:</span> <span class="n">FloatArray</span><span class="p">,</span>
@@ -1217,6 +1116,8 @@
 <span class="sd">  likelihood, and of none, the bound the score points to. An examinee who answered no item has no estimate, NaN, and</span>
 <span class="sd">  standard error ``inf``. The evaluation count is the number of modified-score evaluations. A ranking integral that does</span>
 <span class="sd">  not converge warns with :py:class:`scipy.integrate.IntegrationWarning`.</span>
+
+<span class="sd">  The :doc:`/methods/ability/wle` page gives the method, its sources and the origin of each default.</span>
 
 <span class="sd">  Parameters</span>
 <span class="sd">  ----------</span>
