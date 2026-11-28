@@ -10,17 +10,17 @@ These instructions apply to the entire repository unless a deeper `AGENTS.md` ov
 
 `irtlib` implements item response theory for the unidimensional dichotomous 1PL to 4PL models:
 the response functions and their quantities, calibration of item parameters with their standard
-errors from a response matrix with missing entries, ability estimation, item and model fit, and the
-item bank format (ADR-0001). What is meaningful for a fixed-form test belongs here; what only makes
+errors from a response matrix with missing entries, ability estimation, item and model fit, the
+classical item statistics that screen responses, and the item bank format (ADR-0001). What is meaningful for a fixed-form test belongs here; what only makes
 sense for adaptive testing belongs to catsim, which builds on irtlib (ADR-0004).
 
 MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), item fit by S-X² and the
-Rasch mean squares, person fit by the mean squares (`irtlib.fit`), and model comparison
-(`irtlib.comparison`) are implemented and checked against mirt (`tests/parity/mirt/`), and
-conditional and joint maximum likelihood (`irtlib.cml`, `irtlib.jml`) against published values and
-closed forms. The item response code that catsim holds is moving here in parts, each a card in
-`backlog/irt/` or `backlog/estimation/`; the calibration methods follow the build order of
-`backlog/discovery/literature-review.md`.
+Rasch mean squares, person fit by the mean squares (`irtlib.fit`), model comparison
+(`irtlib.comparison`) and the classical item statistics (`irtlib.classical`) are implemented and
+checked against mirt (`tests/parity/mirt/`), and conditional and joint maximum likelihood
+(`irtlib.cml`, `irtlib.jml`) against published values and closed forms. The item response code that
+catsim holds is moving here in parts, each a card in `backlog/irt/` or `backlog/estimation/`; the
+calibration methods follow the build order of `backlog/discovery/literature-review.md`.
 
 ## Repository Layout
 

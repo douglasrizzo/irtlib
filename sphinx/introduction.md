@@ -119,6 +119,10 @@ posterior given the number correct alone, which every examinee with that number 
 
 ## Checking a Calibration
 
+Before a calibration, two classical item statistics screen the responses with no model: each item's
+proportion correct {cite:p}`Wright1979{p. 25}`, and its correlation with the examinees' scores on the
+other items {cite:p}`Baker1987{p. 123}` ({mod}`irtlib.classical`).
+
 Item fit compares, item by item, the responses a calibration predicts with those observed
 ({mod}`irtlib.fit`). Orlando and Thissen's S-X² groups examinees by their number-correct score,
 which is observed, rather than by an ability estimate, whose groups depend on the model
@@ -144,8 +148,9 @@ efficient when no candidate is true {cite:p}`Vrieze2012{Pages 10-11}`.
   integrate over, the ability priors, and each examinee's posterior over the grid.
 - {mod}`irtlib.mml`, {mod}`irtlib.cml` and {mod}`irtlib.jml` hold the calibrators. Each returns the
   same result, a {class}`~irtlib.calibration.Calibration` ({doc}`/adr/0006-calibrator-contract`).
-- {mod}`irtlib.ability` holds the ability estimators, {mod}`irtlib.fit` item and person fit, and
-  {mod}`irtlib.comparison` model comparison.
+- {mod}`irtlib.ability` holds the ability estimators, {mod}`irtlib.fit` item and person fit,
+  {mod}`irtlib.comparison` model comparison, and {mod}`irtlib.classical` the classical item
+  statistics.
 - {mod}`irtlib.drawing` draws responses from the model, for simulation and parameter-recovery
   studies. Every function that draws random numbers takes them from its `rng` argument
   ({doc}`/adr/0005-random-numbers`).
