@@ -9,12 +9,7 @@ from matplotlib.axes import Axes
 from .. import irt
 from ..bank import ItemBank
 from ..typing import FloatArray
-from ._common import as_bank, item_position, prepare_axes
-
-_HALF_WIDTH = 4.0
-"""How far the curves of one item span on each side of its difficulty, in units of ability."""
-_POINTS = 161
-"""The abilities each curve is evaluated at."""
+from ._common import HALF_WIDTH, POINTS, as_bank, item_position, prepare_axes, text_box
 
 
 class Curve(StrEnum):
@@ -104,7 +99,7 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
   # The information of a flat item with a guessing parameter peaks far from its difficulty, so its curve spans both.
   peak = float(irt.max_info_theta(row)[0])
   centres = (items.difficulty[item],) if kind is Curve.ICC else (items.difficulty[item], peak)
-  theta = numpy.linspace(min(centres) - _HALF_WIDTH, max(centres) + _HALF_WIDTH, _POINTS)
+  theta = numpy.linspace(min(centres) - HALF_WIDTH, max(centres) + HALF_WIDTH, POINTS)
   label = items.names[item] if label is None else label
   ax = prepare_axes(ax, title)
 
@@ -130,17 +125,9 @@ def _annotate(ax: Axes, name: str, parameters: FloatArray) -> None:
   """Write the item's name and parameters, to three significant digits, in a box in the upper left corner of the axes.
 
   The curves of typical items keep clear of that corner: at the low end of the ability range the characteristic curve
-  is near its lower asymptote and the information curve near zero. The box takes the axes' face and edge colours, so it
-  follows the caller's style.
+  is near its lower asymptote and the information curve near zero.
   """
   a, b, c, d = parameters
   # The parameters are mathtext, so a dollar sign in the name would pair up with theirs.
   shown = name.replace("$", r"\$")
-  ax.annotate(
-    f"{shown}\n$a = {a:.3g}$\n$b = {b:.3g}$\n$c = {c:.3g}$\n$d = {d:.3g}$",
-    bbox={"facecolor": ax.get_facecolor(), "edgecolor": ax.spines["left"].get_edgecolor()},
-    xy=(0.02, 0.97),
-    xycoords="axes fraction",
-    ha="left",
-    va="top",
-  )
+  text_box(ax, f"{shown}\n$a = {a:.3g}$\n$b = {b:.3g}$\n$c = {c:.3g}$\n$d = {d:.3g}$")

@@ -18,6 +18,16 @@ except ImportError as error:
   _missing = "irtlib.plot needs matplotlib; install it with: pip install 'irtlib[plot]'"
   raise ImportError(_missing) from error
 
+from ._fit import empirical_icc, invariance, pathway_map, person_fit_map, person_profile, sx2_item
 from ._items import Curve, item_curve
 
-__all__ = ["Curve", "item_curve"]
+__all__ = [
+  "Curve",
+  "empirical_icc",
+  "invariance",
+  "item_curve",
+  "pathway_map",
+  "person_fit_map",
+  "person_profile",
+  "sx2_item",
+]
