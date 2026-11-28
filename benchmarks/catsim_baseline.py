@@ -3,7 +3,8 @@
 Each function is timed with ``timeit`` on the shapes catsim calls it with: one ability against a bank of 500 items for
 the response functions and information; one examinee's responses to 20 items on catsim's default grid of 121 nodes for
 the log-likelihood and the posterior; and the same responses, mixed, for the ability estimators, against catsim's
-estimators on one step of an adaptive test, with bounds (-6, 6) for maximum likelihood. The script prints one row per
+estimators on one step of an adaptive test, with bounds (-6, 6) for maximum likelihood, on that 4PL bank and on a 3PL
+bank of 500, the model of most of catsim's banks. The script prints one row per
 function, with the ratio of irtlib's time to catsim's, flags a ratio above 1.2, and exits with status 1 if a function's
 values differ from catsim's by more than a relative 1e-12. Two cases take another tolerance:
 
@@ -189,7 +190,7 @@ def _grid_cases(answered: FloatArray, correct: BoolArray, theta: float) -> list[
   ]
 
 
-def _estimator_cases(bank: irtlib.ItemBank, correct: BoolArray) -> list[Case]:
+def _estimator_cases(bank: irtlib.ItemBank, correct: BoolArray, model: str) -> list[Case]:
   """Return the estimators' cases for responses to the bank's first items; catsim's read a step's prebuilt context."""
   answered = bank.items[: correct.size]
   matrix = correct.astype(float)[numpy.newaxis, :]
@@ -202,7 +203,7 @@ def _estimator_cases(bank: irtlib.ItemBank, correct: BoolArray) -> list[Case]:
   eap, map_estimator = catsim_estimation.EAPEstimator(), catsim_estimation.MAPEstimator()
   search = catsim_estimation.NumericalSearchEstimator(bounds=_BOUNDS)
   warm = catsim_estimation.WarmLikelihoodEstimator()
-  shape = f"{correct.size} responses, {int(correct.sum())} correct"
+  shape = f"{model}, {correct.size} responses, {int(correct.sum())} correct"
   return [
     Case(
       "ability.expected_a_posteriori",
@@ -234,13 +235,20 @@ def _estimator_cases(bank: irtlib.ItemBank, correct: BoolArray) -> list[Case]:
 
 
 def _cases() -> list[Case]:
-  """Return every case: a bank of 500 4PL items, an ability of 0.7, and responses to the bank's first 20 items."""
+  """Return every case: banks of 500 4PL and 3PL items, an ability of 0.7, and responses to each bank's first 20."""
   rng = numpy.random.default_rng(_SEED)
   bank = irtlib.ItemBank.generate(_N_BANK, model="4PL", rng=rng)
   theta = 0.7
   answered = bank.items[:_N_ANSWERED]
   correct = rng.random(_N_ANSWERED) < irt.icc(theta, answered)
-  return _bank_cases(bank, theta) + _grid_cases(answered, correct, theta) + _estimator_cases(bank, correct)
+  bank_3pl = irtlib.ItemBank.generate(_N_BANK, model="3PL", rng=rng)
+  correct_3pl = rng.random(_N_ANSWERED) < irt.icc(theta, bank_3pl.items[:_N_ANSWERED])
+  return (
+    _bank_cases(bank, theta)
+    + _grid_cases(answered, correct, theta)
+    + _estimator_cases(bank, correct, "4PL")
+    + _estimator_cases(bank_3pl, correct_3pl, "3PL")
+  )
 
 
 def _seconds(function: Callable[[], object]) -> float:

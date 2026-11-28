@@ -27,7 +27,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.quadrature import QuadratureGrid, normal_log_prior, uniform_log_prior
+from irtlib.quadrature import GridPrior, QuadratureGrid, normal_log_prior, uniform_log_prior
 
 if TYPE_CHECKING:
   from collections.abc import Callable
@@ -221,20 +221,40 @@ class TestEveryEstimator:
 class TestMaximumLikelihood:
   """The maximum likelihood estimate, over the extended real line or within bounds, and its fallback."""
 
-  def test_estimate_is_the_maximum_of_the_likelihood(self) -> None:
+  @pytest.mark.parametrize(
+    "items",
+    [
+      pytest.param(
+        np.array([
+          [1.2, -1.5, 0.2, 1.0],
+          [0.8, -0.6, 0.0, 1.0],
+          [1.6, 0.0, 0.15, 1.0],
+          [1.0, 0.7, 0.0, 0.92],
+          [2.0, 1.3, 0.1, 1.0],
+          [1.4, -0.3, 0.0, 0.95],
+        ]),
+        id="guessing_and_slipping",
+      ),
+      pytest.param(
+        np.array([
+          [1.2, -1.5, 0.0, 1.0],
+          [0.8, -0.6, 0.0, 1.0],
+          [1.6, 0.0, 0.0, 1.0],
+          [1.0, 0.7, 0.0, 1.0],
+          [2.0, 1.3, 0.0, 1.0],
+          [1.4, -0.3, 0.0, 1.0],
+        ]),
+        id="2PL",
+      ),
+    ],
+  )
+  def test_estimate_is_the_maximum_of_the_likelihood(self, items: FloatArray) -> None:
     """Each examinee's estimate is the argmax of its log-likelihood, written out, on a grid 1e-4 apart.
 
-    The items guess and slip, and some responses are missing. A search that read missing responses as incorrect, or
-    stopped at a local maximum, misses the grid's argmax.
+    Some responses are missing. On items that guess and slip the search refines the best of its points; on 2PL items,
+    whose log-likelihood is concave, it skips them. A search that read missing responses as incorrect, stopped at a
+    local maximum, or refined toward a zero of the wrong derivative misses the grid's argmax.
     """
-    items = np.array([
-      [1.2, -1.5, 0.2, 1.0],
-      [0.8, -0.6, 0.0, 1.0],
-      [1.6, 0.0, 0.15, 1.0],
-      [1.0, 0.7, 0.0, 0.92],
-      [2.0, 1.3, 0.1, 1.0],
-      [1.4, -0.3, 0.0, 0.95],
-    ])
     responses = np.array([
       [1.0, 1.0, 0.0, 1.0, 0.0, 1.0],
       [1.0, _NAN, 1.0, 0.0, _NAN, 0.0],
@@ -414,26 +434,84 @@ class TestMaximumLikelihood:
     assert coarse.theta[0] == pytest.approx(reference, abs=1e-2)
     assert coarse.evaluations[0] < fine.evaluations[0]
 
-  def test_evaluations_count_the_search_points_and_the_refinement(self) -> None:
-    """The count is the 201 search points plus SciPy's evaluations refining the best one between its neighbours.
+  @pytest.mark.parametrize("theta", [-4.0, -1.3, 0.0, 0.8, 3.5])
+  def test_the_refinements_derivatives_are_the_log_likelihoods(self, theta: float) -> None:
+    """The search's first and second derivatives equal central differences of the written-out log-likelihood.
 
-    The reference repeats the refinement with SciPy on the log-likelihood written out. A count of SciPy's search
-    alone, or of one per examinee, fails.
+    The items guess and slip. A wrong first derivative moves the estimate; a wrong second one only slows the search,
+    whose bracket still converges, so only this comparison catches it.
     """
-    items = np.array([[1.2, -1.0, 0.0, 1.0], [0.8, 0.3, 0.0, 1.0], [1.6, 0.9, 0.0, 1.0], [1.1, -0.4, 0.0, 1.0]])
-    pattern = np.array([1.0, 1.0, 0.0, 0.0])
-    points = np.linspace(-6.0, 6.0, 201)
-    best = int(np.argmax(_log_likelihood(points, items, pattern)))
-    refinement = minimize_scalar(
-      lambda theta: -float(_log_likelihood(np.array(theta), items, pattern)),
-      bounds=(points[best - 1], points[best + 1]),
-      method="bounded",
-      options={"xatol": 1e-6},
-    )
+    items = np.array([[1.2, -1.5, 0.2, 1.0], [0.8, -0.6, 0.0, 0.9], [1.6, 0.0, 0.15, 0.95], [2.0, 1.3, 0.1, 1.0]])
+    responses = np.array([1.0, 0.0, 1.0, 0.0])
+    h = 1e-4
+    below, at, above = _log_likelihood(np.array([theta - h, theta, theta + h]), items, responses)
 
-    estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0))
+    first, second = ability._Examinee.of(responses, items).derivatives(theta)  # noqa: SLF001
 
-    assert estimates.evaluations[0] == 201 + refinement.nfev
+    assert first == pytest.approx((above - below) / (2 * h), rel=1e-6)
+    assert second == pytest.approx((above - 2 * at + below) / h**2, rel=1e-5)
+
+  def test_an_infinite_curvature_does_not_end_the_refinement(self) -> None:
+    """A derivative of 5 with a curvature of -inf is no zero: the refinement bisects up to the bracket's upper end.
+
+    Dividing the slope by the infinite curvature gave a step of 0, which ended the search at once where the slope was 5.
+    """
+    theta, evaluations = ability._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
+
+    assert theta == pytest.approx(1.0, abs=1e-6)
+    assert evaluations > 1
+
+  @pytest.mark.parametrize(("slope", "points"), [(1.0, 101), (10.0, 401), (1000.0, 2401)])
+  def test_evaluations_count_the_search_points_and_the_refinement(self, slope: float, points: int) -> None:
+    """Under the 3PL the count is the search points, each evaluation of the derivatives, and the refined point.
+
+    The likelihood below falls across the whole range: the guessed correct answer to the far too hard item is worth c
+    everywhere, and the incorrect answer to the easy one ever less. So the best point is the lower bound, its bracket
+    reaches no lower, and one evaluation of the derivatives, pointing down, ends the refinement there. The points are
+    101 for slopes up to 2.5, ceil(40 a) + 1 above, 401 for a slope of 10, and at most 2,401. A count of the refinement
+    alone, without the search points, with points that ignore the slope, or with no cap on them, fails.
+    """
+    items = np.array([[slope, 10.0, 0.2, 1.0], [slope, -8.0, 0.2, 1.0]])
+
+    estimates = maximum_likelihood(_rows([1.0, 0.0]), items, bounds=(-6.0, 6.0))
+
+    assert estimates.theta[0] == -6.0
+    assert estimates.evaluations[0] == points + 1 + 1
+
+  @pytest.mark.parametrize("search", ["bounded", "unbounded", "map"])
+  def test_steep_items_narrow_the_spacing_of_the_search_points(self, search: str) -> None:
+    """A peak narrower than 0.06, between two steep items, is the estimate: the argmax of the written-out objective.
+
+    A correct answer to the item of slope 56 at -0.62 and an incorrect one to the item of slope 36 at -0.68 meet in a
+    peak above the plateau below only on [-0.651, -0.612], 0.115 higher in log-likelihood. Points 0.06 apart, as 201
+    give, miss it and stop on the plateau; spaced by 0.3 / 56 they find it, with bounds, without them, and for MAP
+    under a wide normal prior.
+    """
+    items = np.array([[56.0, -0.62, 0.05, 1.0], [36.0, -0.68, 0.16, 1.0]])
+    pattern = np.array([1.0, 0.0])
+    fine = np.linspace(-6.0, 6.0, 1_200_001)
+    log_prior = -0.5 * (fine / 10.0) ** 2 if search == "map" else 0.0
+    objective = _log_likelihood(fine, items, pattern) + log_prior
+    if search == "map":
+      estimates = maximum_a_posteriori(_rows(pattern), items, log_prior=normal_log_prior(0.0, 10.0))
+    else:
+      estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0) if search == "bounded" else None)
+
+    assert estimates.theta[0] == pytest.approx(fine[np.argmax(objective)], abs=1e-4)
+
+  def test_a_concave_likelihood_skips_the_search_points(self) -> None:
+    """Without guessing or slipping the log-likelihood is concave, and a maximum beyond a bound costs two evaluations.
+
+    The two 2PL items lie far below the range, so the derivative at the lower bound already points down: the estimate
+    is that bound, after one evaluation of the derivatives and one of the log-likelihood there. A search that still
+    evaluated the 101 points counts 103.
+    """
+    items = np.array([[1.0, -10.0, 0.0, 1.0], [1.0, -9.5, 0.0, 1.0]])
+
+    estimates = maximum_likelihood(_rows([1.0, 0.0]), items, bounds=(-6.0, 6.0))
+
+    assert estimates.theta[0] == -6.0
+    assert estimates.evaluations[0] == 2
 
 
 class TestFallback:
@@ -513,14 +591,26 @@ class TestFallback:
 class TestMaximumAPosteriori:
   """The posterior mode within the bounds, and its standard error."""
 
-  def test_estimate_maximizes_the_log_posterior(self) -> None:
+  @pytest.mark.parametrize(
+    "items",
+    [
+      pytest.param(
+        np.array([[1.2, -1.5, 0.2, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.25, 0.95], [1.0, 1.5, 0.1, 1.0]]),
+        id="3PL_4PL",
+      ),
+      pytest.param(
+        np.array([[1.2, -1.5, 0.0, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.0, 1.0], [1.0, 1.5, 0.0, 1.0]]), id="2PL"
+      ),
+    ],
+  )
+  def test_estimate_maximizes_the_log_posterior(self, items: FloatArray) -> None:
     """Every response pattern's estimate is the argmax of the log-likelihood plus the log-prior on a dense grid.
 
-    The reference is written out, on 3PL and 4PL items with the prior N(0.5, 0.8^2), for every pattern of answers to
-    four items, all correct and all incorrect included, and with each item missing in turn. A prior dropped,
-    scaled wrongly or added with the wrong sign fails.
+    The reference is written out, with the prior N(0.5, 0.8^2), for every pattern of answers to four items, all correct
+    and all incorrect included, and with each item missing in turn. On 3PL and 4PL items the search refines the best of
+    its points with the prior's derivatives; on 2PL items the log-posterior is concave and the search skips them. A
+    prior dropped, scaled wrongly or added with the wrong sign, in the posterior or in its derivatives, fails.
     """
-    items = np.array([[1.2, -1.5, 0.2, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.25, 0.95], [1.0, 1.5, 0.1, 1.0]])
     mean, sd = 0.5, 0.8
     patterns = np.array(list(product([0.0, 1.0], repeat=4)))
     missing = np.where(np.eye(4, dtype=bool)[np.arange(16) % 4], _NAN, patterns)
@@ -532,6 +622,58 @@ class TestMaximumAPosteriori:
     for pattern, theta in zip(responses, estimates.theta, strict=True):
       log_posterior = _log_likelihood(fine, items, pattern) - 0.5 * ((fine - mean) / sd) ** 2
       assert theta == pytest.approx(fine[np.argmax(log_posterior)], abs=1e-4), pattern
+
+  def test_evaluations_on_the_normal_priors_newton_path(self) -> None:
+    """With no answered item and the prior N(0.3, 1) the log-posterior is -(theta - 0.3)^2 / 2, found in 5 evaluations.
+
+    Its derivative points inward at both bounds, 2 evaluations; Newton's step from the middle, 0, lands on 0.3 exactly,
+    and the derivative there, 0, ends the search, 2 more; the posterior at 0.3 is the fifth. Fails if the search
+    evaluated its points, bisected, or counted the bounds or the posterior wrongly.
+    """
+    estimates = maximum_a_posteriori(
+      _rows([_NAN]), np.array([[1.0, 0.0, 0.2, 1.0]]), log_prior=normal_log_prior(0.3, 1.0)
+    )
+
+    assert estimates.theta[0] == 0.3
+    assert estimates.evaluations[0] == 5
+
+  @pytest.mark.parametrize("sd", [1e160, 1e200])
+  def test_a_normal_prior_wider_than_any_float_precision_is_flat(self, sd: float) -> None:
+    """A normal prior so wide that 1 / sd^2 underflows leaves the likelihood's maximum within the bounds.
+
+    The reference is the argmax of the written-out log-likelihood on a dense grid. Computing the prior's precision as
+    sd**2 overflowed and raised OverflowError.
+    """
+    items = np.array([[1.2, -1.0, 0.2, 1.0], [0.8, 0.0, 0.1, 0.95], [1.6, 0.7, 0.25, 1.0]])
+    pattern = np.array([1.0, 0.0, 1.0])
+    fine = np.linspace(-6.0, 6.0, 120_001)
+
+    estimates = maximum_a_posteriori(_rows(pattern), items, log_prior=normal_log_prior(0.3, sd))
+
+    assert estimates.theta[0] == pytest.approx(fine[np.argmax(_log_likelihood(fine, items, pattern))], abs=1e-4)
+
+  def test_a_normal_prior_narrower_than_any_float_precision_has_no_mass_between_points(self) -> None:
+    """A normal prior so narrow that 1 / sd^2 overflows has no mass at the search points, the documented error.
+
+    Its mean, 0.33, is none of the 201 points, where the log-density is -inf. Computing the precision as 1 / sd**2
+    raised ZeroDivisionError.
+    """
+    with pytest.raises(ValueError, match="not finite at any of the 201 search points"):
+      maximum_a_posteriori(_rows([1.0, 0.0]), _ITEMS[:2], log_prior=normal_log_prior(0.33, 1e-200))
+
+  def test_a_prior_that_writes_into_the_abilities_it_is_given_raises(self) -> None:
+    """A prior must not write into the abilities it is given, and one that does raises instead of moving the estimate.
+
+    The prior below halves its argument in place. Given points it may write to, it halved the search's points too, and
+    the estimate came out at half the mode, 0.39 where the written-out log-posterior peaks at 0.78.
+    """
+
+    def in_place_prior(theta: FloatArray) -> FloatArray:
+      theta *= 0.5
+      return -2.0 * theta**2
+
+    with pytest.raises(ValueError, match="read-only"):
+      maximum_a_posteriori(_rows([1.0, 0.0, 1.0, 1.0]), _ITEMS, log_prior=in_place_prior)
 
   def test_evaluations_add_the_refinement_to_the_search_points(self) -> None:
     """Each estimate counts the 201 search points plus every posterior evaluation of the refinement.
@@ -678,20 +820,33 @@ class TestExpectedAPosteriori:
 
     assert estimates.theta[0] == pytest.approx(expected, abs=1e-12)
 
-  def test_estimate_is_the_posterior_mean_over_the_given_grid_prior_and_items(self) -> None:
+  @pytest.mark.parametrize("precomputed", [False, True], ids=["grid_and_log_prior", "grid_prior"])
+  def test_estimate_is_the_posterior_mean_over_the_given_grid_prior_and_items(self, precomputed: bool) -> None:
     """The estimate weighs the given grid's nodes by the given prior and the answered items only.
 
     On the 3-node grid {-1, 0, 1} with a flat prior, a correct answer to item 1 (a = 1, b = 0) gives the nodes masses
     proportional to sigma(-1), 1/2 and sigma(1), which sum to 3/2, so the posterior mean is tanh(1/2) / 1.5 = 0.3081.
     Using item 0, which the examinee did not answer, gives 0.548, the default grid 2.759 and the default normal prior
-    0.253.
+    0.253, whether the grid and prior come apart or as one GridPrior.
     """
     items = np.array([[1.0, 3.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
     grid = QuadratureGrid.uniform(n_nodes=3, low=-1.0, high=1.0)
-
-    estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid=grid, log_prior=uniform_log_prior())
+    if precomputed:
+      estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid_prior=GridPrior(grid, uniform_log_prior()))
+    else:
+      estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid=grid, log_prior=uniform_log_prior())
 
     assert estimates.theta[0] == pytest.approx(np.tanh(0.5) / 1.5, rel=1e-12)
+
+  def test_a_grid_prior_with_a_grid_or_a_log_prior_is_rejected(self) -> None:
+    """A GridPrior replaces the grid and the prior, so giving either with it is an error, not a silent choice."""
+    grid_prior = GridPrior(QuadratureGrid.uniform(), normal_log_prior())
+    responses, items = _rows([1.0]), np.array([[1.0, 0.0, 0.0, 1.0]])
+
+    with pytest.raises(ValueError, match="grid_prior replaces grid and log_prior"):
+      expected_a_posteriori(responses, items, grid_prior=grid_prior, grid=QuadratureGrid.uniform(5))
+    with pytest.raises(ValueError, match="grid_prior replaces grid and log_prior"):
+      expected_a_posteriori(responses, items, grid_prior=grid_prior, log_prior=uniform_log_prior())
 
   def test_standard_error_is_the_posterior_standard_deviation(self) -> None:
     """The mean and the SE are those of the posterior over the given grid, computed here by brute force.
@@ -858,7 +1013,8 @@ class TestWeightedLikelihood:
     a = 10.0
     p, q = expit(a * (theta - b)), expit(-a * (theta - b))
 
-    value = ability._modified_score(theta, np.array([correct]), np.array([[a, b, 0.0, 1.0]]))[0]  # noqa: SLF001
+    examinee = ability._Examinee.of(np.array([correct]), np.array([[a, b, 0.0, 1.0]]))  # noqa: SLF001
+    value = examinee.modified_score(theta)[0]
 
     assert value == pytest.approx((a * q if correct else -a * p) + a * (q - p) / 2.0, rel=1e-12)
 

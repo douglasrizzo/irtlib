@@ -749,15 +749,37 @@ def log_likelihood_function(responses: npt.ArrayLike, items: FloatArray) -> Call
   return lambda theta: numpy.moveaxis(log_terms(theta) @ selected.T, -1, 0)
 
 
-def _log_terms(items: FloatArray, terms: IntArray, correct: BoolArray) -> Callable[[float | FloatArray], FloatArray]:
+class _LogTerms(NamedTuple):
+  """The log P or log Q of each of some items as a function of ability, each written as the log P of a signed item.
+
+  log Q is log P's formula at the negated logit with 1 - d in place of c, and negating a negates the logit exactly, so
+  one formula computes every term.
+  """
+
+  items: FloatArray
+  """The items, with the discrimination negated where the term is log Q."""
+  floor: FloatArray
+  """c where the term is log P, 1 - d where it is log Q."""
+  dmc: FloatArray
+  """d - c."""
+  log_floor: FloatArray
+  """The logarithm of ``floor``."""
+  log_dmc: FloatArray
+  """The logarithm of ``dmc``."""
+
+  def __call__(self, theta: float | FloatArray) -> FloatArray:
+    """Return each term at each ability, of shape ``numpy.shape(theta) + (n_terms,)``."""
+    return _log_probability(_logit(theta, self.items), self.log_floor, self.log_dmc)
+
+
+def _log_terms(items: FloatArray, terms: IntArray, correct: BoolArray) -> _LogTerms:
   """Return the log P, where ``correct`` holds, or the log Q of each item ``items[terms]`` as a function of ability."""
-  # log Q is log P's formula at the negated logit, and negating a negates the logit exactly, so one formula computes
-  # every term
   signed_items = items[terms]
+  _, _, c, d = _split(signed_items)
   log_c, log_1md, log_dmc = _log_asymptotes(signed_items)
-  log_floors = numpy.where(correct, log_c, log_1md)
+  floor, log_floor = numpy.where(correct, c, 1.0 - d), numpy.where(correct, log_c, log_1md)
   signed_items[:, 0] = numpy.where(correct, signed_items[:, 0], -signed_items[:, 0])
-  return lambda theta: _log_probability(_logit(theta, signed_items), log_floors, log_dmc)
+  return _LogTerms(signed_items, floor, d - c, log_floor, log_dmc)
 
 
 def probability_gradient(theta: float | FloatArray, items: FloatArray) -> FloatArray:

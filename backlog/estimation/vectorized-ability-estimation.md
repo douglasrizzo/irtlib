@@ -34,7 +34,8 @@ against 47 ms and 209 ms for `irtlib.mml` on the same data, almost all of it in 
 ## Evidence
 
 A scratch prototype on 2026-11-28 (Apple M4 Pro, Python 3.13.6, NumPy 2.5.5, SciPy 1.18.1) runs
-the same search as `maximum_likelihood` with `bounds=(-6, 6)`:
+the search `maximum_likelihood` then had with `bounds=(-6, 6)`, before its one-examinee search
+moved to Newton's method on 101 points:
 
 1. it evaluates 201 equally spaced abilities for every examinee in one matrix product;
 2. it refines each examinee's best point between its neighbours in a single call of
@@ -75,7 +76,10 @@ How other packages estimate many examinees:
 
 - `src/irtlib/ability.py`:
   - `_answered` yields one examinee at a time.
-  - `_maximum` evaluates 201 points and refines the best between its neighbours with
+  - `_maximum` evaluates 101 points, more for slopes above 2.5, and refines the best between its
+    neighbours by a bracketed Newton's method, or skips the points where the log-likelihood is
+    concave (the 1PL and 2PL).
+    Under a prior other than the normal, MAP evaluates 201 points and refines the best with
     `scipy.optimize.minimize_scalar`.
   - Without bounds, the search moves a range end outward while the bounds on the log-likelihood
     leave room beyond it. `maximum_likelihood`, `maximum_a_posteriori` and `weighted_likelihood`
@@ -84,20 +88,21 @@ How other packages estimate many examinees:
   `irt.log_likelihood_function` and `quadrature.posterior`.
 - `src/irtlib/jml.py`: `_Groups` estimates each response pattern once, which saves the repeated
   patterns only.
-- catsim estimates one examinee per step of an adaptive test; the speed of that path is
-  [estimation/faster-ability-estimation](faster-ability-estimation.md).
+- catsim estimates one examinee per step of an adaptive test, a path `benchmarks/catsim_baseline.py`
+  times against catsim's own estimators.
 
 ## Proposal
 
 What it takes:
 
 1. **The grid for every examinee at once.** One product of the response matrix with the log
-   probabilities at the 201 points, as the prototype does, with missing responses as zero weights.
-   Its memory is examinees × 201 floats: 8 MB for 5,000 examinees.
+   probabilities at the search points, as the prototype does, with missing responses as zero
+   weights. Its memory is examinees × 101 floats: 4 MB for 5,000 examinees.
 2. **The refinement for every examinee at once.**
    - ML and MAP: `scipy.optimize.elementwise.find_minimum` (Chandrupatla's bracketing
      minimization), with each examinee's best point and its two neighbours as the bracket the
-     function requires. It is in SciPy 1.16.0, irtlib's lowest supported version (checked
+     function requires, or a vectorized form of the one-examinee search's bracketed Newton's method
+     on the derivatives it already computes. It is in SciPy 1.16.0, irtlib's lowest supported version (checked
      2026-11-28), so no dependency changes.
    - WLE: `scipy.optimize.elementwise.find_root` replaces `brentq`.
    - The objective takes an array of abilities, one per examinee, with the rows' indices as an
@@ -115,10 +120,9 @@ What it takes:
 
 TAM's damped Newton step for all persons is the alternative to point 2. It assumes one maximum,
 which the 1PL and 2PL have and the 3PL and 4PL need not. The grid followed by a bracketed
-refinement keeps irtlib's guard against a local maximum. On the 1PL and 2PL, where the maintainer
-lets the one-examinee search use Brent's method alone
-([estimation/faster-ability-estimation](faster-ability-estimation.md)), the vectorized search can
-skip the grid too: `scipy.optimize.elementwise.bracket_minimum` then `find_minimum`.
+refinement keeps irtlib's guard against a local maximum. On the 1PL and 2PL the one-examinee
+search already skips the points, the log-likelihood being concave, and the vectorized search can
+too.
 
 EAP needs none of this: it already scores every examinee on the grid at once.
 
