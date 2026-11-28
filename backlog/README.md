@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-22 cards: 9 ready, 3 needs-research, 4 needs-decision, 2 blocked, 4 parked.
+23 cards: 9 ready, 3 needs-research, 5 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -46,6 +46,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
 | [Generate banks of a chosen shape, and document the scaling constant D where users look](discovery/bank-generation.md) | discovery | 3 |
+| [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | 3 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
 
@@ -64,6 +65,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
 | [Choose the WLE's standard error (Warm's corrected SE, the sandwich SE)](estimation/wle-standard-errors.md) | estimation | technique | needs-research | S |  | catsim's Wang and Vispoel (1998) walkthrough |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
+| [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Compute the normal quantile in irtlib.irt with scipy.special instead of importing scipy.stats](irt/normal-quantile-import.md) | irt | maintenance | ready | XS |  | catsim's import-time card on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
