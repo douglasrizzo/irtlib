@@ -10,7 +10,7 @@ from matplotlib.axes import Axes
 from .. import irt
 from ..bank import ItemBank
 from ..typing import FloatArray
-from ._common import abilities, as_bank, item_position, prepare_axes
+from ._common import ability_grid, as_bank, item_position, prepare_axes
 
 _HALF_WIDTH = 4.0
 """How far the curves of one item span on each side of its difficulty, in units of ability."""
@@ -53,6 +53,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
   Both curves of an item go on two axes that share the ability axis, one call each, as the first example shows.
 
   .. plot::
+      :filename-prefix: item_curve
       :caption: One item's characteristic curve above and its information curve below. The dot marks the peak.
 
       import matplotlib.pyplot as plt
@@ -66,6 +67,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
       plt.show()
 
   .. plot::
+      :filename-prefix: item_curve-items
       :caption: The characteristic curves of four items above and their information curves below, on one range.
 
       import matplotlib.pyplot as plt
@@ -83,6 +85,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
       plt.show()
 
   .. plot::
+      :filename-prefix: item_curve-recovered
       :caption: The characteristic curve of a three-parameter item, and the curve of the two-parameter model calibrated
           from 1,000 examinees' responses to it and nine other items.
 
@@ -151,7 +154,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
     centres = (items.difficulty[item],) if kind is Curve.ICC else (items.difficulty[item], peak)
     grid = numpy.linspace(min(centres) - _HALF_WIDTH, max(centres) + _HALF_WIDTH, _POINTS)
   else:
-    grid = abilities(theta)
+    grid = ability_grid(theta)
   label = items.names[item] if label is None else label
   ax = prepare_axes(ax, title)
 

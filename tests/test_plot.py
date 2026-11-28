@@ -114,7 +114,7 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
     "strings",
   ],
 )
-def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
+def test_plots_reject_an_ability_grid_that_draws_no_curve_before_drawing(
   draw: Callable[[npt.ArrayLike], Axes], theta: npt.ArrayLike, error: type[Exception], message: str
 ) -> None:
   """Abilities that are not a line's x values, at least two, finite and increasing, raise before any figure exists.

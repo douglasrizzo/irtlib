@@ -52,7 +52,7 @@ def as_bank(items: ItemBank | FloatArray) -> ItemBank:
   return items if isinstance(items, ItemBank) else ItemBank(numpy.asarray(items, dtype=float))
 
 
-def abilities(theta: npt.ArrayLike) -> FloatArray:
+def ability_grid(theta: npt.ArrayLike) -> FloatArray:
   """Return the abilities a curve is drawn at as a float array, after checking that they can be drawn as one.
 
   Parameters
