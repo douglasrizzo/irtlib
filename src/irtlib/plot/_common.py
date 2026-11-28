@@ -70,10 +70,15 @@ def abilities(theta: npt.ArrayLike) -> FloatArray:
   TypeError
       If ``theta`` holds values that are not real numbers, bools included.
   ValueError
-      If ``theta`` is not one-dimensional, holds fewer than two abilities, or holds one that is not finite or not above
-      the one before it.
+      If ``theta`` is ragged or not one-dimensional, holds fewer than two abilities, or holds one that is not finite or
+      not above the one before it.
   """
-  values = numpy.asarray(theta)
+  try:
+    values = numpy.asarray(theta)
+  except ValueError:
+    # NumPy builds no array from sequences of different lengths, and its own message names no argument.
+    msg = "theta has a ragged shape; a curve is drawn at a one-dimensional array of at least two abilities"
+    raise ValueError(msg) from None
   # Booleans would be read as abilities 0 and 1, and None as NaN.
   if values.dtype.kind not in "iuf":
     msg = f"theta holds {values.dtype} values; abilities must be real numbers"
@@ -81,14 +86,20 @@ def abilities(theta: npt.ArrayLike) -> FloatArray:
   if values.ndim != 1 or values.size < _MIN_ABILITIES:
     msg = f"theta has shape {values.shape}; a curve is drawn at a one-dimensional array of at least two abilities"
     raise ValueError(msg)
+  # A list that mixes bools with numbers becomes an array of numbers, so its entries are checked as given.
+  for position, entry in enumerate(numpy.asarray(theta, dtype=object)):
+    if isinstance(entry, (bool, numpy.bool_)):
+      msg = f"theta[{position}] is {entry!r}; abilities must be real numbers, not bools"
+      raise TypeError(msg)
   values = values.astype(float)
   if not numpy.isfinite(values).all():
     position = int(numpy.flatnonzero(~numpy.isfinite(values))[0])
     msg = f"theta[{position}] is {values[position].item()!r}; abilities must be finite numbers"
     raise ValueError(msg)
   # A line through abilities out of order doubles back on itself.
-  if (numpy.diff(values) <= 0).any():
-    position = int(numpy.flatnonzero(numpy.diff(values) <= 0)[0]) + 1
+  steps = numpy.diff(values)
+  if (steps <= 0).any():
+    position = int(numpy.flatnonzero(steps <= 0)[0]) + 1
     msg = (
       f"theta[{position}] is {values[position].item()!r}, not above theta[{position - 1}] = "
       f"{values[position - 1].item()!r}; abilities must increase"

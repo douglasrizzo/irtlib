@@ -90,10 +90,29 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
     ([0.0, np.inf], ValueError, r"theta\[1\] is inf; abilities must be finite numbers"),
     ([0.0, 1.0, 1.0], ValueError, r"theta\[2\] is 1.0, not above theta\[1\] = 1.0; abilities must increase"),
     ([1.0, 0.0], ValueError, r"theta\[1\] is 0.0, not above theta\[0\] = 1.0; abilities must increase"),
+    ([[0.0, 1.0], [2.0]], ValueError, r"theta has a ragged shape; a curve is drawn at a one-dimensional array"),
     ([False, True], TypeError, "theta holds bool values; abilities must be real numbers"),
+    ([0.0, True, 2.0], TypeError, r"theta\[1\] is True; abilities must be real numbers, not bools"),
+    ([0, 1j], TypeError, "theta holds complex128 values; abilities must be real numbers"),
+    (np.array([0.0, 1.0], dtype=object), TypeError, "theta holds object values; abilities must be real numbers"),
     (["-1", "1"], TypeError, "theta holds <U2 values; abilities must be real numbers"),
   ],
-  ids=["scalar", "empty", "one", "matrix", "nan", "inf", "repeated", "decreasing", "bools", "strings"],
+  ids=[
+    "scalar",
+    "empty",
+    "one",
+    "matrix",
+    "nan",
+    "inf",
+    "repeated",
+    "decreasing",
+    "ragged",
+    "bools",
+    "bool-among-numbers",
+    "complex",
+    "objects",
+    "strings",
+  ],
 )
 def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
   draw: Callable[[npt.ArrayLike], Axes], theta: npt.ArrayLike, error: type[Exception], message: str
@@ -101,8 +120,9 @@ def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
   """Abilities that are not a line's x values, at least two, finite and increasing, raise before any figure exists.
 
   Fails if a plot draws a single point that shows no curve, a curve with a gap at a NaN, a line that doubles back on
-  itself through abilities out of order, or flags read as abilities 0 and 1, or if it leaves an empty figure open
-  behind the error.
+  itself through abilities out of order, or flags read as abilities 0 and 1, alone or among numbers; if complex or
+  object values pass; if a ragged list raises NumPy's message, which names no argument; or if a plot leaves an empty
+  figure open behind the error.
   """
   with pytest.raises(error, match=message):
     draw(theta)
