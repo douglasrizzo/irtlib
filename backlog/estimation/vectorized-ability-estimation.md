@@ -1,5 +1,5 @@
 ---
-title: Estimate the abilities of many examinees in one vectorized search
+title: Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE
 kind: feature
 status: ready
 priority: 3
@@ -8,7 +8,7 @@ blocked_by: []
 raised_by: [joint maximum likelihood PR on 2026-11-27]
 ---
 
-# Estimate the abilities of many examinees in one vectorized search
+# Estimate the abilities of many examinees in one vectorized search, by ML, MAP and WLE
 
 ## Why this card exists
 
@@ -116,6 +116,19 @@ What it takes:
 TAM's damped Newton step for all persons is the alternative to point 2. It assumes one maximum,
 which the 1PL and 2PL have and the 3PL and 4PL need not. The grid followed by a bracketed
 refinement keeps irtlib's guard against a local maximum.
+
+EAP needs none of this: it already scores every examinee on the grid at once.
+
+Where irtlib would use the vectorized estimators:
+
+- **ML:** the ability step of every cycle of `irtlib.jml`, where most of a 2PL calibration's time
+  goes.
+- **MAP and WLE:** the ability steps of penalized JML and of JML with Warm abilities, should
+  [estimation/jml-variants](jml-variants.md) add them.
+- **ML or WLE:** the mean squares of a conditional calibration, should
+  [fit/conditional-mean-squares](../fit/conditional-mean-squares.md) choose them.
+- **All three:** scoring a calibration sample and simulation studies, through `irtlib.ability`
+  directly.
 
 ## Tests
 
