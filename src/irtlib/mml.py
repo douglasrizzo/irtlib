@@ -122,7 +122,7 @@ class Priors:
 
   A prior applies to each item's parameter, and once to a parameter the items share, such as the 1PL's slope.
 
-  Attributes
+  Parameters
   ----------
   slope : tuple[float, float] or None
       The mean and standard deviation of the log of every slope: a lognormal prior on the slope.

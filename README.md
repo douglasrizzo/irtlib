@@ -28,6 +28,8 @@ uv sync
 
 ## Where things are
 
+- [The documentation](https://douglasrizzo.com.br/irtlib/): an introduction to the models and the
+  calibration methods, the terms and notation, and the API reference.
 - [The backlog](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/README.md): every piece of
   planned work, and the research rules.
 - [The architecture decisions](https://github.com/douglasrizzo/irtlib/tree/dev/sphinx/adr): what

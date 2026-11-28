@@ -47,7 +47,7 @@ form, a published value or a brute-force reference, never from the code under te
 
 % -----------------------------------------------------------------------------------------------------
 % TECHNIQUE CARDS ONLY, below. The sections from Motivation to References have the names and order of
-% the method page the documentation site will have (backlog/maintenance/docs-site.md): implementing
+% the method page the documentation site will have (backlog/maintenance/docs-method-pages.md): implementing
 % the method moves them there (backlog/README.md, "Workflow").
 % Tests, Open Questions and Implementation Guidance are for contributors and stay out of the page.
 %

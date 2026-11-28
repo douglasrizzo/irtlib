@@ -51,7 +51,7 @@ class Likelihood(StrEnum):
 class Calibration:
   """The result of a calibration, by any method.
 
-  Attributes
+  Parameters
   ----------
   estimates : numpy.ndarray
       The estimates ``[a, b, c, d]`` of every item, one row per column of the response matrix, whether or not they are

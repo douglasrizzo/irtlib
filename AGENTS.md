@@ -27,6 +27,8 @@ the calibration methods follow the build order of `backlog/discovery/literature-
 - `tests/`: automated test suite
 - `benchmarks/`: timings of the code moved from catsim against catsim's, run on demand
 - `backlog/`: every piece of planned work, as cards with frontmatter, and the citation rules
+- `sphinx/`: the documentation site, built with Sphinx: its pages, `conf.py` and the API reference
+  (`sphinx/api/`)
 - `sphinx/adr/`: Architecture Decision Records
 - `sphinx/references.bib`: the bibliography
 - `papers/`: the local paper shelf, never committed (`backlog/README.md`, "The paper shelf")
@@ -107,7 +109,9 @@ Before writing or reviewing documentation of any kind, read `sphinx/AGENTS.md`, 
 charter. Each kind of document has one job and audience:
 
 - `README.md`: what irtlib is, its status, install from source; newcomers on GitHub.
-- Docstrings: the call contract; anyone calling the object.
+- The landing page and the concept pages (`sphinx/`): the entry paths, the introduction, the terms
+  and notation; researchers and package authors.
+- Docstrings: the call contract, which the API reference renders; anyone calling the object.
 - ADRs (`sphinx/adr/`): why the architecture is shaped this way; contributors.
 - `backlog/`: every piece of planned work, as cards with frontmatter, whose index the README
   generates; contributors and agents. A PR that does a card's work deletes the card.
@@ -132,6 +136,8 @@ Hard rules:
   - `uv run ruff check .`
   - `uv run pylint src/irtlib`
   - `uv run ty check`
+  - `uv run --group docs sphinx-build -b html -W --keep-going sphinx sphinx/_build/html` (strict: every
+    cross-reference resolves, and every public parameter is documented)
 - Every test has a docstring naming what it tests for: the behaviour, or the bug that would make it
   fail. Test docstrings have no argument sections.
 - Expected values come from a hand-worked case, a closed form, a published value, mirt's recorded
@@ -186,5 +192,6 @@ Hard rules:
 - Run lint: `uv run ruff check .`
 - Run every pre-commit hook: `uv run pre-commit run --all-files`
 - Run type checks: `uv run ty check`
+- Build the documentation: `uv run --group docs sphinx-build -b html -W --keep-going sphinx sphinx/_build/html`
 - Regenerate the backlog index: `uv run --no-project python backlog/_index.py`
 - Run the benchmarks against catsim: `uv run --group benchmarks python benchmarks/catsim_baseline.py`

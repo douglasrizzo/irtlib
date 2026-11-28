@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-23 cards: 6 ready, 4 needs-research, 5 needs-decision, 4 blocked, 4 parked.
+26 cards: 8 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -66,8 +66,10 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
 | [Refuse items whose parameters are not finite in the ability estimators](estimation/non-finite-items.md) | estimation | fix | ready | XS |  | joint maximum likelihood abilities PR on 2026-11-28 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
-| [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
-| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
+| [Draw irtlib's logo](maintenance/logo.md) | maintenance | docs | ready | S |  | maintainer on 2026-11-28 |
+| [Give each method a page of its own, with its formulas moved out of the module docstrings](maintenance/docs-method-pages.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
+| [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md) | setup of irtlib |
+| [Write the guides](maintenance/docs-guides.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
 
 ## Priority 4
@@ -81,6 +83,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Let joint maximum likelihood calibrate responses with missing entries](estimation/jml-missing-responses.md) | estimation | feature | needs-research | S |  | joint maximum likelihood PR on 2026-11-27 |
 | [Run the M-step's item updates in threads on free-threaded Python](estimation/free-threaded-m-step.md) | estimation | feature | ready | S |  | Python-floor measurement of 2026-11-26 |
 | [Should irtlib.jml offer penalized JML, JML with Warm abilities and JMLε?](estimation/jml-variants.md) | estimation | decision | blocked | S |  | joint maximum likelihood PR on 2026-11-27 |
+| [Draw the documentation's figures](maintenance/docs-figures.md) | maintenance | docs | blocked | M | [irt-plots](discovery/irt-plots.md) | maintainer on 2026-11-28 |
 | [Make irtlib citable with CITATION.cff and Zenodo](maintenance/citation-zenodo.md) | maintenance | maintenance | blocked | XS | [pypi-publishing](maintenance/pypi-publishing.md) | setup of irtlib |
 | [Report coverage to Codecov](maintenance/codecov.md) | maintenance | maintenance | ready | XS |  | setup of irtlib |
 
@@ -118,11 +121,11 @@ which sources and when it was last checked.
 3. **Implement** the method once its open questions are answered, with tests for its guarantees and
    for its "Tests" section, parity cases against mirt where mirt implements the method, and
    parameter-recovery tests (ADR-0003).
-4. **Promote** the card into the documentation in the same PR, once the documentation site exists:
-   its sections from Motivation to References become the method's page, its sources move into
-   `sphinx/references.bib`, and the card is deleted. Until the site exists, the implementing PR
-   moves the sources into `sphinx/references.bib`, keeps the card's design in the module's docstring
-   and the ADRs it needs, and deletes the card.
+4. **Promote** the card into the documentation in the same PR: its sources move into
+   `sphinx/references.bib`, its design goes into the module's docstring, which the site's API
+   reference renders, and into the ADRs it needs, and the card is deleted. Once methods have pages of
+   their own ([`maintenance/docs-method-pages.md`](maintenance/docs-method-pages.md)), its sections
+   from Motivation to References become the method's page instead.
 
 ### Citation convention
 

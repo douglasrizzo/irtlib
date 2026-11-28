@@ -39,7 +39,7 @@ from .typing import FloatArray
 class ChiSquareTest:
   """A statistic referred to a chi-square distribution.
 
-  Attributes
+  Parameters
   ----------
   statistic : float
       The statistic.
