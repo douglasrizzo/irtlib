@@ -28,11 +28,11 @@ asymptotically $1 / I$, that of the maximum likelihood estimate (p. 431).
 
 Warm's dissertation gives the same steps: the maximum likelihood estimate's bias is $-J / (2 I^2)$,
 the expression of Lord (1983a) as {cite:t}`Warm1985{p. 7, Equation 6}` gives it; the weight's
-log-derivative $J / (2 I)$ cancels it (p. 8, Equations 9 and 10), which gives the modified score
-equation (p. 8, Equation 11). In general the weight has no closed form, but when every $c_i = 0$ it
-is $I^{1/2}$ {cite:p}`Warm1985{p. 9}`, and under the 1PL and the 2PL the WLE is the Bayes modal
+log-derivative $J / (2 I)$ cancels it (p. 66, Equations A.6 and A.7), which gives the modified score
+equation (p. 8, Equation 11). In general the weight has no closed form, but when every $c_i = 0$, in
+Warm's model, which has no upper asymptote, it is $I^{1/2}$ {cite:p}`Warm1985{p. 9}`, and under the 1PL and the 2PL the WLE is the Bayes modal
 estimate under Jeffreys' prior {cite:p}`Magis2012{p. 6}`. When an item has $c_i > 0$ or $d_i < 1$, $J$
-is no longer the derivative of $I$, so the WLE is defined by its equation, not by a likelihood
+is not the derivative of $I$, so the WLE is defined by its equation, not by a likelihood
 weighted by $I^{1/2}$.
 
 ## Implementation

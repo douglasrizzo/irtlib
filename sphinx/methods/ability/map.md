@@ -1,7 +1,8 @@
 # Maximum A Posteriori
 
 :API: {py:func}`irtlib.ability.maximum_a_posteriori`
-:Sources: {cite:t}`Samejima1969`; {cite:t}`Magis2012`; {cite:t}`Warm1989`; {cite:t}`Bock1982`
+:Sources: {cite:t}`Samejima1969`; {cite:t}`Magis2012`; {cite:t}`Warm1989`; {cite:t}`Bock1982`;
+  {cite:t}`Bock1981`
 
 ## Motivation
 
@@ -24,9 +25,11 @@ variance $\sigma^2$ its standard error is $1 / \sqrt{1 / \sigma^2 + I(\hat\theta
 {cite:p}`Magis2012{p. 5, Equation 6}`.
 
 **Against the maximum likelihood and EAP estimates.** When every answered item has $c_i = 0$ and
-$d_i = 1$ the log-likelihood is concave, so under a normal prior the derivative of the log-posterior
-points toward the prior mean at the maximum likelihood estimate and toward that estimate at the
-prior mean, and the single mode lies between the two. Under a uniform prior on an interval wide
+$d_i = 1$ the observed information is $I$ {cite:p}`Warm1989{p. 449}`, so the log-likelihood's second
+derivative is $-I < 0$ and the log-likelihood is concave. Under a normal prior the log-posterior is
+then concave too, and its derivative is the prior's term alone at the maximum likelihood estimate,
+pointing toward the prior mean, and the likelihood's term alone at the prior mean, pointing toward
+that estimate: the single mode lies between the two. Under a uniform prior on an interval wide
 enough, the MAP and maximum likelihood estimates are equivalent {cite:p}`Magis2012{p. 5}`. As items
 accumulate, the posterior approaches normality {cite:p}`Bock1982{p. 434}`, and its mode, the MAP
 estimate, and its mean, the {doc}`eap` estimate, draw together.

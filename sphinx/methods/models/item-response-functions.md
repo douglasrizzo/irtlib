@@ -2,7 +2,7 @@
 
 :API: {py:mod}`irtlib.irt`
 :Sources: {cite:t}`Magis2013`; {cite:t}`Magis2012`; {cite:t}`Barton1981`; {cite:t}`Baker1987`;
-  {cite:t}`Veerkamp1994`
+  {cite:t}`Veerkamp1994`; {cite:t}`Barrada2006`
 
 ## Motivation
 
