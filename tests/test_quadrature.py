@@ -68,6 +68,10 @@ def _zero_everywhere(theta: FloatArray) -> FloatArray:
   return np.full_like(theta, -np.inf)
 
 
+def _minus_1e308_everywhere(theta: FloatArray) -> FloatArray:
+  return np.full_like(theta, -1e308)
+
+
 @pytest.mark.parametrize(("mean", "sd"), [(0.0, 1.0), (0.5, 2.0), (-1.5, 0.3)])
 def test_normal_log_prior_is_the_normal_log_density(mean: float, sd: float) -> None:
   """The prior's values are SciPy's normal log-density; fails if the variance, the constant or the mean is wrong."""
@@ -143,6 +147,20 @@ def test_a_very_narrow_normal_prior_has_a_density_only_at_its_mean(sd: float) ->
   assert log_density[0] == -np.inf
   assert log_density[2] == -np.inf
   assert log_density[1] == pytest.approx(-math.log(sd) - 0.5 * math.log(2 * math.pi), rel=1e-15)
+
+
+def test_a_prior_with_sd_just_below_1e_100_gives_minus_infinity_where_the_square_overflows() -> None:
+  """With sd = 9e-101, an ability 1e55 from the mean has a squared standardized deviation past the largest float.
+
+  Its log-density is -inf, and the overflow raises no warning. A guard that covers only smaller standard deviations
+  warns of the overflow, which the test suite turns into an error.
+  """
+  sd = 9e-101
+
+  log_density = normal_log_prior(0.0, sd)(np.array([0.0, 1e55]))
+
+  assert log_density[1] == -np.inf
+  assert log_density[0] == pytest.approx(-math.log(sd) - 0.5 * math.log(2 * math.pi), rel=1e-15)
 
 
 @pytest.mark.parametrize(
@@ -429,6 +447,72 @@ def test_an_examinee_whose_posterior_has_no_mass_is_an_error() -> None:
 
   with pytest.raises(ValueError, match=r"no mass at any node for the examinees in rows \[1\]"):
     posterior(log_likelihood, grid, uniform_log_prior(-1.0, 1.0))
+
+
+def test_each_examinee_alone_gets_its_row_of_the_batched_posterior() -> None:
+  """Each examinee's posterior alone is the masses times its likelihood, normalized, and its row of the batch's.
+
+  The first two likelihoods are positive at every node, the third 0 at both ends, so the batch's log-likelihood is not
+  finite everywhere while the first two rows alone are. A posterior that left out the prior or the normalization for a
+  log-likelihood finite everywhere changes those rows.
+  """
+  grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
+  likelihood = np.array([
+    [0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9],
+    [0.9, 0.8, 0.6, 0.4, 0.2, 0.1, 0.05],
+    [0.0, 0.3, 0.5, 1.0, 0.5, 0.3, 0.0],
+  ])
+  with np.errstate(divide="ignore"):
+    log_likelihood = np.log(likelihood)
+  joint = _masses() * likelihood
+  expected = joint / joint.sum(axis=1, keepdims=True)
+  prior = normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)
+
+  batch = posterior(log_likelihood, grid, prior)
+
+  for examinee, row in enumerate(log_likelihood):
+    alone = posterior(row[np.newaxis], grid, prior)
+    np.testing.assert_allclose(alone, expected[[examinee]], rtol=1e-12, atol=0.0)
+    np.testing.assert_allclose(alone[0], batch[examinee], rtol=1e-12, atol=0.0)
+
+
+@pytest.mark.parametrize(
+  ("log_likelihood", "match"),
+  [
+    pytest.param([0.0, 0.0, np.nan, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="NaN"),
+    pytest.param([0.0, 0.0, np.inf, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="+inf"),
+    pytest.param(
+      [np.inf, 0.0, 0.0, 0.0, 0.0], r"NaN or \+inf for the examinees in rows \[0\]", id="+inf where the prior is 0"
+    ),
+    pytest.param([0.0, -np.inf, -np.inf, -np.inf, 0.0], r"no mass at any node for the examinees in rows \[0\]", id="0"),
+  ],
+)
+def test_one_examinee_with_an_undefined_or_massless_posterior_is_an_error(
+  log_likelihood: list[float], match: str
+) -> None:
+  """One examinee whose log-likelihood is NaN or +inf at a node, or -inf wherever the prior has mass, is an error.
+
+  The prior is uniform on [-1, 1], 0 at the grid's ends. Skipping the checks for one examinee, or deciding them on a
+  log-likelihood finite at some node, returns NaN; adding +inf to the log-prior's -inf without silencing the invalid
+  value warns, which the test suite turns into an error.
+  """
+  grid = QuadratureGrid.uniform(5, -2.0, 2.0)
+
+  with pytest.raises(ValueError, match=match):
+    posterior(np.array([log_likelihood]), grid, uniform_log_prior(-1.0, 1.0))
+
+
+def test_a_log_joint_that_overflows_at_every_node_has_no_mass() -> None:
+  """A finite log-likelihood and log-prior whose sum overflows to -inf at every node leave no mass: an error.
+
+  Both are -1e308 at the three nodes of a grid with unit weights, so each passes its own check, and their sum is -inf.
+  Deciding the checks on the log-likelihood alone returns NaN after a warning of the overflow, which the test suite
+  turns into an error.
+  """
+  grid = QuadratureGrid.uniform(3, -1.0, 1.0)
+
+  with pytest.raises(ValueError, match=r"no mass at any node for the examinees in rows \[0\]"):
+    posterior(np.full((1, 3), -1e308), grid, _minus_1e308_everywhere)
 
 
 @pytest.mark.parametrize("shape", [(121,), (2, 120), (2, 121, 1)])

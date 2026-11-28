@@ -39,7 +39,7 @@ likelihood of a long response pattern does not underflow.
 
 import math
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Self, override
 
 import numpy
@@ -52,6 +52,8 @@ type LogPrior = Callable[[FloatArray], FloatArray]
 
 _MIN_NODES = 2
 _POSTERIOR_NDIM = 2
+# from this sd up, a squared standardized deviation overflows only beyond 1e54 from the mean, where NumPy warns of it
+_UNGUARDED_SD = 1e-100
 
 
 def normal_log_prior(mean: float = 0.0, sd: float = 1.0) -> LogPrior:
@@ -99,14 +101,26 @@ class _NormalLogPrior:
 
   mean: float
   sd: float
+  _log_scale: float = field(init=False, repr=False, compare=False)
+  """log(sd) + log(2 pi) / 2, the part of the log-density that does not depend on the ability."""
+
+  def __post_init__(self) -> None:
+    """Compute the part of the log-density that does not depend on the ability."""
+    object.__setattr__(self, "_log_scale", math.log(self.sd) + 0.5 * math.log(2.0 * math.pi))
 
   def __call__(self, theta: FloatArray) -> FloatArray:
     """Return the log-density at each ability."""
-    # from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi
-    # times it, or a squared deviation over it can overflow; a deviation too large to square has log-density -inf
+    if self.sd >= _UNGUARDED_SD:
+      return self._log_density(theta)
     with numpy.errstate(over="ignore"):
-      deviation = (theta - self.mean) / self.sd
-      return -0.5 * deviation * deviation - math.log(self.sd) - 0.5 * math.log(2.0 * math.pi)
+      return self._log_density(theta)
+
+  def _log_density(self, theta: FloatArray) -> FloatArray:
+    """Return the log-density at each ability, a squared deviation that overflows giving -inf."""
+    # from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi
+    # times it, or a squared deviation over it can overflow
+    deviation = (theta - self.mean) / self.sd
+    return -0.5 * deviation * deviation - self._log_scale
 
   @override
   def __repr__(self) -> str:
@@ -346,15 +360,19 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
     )
     raise ValueError(msg)
   log_masses = _log_masses(grid, log_prior)
-  undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
-  if undefined.any():
-    msg = f"the log-likelihood is NaN or +inf for the examinees in rows {numpy.flatnonzero(undefined).tolist()}"
-    raise ValueError(msg)
-  log_joint = log_likelihood + log_masses
-  massless = ~numpy.isfinite(log_joint).any(axis=1)
-  if massless.any():
-    msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
-    raise ValueError(msg)
+  # finite terms can overflow to -inf, and +inf meets the prior's -inf as NaN: the checks below name both
+  with numpy.errstate(over="ignore", invalid="ignore"):
+    log_joint = log_likelihood + log_masses
+  # a log-joint finite at every node has mass in every row and no NaN or +inf log-likelihood, so it passes both checks
+  if not numpy.isfinite(log_joint).all():
+    undefined = (numpy.isnan(log_likelihood) | numpy.isposinf(log_likelihood)).any(axis=1)
+    if undefined.any():
+      msg = f"the log-likelihood is NaN or +inf for the examinees in rows {numpy.flatnonzero(undefined).tolist()}"
+      raise ValueError(msg)
+    massless = ~numpy.isfinite(log_joint).any(axis=1)
+    if massless.any():
+      msg = f"the posterior has no mass at any node for the examinees in rows {numpy.flatnonzero(massless).tolist()}"
+      raise ValueError(msg)
   return _normalized(log_joint)
 
 
@@ -379,7 +397,7 @@ def posterior_mean(post: FloatArray, nodes: FloatArray) -> FloatArray:
   >>> posterior_mean(numpy.array([[0.25, 0.5, 0.25], [0.0, 0.5, 0.5]]), numpy.array([-1.0, 0.0, 1.0]))
   array([0. , 0.5])
   """
-  return numpy.sum(post * nodes, axis=1)
+  return (post * nodes).sum(axis=1)
 
 
 def posterior_variance(post: FloatArray, nodes: FloatArray) -> FloatArray:
@@ -405,4 +423,4 @@ def posterior_variance(post: FloatArray, nodes: FloatArray) -> FloatArray:
   array([0.5 , 0.25])
   """
   mean = posterior_mean(post, nodes)
-  return numpy.sum(post * (nodes - mean[:, numpy.newaxis]) ** 2, axis=1)
+  return (post * (nodes - mean[:, numpy.newaxis]) ** 2).sum(axis=1)

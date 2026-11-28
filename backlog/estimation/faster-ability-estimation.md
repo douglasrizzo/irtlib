@@ -13,9 +13,10 @@ raised_by: [timing of the ability-estimation PR on 2026-11-27]
 ## Problem
 
 catsim calls an ability estimator once per step of every simulated adaptive test, and will call
-irtlib's once it builds on irtlib (ADR-0004). irtlib's four estimators take 1.3 to 2.4 times
-catsim's time for one examinee (2.5 for maximum likelihood without bounds), above the maintainer's threshold of 1.2 times, beyond which a
-slowdown gets a card for a faster version (ADR-0004).
+irtlib's once it builds on irtlib (ADR-0004). irtlib's maximum likelihood and weighted likelihood
+estimators take 1.8 to 1.9 times catsim's time for one examinee (2.5 for maximum likelihood without
+bounds), above the maintainer's threshold of 1.2 times, beyond which a slowdown gets a card for a
+faster version (ADR-0004). EAP and MAP run at 1.08 to 1.17 times.
 
 ## Evidence
 
@@ -33,15 +34,31 @@ tolerance of 1e-6.
 | ML, bounds (-6, 6) | 71.0-72.2 µs | 166.0-167.3 µs | 2.30-2.36 |
 | WLE | 135.0-138.4 µs | 243.7-250.7 µs | 1.80-1.81 |
 
-All four are above 1.2. EAP's time is mostly that of `irt.log_likelihood` and `quadrature.posterior`
-on the grid, 1.44 to 1.53 times catsim's in the same runs (`irt/one-examinee-speed`). The ML
-estimate without bounds was timed by the scratch script of the ability-estimation PR only: 191.5 µs
+All four are above 1.2 in these runs. EAP's time is mostly that of `irt.log_likelihood` and
+`quadrature.posterior` on the grid, 1.44 to 1.53 times catsim's in the same runs. The ML estimate
+without bounds was timed by the scratch script of the ability-estimation PR only: 191.5 µs
 against catsim's 78.0 µs, 2.45 times.
+
+Three runs before and three after the one-examinee paths of `irt.log_likelihood_function` and
+`quadrature.posterior`, the cheaper sums of `posterior_mean` and `posterior_variance`, and a call of
+the normal prior without NumPy's error state, later on 2026-11-27 (the same machine and versions,
+shared with other test runs), the range of the ratios:
+
+| Estimator | Before | After |
+|---|---|---|
+| EAP | 1.33-1.40 | 1.14-1.17 |
+| MAP | 1.24-1.26 | 1.08 |
+| ML, bounds (-6, 6) | 2.21-2.24 | 1.82-1.92 |
+| WLE | 1.76-1.81 | 1.79-1.86 |
+
+EAP takes 72.7-75.3 µs after the changes, against catsim's 63.6-64.7 µs, and MAP 174.7-182.3 µs
+against 162.5-169.4 µs: both are under 1.2.
 
 ## What irtlib and catsim have now
 
 - `irtlib.ability.expected_a_posteriori` checks the response matrix, builds
-  `irt.log_likelihood_function` and calls `quadrature.posterior`, whose checks run on every call.
+  `irt.log_likelihood_function` and calls `quadrature.posterior`, which checks the prior on every
+  call and the rows of the log-likelihood only when it is not finite at every node.
 - `maximum_likelihood` searches 201 points and refines the best, the search of
   `maximum_a_posteriori`, where catsim's `NumericalSearchEstimator` runs Brent's method alone, with
   about 11 evaluations. On 1,139 random 3PL and 4PL patterns Brent's search alone missed the global

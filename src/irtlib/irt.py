@@ -124,7 +124,7 @@ from scipy import stats
 from scipy.special import expit, log_expit
 
 from ._responses import responses_and_items
-from .typing import FloatArray
+from .typing import BoolArray, FloatArray, IntArray
 
 THETA_MIN_TYPICAL = -4.0
 """The lower end of the typical ability range, the default ``theta_min`` of :py:func:`theta_to_scale`."""
@@ -735,25 +735,29 @@ def log_likelihood_function(responses: npt.ArrayLike, items: FloatArray) -> Call
   """
   # copies: later changes to the caller's arrays cannot reach the function
   matrix, items = responses_and_items(responses, items)
-  log_c, log_1md, log_dmc = _log_asymptotes(items)
-  # One term per item that someone answered correctly, its log P, and one per item that someone answered incorrectly,
-  # its log Q. log Q is log P's formula at the negated logit, and negating a negates the logit exactly, so one formula
-  # computes every term.
+  if matrix.shape[0] == 1:
+    # one examinee selects one term per item it answered, so its log-likelihood is their sum
+    answered = numpy.flatnonzero(~numpy.isnan(matrix[0]))
+    log_terms = _log_terms(items, answered, matrix[0, answered] == 1)
+    return lambda theta: log_terms(theta).sum(axis=-1)[numpy.newaxis]
+  # one term per item that someone answered correctly, and one per item that someone answered incorrectly
   right = numpy.flatnonzero((matrix == 1).any(axis=0))
   wrong = numpy.flatnonzero((matrix == 0).any(axis=0))
-  terms = numpy.concatenate([right, wrong])
-  signed_items = items[terms]
-  signed_items[right.size :, 0] *= -1
-  log_floors = numpy.concatenate([log_c[right], log_1md[wrong]])
-  log_spreads = log_dmc[terms]
+  log_terms = _log_terms(items, numpy.concatenate([right, wrong]), numpy.arange(right.size + wrong.size) < right.size)
   # which terms each examinee's responses select, one row per examinee
   selected = numpy.concatenate([matrix[:, right] == 1, matrix[:, wrong] == 0], axis=1).astype(float)
+  return lambda theta: numpy.moveaxis(log_terms(theta) @ selected.T, -1, 0)
 
-  def log_likelihood_at(theta: float | FloatArray) -> FloatArray:
-    values = _log_probability(_logit(theta, signed_items), log_floors, log_spreads)
-    return numpy.moveaxis(values @ selected.T, -1, 0)
 
-  return log_likelihood_at
+def _log_terms(items: FloatArray, terms: IntArray, correct: BoolArray) -> Callable[[float | FloatArray], FloatArray]:
+  """Return the log P, where ``correct`` holds, or the log Q of each item ``items[terms]`` as a function of ability."""
+  # log Q is log P's formula at the negated logit, and negating a negates the logit exactly, so one formula computes
+  # every term
+  signed_items = items[terms]
+  log_c, log_1md, log_dmc = _log_asymptotes(signed_items)
+  log_floors = numpy.where(correct, log_c, log_1md)
+  signed_items[:, 0] = numpy.where(correct, signed_items[:, 0], -signed_items[:, 0])
+  return lambda theta: _log_probability(_logit(theta, signed_items), log_floors, log_dmc)
 
 
 def probability_gradient(theta: float | FloatArray, items: FloatArray) -> FloatArray:
