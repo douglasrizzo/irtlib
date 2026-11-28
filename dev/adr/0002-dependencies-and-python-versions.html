@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later &#8212; irtlib 0.1.0 documentation</title>
+    <title>ADR-0002: NumPy and SciPy Are the Only Required Runtime Dependencies, on Python 3.12 and Later &#8212; irtlib 0.1.0 documentation</title>
   
   
   
@@ -30,6 +30,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../_static/irtlib.css?v=7e338c6b" />
   
@@ -377,7 +378,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="0001-scope.html">ADR-0001: irtlib Implements Item Response Theory for Unidimensional Dichotomous Items</a></li>
-<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">ADR-0002: NumPy and SciPy Are the Only Required Runtime Dependencies, on Python 3.12 and Later</a></li>
 <li class="toctree-l1"><a class="reference internal" href="0003-mirt-as-the-reference.html">ADR-0003: Parity Tests Check irtlib Against mirt</a></li>
 <li class="toctree-l1"><a class="reference internal" href="0004-catsim-builds-on-irtlib.html">ADR-0004: catsim Builds on irtlib’s Item Response Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="0005-random-numbers.html">ADR-0005: Every Draw Comes From a Generator the Caller Passes</a></li>
@@ -386,6 +387,7 @@
 <li class="toctree-l1"><a class="reference internal" href="0008-scale-priors-fixed-parameters.html">ADR-0008: Scale, Priors and Fixed Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="0009-item-bank-format.html">ADR-0009: The Item Bank Format</a></li>
 <li class="toctree-l1"><a class="reference internal" href="0010-ability-estimation-contract.html">ADR-0010: The Ability Estimation Contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="0011-plotting.html">ADR-0011: Plotting Is an Optional Module With One Calling Convention</a></li>
 </ul>
 </div>
 </nav></div>
@@ -429,7 +431,7 @@
     
     <li class="breadcrumb-item"><a href="../architecture_decisions.html" class="nav-link">Architecture Decision Records</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ADR-0002: NumPy and SciPy Are the Only Required Runtime Dependencies, on Python 3.12 and Later</span></li>
   </ul>
 </nav>
 </div>
@@ -446,11 +448,11 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="adr-0002-numpy-and-scipy-are-the-only-runtime-dependencies-on-python-3-12-and-later">
-<h1>ADR-0002: NumPy and SciPy Are the Only Runtime Dependencies, on Python 3.12 and Later<a class="headerlink" href="#adr-0002-numpy-and-scipy-are-the-only-runtime-dependencies-on-python-3-12-and-later" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="adr-0002-numpy-and-scipy-are-the-only-required-runtime-dependencies-on-python-3-12-and-later">
+<h1>ADR-0002: NumPy and SciPy Are the Only Required Runtime Dependencies, on Python 3.12 and Later<a class="headerlink" href="#adr-0002-numpy-and-scipy-are-the-only-required-runtime-dependencies-on-python-3-12-and-later" title="Link to this heading">#</a></h1>
 <section id="status">
 <h2>Status<a class="headerlink" href="#status" title="Link to this heading">#</a></h2>
-<p>Accepted 2026-11-26; catsim removed 2026-11-27</p>
+<p>Accepted 2026-11-26; catsim removed 2026-11-27; plot extra added 2026-11-28</p>
 </section>
 <section id="context">
 <h2>Context<a class="headerlink" href="#context" title="Link to this heading">#</a></h2>
@@ -477,7 +479,8 @@ support schedule (SPEC 0) drops it in late 2026.</p></li>
 <section id="decision">
 <h2>Decision<a class="headerlink" href="#decision" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>irtlib’s runtime dependencies are NumPy and SciPy, with catsim’s floors.</p></li>
+<li><p>irtlib’s required runtime dependencies are NumPy and SciPy, with catsim’s floors; the plot extra adds
+matplotlib (ADR-0011).</p></li>
 <li><p>catsim, at a fixed commit, is a development dependency of the benchmarks alone (ADR-0004), in a
 dependency group of its own that neither the tests nor CI install.</p></li>
 <li><p>It supports Python 3.12 and later. Its development lock and local tools use 3.13, as catsim’s do.</p></li>
@@ -495,8 +498,8 @@ own.</p></li>
 <li><p>The code uses the Python 3.12 type-parameter syntax, and imports <code class="docutils literal notranslate"><span class="pre">override</span></code> from <code class="docutils literal notranslate"><span class="pre">typing</span></code>, with no
 compatibility module.</p></li>
 <li><p>A catsim user on Python 3.11 cannot install irtlib.</p></li>
-<li><p>Data-frame libraries, plotting libraries and file formats other than the bank’s CSV stay out of
-irtlib; its results are NumPy arrays that those libraries read.</p></li>
+<li><p>Data-frame libraries and file formats other than the bank’s CSV stay out of irtlib; its results are
+NumPy arrays that those libraries read.</p></li>
 </ul>
 </section>
 <section id="alternatives-considered">
@@ -508,7 +511,7 @@ users of a Python version that reaches its end of life in October 2027.</p></li>
 group of users.</p></li>
 <li><p>Python 3.14, for free threading: a thread-parallel M-step gains on free-threaded builds under any
 floor (<code class="docutils literal notranslate"><span class="pre">backlog/estimation/free-threaded-m-step.md</span></code>), so the floor need not exclude 3.12 and 3.13.</p></li>
-<li><p>An optional dependency for plotting or data frames: no feature needs one yet.</p></li>
+<li><p>An optional dependency for data frames: no feature needs one yet.</p></li>
 <li><p>catsim as an optional extra for the benchmarks: it would be part of the published package’s
 metadata, offered to users, for code that only contributors run.</p></li>
 </ul>
