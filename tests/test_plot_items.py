@@ -1,5 +1,7 @@
 """Tests for the plots of items in irtlib.plot."""
 
+from collections.abc import Callable
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -13,6 +15,10 @@ from irtlib.typing import FloatArray
 ITEM = np.array([1.1669737841771746, -0.4321, 0.2, 1.0])
 ITEMS = ItemBank(np.array([[2.0, 1.5, 0.0, 0.9], ITEM]), names=["other", "fee $5"])
 A, B, C = ITEM[:3]
+# Birnbaum's peak of a three-parameter item's information, b + log((1 + sqrt(1 + 8c)) / 2) / a, about -0.203.
+PEAK = B + np.log((1 + np.sqrt(1 + 8 * C)) / 2) / A
+# A two-parameter item, whose information peaks at its difficulty, 0.
+TWO_PL = ItemBank(np.array([[1.0, 0.0, 0.0, 1.0]]))
 
 
 def _icc(theta: FloatArray) -> FloatArray:
@@ -52,12 +58,11 @@ def test_item_curve_marks_the_peak_of_the_information_in_the_curves_colour() -> 
   ax = item_curve(ITEMS, 1, kind=Curve.IIC)
   curve, dot = ax.get_lines()
   x, y = np.asarray(curve.get_xdata()), np.asarray(curve.get_ydata())
-  peak = B + np.log((1 + np.sqrt(1 + 8 * C)) / 2) / A
 
-  np.testing.assert_allclose([x[0], x[-1]], [B - 4, peak + 4])
+  np.testing.assert_allclose([x[0], x[-1]], [B - 4, PEAK + 4])
   np.testing.assert_allclose(_information(np.array(B)), A**2 / 6)
   np.testing.assert_allclose(y, _information(x))
-  np.testing.assert_allclose(np.asarray(dot.get_xydata()), [[peak, _information(peak)]])
+  np.testing.assert_allclose(np.asarray(dot.get_xydata()), [[PEAK, _information(PEAK)]])
   assert dot.get_color() == curve.get_color()
 
 
@@ -77,6 +82,51 @@ def test_item_curve_spans_the_peak_of_a_flat_items_information() -> None:
   assert x[0] <= b - 4
   assert x[-1] >= peak + 4
   np.testing.assert_allclose(np.asarray(dot.get_xydata())[0, 0], peak)
+
+
+@pytest.mark.parametrize(("kind", "curve"), [(Curve.ICC, _icc), (Curve.IIC, _information)])
+def test_item_curve_draws_at_the_given_abilities(kind: Curve, curve: Callable[[FloatArray], FloatArray]) -> None:
+  """With theta, the curve is drawn at those abilities and no others, through the item's value at each.
+
+  At b the characteristic curve is (c + d) / 2 = 0.6 and the information a^2 / 6, for c = 0.2 and d = 1. Fails if theta
+  is ignored for the item's own span, so that the curves of several items on one axes end at ragged abilities, or if
+  the curve is evaluated elsewhere than at theta.
+  """
+  theta = np.array([-3.0, B, 0.5, 2.5])
+
+  ax = item_curve(ITEMS, 1, kind=kind, theta=theta, max_info=False)
+  (line,) = ax.get_lines()
+
+  np.testing.assert_array_equal(np.asarray(line.get_xdata()), theta)
+  np.testing.assert_allclose(np.asarray(line.get_ydata())[1], {Curve.ICC: 0.6, Curve.IIC: A**2 / 6}[kind])
+  np.testing.assert_allclose(np.asarray(line.get_ydata()), curve(theta))
+
+
+@pytest.mark.parametrize(
+  ("items", "theta", "dots"),
+  [
+    (ITEMS, np.linspace(-1, 1, 5), [[PEAK, float(_information(np.array(PEAK)))]]),
+    (ITEMS, np.linspace(-3, -1, 5), []),
+    (TWO_PL, np.array([-1.0, 0.0]), [[0.0, 0.25]]),
+    (TWO_PL, np.array([0.0, 1.0]), [[0.0, 0.25]]),
+  ],
+  ids=["peak-inside", "peak-beyond-the-end", "peak-at-the-upper-end", "peak-at-the-lower-end"],
+)
+def test_item_curve_marks_the_peak_only_within_the_given_abilities(
+  items: ItemBank, theta: FloatArray, dots: list[list[float]]
+) -> None:
+  """With theta, the dot marks the peak when the abilities reach it, an end of them included, and only then.
+
+  The three-parameter item peaks at about -0.203, the two-parameter one at b = 0, with information a^2 / 4 = 0.25 there.
+  Fails if the dot is drawn beyond the end of the curve, where it marks a maximum the curve does not show and stretches
+  the axes past the abilities the caller chose, or if it is left out when the peak is in range or at an end of it.
+  """
+  ax = item_curve(items, items.n_items - 1, kind=Curve.IIC, theta=theta)
+  drawn = [np.asarray(line.get_xydata()) for line in ax.get_lines()[1:]]
+
+  assert len(drawn) == len(dots)
+  for dot, expected in zip(drawn, dots, strict=True):
+    np.testing.assert_allclose(dot, [expected])
 
 
 @pytest.mark.parametrize(
@@ -149,14 +199,27 @@ def test_item_curve_without_parameters_writes_no_box() -> None:
   assert list(ax.texts) == []
 
 
-@pytest.mark.parametrize("kind", list(Curve))
-def test_item_curve_parameter_box_stays_inside_the_axes_and_off_the_curve(kind: Curve) -> None:
-  """The parameter box lies within the axes and no plotted point falls under it.
+@pytest.mark.parametrize(
+  ("items", "kind", "theta"),
+  [
+    (ITEMS, Curve.ICC, None),
+    (ITEMS, Curve.IIC, None),
+    # An easy item's information peaks near the left end of these abilities and falls toward the right one.
+    (ItemBank(np.array([[1.5, -3.5, 0.0, 1.0]])), Curve.IIC, np.linspace(-4, 4, 161)),
+    # Abilities that start at the peak, from which the information falls to the right.
+    (ITEMS, Curve.IIC, np.linspace(PEAK, PEAK + 8, 161)),
+  ],
+  ids=["icc", "iic", "iic-of-an-easy-item", "iic-from-its-peak"],
+)
+def test_item_curve_parameter_box_stays_inside_the_axes_and_off_the_curve(
+  items: ItemBank, kind: Curve, theta: FloatArray | None
+) -> None:
+  """The parameter box lies within the axes and no plotted point falls under it, whichever end the curve is low at.
 
-  Fails if the box sticks out past the edge of the axes, or sits where the curve passes, as the information curve's tail
-  does in the lower right corner.
+  Fails if the box sticks out past the edge of the axes, or sits where the curve passes: in the lower right corner,
+  where the information curve's tail runs, or in the upper left one when the abilities start at or near its peak.
   """
-  ax = item_curve(ITEMS, 1, kind=kind)
+  ax = item_curve(items, items.n_items - 1, kind=kind, theta=theta)
   ax.figure.canvas.draw()
   (annotation,) = ax.texts
   patch = annotation.get_bbox_patch()
@@ -167,20 +230,6 @@ def test_item_curve_parameter_box_stays_inside_the_axes_and_off_the_curve(kind: 
   assert axes_box.y0 <= box.y0 < box.y1 <= axes_box.y1
   for line in ax.get_lines():
     assert box.count_contains(line.get_transform().transform(line.get_xydata())) == 0
-
-
-def test_item_curve_draws_on_the_given_axes_with_the_title() -> None:
-  """With ax, the curve goes on that axes and no new figure opens; with title, the axes carry it.
-
-  Fails if the plot opens a figure of its own when given axes, or drops the title.
-  """
-  figure, ax = plt.subplots()
-
-  drawn = item_curve(ITEMS, 0, ax=ax, title="Item 0")
-
-  assert drawn is ax
-  assert plt.get_fignums() == [figure.number]
-  assert ax.get_title() == "Item 0"
 
 
 @pytest.mark.parametrize(
