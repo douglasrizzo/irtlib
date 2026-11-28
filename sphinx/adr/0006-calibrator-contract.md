@@ -7,9 +7,8 @@ Accepted 2026-11-27; revised 2026-11-27 and 2026-11-28
 ## Context
 
 Every calibration method needs the same answers: how a caller passes responses, what a calibration
-returns, where each part of the code lives. The maintainer accepted them on 2026-11-27, before
-any method existed; on 2026-11-28, joint maximum likelihood's abilities joined its result, and each
-item's covariances and per-cycle log-likelihoods every result.
+returns, where each part of the code lives. The maintainer accepted them before any method
+existed.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
 4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
@@ -27,11 +26,11 @@ likelihood (source `R/04-PrepData.R:107`).
   - the estimates in $(a, b, c, d)$, and a bank of the items valid for use, with a warning naming
     any other, such as a miskeyed item;
   - each item's covariances in the same parameterization, a shared parameter in every item's, giving
-    the standard errors; none, flagged, if the information cannot be inverted or a variance is not
-    positive;
+    the standard errors; none, with a flag, if the information cannot be inverted or a variance is
+    not positive;
   - the maximized log-likelihood, its value after each cycle, which likelihood it is, and the
     number of estimated parameters;
-  - whether the stopping rule was met, and its final value;
+  - whether the stopping rule was met, and the rule's final value;
   - for a marginal likelihood only, the grid abilities were integrated over, which fit and ability
     estimates reuse; for a joint one only, its abilities.
 - **Comparison.** Model comparison and item fit refuse a calibration whose likelihood is not
@@ -41,7 +40,7 @@ likelihood (source `R/04-PrepData.R:107`).
   responses and the items, not part of the result.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional and joint maximum likelihood, S-X² and the
-  mean squares.
+  item mean squares. Person fit sums over answered items, the maintainer's choice pending a source.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; ability estimation; calibration's checks, result and
   M-step; the methods; then fit. Drawing responses is its own module; import-linter enforces the
@@ -61,7 +60,7 @@ likelihood (source `R/04-PrepData.R:107`).
 - One class per model: the models share the E-step and differ only in the M-step's terms.
 - A separate mask for missing responses, or a sentinel value: two arrays to keep in step, or a
   reserved code in the data.
-- Raising an error on non-convergence: it discards estimates a caller may inspect.
+- Raising an error on non-convergence: it discards estimates a caller may want to inspect.
 - Abilities and fit inside every result: they need the responses, which the result does not keep.
 - Standard errors alone, too few for a band around an item's curve; covariances across items,
   unread.
