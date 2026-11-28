@@ -2,8 +2,8 @@ r"""Ability estimation: each examinee's ability, with its standard error, from r
 
 Each estimator takes a response matrix with one row per examinee and one column per item, holding 1, 0 or NaN where the
 examinee did not answer the item, and the items, one row ``[a, b, c, d]`` per column. It returns an
-:py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of abilities at which the
-estimator evaluated its objective or the objective's derivatives. An examinee's estimate depends only on the items it
+:py:class:`AbilityEstimates`: for each examinee an estimate, its standard error and the number of evaluations of the
+estimator's objective or of its derivatives. An examinee's estimate depends only on the items it
 answered, so its row gives the same estimate alone as in any matrix. Below, :math:`L_j(\theta)` is the likelihood of
 examinee :math:`j`'s responses :math:`u_{ij}`, the product of :math:`P_i^{u_{ij}} Q_i^{1 - u_{ij}}` over the items
 :math:`i` it answered, and :math:`I(\theta)` the test information of those items, both as :py:mod:`irtlib.irt` defines
@@ -137,6 +137,7 @@ from . import irt
 from ._responses import responses_and_items
 from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED, _log_terms, _LogTerms
 from .quadrature import (
+  GridPrior,
   LogPrior,
   QuadratureGrid,
   _NormalLogPrior,
@@ -193,7 +194,7 @@ def _default_prior() -> LogPrior:
 def _search_points(low: float, high: float, n_points: int) -> FloatArray:
   """Return the search's equally spaced points within the bounds, built once per bounds and read-only."""
   nodes = numpy.linspace(low, high, n_points)
-  nodes.flags.writeable = False
+  nodes.setflags(write=False)
   return nodes
 
 
@@ -208,8 +209,8 @@ class AbilityEstimates:
   standard_errors : numpy.ndarray
       Their standard errors, by the estimator's formula.
   evaluations : numpy.ndarray
-      For each examinee, the number of abilities at which the estimator evaluated its objective, the likelihood, the
-      posterior or Warm's modified score, or the objective's derivatives, counting each ability a grid holds.
+      For each examinee, the number of evaluations of the estimator's objective, the likelihood, the posterior or
+      Warm's modified score, or of the objective's derivatives, each ability of a grid counted once.
   from_fallback : numpy.ndarray
       For each examinee, whether its estimate, standard error and evaluations are those of the fallback estimator of
       :py:func:`maximum_likelihood`; False everywhere for the other estimators.
@@ -356,7 +357,7 @@ def _maximum(
   Returns
   -------
   tuple[float, float, int]
-      The ability, the objective there, and the number of abilities the objective or its derivatives were evaluated at.
+      The ability, the objective there, and the number of evaluations of the objective or of its derivatives.
 
   Raises
   ------
@@ -427,7 +428,7 @@ def _concave_maximum(
   Returns
   -------
   tuple[float, float, int]
-      The ability, the objective there, and the number of abilities the objective or its derivatives were evaluated at.
+      The ability, the objective there, and the number of evaluations of the objective or of its derivatives.
   """
   low, high = bounds
   if derivatives(low)[0] <= 0.0:
@@ -449,7 +450,7 @@ def _newton(derivatives: _Derivatives, theta: float, low: float, high: float, to
   Returns
   -------
   tuple[float, int]
-      The zero, within ``tol``, and the number of abilities the derivatives were evaluated at.
+      The zero, within ``tol``, and the number of evaluations of the derivatives.
   """
   last = before_last = high - low
   for evaluations in range(1, _NEWTON_STEPS + 1):
@@ -458,7 +459,8 @@ def _newton(derivatives: _Derivatives, theta: float, low: float, high: float, to
       low = theta
     else:
       high = theta
-    step = -slope / curvature if curvature < 0.0 else math.inf
+    # a Newton step needs a finite negative curvature; any other bisects
+    step = -slope / curvature if -math.inf < curvature < 0.0 else math.inf
     # a Newton step within the tolerance ends the search before the bracket test: at the zero, theta + step can round
     # to theta, on the bracket's edge, which would bisect away from it
     if abs(step) < tol:
@@ -478,6 +480,7 @@ def expected_a_posteriori(
   *,
   grid: QuadratureGrid | None = None,
   log_prior: LogPrior | None = None,
+  grid_prior: GridPrior | None = None,
 ) -> AbilityEstimates:
   """Return each examinee's EAP estimate, the mean of its posterior over a grid, with the posterior standard deviation.
 
@@ -496,6 +499,9 @@ def expected_a_posteriori(
       The nodes the posterior is computed on. Default is ``QuadratureGrid.uniform()``, 121 nodes on [-6, 6].
   log_prior : LogPrior or None, optional
       The prior's log-density. Default is ``normal_log_prior()``, the standard normal.
+  grid_prior : GridPrior or None, optional
+      A grid and prior evaluated once, in place of ``grid`` and ``log_prior``, for a caller that estimates with the
+      same ones many times. Default is None.
 
   Returns
   -------
@@ -507,8 +513,9 @@ def expected_a_posteriori(
   TypeError
       If the responses are neither Booleans, integers nor floats.
   ValueError
-      If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is
-      not 0, 1 or NaN, or the log-prior is NaN or +inf at a node or has no mass on the grid.
+      If ``grid_prior`` is given with ``grid`` or ``log_prior``, ``items`` is not an ``(n, 4)`` matrix,
+      ``responses`` is not a matrix with one column per item, a response is not 0, 1 or NaN, or the log-prior is NaN
+      or +inf at a node or has no mass on the grid.
 
   Examples
   --------
@@ -518,14 +525,23 @@ def expected_a_posteriori(
   >>> estimates.theta.round(4), estimates.standard_errors.round(4)
   (array([-0.2809,  0.8555]), array([0.7837, 0.828 ]))
   """
-  grid = _default_grid() if grid is None else grid
-  log_prior = _default_prior() if log_prior is None else log_prior
-  post = posterior(irt.log_likelihood(grid.nodes, responses, items), grid, log_prior)
+  if grid_prior is None:
+    grid = _default_grid() if grid is None else grid
+    nodes = grid.nodes
+    post = posterior(
+      irt.log_likelihood(nodes, responses, items), grid, _default_prior() if log_prior is None else log_prior
+    )
+  elif grid is None and log_prior is None:
+    nodes = grid_prior.nodes
+    post = grid_prior.posterior(irt.log_likelihood(nodes, responses, items))
+  else:
+    msg = "grid_prior replaces grid and log_prior: give either grid_prior or them"
+    raise ValueError(msg)
   n_examinees = post.shape[0]
   return AbilityEstimates(
-    theta=posterior_mean(post, grid.nodes),
-    standard_errors=numpy.sqrt(posterior_variance(post, grid.nodes)),
-    evaluations=numpy.full(n_examinees, grid.nodes.size),
+    theta=posterior_mean(post, nodes),
+    standard_errors=numpy.sqrt(posterior_variance(post, nodes)),
+    evaluations=numpy.full(n_examinees, nodes.size),
     from_fallback=numpy.zeros(n_examinees, dtype=bool),
   )
 
@@ -541,8 +557,8 @@ def maximum_a_posteriori(
   """Return each examinee's MAP estimate, the mode of its posterior within the bounds, with its standard error.
 
   The estimate is the highest mode the search finds, inside the prior's support, and finite whatever the responses; an
-  examinee who answered no item gets the prior's mode. The evaluation count is the number of abilities at which the
-  posterior or its derivatives were evaluated.
+  examinee who answered no item gets the prior's mode. The evaluation count is the number of evaluations of the
+  posterior or of its derivatives.
 
   Parameters
   ----------
@@ -600,7 +616,7 @@ def _posterior_mode(
   Returns
   -------
   tuple[float, float, int]
-      The mode, its standard error and the number of abilities the posterior was evaluated at.
+      The mode, its standard error and the number of evaluations of the posterior or of its derivatives.
 
   Raises
   ------
@@ -608,14 +624,7 @@ def _posterior_mode(
       If the log-posterior is not finite at any search point.
   """
   examinee = _Examinee.of(responses, items)
-  derivatives: _Derivatives | None = None
-  if isinstance(log_prior, _NormalLogPrior):
-    mean, precision = log_prior.mean, 1.0 / log_prior.sd**2
-
-    def derivatives(theta: float) -> tuple[float, float]:
-      slope, curvature = examinee.derivatives(theta)
-      return slope - precision * (theta - mean), curvature - precision
-
+  derivatives = _posterior_derivatives(examinee, log_prior)
   theta, _, evaluations = _maximum(
     lambda theta: examinee.log_likelihood(theta) + log_prior(theta),
     bounds,
@@ -629,6 +638,31 @@ def _posterior_mode(
   precision = irt.total_information(theta, items) - (curvature if math.isfinite(curvature) else 0.0)
   se = 1.0 / math.sqrt(precision) if precision > 0.0 and math.isfinite(precision) else math.inf
   return theta, se, evaluations
+
+
+def _posterior_derivatives(examinee: _Examinee, log_prior: LogPrior) -> _Derivatives | None:
+  """Return the log-posterior's first and second derivatives at one ability, for a normal prior; None for any other.
+
+  A normal prior whose precision, 1 / sd^2, is not a finite positive float, from a standard deviation near the floats'
+  limits, also gives None, leaving its posterior to the search without derivatives.
+
+  Returns
+  -------
+  Callable or None
+      The derivatives as a function of one ability, or None.
+  """
+  if not isinstance(log_prior, _NormalLogPrior):
+    return None
+  inverse = 1.0 / log_prior.sd
+  precision, mean = inverse * inverse, log_prior.mean
+  if not 0.0 < precision < math.inf:
+    return None
+
+  def derivatives(theta: float) -> tuple[float, float]:
+    slope, curvature = examinee.derivatives(theta)
+    return slope - precision * (theta - mean), curvature - precision
+
+  return derivatives
 
 
 def maximum_likelihood(
@@ -668,8 +702,8 @@ def maximum_likelihood(
   Returns
   -------
   AbilityEstimates
-      The estimates, their standard errors, and the number of abilities at which each examinee's likelihood or its
-      derivatives were evaluated.
+      The estimates, their standard errors, and the number of evaluations of each examinee's likelihood or of its
+      derivatives.
 
   Raises
   ------

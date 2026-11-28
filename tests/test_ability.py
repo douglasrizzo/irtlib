@@ -27,7 +27,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.quadrature import QuadratureGrid, normal_log_prior, uniform_log_prior
+from irtlib.quadrature import GridPrior, QuadratureGrid, normal_log_prior, uniform_log_prior
 
 if TYPE_CHECKING:
   from collections.abc import Callable
@@ -451,6 +451,16 @@ class TestMaximumLikelihood:
     assert first == pytest.approx((above - below) / (2 * h), rel=1e-6)
     assert second == pytest.approx((above - 2 * at + below) / h**2, rel=1e-5)
 
+  def test_an_infinite_curvature_does_not_end_the_refinement(self) -> None:
+    """A derivative of 5 with a curvature of -inf is no zero: the refinement bisects up to the bracket's upper end.
+
+    Dividing the slope by the infinite curvature gave a step of 0, which ended the search at once where the slope was 5.
+    """
+    theta, evaluations = ability._newton(lambda _: (5.0, -math.inf), 0.0, -1.0, 1.0, 1e-6)  # noqa: SLF001
+
+    assert theta == pytest.approx(1.0, abs=1e-6)
+    assert evaluations > 1
+
   def test_evaluations_count_the_search_points_and_the_refinement(self) -> None:
     """Under the 3PL the count is the 101 search points, each evaluation of the derivatives, and the refined point.
 
@@ -562,10 +572,11 @@ class TestMaximumAPosteriori:
     "items",
     [
       pytest.param(
-        [[1.2, -1.5, 0.2, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.25, 0.95], [1.0, 1.5, 0.1, 1.0]], id="3PL_4PL"
+        np.array([[1.2, -1.5, 0.2, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.25, 0.95], [1.0, 1.5, 0.1, 1.0]]),
+        id="3PL_4PL",
       ),
       pytest.param(
-        [[1.2, -1.5, 0.0, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.0, 1.0], [1.0, 1.5, 0.0, 1.0]], id="2PL"
+        np.array([[1.2, -1.5, 0.0, 1.0], [0.8, -0.5, 0.0, 1.0], [1.6, 0.5, 0.0, 1.0], [1.0, 1.5, 0.0, 1.0]]), id="2PL"
       ),
     ],
   )
@@ -588,6 +599,44 @@ class TestMaximumAPosteriori:
     for pattern, theta in zip(responses, estimates.theta, strict=True):
       log_posterior = _log_likelihood(fine, items, pattern) - 0.5 * ((fine - mean) / sd) ** 2
       assert theta == pytest.approx(fine[np.argmax(log_posterior)], abs=1e-4), pattern
+
+  def test_evaluations_on_the_normal_priors_newton_path(self) -> None:
+    """With no answered item and the prior N(0.3, 1) the log-posterior is -(theta - 0.3)^2 / 2, found in 5 evaluations.
+
+    Its derivative points inward at both bounds, 2 evaluations; Newton's step from the middle, 0, lands on 0.3 exactly,
+    and the derivative there, 0, ends the search, 2 more; the posterior at 0.3 is the fifth. Fails if the search
+    evaluated its points, bisected, or counted the bounds or the posterior wrongly.
+    """
+    estimates = maximum_a_posteriori(
+      _rows([_NAN]), np.array([[1.0, 0.0, 0.2, 1.0]]), log_prior=normal_log_prior(0.3, 1.0)
+    )
+
+    assert estimates.theta[0] == 0.3
+    assert estimates.evaluations[0] == 5
+
+  @pytest.mark.parametrize("sd", [1e160, 1e200])
+  def test_a_normal_prior_wider_than_any_float_precision_is_flat(self, sd: float) -> None:
+    """A normal prior so wide that 1 / sd^2 underflows leaves the likelihood's maximum within the bounds.
+
+    The reference is the argmax of the written-out log-likelihood on a dense grid. Computing the prior's precision as
+    sd**2 overflowed and raised OverflowError.
+    """
+    items = np.array([[1.2, -1.0, 0.2, 1.0], [0.8, 0.0, 0.1, 0.95], [1.6, 0.7, 0.25, 1.0]])
+    pattern = np.array([1.0, 0.0, 1.0])
+    fine = np.linspace(-6.0, 6.0, 120_001)
+
+    estimates = maximum_a_posteriori(_rows(pattern), items, log_prior=normal_log_prior(0.3, sd))
+
+    assert estimates.theta[0] == pytest.approx(fine[np.argmax(_log_likelihood(fine, items, pattern))], abs=1e-4)
+
+  def test_a_normal_prior_narrower_than_any_float_precision_has_no_mass_between_points(self) -> None:
+    """A normal prior so narrow that 1 / sd^2 overflows has no mass at the search points, the documented error.
+
+    Its mean, 0.33, is none of the 201 points, where the log-density is -inf. Computing the precision as 1 / sd**2
+    raised ZeroDivisionError.
+    """
+    with pytest.raises(ValueError, match="not finite at any of the 201 search points"):
+      maximum_a_posteriori(_rows([1.0, 0.0]), _ITEMS[:2], log_prior=normal_log_prior(0.33, 1e-200))
 
   def test_evaluations_add_the_refinement_to_the_search_points(self) -> None:
     """Each estimate counts the 201 search points plus every posterior evaluation of the refinement.
@@ -734,20 +783,33 @@ class TestExpectedAPosteriori:
 
     assert estimates.theta[0] == pytest.approx(expected, abs=1e-12)
 
-  def test_estimate_is_the_posterior_mean_over_the_given_grid_prior_and_items(self) -> None:
+  @pytest.mark.parametrize("precomputed", [False, True], ids=["grid_and_log_prior", "grid_prior"])
+  def test_estimate_is_the_posterior_mean_over_the_given_grid_prior_and_items(self, precomputed: bool) -> None:
     """The estimate weighs the given grid's nodes by the given prior and the answered items only.
 
     On the 3-node grid {-1, 0, 1} with a flat prior, a correct answer to item 1 (a = 1, b = 0) gives the nodes masses
     proportional to sigma(-1), 1/2 and sigma(1), which sum to 3/2, so the posterior mean is tanh(1/2) / 1.5 = 0.3081.
     Using item 0, which the examinee did not answer, gives 0.548, the default grid 2.759 and the default normal prior
-    0.253.
+    0.253, whether the grid and prior come apart or as one GridPrior.
     """
     items = np.array([[1.0, 3.0, 0.0, 1.0], [1.0, 0.0, 0.0, 1.0]])
     grid = QuadratureGrid.uniform(n_nodes=3, low=-1.0, high=1.0)
-
-    estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid=grid, log_prior=uniform_log_prior())
+    if precomputed:
+      estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid_prior=GridPrior(grid, uniform_log_prior()))
+    else:
+      estimates = expected_a_posteriori(_rows([_NAN, 1.0]), items, grid=grid, log_prior=uniform_log_prior())
 
     assert estimates.theta[0] == pytest.approx(np.tanh(0.5) / 1.5, rel=1e-12)
+
+  def test_a_grid_prior_with_a_grid_or_a_log_prior_is_rejected(self) -> None:
+    """A GridPrior replaces the grid and the prior, so giving either with it is an error, not a silent choice."""
+    grid_prior = GridPrior(QuadratureGrid.uniform(), normal_log_prior())
+    responses, items = _rows([1.0]), np.array([[1.0, 0.0, 0.0, 1.0]])
+
+    with pytest.raises(ValueError, match="grid_prior replaces grid and log_prior"):
+      expected_a_posteriori(responses, items, grid_prior=grid_prior, grid=QuadratureGrid.uniform(5))
+    with pytest.raises(ValueError, match="grid_prior replaces grid and log_prior"):
+      expected_a_posteriori(responses, items, grid_prior=grid_prior, log_prior=uniform_log_prior())
 
   def test_standard_error_is_the_posterior_standard_deviation(self) -> None:
     """The mean and the SE are those of the posterior over the given grid, computed here by brute force.

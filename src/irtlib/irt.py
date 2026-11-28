@@ -763,7 +763,9 @@ class _LogTerms(NamedTuple):
   dmc: FloatArray
   """d - c."""
   log_floor: FloatArray
+  """The logarithm of ``floor``."""
   log_dmc: FloatArray
+  """The logarithm of ``dmc``."""
 
   def __call__(self, theta: float | FloatArray) -> FloatArray:
     """Return each term at each ability, of shape ``numpy.shape(theta) + (n_terms,)``."""

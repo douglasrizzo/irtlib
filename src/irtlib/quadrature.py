@@ -34,10 +34,10 @@ does not.
 The log-likelihoods accumulate as sums over the items (:cite:t:`Bock1982`, p. 432), so :py:func:`posterior` takes
 each examinee's log-likelihood at the nodes, whatever the response function that gave it. It adds the log of each
 node's weight and prior density, and shifts each examinee's row by its maximum before exponentiating, so that the
-likelihood of a long response pattern does not underflow.
+likelihood of a long response pattern does not underflow. A :py:class:`GridPrior` evaluates and checks a prior on a
+grid's nodes once, for a caller that computes many posteriors with the same grid and prior.
 """
 
-import functools
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -192,9 +192,7 @@ class QuadratureGrid:
 
   A node's mass is proportional to its weight times the prior density there, so the weights take part in the
   posterior itself; equal weights, as :py:meth:`uniform` builds, cancel in the normalization. Two grids are equal only
-  if they are the same object, and a grid can be a set member or a dictionary key. The grid never changes: it keeps
-  read-only float copies of the arrays it is given, or the arrays themselves if they are read-only floats that own
-  their data.
+  if they are the same object, and a grid can be a set member or a dictionary key.
 
   Parameters
   ----------
@@ -214,15 +212,7 @@ class QuadratureGrid:
   weights: FloatArray
 
   def __post_init__(self) -> None:
-    """Keep read-only float copies of the nodes and weights, and validate them."""
-    for name in ("nodes", "weights"):
-      values = getattr(self, name)
-      flags = getattr(values, "flags", None)
-      # a read-only array of floats that owns its data, as uniform builds them, cannot change under the grid
-      if flags is None or flags.writeable or not flags.owndata or values.dtype != float:
-        values = numpy.array(values, dtype=float)
-        values.flags.writeable = False
-      object.__setattr__(self, name, values)
+    """Validate the nodes and weights."""
     if self.nodes.ndim != 1 or self.weights.ndim != 1:
       msg = "nodes and weights must be one-dimensional"
       raise ValueError(msg)
@@ -260,7 +250,7 @@ class QuadratureGrid:
     Raises
     ------
     ValueError
-        If ``n_nodes < 2``, ``low``, ``high`` or the distance between them is not finite, or ``high <= low``.
+        If ``n_nodes < 2`` or ``high <= low``.
 
     Examples
     --------
@@ -271,42 +261,78 @@ class QuadratureGrid:
     if n_nodes < _MIN_NODES:
       msg = f"n_nodes must be at least {_MIN_NODES}, got {n_nodes}"
       raise ValueError(msg)
-    if not (math.isfinite(low) and math.isfinite(high) and math.isfinite(high - low)):
-      msg = f"low, high and the distance between them must be finite, got low={low}, high={high}"
-      raise ValueError(msg)
     if high <= low:
       msg = f"high must be greater than low, got low={low}, high={high}"
       raise ValueError(msg)
     nodes = numpy.linspace(low, high, n_nodes, dtype=float)
     weights = numpy.full(n_nodes, (high - low) / (n_nodes - 1), dtype=float)
-    nodes.flags.writeable = weights.flags.writeable = False
-    # finite, increasing bounds and two or more nodes give valid read-only arrays, so the grid skips __post_init__'s
-    # copies and checks
-    grid = object.__new__(cls)
-    # a frozen dataclass's fields are set only through object.__setattr__
-    object.__setattr__(grid, "nodes", nodes)  # noqa: PLC2801
-    object.__setattr__(grid, "weights", weights)  # noqa: PLC2801
-    return grid
+    return cls(nodes=nodes, weights=weights)
+
+
+# eq=False: a precomputed prior holds arrays, so it is compared by identity, like a grid
+@dataclass(frozen=True, slots=True, eq=False)
+class GridPrior:
+  """A prior over the nodes of a grid, evaluated and checked once, for posteriors computed many times on them.
+
+  It keeps copies of the grid's nodes and of each node's log weight plus log prior density, so changing the grid's
+  arrays afterwards does not change it. :py:meth:`posterior` returns what :py:func:`posterior` returns for the same
+  grid and prior, without evaluating the prior again.
+
+  Parameters
+  ----------
+  grid : QuadratureGrid
+      The nodes and their weights.
+  log_prior : LogPrior
+      Vectorized log-density of the prior.
+
+  Raises
+  ------
+  ValueError
+      If the log-prior is NaN or +inf at a node, or -inf at every node.
+
+  Examples
+  --------
+  >>> import numpy
+  >>> prior = GridPrior(QuadratureGrid.uniform(3, -1.0, 1.0), uniform_log_prior(-1.0, 1.0))
+  >>> prior.posterior(numpy.log(numpy.array([[0.2, 0.5, 0.8]]))).round(4)
+  array([[0.1333, 0.3333, 0.5333]])
+  """
+
+  grid: QuadratureGrid
+  log_prior: LogPrior
+  nodes: FloatArray = field(init=False, repr=False)
+  """The grid's nodes when the prior was evaluated."""
+  _log_masses: FloatArray = field(init=False, repr=False)
+  """Each node's log weight plus log prior density, checked."""
+
+  def __post_init__(self) -> None:
+    """Copy the grid's nodes, and evaluate and check the prior on them."""
+    object.__setattr__(self, "nodes", self.grid.nodes.copy())
+    object.__setattr__(self, "_log_masses", _log_masses(self.grid, self.log_prior))
+
+  def posterior(self, log_likelihood: FloatArray) -> FloatArray:
+    """Return each examinee's posterior over the nodes, from its log-likelihood at them.
+
+    Parameters
+    ----------
+    log_likelihood : numpy.ndarray
+        Each examinee's log-likelihood at each node, shape ``(examinees, nodes)``; -inf where the likelihood is 0.
+
+    Returns
+    -------
+    numpy.ndarray
+        The posterior probabilities, shape ``(examinees, nodes)``, each row summing to 1.
+
+    Raises
+    ------
+    ValueError
+        If ``log_likelihood`` is not of shape ``(examinees, nodes)``, if the log-likelihood is NaN or +inf at a node,
+        or if an examinee's posterior has no mass at any node.
+    """
+    return _posterior(log_likelihood, self._log_masses)
 
 
 def _log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
-  """Return the log of each node's weight times the prior density there, unnormalized, after checking it."""
-  # a grid never changes, and neither do the priors irtlib builds, so their masses are computed once per pair; another
-  # prior is any callable, which may not always give the same values
-  if isinstance(log_prior, _NormalLogPrior | _UniformLogPrior):
-    return _known_log_masses(grid, log_prior)
-  return _checked_log_masses(grid, log_prior)
-
-
-@functools.lru_cache(maxsize=64)
-def _known_log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
-  """Return the checked log-masses of a grid under one of irtlib's priors, read-only, computed once per pair."""
-  log_masses = _checked_log_masses(grid, log_prior)
-  log_masses.flags.writeable = False
-  return log_masses
-
-
-def _checked_log_masses(grid: QuadratureGrid, log_prior: LogPrior) -> FloatArray:
   """Return the log of each node's weight times the prior density there, unnormalized, after checking it."""
   log_masses = log_prior(grid.nodes) + numpy.log(grid.weights)
   if numpy.isnan(log_masses).any() or numpy.isposinf(log_masses).any():
@@ -389,15 +415,19 @@ def posterior(log_likelihood: FloatArray, grid: QuadratureGrid, log_prior: LogPr
   array([[0.1333, 0.3333, 0.5333],
          [0.3333, 0.3333, 0.3333]])
   """
+  return _posterior(log_likelihood, _log_masses(grid, log_prior))
+
+
+def _posterior(log_likelihood: FloatArray, log_masses: FloatArray) -> FloatArray:
+  """Return each examinee's posterior from its log-likelihood at the nodes and the nodes' checked log-masses."""
   log_likelihood = numpy.asarray(log_likelihood, dtype=float)
-  n_nodes = grid.nodes.size
+  n_nodes = log_masses.size
   if log_likelihood.ndim != _POSTERIOR_NDIM or log_likelihood.shape[1] != n_nodes:
     msg = (
       f"log_likelihood must have one row per examinee and one column per node, shape (examinees, {n_nodes}), got "
       f"{log_likelihood.shape}"
     )
     raise ValueError(msg)
-  log_masses = _log_masses(grid, log_prior)
   # finite terms can overflow to -inf, and +inf meets the prior's -inf as NaN: the checks below name both
   with numpy.errstate(over="ignore", invalid="ignore"):
     log_joint = log_likelihood + log_masses

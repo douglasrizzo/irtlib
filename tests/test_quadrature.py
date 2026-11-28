@@ -17,6 +17,7 @@ from scipy.stats import norm
 
 from irtlib import quadrature
 from irtlib.quadrature import (
+  GridPrior,
   QuadratureGrid,
   normal_log_prior,
   posterior,
@@ -255,15 +256,12 @@ def test_uniform_grid_spaces_its_nodes_equally_and_weighs_each_by_the_spacing(
     (1, -6.0, 6.0, "at least 2"),
     (5, 1.0, 1.0, "high must be greater than low"),
     (5, 2.0, 1.0, "high must be greater than low"),
-    (5, -math.inf, 6.0, "must be finite"),
-    (5, -6.0, math.nan, "must be finite"),
-    (5, -1e308, 1e308, "must be finite"),
   ],
 )
 def test_uniform_grid_rejects_fewer_than_two_nodes_or_an_empty_range(
   n_nodes: int, low: float, high: float, match: str
 ) -> None:
-  """A grid of one node, or with bounds that are not finite, too far apart or not increasing, is an error."""
+  """A grid of one node, or with bounds that are not increasing, is an error."""
   with pytest.raises(ValueError, match=match):
     QuadratureGrid.uniform(n_nodes, low, high)
 
@@ -290,46 +288,6 @@ def test_quadrature_grid_rejects_invalid_arrays(nodes: FloatArray, weights: Floa
     QuadratureGrid(nodes=nodes, weights=weights)
 
 
-def test_a_grid_keeps_its_own_read_only_arrays() -> None:
-  """Changing the arrays a grid was built from changes neither the grid nor the masses already computed on it.
-
-  The masses of a grid under irtlib's priors are computed once per grid and prior. A grid that kept the caller's arrays
-  would let a later change to them reach both the grid and those masses; a grid whose own arrays were writable would
-  too.
-  """
-  nodes, weights = _NODES.copy(), _WEIGHTS.copy()
-  grid = QuadratureGrid(nodes=nodes, weights=weights)
-  prior = normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)
-  before = prior_masses(grid, prior)
-
-  nodes[0], weights[0] = 5.0, 10.0
-
-  np.testing.assert_array_equal(grid.nodes, _NODES)
-  np.testing.assert_array_equal(prior_masses(grid, prior), before)
-  with pytest.raises(ValueError, match="read-only"):
-    grid.weights[0] = 10.0
-
-
-def test_a_prior_that_is_any_callable_is_evaluated_on_every_call() -> None:
-  """A log-prior that is not one irtlib builds is evaluated each time, so its masses follow it when it changes.
-
-  The prior below doubles its slope after its first call. A cache of its masses, like the one kept for irtlib's
-  priors, would return the first masses twice.
-  """
-  grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
-  slopes = [1.0]
-
-  def changing_prior(theta: FloatArray) -> FloatArray:
-    slope = slopes[-1]
-    slopes.append(2.0 * slope)
-    return slope * theta
-
-  first, second = prior_masses(grid, changing_prior), prior_masses(grid, changing_prior)
-
-  np.testing.assert_allclose(first, np.exp(_NODES) * _WEIGHTS / np.sum(np.exp(_NODES) * _WEIGHTS), rtol=1e-13)
-  np.testing.assert_allclose(second, np.exp(2 * _NODES) * _WEIGHTS / np.sum(np.exp(2 * _NODES) * _WEIGHTS), rtol=1e-13)
-
-
 def test_prior_masses_are_the_weights_times_the_prior_density_normalized() -> None:
   """Each node's mass is its weight times the prior density there, divided by their sum over the nodes.
 
@@ -337,6 +295,44 @@ def test_prior_masses_are_the_weights_times_the_prior_density_normalized() -> No
   """
   grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
   np.testing.assert_allclose(prior_masses(grid, normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)), _masses(), rtol=1e-13)
+
+
+def test_a_grid_prior_gives_the_posterior_of_its_grid_and_prior() -> None:
+  """A GridPrior's posterior weighs each node by its weight, the prior density and the likelihood there, normalized.
+
+  The reference multiplies the masses, written out from the grid's arrays and the normal density, by the likelihood. A
+  GridPrior that dropped the weights or the prior, or evaluated the prior at other nodes, fails.
+  """
+  grid = QuadratureGrid(nodes=_NODES, weights=_WEIGHTS)
+  log_likelihood = np.array([[-1.0, -0.5, -0.2, 0.0, -0.3, -0.9, -2.0], [0.0] * 7])
+  expected = _masses() * np.exp(log_likelihood)
+
+  computed = GridPrior(grid, normal_log_prior(_PRIOR_MEAN, _PRIOR_SD)).posterior(log_likelihood)
+
+  np.testing.assert_allclose(computed, expected / expected.sum(axis=1, keepdims=True), rtol=1e-12)
+
+
+def test_a_grid_prior_is_unchanged_by_later_changes_to_its_grid() -> None:
+  """Changing the grid's arrays after building a GridPrior changes neither its nodes nor its posterior.
+
+  A GridPrior that kept the grid's nodes array, rather than a copy, would pair the changed nodes with masses computed on
+  the old ones.
+  """
+  nodes = _NODES.copy()
+  grid_prior = GridPrior(QuadratureGrid(nodes=nodes, weights=_WEIGHTS), normal_log_prior(_PRIOR_MEAN, _PRIOR_SD))
+  log_likelihood = np.array([[-1.0, -0.5, -0.2, 0.0, -0.3, -0.9, -2.0]])
+  before = grid_prior.posterior(log_likelihood)
+
+  nodes[0] = 5.0
+
+  np.testing.assert_array_equal(grid_prior.nodes, _NODES)
+  np.testing.assert_array_equal(grid_prior.posterior(log_likelihood), before)
+
+
+def test_a_grid_prior_rejects_a_prior_without_mass_on_its_grid_when_built() -> None:
+  """A prior with no mass at any node is an error when the GridPrior is built, not at each posterior."""
+  with pytest.raises(ValueError, match="no mass at any node"):
+    GridPrior(QuadratureGrid.uniform(5, -1.0, 1.0), uniform_log_prior(3.0, 4.0))
 
 
 def test_posterior_of_an_examinee_with_no_responses_is_the_prior_masses() -> None:

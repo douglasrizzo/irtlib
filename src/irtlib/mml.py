@@ -242,9 +242,8 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
 def _marginal(log_likelihoods: FloatArray, grid: QuadratureGrid) -> float:
   """Return the marginal log-likelihood from each examinee's log-likelihood at the grid's nodes."""
   # in log space throughout, so that the masses of nodes far in the tails need not be representable
-  # the grid's masses are shared and read-only, so they are normalized into a new array
-  masses = _log_masses(grid, _ABILITY_PRIOR)
-  log_masses = masses - logsumexp(masses)
+  log_masses = _log_masses(grid, _ABILITY_PRIOR)
+  log_masses -= logsumexp(log_masses)
   return float(numpy.sum(logsumexp(log_likelihoods + log_masses, axis=1)))
 
 
