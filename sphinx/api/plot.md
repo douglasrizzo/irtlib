@@ -11,3 +11,11 @@
 
 .. autoclass:: irtlib.plot.Curve
 ```
+
+## Screening
+
+```{eval-rst}
+.. autofunction:: irtlib.plot.number_correct_histogram
+
+.. autofunction:: irtlib.plot.rest_score_curve
+```

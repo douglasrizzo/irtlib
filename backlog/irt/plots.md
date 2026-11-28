@@ -22,6 +22,8 @@ curves. The plots below remain; catsim deletes its copy of a plot once irtlib ha
 - `irtlib.plot.item_curve`, with the calling conventions of ADR-0011.
 - catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
   `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
+- `irtlib.plot.number_correct_histogram` and `rest_score_curve`, without a smooth: the screening of
+  the responses.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
 
 ## Proposal
@@ -88,9 +90,8 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Sum score distribution (`sum_score_histogram`) | How many examinees got each number correct. |  |  | mirt 1.48 manual, p. 54, empirical_plot 'hist' |
 | Classical item statistics (`item_statistics`) | Each item's item-rest correlation against its proportion correct. |  | the proportion correct and item-rest correlation of each item, classical statistics irtlib does not compute | mirt 1.48 manual, p. 54, empirical_plot 'discrim_diff'; p. 55, discrim.cut |
-| Proportion correct by rest score (`rest_score_curve`) | The proportion correct at each score on the other items, with a kernel smooth. |  |  | mirt 1.48 manual, p. 54, empirical_plot 'prop' with smooth; sirt 4.2-133, plot.np.dich; eRm 1.0-10, plotICC empICC 'kernel'; iarm 0.4.3, ICCplot |
+| Kernel smooth of the rest score curve (an option of `rest_score_curve`) | A kernel regression of the item's responses on the rest score, over the proportions correct that `rest_score_curve` draws. |  | a source on the shelf for the smooth (`discovery/sources-wanted`) | sirt 4.2-133, plot.np.dich (`R/np.dich.R:35`); eRm 1.0-10, plotICC empICC 'kernel'; mirt 1.48 manual, p. 54, empirical_plot 'prop' with smooth, a generalized additive model (`R/empirical_plot.R:310`) |
 
 ## Tests
 
