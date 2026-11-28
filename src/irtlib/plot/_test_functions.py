@@ -38,6 +38,7 @@ def bank_information(  # noqa: PLR0913 - the items, their abilities and two mark
   its share of the test's information over the whole ability scale.
 
   .. plot::
+      :filename-prefix: bank_information
       :caption: The information of a 20-item test and of each of its halves.
 
       import matplotlib.pyplot as plt
@@ -52,6 +53,7 @@ def bank_information(  # noqa: PLR0913 - the items, their abilities and two mark
       plt.show()
 
   .. plot::
+      :filename-prefix: bank_information-interval
       :caption: The information of the same test, each item's location ticked, and its share between -1 and 1.
 
       import matplotlib.pyplot as plt
@@ -72,10 +74,12 @@ def bank_information(  # noqa: PLR0913 - the items, their abilities and two mark
       to 4.
   locations : bool, optional
       Whether to tick each item's location, the ability at which it gives the most information (its difficulty for a
-      one- or two-parameter item), in the curve's colour. Default is False.
+      one- or two-parameter item), in the curve's colour, for the items located within ``theta``. The ticks are
+      labelled "Item locations", after ``label`` when one is given. Default is False.
   interval : tuple of float or None, optional
-      The lower and upper bound of the abilities to shade the information over, possibly infinite; the shading keeps
-      within ``theta``. Default is None, which shades nothing.
+      The lower and upper bound of the abilities to shade the information over, possibly infinite. The shading keeps
+      within ``theta``, and its label gives the information over the whole interval even where none of it is drawn.
+      Default is None, which shades nothing.
   ax : matplotlib.axes.Axes or None, optional
       The axes to draw on. Default is None, which draws on the axes of a new figure.
   title : str or None, optional
@@ -103,16 +107,18 @@ def bank_information(  # noqa: PLR0913 - the items, their abilities and two mark
   ax = prepare_axes(ax, title)
   line = _draw(ax, grid, irt.total_information(grid, bank.items), ylabel=r"Information $I(\theta)$", label=label)
   if locations:
+    # Within the curve's abilities only: a tick beyond them would stretch the axes past the abilities drawn.
+    shown = bank.max_info_thetas[(bank.max_info_thetas >= grid[0]) & (bank.max_info_thetas <= grid[-1])]
     # x in data units and y in axes units, so the ticks stand on the bottom of the axes whatever their y limits, and a
     # legend shows a tick, where a collection of lines would show a horizontal line like the curve's.
     ax.plot(
-      bank.max_info_thetas,
-      numpy.zeros(bank.n_items),
+      shown,
+      numpy.zeros(shown.size),
       linestyle="none",
       marker=TICKUP,
       color=line.get_color(),
       transform=ax.get_xaxis_transform(),
-      label="Item locations",
+      label="Item locations" if label is None else f"{label}: item locations",
     )
   if bounds is not None:
     _shade(ax, grid, bank.items, bounds, line)
@@ -134,6 +140,7 @@ def standard_error(
   one call each, as the example shows.
 
   .. plot::
+      :filename-prefix: standard_error
       :caption: The information of a 20-item test and of its first ten items above, their standard errors below.
 
       import matplotlib.pyplot as plt
@@ -198,10 +205,10 @@ def expected_score(
   r"""Plot the expected number of correct responses to a set of items against ability: the test characteristic curve.
 
   The expected number correct is the sum of the items' characteristic curves. With ``proportion``, the curve is the
-  expected proportion correct, the relative score of :cite:t:`Wright1979` (p. 132), on an axis from 0 to 1, so that
-  item sets of any length compare on one axes.
+  expected proportion correct, the relative score of :cite:t:`Wright1979` (p. 132), on an axis from 0 to 1.
 
   .. plot::
+      :filename-prefix: expected_score
       :caption: The expected number correct on a 20-item test.
 
       import matplotlib.pyplot as plt
@@ -266,6 +273,7 @@ def reliability(
   a precise test there.
 
   .. plot::
+      :filename-prefix: reliability
       :caption: The reliability of a 20-item test and of its first ten items.
 
       import matplotlib.pyplot as plt
@@ -326,11 +334,11 @@ def relative_efficiency(
   r"""Plot the relative efficiency of a set of items over a reference set against ability: their information's ratio.
 
   The relative efficiency (:cite:t:`Wright1982`, p. 177) is the information of ``items`` over that of ``reference``
-  at each ability. Above the dashed line at 1, ``items`` measure more precisely; at 1.5, ``reference`` needs half as
-  many items again to measure as precisely as ``items`` do. Where ``reference`` gives no information, the curve leaves
-  those abilities out.
+  at each ability. Above the dashed line at 1, ``items`` measure more precisely. Where ``reference`` gives no
+  information, the curve leaves those abilities out.
 
   .. plot::
+      :filename-prefix: relative_efficiency
       :caption: The relative efficiency of the first ten items of a 20-item test over its last ten.
 
       import matplotlib.pyplot as plt
