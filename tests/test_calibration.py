@@ -1,4 +1,4 @@
-"""Tests of the bank that every calibrator builds from its estimates, beyond those of a calibration.
+"""Tests of the result every calibrator shares: the bank it builds from its estimates, and its likelihood and grid.
 
 Expected values are hand-worked: which estimates break which rule of an item bank, and the names of the rest.
 """
@@ -6,7 +6,13 @@ Expected values are hand-worked: which estimates break which rule of an item ban
 import numpy as np
 import pytest
 
-from irtlib.calibration import _valid_items  # noqa: PLC2701 - no calibrator gives estimates of which none is valid
+from irtlib.calibration import (
+  Calibration,
+  Likelihood,
+  _valid_items,  # noqa: PLC2701 - no calibrator gives estimates of which none is valid
+  default_grid,
+)
+from irtlib.quadrature import QuadratureGrid
 
 
 def test_estimates_of_which_none_is_valid_give_no_bank() -> None:
@@ -32,3 +38,41 @@ def test_an_item_left_out_for_its_asymptotes_is_not_called_miskeyed() -> None:
   assert bank is not None
   assert bank.names == ("item_1",)
   np.testing.assert_array_equal(bank.items, estimates[[1]])
+
+
+def _calibration(likelihood: Likelihood | str, grid: QuadratureGrid | None) -> Calibration:
+  """Return a calibration of two items with a likelihood and a grid."""
+  return Calibration(
+    estimates=np.tile([1.0, 0.0, 0.0, 1.0], (2, 1)),
+    items=None,
+    standard_errors=None,
+    log_likelihood=-1.0,
+    likelihood=likelihood,  # ty: ignore[invalid-argument-type]
+    n_parameters=1,
+    item_parameters=np.ones(2, dtype=int),
+    cycles=1,
+    converged=True,
+    change=0.0,
+    grid=grid,
+  )
+
+
+@pytest.mark.parametrize(
+  ("likelihood", "grid"), [(Likelihood.MARGINAL, None), (Likelihood.CONDITIONAL, default_grid())], ids=str
+)
+def test_a_grid_comes_with_the_marginal_likelihood_only(likelihood: Likelihood, grid: QuadratureGrid | None) -> None:
+  """A calibration of the marginal likelihood without a grid, or of the conditional likelihood with one, is refused.
+
+  Model comparison and item fit read a grid as the sign of a marginal log-likelihood, so a mismatch would let them
+  compare a conditional one or integrate over nodes the calibration never used.
+  """
+  with pytest.raises(ValueError, match="a grid exactly when its likelihood is marginal"):
+    _calibration(likelihood, grid)
+
+
+def test_a_likelihood_given_by_name_is_read_as_its_member() -> None:
+  """A likelihood given as its name, "marginal", with a grid, is accepted and stored as ``Likelihood.MARGINAL``.
+
+  A member equals its name, so a check by identity on the string would refuse the grid of a marginal calibration.
+  """
+  assert _calibration("marginal", default_grid()).likelihood is Likelihood.MARGINAL

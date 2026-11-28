@@ -6,6 +6,7 @@ incorrect one and NaN where the examinee did not answer the item.
 
 import warnings
 from dataclasses import dataclass
+from enum import StrEnum
 
 import numpy
 import numpy.typing as npt
@@ -23,15 +24,32 @@ class ConvergenceWarning(RuntimeWarning):
   """A calibration ran out of cycles before its stopping rule was met."""
 
 
+class Likelihood(StrEnum):
+  """The likelihood a calibration maximizes, whose logarithm at the estimates it reports.
+
+  ``MARGINAL`` is the likelihood of the item parameters with abilities integrated out over a grid, which marginal
+  maximum likelihood maximizes; ``CONDITIONAL`` the likelihood of the responses given each examinee's number
+  correct, which conditional maximum likelihood maximizes. A member equals its name in lower case.
+
+  Examples
+  --------
+  >>> Likelihood("conditional") is Likelihood.CONDITIONAL
+  True
+  """
+
+  MARGINAL = "marginal"
+  CONDITIONAL = "conditional"
+
+
 @dataclass(frozen=True, slots=True)
 class Calibration:
-  """The result of a calibration.
+  """The result of a calibration, by any method.
 
   Attributes
   ----------
   estimates : numpy.ndarray
       The estimates ``[a, b, c, d]`` of every item, one row per column of the response matrix, whether or not they are
-      valid for an item bank.
+      valid for an item bank; NaN for a parameter of an item the method gives no estimate.
   items : irtlib.ItemBank or None
       The items whose estimates are valid in an item bank, every parameter finite with ``a > 0`` and
       ``0 <= c < d <= 1``, each named ``item_`` and its column, as in a bank of every item; None if no item's
@@ -41,32 +59,85 @@ class Calibration:
       The standard errors of the estimates, in the shape of ``estimates``, NaN for a parameter not estimated;
       None, with a warning, when the information matrix could not be inverted.
   log_likelihood : float
-      The log-likelihood of the responses at the estimates.
+      The logarithm of the likelihood named by ``likelihood``, at the estimates; with priors, without the log-prior.
+  likelihood : Likelihood
+      The likelihood the calibration maximizes, given as a member or its name. Model comparison and S-X² take only
+      marginal ones.
   n_parameters : int
       The number of parameters estimated, a parameter shared by every item counted once.
   item_parameters : numpy.ndarray
       The number of parameters estimated for each item, a parameter shared by every item counted for each.
   cycles : int
-      The cycles the calibration ran.
+      The cycles of its algorithm the calibration ran, such as EM cycles or Newton-Raphson iterations.
   converged : bool
-      Whether the stopping rule was met; if not, the calibration ran out of cycles and warned with
+      Whether the stopping rule was met; if not, the calibration ran out of cycles or could not go on, and warned with
       :py:class:`ConvergenceWarning`.
   change : float
-      The stopping rule's final value: the largest change of an estimated parameter in the last cycle.
-  grid : irtlib.quadrature.QuadratureGrid
-      The nodes abilities were integrated over, which item fit uses too.
+      The stopping rule's final value: the largest change of an estimated parameter in the last cycle; for
+      Newton-Raphson, in the cycle's full step, before any halving.
+  grid : irtlib.quadrature.QuadratureGrid or None
+      The nodes abilities were integrated over, which item fit uses too: set when the likelihood is marginal, and None
+      otherwise, since no other likelihood integrates over abilities.
+
+  Raises
+  ------
+  ValueError
+      If ``likelihood`` names no :py:class:`Likelihood`, or ``grid`` is set for a likelihood that is not marginal, or
+      missing for a marginal one.
   """
 
   estimates: FloatArray
   items: ItemBank | None
   standard_errors: FloatArray | None
   log_likelihood: float
+  likelihood: Likelihood
   n_parameters: int
   item_parameters: IntArray
   cycles: int
   converged: bool
   change: float
-  grid: QuadratureGrid
+  grid: QuadratureGrid | None
+
+  def __post_init__(self) -> None:
+    """Read the likelihood as a :py:class:`Likelihood`, and check that a grid comes exactly with a marginal one."""
+    # a member equals its name in lower case, so "marginal" is read as Likelihood.MARGINAL
+    object.__setattr__(self, "likelihood", Likelihood(self.likelihood))
+    if (self.grid is not None) != (self.likelihood is Likelihood.MARGINAL):
+      msg = f"a calibration has a grid exactly when its likelihood is marginal; this one's is {self.likelihood}"
+      raise ValueError(msg)
+
+
+def _check_marginal(calibration: Calibration, statistic: str) -> QuadratureGrid:
+  """Return the grid of a calibration, after checking that its likelihood is the marginal one a statistic needs.
+
+  Model comparison and item fit call it on every calibration they take, so that none compares a log-likelihood of
+  another kind with a marginal one, or integrates over a grid the calibration never used.
+
+  Parameters
+  ----------
+  calibration : Calibration
+      The calibration the statistic is computed from.
+  statistic : str
+      The statistic's name, for the error.
+
+  Returns
+  -------
+  irtlib.quadrature.QuadratureGrid
+      The nodes the calibration integrated abilities over.
+
+  Raises
+  ------
+  ValueError
+      If the calibration's likelihood is not marginal, so that it has no grid and its log-likelihood compares with
+      no marginal one.
+  """
+  if calibration.grid is None:
+    msg = (
+      f"for {statistic}, a calibration must be of the marginal likelihood, which integrates abilities over a grid; "
+      f"this one's likelihood is {calibration.likelihood}"
+    )
+    raise ValueError(msg)
+  return calibration.grid
 
 
 def validate_responses(responses: npt.ArrayLike) -> FloatArray:

@@ -38,13 +38,14 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-20 cards: 10 ready, 2 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+19 cards: 8 ready, 2 needs-research, 3 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
 | Card | Area | Priority |
 |---|---|---|
 | [Choose irtlib's license](maintenance/license.md) | maintenance | 2 |
+| [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | 3 |
 | [Should the item response plots move from catsim into irtlib?](discovery/irt-plots.md) | discovery | 4 |
 
 ## Priority 2
@@ -59,9 +60,8 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 |---|---|---|---|---|---|---|
 | [Find sources for the claims and defaults that have none on the shelf](discovery/sources-wanted.md) | discovery | research | needs-research | S |  | maintainer on 2026-11-27 |
 | [Bring the ability estimators within 1.2 times catsim's time for one examinee](estimation/faster-ability-estimation.md) | estimation | feature | ready | M |  | timing of the ability-estimation PR on 2026-11-27 |
-| [Estimate Rasch difficulties by conditional maximum likelihood](estimation/cml-rasch.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
 | [Estimate items by joint maximum likelihood, for comparison studies](estimation/jml.md) | estimation | technique | ready | S |  | moved from catsim's backlog |
-| [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
+| [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Share the complete-response check of item fit and G²](maintenance/complete-responses-check.md) | maintenance | maintenance | ready | XS |  | mean-squares PR on 2026-11-27 |

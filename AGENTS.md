@@ -16,9 +16,10 @@ sense for adaptive testing belongs to catsim, which builds on irtlib (ADR-0004).
 
 MML-EM for the 1PL to 4PL with priors and standard errors (`irtlib.mml`), item fit by S-X² and the
 Rasch mean squares (`irtlib.fit`) and model comparison (`irtlib.comparison`) are implemented and
-checked against mirt (`tests/parity/mirt/`). The item response code that catsim holds is moving here in parts, each a
-card in `backlog/irt/` or `backlog/estimation/`; the calibration methods follow the build order of
-`backlog/discovery/literature-review.md`.
+checked against mirt (`tests/parity/mirt/`), and conditional maximum likelihood for the Rasch
+model (`irtlib.cml`) against published values. The item response code that catsim
+holds is moving here in parts, each a card in `backlog/irt/` or `backlog/estimation/`; the
+calibration methods follow the build order of `backlog/discovery/literature-review.md`.
 
 ## Repository Layout
 

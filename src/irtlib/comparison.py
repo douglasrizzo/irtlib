@@ -20,7 +20,9 @@ when no candidate is true (:cite:t:`Vrieze2012`, Pages 10-11). :math:`G^2`'s deg
 Equation 16 (p. 450) counts the observed patterns instead. The multinomial is not defined when responses are missing,
 so :math:`G^2` needs complete responses.
 
-With priors, the log-likelihood is the one at the Bayes modal estimates, without the log-prior.
+With priors, the log-likelihood is the one at the Bayes modal estimates, without the log-prior. Every statistic here
+takes marginal log-likelihoods, and refuses a calibration of another likelihood, such as the conditional one of
+:py:mod:`irtlib.cml`, which is not on their scale (ADR-0006).
 """
 
 from dataclasses import dataclass
@@ -28,7 +30,7 @@ from dataclasses import dataclass
 import numpy
 from scipy.stats import chi2
 
-from .calibration import Calibration, validate_responses
+from .calibration import Calibration, _check_marginal, validate_responses
 from .mml import marginal_log_likelihood
 from .typing import FloatArray
 
@@ -58,13 +60,20 @@ def aic(calibration: Calibration) -> float:
   Parameters
   ----------
   calibration : Calibration
-      A calibration; one with priors is judged by its log-likelihood without the log-prior.
+      A calibration of the marginal likelihood; one with priors is judged by its log-likelihood without the
+      log-prior.
 
   Returns
   -------
   float
       ``-2 * log_likelihood + 2 * n_parameters``.
+
+  Raises
+  ------
+  ValueError
+      If the calibration's likelihood is not marginal.
   """
+  _check_marginal(calibration, "AIC")
   return -2 * calibration.log_likelihood + 2 * calibration.n_parameters
 
 
@@ -74,7 +83,8 @@ def bic(calibration: Calibration, n_examinees: int) -> float:
   Parameters
   ----------
   calibration : Calibration
-      A calibration; one with priors is judged by its log-likelihood without the log-prior.
+      A calibration of the marginal likelihood; one with priors is judged by its log-likelihood without the
+      log-prior.
   n_examinees : int
       The number of examinees the calibration estimated its items from.
 
@@ -86,8 +96,9 @@ def bic(calibration: Calibration, n_examinees: int) -> float:
   Raises
   ------
   ValueError
-      If ``n_examinees`` is less than 1.
+      If ``n_examinees`` is less than 1, or the calibration's likelihood is not marginal.
   """
+  _check_marginal(calibration, "BIC")
   if n_examinees < 1:
     msg = f"n_examinees must be at least 1, got {n_examinees}"
     raise ValueError(msg)
@@ -107,9 +118,9 @@ def likelihood_ratio(restricted: Calibration, general: Calibration) -> ChiSquare
   Parameters
   ----------
   restricted : Calibration
-      The calibration of the restricted model.
+      The calibration of the restricted model, of the marginal likelihood.
   general : Calibration
-      The calibration of the general model.
+      The calibration of the general model, of the marginal likelihood.
 
   Returns
   -------
@@ -119,8 +130,11 @@ def likelihood_ratio(restricted: Calibration, general: Calibration) -> ChiSquare
   Raises
   ------
   ValueError
-      If the two calibrations have different numbers of items, or the general model does not have more parameters.
+      If the two calibrations have different numbers of items, the general model does not have more parameters, or a
+      calibration's likelihood is not marginal.
   """
+  for calibration in (restricted, general):
+    _check_marginal(calibration, "the likelihood-ratio test")
   restricted_items, general_items = restricted.estimates.shape[0], general.estimates.shape[0]
   if restricted_items != general_items:
     msg = f"the calibrations have {restricted_items} and {general_items} items"
@@ -145,7 +159,7 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
   Parameters
   ----------
   calibration : Calibration
-      The calibration to evaluate.
+      The calibration to evaluate, of the marginal likelihood.
   responses : numpy.ndarray
       The complete response matrix the calibration estimated its items from: one row per examinee, one column per
       item, 1 or 0.
@@ -161,8 +175,10 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
       If the responses are neither Booleans, integers nor floats.
   ValueError
       If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not
-      have one column per item; or the model leaves no degrees of freedom.
+      have one column per item; the model leaves no degrees of freedom; or the calibration's likelihood is not
+      marginal.
   """
+  grid = _check_marginal(calibration, "G2")
   matrix = validate_responses(responses)
   if numpy.isnan(matrix).any():
     msg = "G2 needs complete responses; the multinomial over patterns is not defined with missing responses"
@@ -178,6 +194,6 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
     )
     raise ValueError(msg)
   _, counts = numpy.unique(matrix, axis=0, return_counts=True)
-  log_likelihood = marginal_log_likelihood(matrix, calibration.estimates, calibration.grid)
+  log_likelihood = marginal_log_likelihood(matrix, calibration.estimates, grid)
   statistic = 2 * (float(numpy.sum(counts * numpy.log(counts / matrix.shape[0]))) - log_likelihood)
   return ChiSquareTest(statistic=statistic, df=df, p_value=float(chi2.sf(statistic, df)))

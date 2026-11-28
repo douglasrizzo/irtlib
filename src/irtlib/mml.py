@@ -42,6 +42,20 @@ prior on the logit of :math:`c` remedies. The 4PL adds an upper asymptote :math:
 who still miss an item (:cite:t:`Barton1981`, p. 2), estimated on its logit with a normal prior there; recovering it
 takes thousands of examinees (:cite:t:`Waller2017`, p. 19; :cite:t:`Culpepper2016`, Section 5).
 
+An EM cycle is a fixed-point iteration :math:`x_{n+1} = F(x_n)` of the vector :math:`x` of free parameters; the largest
+eigenvalue of :math:`F`'s Jacobian at the solution, the fraction of missing information, governs how slowly it converges
+(:cite:t:`Du2020`, p. 3). By default a calibration accelerates it with SQUAREM (:cite:t:`Du2020`, p. 4, Algorithm 1).
+From :math:`x_0`, two cycles give :math:`x_1 = F(x_0)` and :math:`x_2 = F(x_1)`; with :math:`r = x_1 - x_0`,
+:math:`v = x_2 - x_1 - r` and the steplength :math:`\alpha = -\lVert r \rVert / \lVert v \rVert`, the authors' default
+(p. 4), the extrapolation is :math:`x_0 - 2 \alpha r + \alpha^2 v`. Where its log-posterior is above that of
+:math:`x_2`, Algorithm 1's test with :math:`\eta = 0`, one cycle from it, the stabilization step, gives the next
+:math:`x_0`; elsewhere :math:`x_2` does. No cycle then lowers the log-posterior, as no cycle of plain EM does
+(:cite:t:`Dempster1977`, p. 6). The norms are Euclidean over the free parameters, a shared slope counted once, and an
+extrapolation with a parameter that is not finite, or a guessing parameter at or above its upper asymptote, is not kept.
+The extrapolation is not a cycle: the stopping rule applies to every cycle, an EM step with or without acceleration.
+mirt 1.48 accelerates by Ramsay's rule by default and offers SQUAREM (manual pp. 128-129); the maximum is the same
+(ADR-0007).
+
 The standard errors are the square roots of the inverse observed information at the estimates, by Oakes's identity
 :cite:p:`Oakes1999` (p. 480): the score of the marginal log-likelihood is the M-step's gradient at the E-step's own
 parameters (Equation 5), and its derivative as both move together is the observed-data Hessian, the sum of the
@@ -62,6 +76,8 @@ proportion correct among the examinees who answered it: mirt's starting values, 
 import math
 import warnings
 from dataclasses import dataclass
+from enum import StrEnum
+from typing import assert_never
 
 import numpy
 from scipy.special import expit, logit, logsumexp
@@ -69,7 +85,7 @@ from scipy.stats import norm
 
 from ._responses import _N_COLUMNS
 from .bank import IrtModel, ItemBank
-from .calibration import Calibration, ConvergenceWarning, _valid_items, default_grid, validate_responses
+from .calibration import Calibration, ConvergenceWarning, Likelihood, _valid_items, default_grid, validate_responses
 from .irt import log_likelihood, log_likelihood_gradient, log_response_probabilities, parameter_information
 from .quadrature import QuadratureGrid, _log_masses, normal_log_prior, posterior
 from .typing import FloatArray, IntArray
@@ -200,6 +216,24 @@ class Priors:
         raise ValueError(msg)
 
 
+class Acceleration(StrEnum):
+  """How :py:class:`MMLCalibrator` accelerates its EM cycles.
+
+  ``"squarem"`` extrapolates from every two cycles and keeps an extrapolation only where its log-posterior is above
+  the second cycle's, so no cycle lowers the log-posterior; ``"none"`` runs plain EM. Both reach the same maximum by
+  the same stopping rule, ``"squarem"`` in fewer cycles. A member equals its value, so either can be passed where an
+  acceleration is expected.
+
+  Examples
+  --------
+  >>> Acceleration("squarem") is Acceleration.SQUAREM
+  True
+  """
+
+  NONE = "none"
+  SQUAREM = "squarem"
+
+
 def _prior_terms_of(priors: Priors) -> tuple[_PriorTerm, ...]:
   """Return priors as terms of the M-step's objective, one per parameter column."""
   return tuple(
@@ -247,10 +281,15 @@ def marginal_log_likelihood(responses: FloatArray, items: FloatArray, grid: Quad
   """
   matrix = validate_responses(responses)
   grid = grid if grid is not None else default_grid()
+  return _marginal(log_likelihood(grid.nodes, matrix, items), grid)
+
+
+def _marginal(log_likelihoods: FloatArray, grid: QuadratureGrid) -> float:
+  """Return the marginal log-likelihood from each examinee's log-likelihood at the grid's nodes."""
   # in log space throughout, so that the masses of nodes far in the tails need not be representable
   log_masses = _log_masses(grid, _ABILITY_PRIOR)
   log_masses -= logsumexp(log_masses)
-  return float(numpy.sum(logsumexp(log_likelihood(grid.nodes, matrix, items) + log_masses, axis=1)))
+  return float(numpy.sum(logsumexp(log_likelihoods + log_masses, axis=1)))
 
 
 class MMLCalibrator:
@@ -271,10 +310,13 @@ class MMLCalibrator:
   priors : Priors, optional
       Priors on the slope, the intercept and the logits of the guessing parameter and upper asymptote of every item.
   tolerance : float, optional
-      The stopping rule: calibration stops when no estimated parameter changes by more than this in a cycle.
-      Default is 1e-6.
+      The stopping rule: calibration stops when no estimated parameter changes by more than this in a cycle, an
+      E-step and an M-step. Default is 1e-6.
   max_cycles : int, optional
       The most cycles a calibration runs before it stops unconverged. Default is 500.
+  acceleration : Acceleration or str, optional
+      ``"squarem"``, the default, extrapolates between cycles to reach the same estimates in fewer of them; the
+      extrapolations are not cycles. ``"none"`` runs plain EM.
   grid : irtlib.quadrature.QuadratureGrid, optional
       The nodes the abilities are integrated over. Default is 61 equally spaced nodes on [-6, 6].
 
@@ -283,7 +325,7 @@ class MMLCalibrator:
   ValueError
       If ``fixed_slope`` is not finite and positive; a slope prior comes with ``fixed_slope``, a guessing prior with
       a model other than the 3PL and 4PL, or an upper prior with a model other than the 4PL; ``tolerance`` is not
-      positive; or ``max_cycles`` is less than 1.
+      positive; ``max_cycles`` is less than 1; or ``acceleration`` is not an :py:class:`Acceleration`.
 
   Examples
   --------
@@ -294,7 +336,7 @@ class MMLCalibrator:
   (True, 4)
   """
 
-  def __init__(
+  def __init__(  # noqa: PLR0913 - a calibrator takes its settings at construction (ADR-0006)
     self,
     model: IrtModel | str = IrtModel.PL2,
     *,
@@ -302,9 +344,11 @@ class MMLCalibrator:
     priors: Priors | None = None,
     tolerance: float = 1e-6,
     max_cycles: int = 500,
+    acceleration: Acceleration | str = Acceleration.SQUAREM,
     grid: QuadratureGrid | None = None,
   ) -> None:
     self._model = IrtModel(model)
+    self._acceleration = Acceleration(acceleration)
     match self._model:
       case IrtModel.PL1 | IrtModel.PL2 | IrtModel.PL3 | IrtModel.PL4:
         pass
@@ -350,11 +394,13 @@ class MMLCalibrator:
     Returns
     -------
     Calibration
-        The estimates, their standard errors and the log-likelihood at them. If the stopping rule is not met within
-        ``max_cycles``, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if
-        the information matrix cannot be inverted, the result has no standard errors and a ``RuntimeWarning`` is
-        issued; if an item's estimates are not valid in an item bank, such as a miskeyed item's slope that is not
-        positive, the result's bank leaves the item out and a ``RuntimeWarning`` names it.
+        The estimates, their standard errors and the log-likelihood at them, with the cycles run, which do not count
+        the extrapolations of an acceleration, and the largest change of a parameter in the last one. If the stopping
+        rule is not met within ``max_cycles``, the result says so and a
+        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted,
+        the result has no standard errors and a ``RuntimeWarning`` is issued; if an item's estimates are not valid in
+        an item bank, such as a miskeyed item's slope that is not positive, the result's bank leaves the item out and
+        a ``RuntimeWarning`` names it.
 
     Raises
     ------
@@ -403,6 +449,7 @@ class MMLCalibrator:
       items=_valid_items(estimates),
       standard_errors=standard_errors,
       log_likelihood=marginal_log_likelihood(matrix, estimates, self._grid),
+      likelihood=Likelihood.MARGINAL,
       n_parameters=int(index.max()) + 1,
       item_parameters=numpy.count_nonzero(index >= 0, axis=1),
       cycles=cycles,
@@ -419,16 +466,16 @@ class MMLCalibrator:
     tuple[numpy.ndarray, int, float]
         The parameters, the cycles run and the largest change of a free parameter in the last cycle.
     """
-    free = index >= 0
-    change = math.inf
-    cycles = 0
-    while cycles < self._max_cycles and change > self._tolerance:
-      cycles += 1
-      counts = _expected_counts(matrix, values, self._grid)
-      new_values = _m_step(values, index, self._grid.nodes, *counts, priors=self._priors)
-      change = float(numpy.max(numpy.abs(new_values[free] - values[free])))
-      values = new_values
-    return values, cycles, change
+    cycles = _Cycles(matrix, index, self._grid, self._priors, self._tolerance, self._max_cycles)
+    match self._acceleration:
+      case Acceleration.NONE:
+        while not cycles.done:
+          values = cycles.run(values)
+      case Acceleration.SQUAREM:
+        values = _squarem(cycles, values)
+      case _:
+        assert_never(self._acceleration)
+    return values, cycles.count, cycles.change
 
   def _layout(self, proportion: FloatArray, start: ItemBank | None) -> tuple[IntArray, FloatArray]:
     """Return the index of each item parameter in the free parameters, and each item's starting parameters.
@@ -516,9 +563,104 @@ def _objective(
 
 def _expected_counts(matrix: FloatArray, values: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
   """Return the E-step's expected numbers of correct responses and of responses, shape (nodes, items)."""
+  return _counts(matrix, log_likelihood(grid.nodes, matrix, _to_items(values)), grid)
+
+
+def _counts(matrix: FloatArray, log_likelihoods: FloatArray, grid: QuadratureGrid) -> tuple[FloatArray, FloatArray]:
+  """Return the expected counts of the E-step from each examinee's log-likelihood at the grid's nodes."""
   answered = ~numpy.isnan(matrix)
-  posteriors = posterior(log_likelihood(grid.nodes, matrix, _to_items(values)), grid, _ABILITY_PRIOR)
+  posteriors = posterior(log_likelihoods, grid, _ABILITY_PRIOR)
   return posteriors.T @ numpy.where(answered, matrix, 0.0), posteriors.T @ answered.astype(float)
+
+
+@dataclass(slots=True)
+class _Cycles:
+  """The EM cycles of one calibration, counted, with the largest change of a free parameter in the last one."""
+
+  matrix: FloatArray
+  index: IntArray
+  grid: QuadratureGrid
+  priors: tuple[_PriorTerm, ...]
+  tolerance: float
+  max_cycles: int
+  count: int = 0
+  change: float = math.inf
+
+  @property
+  def done(self) -> bool:
+    """Whether the stopping rule is met, the change is NaN, or the cycles have run out."""
+    # a NaN change stops the cycles too, and the calibration reports it as not converged
+    return not self.change > self.tolerance or self.count >= self.max_cycles
+
+  def run(self, values: FloatArray, counts: tuple[FloatArray, FloatArray] | None = None) -> FloatArray:
+    """Return the parameters after a cycle from ``values``, whose E-step's counts are computed unless given."""
+    counts = counts if counts is not None else _expected_counts(self.matrix, values, self.grid)
+    new_values = _m_step(values, self.index, self.grid.nodes, *counts, priors=self.priors)
+    free = self.index >= 0
+    self.count += 1
+    self.change = float(numpy.max(numpy.abs(new_values[free] - values[free])))
+    return new_values
+
+  def expect(self, values: FloatArray) -> tuple[tuple[FloatArray, FloatArray], float]:
+    """Return the E-step's counts at ``values`` and the log-posterior there: marginal log-likelihood plus log-prior."""
+    log_likelihoods = log_likelihood(self.grid.nodes, self.matrix, _to_items(values))
+    log_prior = _prior_terms(values, self.priors, _counted(self.index))[0]
+    return _counts(self.matrix, log_likelihoods, self.grid), _marginal(log_likelihoods, self.grid) + log_prior
+
+
+def _squarem(cycles: _Cycles, values: FloatArray) -> FloatArray:
+  """Run SQUAREM's iterations from ``values`` until the stopping rule is met or the cycles run out."""
+  counts: tuple[FloatArray, FloatArray] | None = None
+  while True:
+    first = cycles.run(values, counts)
+    if cycles.done:
+      return first
+    second = cycles.run(first)
+    if cycles.done:
+      return second
+    extrapolated = _extrapolated(values, first, second, cycles.index)
+    counts, objective = cycles.expect(second)
+    if extrapolated is not None:
+      extrapolated_counts, extrapolated_objective = cycles.expect(extrapolated)
+      # Du & Varadhan's (2020) test with eta = 0; a log-posterior that is NaN fails it
+      if extrapolated_objective > objective:
+        # the stabilization step
+        values, counts = cycles.run(extrapolated, extrapolated_counts), None
+        if cycles.done:
+          return values
+        continue
+    values = second
+
+
+def _extrapolated(start: FloatArray, first: FloatArray, second: FloatArray, index: IntArray) -> FloatArray | None:
+  """Return SQUAREM's extrapolation from the parameters of three successive cycles, or None if it is not kept."""
+  point = _squarem_point(*(_free_vector(values, index) for values in (start, first, second)))
+  if not numpy.all(numpy.isfinite(point)):
+    return None
+  free = index >= 0
+  extrapolated = start.copy()
+  extrapolated[free] = point[index[free]]
+  if not numpy.all(extrapolated[:, _GUESSING] < extrapolated[:, _UPPER]):
+    return None
+  return extrapolated
+
+
+def _squarem_point(start: FloatArray, first: FloatArray, second: FloatArray) -> FloatArray:
+  """Return SQUAREM's extrapolation from three successive iterates of a fixed-point iteration."""
+  r = first - start
+  v = second - first - r
+  # a v of zero makes the steplength infinite and the point not finite, which the caller refuses
+  with numpy.errstate(divide="ignore", invalid="ignore", over="ignore"):
+    alpha = -numpy.linalg.norm(r) / numpy.linalg.norm(v)
+    return start - 2 * alpha * r + alpha**2 * v
+
+
+def _free_vector(values: FloatArray, index: IntArray) -> FloatArray:
+  """Return the free parameters, a shared one once, from the rows of item parameters."""
+  free = index >= 0
+  vector = numpy.empty(int(index.max()) + 1)
+  vector[index[free]] = values[free]
+  return vector
 
 
 def _free_gradient(

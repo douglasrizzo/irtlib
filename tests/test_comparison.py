@@ -12,7 +12,8 @@ import numpy as np
 import pytest
 
 from irtlib import ItemBank
-from irtlib.calibration import Calibration, default_grid
+from irtlib.calibration import Calibration, Likelihood, default_grid
+from irtlib.cml import CMLCalibrator
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.drawing import draw_responses
 from irtlib.mml import MMLCalibrator
@@ -37,6 +38,7 @@ def _calibration(log_likelihood: float, n_parameters: int, n_items: int = 2) -> 
     items=ItemBank(estimates),
     standard_errors=None,
     log_likelihood=log_likelihood,
+    likelihood=Likelihood.MARGINAL,
     n_parameters=n_parameters,
     item_parameters=np.full(n_items, 2),
     cycles=1,
@@ -86,6 +88,27 @@ def test_likelihood_ratio_refuses_models_that_cannot_be_nested() -> None:
     likelihood_ratio(_calibration(-100.0, 4), _calibration(-99.0, 6, n_items=3))
 
 
+def test_a_conditional_calibration_is_refused() -> None:
+  """AIC, BIC, G² and the likelihood-ratio test refuse a calibration by conditional maximum likelihood.
+
+  Its log-likelihood leaves out the likelihood of the numbers correct, which a marginal one holds, so comparing the
+  two would mislead.
+  """
+  conditional = CMLCalibrator().calibrate(_LSAT6)
+  marginal = MMLCalibrator("1PL").calibrate(_LSAT6)
+  for statistic, compute in [
+    ("AIC", lambda: aic(conditional)),
+    ("BIC", lambda: bic(conditional, 1000)),
+    ("G2", lambda: g2(conditional, _LSAT6)),
+    ("the likelihood-ratio test", lambda: likelihood_ratio(conditional, marginal)),
+    ("the likelihood-ratio test", lambda: likelihood_ratio(marginal, conditional)),
+  ]:
+    with pytest.raises(
+      ValueError, match=f"^for {statistic}, a calibration must be of the marginal likelihood.*conditional$"
+    ):
+      compute()
+
+
 def test_bic_refuses_an_empty_sample() -> None:
   """BIC needs at least one examinee, whose logarithm it takes."""
   with pytest.raises(ValueError, match="n_examinees"):
@@ -101,8 +124,9 @@ def test_g2_refuses_incomplete_or_mismatched_responses_and_saturated_models() ->
     g2(calibration, with_missing)
   with pytest.raises(ValueError, match="4 items, the calibration 5"):
     g2(calibration, _LSAT7[:, :4])
+  # the 1PL of two items has as many parameters as free pattern probabilities, and is identified
   with pytest.raises(ValueError, match="no degrees of freedom"):
-    g2(MMLCalibrator().calibrate(_LSAT7[:, :2]), _LSAT7[:, :2])
+    g2(MMLCalibrator("1PL").calibrate(_LSAT7[:, :2]), _LSAT7[:, :2])
 
 
 def test_g2_of_a_miskeyed_item_equals_g2_with_its_scoring_reversed() -> None:
