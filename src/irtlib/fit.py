@@ -1,93 +1,4 @@
-r"""Item fit: Orlando and Thissen's S-X² statistic for every model, and the mean squares of the Rasch model.
-
-Item fit compares, item by item, the responses a calibration predicts with those observed.
-
-**S-X².** Orlando and Thissen group examinees by their number-correct score, which is observed, rather than by an
-ability estimate, whose groups depend on the model :cite:p:`Orlando2000` (p. 52). For item :math:`i` of :math:`M` and
-score :math:`k = 1, \dots, M - 1`, with :math:`N_k` examinees at score :math:`k` and :math:`O_{ik}` the observed
-proportion of them answering item :math:`i` correctly,
-
-.. math::
-
-   S\text{-}X^2_i = \sum_{k=1}^{M-1} N_k \frac{(O_{ik} - E_{ik})^2}{E_{ik}(1 - E_{ik})}
-
-(:cite:t:`Orlando2000`, p. 54, Equation 13). The expected proportion is
-
-.. math::
-
-   E_{ik} = \frac{\sum_q P_i(X_q)\, S^{*i}_{k-1}(X_q)\, A_q}{\sum_q S_k(X_q)\, A_q}
-
-(p. 54, Equation 12), where :math:`S_k(X_q)` is the likelihood of a score of :math:`k` at ability :math:`X_q` and
-:math:`S^{*i}_k` the same without item :math:`i`, both from Lord and Wingersky's recursion over items (p. 53,
-Equations 6-11): adding an item with probability :math:`T` turns :math:`S^*_k` into :math:`T S^*_{k-1} + (1 - T)
-S^*_k`. The nodes and their normal masses :math:`A_q` are the calibration's grid.
-
-The two cells of each score row, incorrect and correct, are collapsed as mirt 1.48 collapses them (source
-``R/utils.R:2410-2546``): rows no examinee reached are dropped, a row with one examinee is merged into the next, the
-last into the one before, and while an expected count is below ``min_expected``, the first such row is merged into
-its neighbour, the first row into the second, the last into the one before and any other into the neighbour with
-fewer examinees. Orlando and Thissen (p. 56) collapse from both ends toward the middle until every expected count is
-at least 1. The statistic sums :math:`(O - E)^2 / E` over the cells left, and its degrees of freedom are the rows
-left less the number of parameters estimated for the item (p. 56), floored at 0. An item whose collapsed table leaves
-no degrees of freedom, including one collapsed to a single row, which mirt skips, has none and no statistic.
-
-S-X² "cannot handle incomplete data directly" :cite:p:`Zhang2022` (p. 705), so it needs complete responses
-(ADR-0006).
-
-**Mean squares.** The weighted and unweighted mean squares compare each response with its expectation at the examinee's
-estimated ability (:cite:t:`Wright1982`, pp. 97-99). Wright and Masters define them for the models of their book, all
-built from the Rasch model (p. 10; p. 100, Table 5.4a), whose model for dichotomous responses (p. 38, Equation 3.1.1) is
-the 1PL, every item with the same slope :math:`a`, with person parameters :math:`a\theta_j` and item parameters
-:math:`ab_i`. For examinee :math:`j` and item :math:`i`, with :math:`P_{ij}` the probability of a correct response at
-the examinee's ability and :math:`Q_{ij} = 1 - P_{ij}`, the score residual :math:`y_{ij} = u_{ij} - P_{ij}` (p. 98,
-Equation 5.4.2) has variance :math:`W_{ij}` and kurtosis :math:`C_{ij}` (p. 98, Equations 5.4.3 and 5.4.4), which for
-the two categories of a dichotomous item are
-
-.. math::
-
-   W_{ij} = P_{ij} Q_{ij}, \quad C_{ij} = P_{ij} Q_{ij} (P_{ij}^3 + Q_{ij}^3),
-
-and the standardized residual is :math:`z_{ij} = y_{ij} / W_{ij}^{1/2}` (p. 99, Equation 5.4.5). Over the :math:`N`
-examinees, the unweighted and the weighted mean squares, which Wright and Masters write :math:`u_i` and :math:`v_i`, are
-
-.. math::
-
-   U_i = \frac{1}{N} \sum_j z_{ij}^2, \quad
-   V_i = \frac{\sum_j W_{ij} z_{ij}^2}{\sum_j W_{ij}} = \frac{\sum_j y_{ij}^2}{\sum_j W_{ij}}
-
-(p. 99, Equations 5.4.6 and 5.4.7). irtlib calls :math:`U_i` the outfit and :math:`V_i` the infit, as mirt 1.48 does
-(source ``R/itemfit.R:584, 588``). :math:`U_i` is sensitive to unexpected responses of examinees for whom the item is
-far too easy or far too hard, and the weights :math:`W_{ij}`, smallest for those examinees, lessen their influence on
-:math:`V_i` (pp. 99, 101). When the data fit the model both have expectation 1, :math:`U_i` with variance
-:math:`\sum_j (C_{ij} / W_{ij}^2) / N^2 - 1 / N` (p. 100, Table 5.4a) and :math:`V_i` with variance
-
-.. math::
-
-   q_i^2 = \frac{\sum_j (C_{ij} - W_{ij}^2)}{\left(\sum_j W_{ij}\right)^2}
-
-(p. 101, Equation 5.4.8). The weighted mean square is standardized to
-
-.. math::
-
-   t_i = (V_i^{1/3} - 1)(3 / q_i) + q_i / 3,
-
-which has a mean near 0 and a standard deviation near 1 when the data fit (p. 101; p. 100, Table 5.4a). Wright and
-Masters estimate the person and item parameters from the same data as the residuals, which lowers the expected mean
-square by the factor :math:`(M - 1)(N - 1) / (MN)` for :math:`M` items (p. 101).
-
-The abilities are the EAP estimates of :py:func:`irtlib.ability.expected_a_posteriori` on the calibration's grid,
-abilities normal with mean 0 and variance 1 (ADR-0006). mirt 1.48 takes EAP estimates by default too
-(``R/itemfit.R:268, 535-538``), on the grid of its ``fscores``. irtlib follows mirt in three places that no source on
-the shelf covers: it standardizes :math:`U_i` in the same way as :math:`V_i`, with the standard deviation from Table
-5.4a in place of :math:`q_i` (``R/itemfit.R:585, 587``); it raises a variance :math:`W_{ij}` whose square is below
-:math:`10^{-5}` to :math:`10^{-5/2}`, leaving :math:`C_{ij}` and :math:`y_{ij}` as they are (``R/personfit.R:189-200``),
-so that a mean square's variance can fall below 0, and its :math:`t` is then NaN; and it caps the standard deviation of
-either mean square at 1.4142 before standardizing (``R/itemfit.R:586, 591``). mirt computes the mean squares of any
-model from its probabilities (``R/personfit.R:181-194``), and with missing responses sums over the examinees who
-answered each item, with :math:`N` their number (``R/itemfit.R:577-584``). Wright and Masters' sums run over every
-examinee, with no rule for a missing response, so irtlib's mean squares need complete responses (ADR-0006), and a
-calibration of the 1PL by marginal maximum likelihood, whose grid the abilities are estimated on.
-"""
+"""Item fit: Orlando and Thissen's S-X² statistic for every model, and the mean squares of the Rasch model."""
 
 import math
 from dataclasses import dataclass
@@ -132,6 +43,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   """Return the S-X² item-fit statistic of every item of a calibration, from the responses it was calibrated on.
 
   Every item is evaluated at its estimates, including the items the calibration's bank leaves out.
+
+  The :doc:`/methods/fit/s-x2` page gives the method, its sources and the origin of each default.
 
   Parameters
   ----------
@@ -280,6 +193,8 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
 
   Each response is compared with its probability at the examinee's EAP ability estimate on the calibration's grid, with
   abilities normal with mean 0 and variance 1.
+
+  The :doc:`/methods/fit/mean-squares` page gives the method, its sources and the origin of each default.
 
   Parameters
   ----------

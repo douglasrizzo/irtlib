@@ -1,29 +1,4 @@
-r"""Comparison of calibrated models: the likelihood-ratio test, AIC, BIC and :math:`G^2`.
-
-A model with more parameters always fits at least as well; the question is whether the improvement outweighs the
-parameters spent. For :math:`k` estimated parameters and the maximized log-likelihood :math:`\log L`:
-
-- the likelihood-ratio statistic of nested models is :math:`-2` times the difference of their log-likelihoods,
-  "distributed as :math:`\chi^2`" with the difference in their numbers of parameters as its degrees of freedom
-  (:cite:t:`Orlando2000`, p. 51);
-- AIC is :math:`-2\log L + 2k` :cite:p:`Akaike1974` (p. 719);
-- BIC is :math:`-2\log L + k\log N` for :math:`N` examinees, Schwarz's criterion :cite:p:`Schwarz1978` (p. 461)
-  multiplied by :math:`-2`, with the sample size :cite:t:`Vrieze2012` (Page 10) uses;
-- :math:`G^2` compares the model with the general multinomial over response patterns,
-  :math:`2\sum_x r_x \log(r_x / (N \tilde P_x))` over the observed patterns :math:`x`, observed :math:`r_x` times
-  with marginal probability :math:`\tilde P_x` :cite:p:`Bock1981` (p. 450).
-
-BIC selects the true model as the sample grows, when it is among the candidates, and AIC does not; AIC is efficient
-when no candidate is true (:cite:t:`Vrieze2012`, Pages 10-11). :math:`G^2`'s degrees of freedom are
-:math:`2^M - 1 - k` for :math:`M` items, as in the values :cite:t:`Bock1981` (p. 455, Table 3) and
-:cite:t:`Thissen1982` (p. 178) report and as mirt 1.48 counts them, whatever the patterns observed; Bock and Aitkin's
-Equation 16 (p. 450) counts the observed patterns instead. The multinomial is not defined when responses are missing,
-so :math:`G^2` needs complete responses.
-
-With priors, the log-likelihood is the one at the Bayes modal estimates, without the log-prior. Every statistic here
-takes marginal log-likelihoods, and refuses a calibration of another likelihood, such as the conditional one of
-:py:mod:`irtlib.cml`, which is not on their scale (ADR-0006).
-"""
+"""Comparison of calibrated models: the likelihood-ratio test, AIC, BIC and G²."""
 
 from dataclasses import dataclass
 

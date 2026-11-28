@@ -14,17 +14,16 @@ interface may change before the first release.
 ## Calibrate an item bank
 
 Researchers estimate the items' parameters, with their standard errors, from the responses of a
-sample of examinees: by marginal maximum likelihood for the 1PL to 4PL, which takes missing
-responses ({mod}`irtlib.mml`), by
-conditional maximum likelihood for the Rasch model ({mod}`irtlib.cml`), or by joint maximum
-likelihood for the Rasch model and the 2PL ({mod}`irtlib.jml`). Item fit ({mod}`irtlib.fit`) and
-model comparison ({mod}`irtlib.comparison`) then check the calibration.
+sample of examinees: by {doc}`methods/calibration/mml` for the 1PL to 4PL, which takes missing
+responses, by {doc}`methods/calibration/cml` for the Rasch model, or by
+{doc}`methods/calibration/jml` for the Rasch model and the 2PL. {doc}`methods/fit/index` and
+{doc}`methods/comparison` then check the calibration.
 
 ## Score examinees
 
 Researchers estimate each examinee's ability, with its standard error, from responses to items of
-known parameters: by maximum likelihood, maximum a posteriori, expected a posteriori or weighted
-likelihood ({mod}`irtlib.ability`).
+known parameters: by {doc}`methods/ability/ml`, {doc}`methods/ability/map`,
+{doc}`methods/ability/eap` or {doc}`methods/ability/wle`.
 
 ## Build on irtlib
 
@@ -37,6 +36,7 @@ tests, is built on them.
 
 - New to item response theory? The {doc}`introduction` explains the models and how calibration
   works, and {doc}`terms-and-notation` lists the terms and symbols.
+- {doc}`methods/index`: each method, with its formulas, its sources and the origin of each default.
 - The {doc}`api/index` and the {doc}`architecture_decisions`.
 - The [backlog](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/README.md): the methods
   planned next, and every other piece of planned work.
@@ -46,6 +46,7 @@ tests, is built on them.
 :maxdepth: 2
 
 getting-started
+methods/index
 API reference <api/index>
 Architecture decisions <architecture_decisions>
 contributing

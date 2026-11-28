@@ -5,8 +5,8 @@ render, `README.md`, `backlog/`, `CONTRIBUTING.md` and the GitHub release notes.
 instructions for coding agents and contributors, not website content: `sphinx/conf.py` excludes this
 file from the build. Read them before writing or reviewing documentation of any kind.
 
-A kind of document the site does not have yet (method pages, guides, notebooks) gets its rules here
-in the pull request that adds the first of them, adapted from catsim's charter.
+A kind of document the site does not have yet (guides, notebooks) gets its rules here in the pull
+request that adds the first of them, adapted from catsim's charter.
 
 ## Audiences
 
@@ -30,7 +30,7 @@ and may not know software design.
   Context section of an ADR and backlog cards.
 - Put plain language first. Use a symbol only after the text has introduced it in words.
 - Describe what users observe, not how irtlib computes it, unless the computation is the point, as
-  in a method's documentation.
+  on a method page.
 - Use the terms and symbols of `terms-and-notation.md` (see "Terms and notation" below).
 - In code, import each object from its shortest public path, in irtlib and in catsim:
   `from irtlib import ItemBank`, not `from irtlib.bank import ItemBank`.
@@ -54,9 +54,10 @@ sources ends with a References section holding a `{bibliography}` directive filt
 ### mirt and other packages
 
 irtlib's methods rest on their published sources, not on another package. mirt, the reference
-implementation the parity tests compare irtlib with (ADR-0003), appears where a method's
-documentation states its agreement and its departures, in the mirt ADR and in the parity section of
-`CONTRIBUTING.md`. An ADR may name another package where its practice was one of the forces behind
+implementation the parity tests compare irtlib with, and catR, the second reference for the response
+functions and the ability estimators (ADR-0003), appear in three places only: each method page's
+closed "Comparison with mirt" dropdown and its "Default from" column, the mirt ADR, and the parity
+sections of `CONTRIBUTING.md`. An ADR may name another package where its practice was one of the forces behind
 the decision. No document says what another package lacks, or presents an irtlib choice as an
 improvement on another package's.
 
@@ -66,18 +67,24 @@ The GitHub release notes are the only place for "what changed". There is no CHAN
 
 ### Where a formula lives
 
-- A method's formulas live with the method: on its backlog card until it is implemented, then in its
-  module's docstring, which the API reference renders, until the method has a page of its own. Its
-  functions' docstrings say in one sentence what they compute, in words, and give the call contract.
-- The item response functions and their quantities follow the same rule as a method (ADR-0004):
-  their formulas, with their sources, live in their module's docstring, and code moved from catsim
-  takes its formulas out of its function docstrings.
+- A method's formulas live with the method: on its backlog card until it is implemented, then on its
+  method page, in the Definition section, with the source's page and equation.
+- Its docstrings say in one sentence what it computes, in words, give the call contract and link the
+  page: "The :doc:`/methods/calibration/mml` page gives the method, its sources and the origin of each
+  default." A module's docstring is its summary and the conventions its callers share, with no
+  formula.
+- The item response functions and their quantities follow the same rule (ADR-0004): their formulas
+  live on the Item Response Functions page, and the method pages refer to it rather than re-derive
+  a quantity.
 - The introduction shows $P_i(\theta)$ to teach the models. It is not a second reference.
+- No formula appears twice on one rendered page: a method page renders its objects' docstrings under
+  "API Reference", so a docstring that repeats the Definition shows the math twice.
 
 ### Implementation detail in user pages
 
 Mention an implementation detail on the landing page and the concept pages only where it changes
-what users observe, such as the methods that take missing responses. Describe it in the user's terms
+what users observe, such as the methods that take missing responses; on a method page, the
+implementation is the point. Describe it in the user's terms
 and link the ADR for the reason. Leave out the rest: internal types and their fields, helpers,
 validation rules, invariants.
 
@@ -91,8 +98,10 @@ do not re-explain it.
 | What irtlib is; install | README | landing page |
 | What IRT is; the logistic models; how the calibration methods differ | Introduction | landing page |
 | Terms and symbols | Terms and notation | every page |
-| A method's definition, sources and departures | its module's docstring | the introduction, in a sentence |
-| A quantity's formula | its `irtlib.irt` function's module docstring | the introduction shows $P_i(\theta)$ |
+| A method's definition, implementation, defaults, guarantees and departures | its method page | the introduction, in a sentence; its docstrings (one link) |
+| A quantity's formula | the Item Response Functions page | the introduction shows $P_i(\theta)$; method pages |
+| How the methods of a family compare | the family's index page | each method page |
+| How irtlib agrees with mirt and catR, method by method | each method page's dropdown | `CONTRIBUTING.md` for running the parity tests |
 | Why the architecture is shaped this way | the ADR | every page, by link |
 | Planned work, and the research behind it | its card in `backlog/` | the backlog's generated index |
 | How to cite sources; how a card is revalidated | `backlog/README.md` | this charter, for the bibliography's rules |
@@ -119,8 +128,8 @@ Each kind has one job, audience and level. "Not here" names where the excluded m
 ### Landing page (`sphinx/index.md`)
 
 - **Job:** the website's front door, with an entry path for each audience the site serves:
-  calibrating an item bank, scoring examinees and building on irtlib. It links the concept pages,
-  the API reference, the ADRs and the backlog. It has its own source, separate from the README.
+  calibrating an item bank, scoring examinees and building on irtlib. It links the method pages, the
+  concept pages, the API reference, the ADRs and the backlog. It has its own source, separate from the README.
   While irtlib has no release, a note says so and links the README's install from source.
 - **Audience and level:** researchers and package authors; introductory.
 - **Not here:** install steps and badges (README).
@@ -137,8 +146,8 @@ Each kind has one job, audience and level. "Not here" names where the excluded m
   gives one term per concept, its synonyms, its name in the API, and the symbols.
 - **Audience and level:** researchers new to IRT or to calibration; introductory.
 - **Belongs:** concepts, $P_i(\theta)$ as an illustration, each claim cited to a source read.
-- **Not here:** a method's formulas (its module's docstring), internal types and helpers, validation
-  rules, design rationale (link the ADR).
+- **Not here:** a method's formulas (its method page), internal types and helpers, validation rules,
+  design rationale (link the ADR).
 - **Length:** the introduction reads in about 15 minutes (at most about 2,000 words); "Terms and
   notation" is as long as its lists need.
 - **Review:**
@@ -146,23 +155,57 @@ Each kind has one job, audience and level. "Not here" names where the excluded m
   - Is every symbol introduced in words before it is used?
   - Do the terms and symbols match "Terms and notation"?
 
+### Method pages (`sphinx/methods/`)
+
+- **Job:** a method as a researcher needs it, centred on irtlib's implementation: what it does and
+  when to choose it, its definition, how irtlib computes it, its parameters and where each default
+  comes from, what it guarantees, how it agrees with mirt and catR, its sources and its API.
+- **Audience and level:** researchers; intermediate to advanced in psychometrics.
+- **Template:** `sphinx/methods/_template.md`: Motivation, Definition, Implementation (ending with a
+  closed "Comparison with mirt" dropdown), Parameters, Guarantees, References, API Reference. Each
+  family has an index page that compares its methods; a module that one page documents whole is
+  rendered there with `automodule`, and a module split over several pages is declared on the family
+  index with `{py:module}`.
+- **Belongs:**
+  - the formulas, each cited where it appears, with the source's page and equation;
+  - in Implementation, the numerical choices a user can observe (the search, the grid, the starting
+    values, the stopping rule, the acceleration, the standard errors, extreme and missing
+    responses), each cited to its source or linked to the ADR where irtlib made it, and every
+    departure from the sources, stated;
+  - measurements behind a choice, with their date;
+  - a Parameters table whose "Default from" column names each default's origin: a source's page,
+    mirt's or catsim's default, an ADR, or no source yet, with a link to
+    `backlog/discovery/sources-wanted.md`, where the default has its row;
+  - Guarantees: properties a user relies on and can observe.
+- **Not here:** software internals (private helpers, array layouts, caches); properties only an
+  implementation sees, which go to the docstrings and the tests; a quantity's formula (link the Item
+  Response Functions page); history.
+- **Length:** about 600-1,500 words before the references; the calibrators and the item response
+  functions run longer, with the measurements their choices rest on.
+- **Review:**
+  - Is every formula and choice cited to a location that someone has read, or linked to its ADR?
+  - Does every default name its origin?
+  - Do mirt and catR appear only in the dropdown and the "Default from" column?
+  - Is every guarantee something a user can observe?
+  - Does a docstring rendered under "API Reference" repeat a formula from the page?
+
 ### API reference (docstrings)
 
 - **Job:** how to call an object correctly: the call contract, in numpy style: a one-line summary,
   the behaviour a caller relies on, Parameters (in the class docstring only, a dataclass's fields
-  included), Returns, Raises, and a short doctest where it helps (pytest runs them). Each module's
-  page in `sphinx/api/` renders its docstrings with `automodule`; the objects that `irtlib` exports
-  are documented at that path.
+  included), Returns, Raises, and a short doctest where it helps (pytest runs them). A method's
+  module is rendered on its method page; the other modules each have a page in `sphinx/api/`. The
+  objects that `irtlib` exports are documented at that path.
 - **Audience and level:** anyone calling the object; precise and brief.
-- **Not here:** design rationale (link the ADR), history, comparisons with other packages outside a
-  method's statement of its departures. A method's math lives in its module's docstring, not in its
-  functions'.
+- **Belongs:** for a method's class or function, one link to its method page.
+- **Not here:** a method's math (its method page), design rationale (link the ADR), history,
+  comparisons with other packages (the method page's dropdown).
 - **Length:** about 80 words of prose before the first numpydoc section.
 - **Rules:** the docs build is strict: every cross-reference resolves, and numpydoc fails a public
-  callable whose docstring leaves out a parameter (PR01). A module added to the package gets a page
-  in `sphinx/api/` and an entry in its toctree.
+  callable whose docstring leaves out a parameter (PR01). A module added to the package gets a method
+  page or a page in `sphinx/api/`.
 - **Review:** Could a caller use the object correctly from the docstring alone? Is any sentence
-  rationale or history?
+  rationale, history or method math?
 
 ### ADRs (`sphinx/adr/`)
 

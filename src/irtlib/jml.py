@@ -1,116 +1,4 @@
-r"""Joint maximum likelihood calibration of the Rasch model and the 2PL.
-
-Joint maximum likelihood (JML) treats every examinee's ability as a parameter, and maximizes the likelihood of the
-responses over the abilities and the item parameters together, with no assumption about the distribution of ability
-(:cite:t:`Baker1987`, p. 112). With :math:`N` examinees and :math:`M` items, its logarithm is
-
-.. math::
-
-   \sum_{j=1}^N \sum_{i=1}^M \left[u_{ij} \log P_i(\theta_j) + (1 - u_{ij}) \log Q_i(\theta_j)\right]
-
-(:cite:t:`Baker1987`, p. 112, Equations 1 and 3), for the 2PL (p. 114, Equation 5) or for the Rasch model, whose slopes
-are 1 (p. 115, Equation 9; :cite:t:`Wright1977`, p. 282, Equations 1-3). As each examinee adds a parameter, the item
-estimates do not converge to the item parameters as examinees are added to a test of fixed length
-(:cite:t:`Bock1981`, p. 443; :cite:t:`Baker1987`, pp. 117-118): for the Rasch model they converge to limits that differ
-from the parameters by a term of order :math:`1/M` (:cite:t:`Haberman2004`, p. 13), and Haberman (p. 35) finds it
-"difficult to advocate use of JMLE except for preliminary estimation of parameters".
-
-**Examinees and items left out.** An examinee with no item or every item correct has no finite ability estimate, and
-an item answered correctly by every examinee or by none no finite estimate either (:cite:t:`Wright1977`, p. 294;
-:cite:t:`Haberman2004`, p. 7). Both are left out before estimation, the examinees first and then the items, repeatedly
-until neither is left, as Wright and Douglas's editing does (p. 294), and the items left out get no estimate. For the
-Rasch model, the joint likelihood of the responses left can still lack a maximum: it has none exactly when the
-examinees with at most some number correct answered none of a group of items and the others all of the rest
-(:cite:t:`Haberman2004`, p. 11, Theorem 1), the same split that leaves the conditional likelihood of
-:py:mod:`irtlib.cml` none once those examinees and items are left out, and calibration raises an error naming the
-groups.
-
-**The cycles.** Each cycle has two steps, after Birnbaum's paradigm (:cite:t:`Baker1987`, p. 112):
-
-- the item step maximizes, for each item, its grouped log-likelihood with the abilities fixed, by the Fisher scoring of
-  the M-step of :py:mod:`irtlib.mml` with the estimated abilities in place of the quadrature nodes and the observed
-  counts in place of the expected ones. For the Rasch model and the 2PL the Hessian is the information, so the steps
-  are Newton-Raphson's (:cite:t:`Baker1987`, p. 116), those of Wright and Douglas (p. 284, Equation 11) for the
-  difficulties and of Baker (p. 114, Equation 8) for the 2PL's intercept and slope;
-- the ability step estimates each examinee's ability with the items fixed, by maximum likelihood
-  (:py:func:`irtlib.ability.maximum_likelihood`). Under the Rasch model every examinee with the same number correct has
-  the same estimate (:cite:t:`Wright1977`, p. 283; :cite:t:`Baker1987`, p. 115), and under either model every examinee
-  with the same responses, so each is estimated once.
-
-The likelihood is the same for abilities and items moved together along a linear transformation of the ability scale
-(:cite:t:`Baker1987`, p. 112), so after each ability step both are moved to fix the scale (ADR-0008): for the Rasch
-model so that the difficulties have mean 0, as BICAL fixes it (p. 115) and as Wright and Douglas recentre them (p. 283;
-p. 284, step iv); for the 2PL so that the abilities of the examinees kept have mean 0 and standard deviation 1, its
-divisor the number of examinees, as LOGIST fixes it (p. 112). LOGIST standardizes only the abilities between -3 and 3
-(:cite:t:`Mislevy1989`, p. 60), where irtlib standardizes every examinee kept.
-
-The cycles start from Wright and Douglas's (p. 283, Equation 9; p. 284, Equation 10) starting values, the abilities
-:math:`\log(r / (M - r))` for :math:`r` correct and the difficulties :math:`\log((N - s_i) / s_i)` centred, for
-:math:`s_i` correct responses to item :math:`i`; for the 2PL, which they do not cover, the slopes start at 1 and the
-abilities are standardized. A calibration stops when no item parameter changes by more than its tolerance in a cycle,
-:math:`10^{-6}` by default, in at most 500 cycles, the rule and the defaults of :py:mod:`irtlib.mml` (ADR-0007). Wright
-and Douglas stop when the mean squared change of the difficulties falls below :math:`10^{-4}` (p. 285, Equation 15),
-which stopped 0.0007 and 0.0009 short of the maximum on 20 items and on LSAT-6, where irtlib's rule stops within
-:math:`2 \times 10^{-7}` of it (measured 2026-11-27). The ability step compares likelihoods, which can leave changes of
-about :math:`10^{-8}` from cycle to cycle, as on a 2PL of 20 items and 400 examinees, so a tolerance below that may not
-be met (measured 2026-11-28).
-
-**Bias and its correction for the Rasch model.** For the Rasch model, Wright and Douglas write each difficulty
-estimate as the conditional one plus a bias, :math:`d_i^* = d_i + a_{ri}` at score :math:`r`, approximating the bias by
-the change in the conditional ability for score :math:`r` when item :math:`i` is left out, and its relative bias as
-:math:`c_{ri} = a_{ri} / d_i` (:cite:t:`Wright1977`, p. 286, Equations 25-27). Averaged over scores and items with
-:math:`|d_i| \geq 0.5`, they find it close to :math:`1 / (M - 1)` whatever the spread of the difficulties (p. 287,
-Equations 31-34, Table 1), so the estimates spread outward from the conditional ones, and multiplying the centred
-difficulties by the correction factor :math:`(M - 1) / M` (p. 287, Equation 35) leaves a residual bias of at most 0.012
-for 20 items (p. 288, Table 2). The factor is the one "used in most versions of UCON", and with two items, for which
-the joint estimates are exactly twice the conditional ones, it is exact (p. 288; :cite:t:`Haberman2004`, pp. 17-18). It
-assumes item difficulties and examinees spread "more or less uniform[ly]" over the scores (:cite:t:`Wright1977`,
-p. 288), and it brings the estimates close to the conditional ones, which "is not the same as" removing their bias from
-the parameters (:cite:t:`Baker1987`, p. 118). Computed exactly for 20 items equally spaced, with as many examinees at
-each score, the relative bias is 0.055 for difficulties within :math:`\pm 1`, as Wright and Douglas find, but 0.060
-within :math:`\pm 2` and 0.071 within :math:`\pm 3`, and the largest residual after the correction 0.004, 0.029 and
-0.090 (measured 2026-11-27): the correction leaves more of the bias of the items far from the centre of a wide test.
-It is applied once the cycles stop, by default for the Rasch model; Wright and Douglas derive it for the Rasch model
-alone.
-
-**Standard errors.** Each item's standard errors are the square roots of the diagonal of the inverse of its item step's
-information at the last cycle (:cite:t:`Baker1987`, p. 119), for the Rasch model
-:math:`(\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}`, with :math:`n_r` examinees of score :math:`r` and :math:`p_{ri}` their
-probability of a correct response to item :math:`i` (:cite:t:`Wright1977`, p. 285, Equation 16); the 2PL's difficulty
-takes its standard error by the delta method, as in :py:mod:`irtlib.mml`. They treat the abilities as known, and with
-the correction they are those of the estimates before it, unless ``correct_errors`` multiplies them by its factor too.
-For a fixed number of items, JML's estimates are not centred on the parameters and their asymptotic covariance is not
-the customary one, so "ordinary asymptotic confidence intervals" for the difficulties cannot be built from them
-(:cite:t:`Haberman2004`, pp. 26-27, Theorem 7; p. 29).
-
-Under the 2PL a slope can grow without bound, as large slopes and the abilities of the examinees who answer those items
-correctly feed each other from cycle to cycle, the Heywood case; LOGIST imposes upper limits on the slopes
-(:cite:t:`Baker1987`, p. 113), and "the maximizing values for item discriminations under the 2PL ... are sometimes
-infinite" (:cite:t:`Mislevy1989`, p. 62). irtlib imposes no limit. An item whose correct responses the abilities all put
-at or above its incorrect ones, or at or below, discriminates perfectly, and its slope has no finite estimate
-(:cite:t:`Baker1987`, p. 117), so the cycles stop before such an item step; they stop too at an item step that gives a
-slope that is not positive, since the ability step needs positive slopes. Either way the result holds the last complete
-cycle and says so. On short tests this is the usual outcome. On LSAT-6 and LSAT-7, five items and 1,000 examinees,
-the cycles stopped after 3 and 2 at an item step that gave one slope a value that was not positive and another 3.53 and
-7.21. On random 2PL tests, slopes uniform on [0.7, 2], difficulties on [-1.5, 1.5] and abilities normal, the cycles
-stopped on all 50 tests of 8 items and 300 examinees (38 at a separation, 12 at a slope that was not positive), on 19 of
-20 of 10 items and 500 examinees, 13 of 20 of 15 and 500, and 3 of 20 of 20 and 500, and on none of 10 tests each of 20
-and 30 items with 1,000 examinees (measured 2026-11-28). The authors of LOGIST advise at least 20 items per examinee and
-800 to 1,000 examinees per item (:cite:t:`Mislevy1989`, p. 61).
-
-The result holds every examinee's ability (ADR-0006), from the cycle its item estimates come from and before any
-correction, so that the abilities, the uncorrected item estimates and the log-likelihood go together; each ability's
-standard error is that of maximum likelihood, the inverse square root of the test information, there. An examinee left
-out has the ability :math:`\infty` or :math:`-\infty`, as maximum likelihood gives responses all right or all wrong. JML
-needs complete responses, as its sources write it, an examinee's number correct out of every item (:cite:t:`Wright1977`,
-p. 282), and :py:class:`irtlib.mml.MMLCalibrator` calibrates incomplete ones (ADR-0006).
-
-On two SAT tests of 78 and 60 items, the largest difference between the joint and conditional estimates of the Rasch
-difficulties was 0.097 and 0.126, against conditional standard errors of at most 0.008
-(:cite:t:`Haberman2004`, pp. 44-45). In :cite:t:`Robitzsch2021`'s simulations, JML with the correction and extreme
-scores removed (p. 816) had a mean absolute bias below 0.025 (p. 821) in 54.2% of the conditions, against 100% for
-conditional maximum likelihood (p. 823, Table 2).
-"""
+"""Joint maximum likelihood calibration of the Rasch model and the 2PL."""
 
 import math
 import warnings
@@ -209,6 +97,8 @@ class JMLCalibrator:
   length; they serve comparisons of calibration methods and preliminary estimates. On short tests the 2PL's joint
   maximum often does not exist, its slopes growing without bound; calibration then stops early with a
   :py:class:`~irtlib.calibration.ConvergenceWarning`.
+
+  The :doc:`/methods/calibration/jml` page gives the method, its sources and the origin of each default.
 
   Parameters
   ----------

@@ -1,117 +1,8 @@
-r"""The item response functions of the 1PL to 4PL models, and the quantities derived from them.
+"""The item response functions of the 1PL to 4PL models, and the quantities derived from them.
 
 The functions take one item as a row ``[a, b, c, d]`` of shape ``(4,)``, or several as a matrix of such rows, shape
-``(n, 4)``: the discrimination :math:`a`, the difficulty :math:`b`, the guessing parameter :math:`c` and the upper
-asymptote :math:`d`, with :math:`a > 0` and :math:`0 \leq c < d \leq 1`. A response matrix has one row per examinee and
-one column per item, and holds 1 for a correct response, 0 for an incorrect one and NaN where the examinee did not
-answer the item.
-
-Under the four-parameter logistic model, an examinee of ability :math:`\theta` answers item :math:`i` correctly with
-probability
-
-.. math::
-
-   P_i(\theta) = c_i + (d_i - c_i) F_i(\theta), \quad F_i(\theta) = \frac{1}{1 + e^{-a_i(\theta - b_i)}}
-
-(:cite:t:`Magis2013`, p. 306, Equation 1), with no scaling constant (ADR-0001), and incorrectly with probability
-:math:`Q_i = 1 - P_i`. The 3PL fixes :math:`d_i = 1`, and the 2PL also :math:`c_i = 0` (:cite:t:`Magis2012`, p. 3).
-The derivatives of :math:`P_i` with respect to the ability are
-
-.. math::
-
-   P_i' = a_i (d_i - c_i) F_i (1 - F_i), \quad P_i'' = a_i P_i' (1 - 2 F_i),
-
-the derivatives of :cite:t:`Barton1981` (p. A2) written with :math:`F_i` and their constant :math:`D` set to 1; the
-first is also :cite:t:`Magis2013` (p. 306, Equations 4 and 5).
-
-The information item :math:`i` gives about the ability is :math:`I_i = P_i'^2 / (P_i Q_i)` (:cite:t:`Magis2012`, p. 4,
-Equation 4), for the 4PL
-
-.. math::
-
-   I_i(\theta) = \frac{a_i^2 (P_i - c_i)^2 (d_i - P_i)^2}{(d_i - c_i)^2 P_i Q_i}
-
-(:cite:t:`Magis2013`, p. 307, Equation 6), and the test information :math:`I(\theta)` is the sum of the information of
-its items (:cite:t:`Magis2012`, p. 5, Equation 8). The maximum likelihood estimate of the ability is asymptotically
-normal, with variance the inverse of the test information (:cite:t:`Warm1989`, p. 445) and standard error
-:math:`1 / \sqrt{I(\theta)}` (:cite:t:`Magis2012`, p. 4, Equation 3); :py:func:`confidence_interval` is the interval
-this normal approximation gives, :math:`\hat\theta \pm z \cdot SE`, with :math:`z` the standard normal's quantile at
-:math:`(1 + \text{confidence}) / 2`.
-
-The reliability of the test at :math:`\theta` is :math:`I(\theta) / (I(\theta) + 1 / \sigma^2)`, mirt's
-(mirt 1.48, ``R/SingleGroup-methods.R:1474``, the curve ``plot(type = "rxx")`` draws), with the abilities' variance
-:math:`\sigma^2 = 1`, as they are :math:`N(0, 1)` (ADR-0008). For abilities :math:`N(0, 1)`, :cite:t:`Bock1982`
-(p. 437, Equation 7) define a related reliability of the EAP estimate, one minus its posterior variance.
-
-Since :math:`P_i' = a_i (P_i - c_i)(d_i - P_i) / (d_i - c_i)` (:cite:t:`Magis2013`, p. 306, Equation 5), changing the
-variable of integration from :math:`\theta` to :math:`P_i` in Equation 6 and splitting the result into partial
-fractions integrates an item's information in closed form:
-
-.. math::
-
-   \int_{\theta_L}^{\theta_U} I_i(\theta)\, d\theta = \frac{a_i}{d_i - c_i} \Big[ P_i - c_i d_i \log P_i +
-   (1 - c_i)(1 - d_i) \log(1 - P_i) \Big]_{P_i(\theta_L)}^{P_i(\theta_U)},
-
-derived here rather than printed in a source; it agrees with mirt 1.48's ``areainfo``, which integrates numerically
-(``R/areainfo.R:49-66``).
-
-An item is most informative at
-
-.. math::
-
-   \theta^*_i = b_i + \frac{1}{a_i} \log \frac{x^*_i - c_i}{d_i - x^*_i}, \quad
-   x^*_i = 2 \sqrt{\frac{-u_i}{3}} \cos\left\{\frac{1}{3} \arccos\left(-\frac{v_i}{2}
-   \sqrt{\frac{27}{-u_i^3}}\right) + \frac{4 \pi}{3}\right\} + \frac{1}{2},
-
-with :math:`u_i = -3/4 + (c_i + d_i - 2 c_i d_i)/2` and :math:`v_i = (c_i + d_i - 1)/4`, where :math:`x^*_i` is the
-probability of a correct response at :math:`\theta^*_i` (:cite:t:`Magis2013`, pp. 308-309, Equations 13, 18 and 19).
-With :math:`d_i = 1` it is :math:`\theta^*_i = b_i + \log[(1 + \sqrt{1 + 8 c_i}) / 2] / a_i` (p. 310, Equation 23),
-and with :math:`c_i + d_i = 1` it is :math:`b_i` (pp. 309-310). Magis assumes :math:`0 < c_i < 0.5` and
-:math:`0.5 < d_i < 1` (p. 306); :py:func:`max_info_theta` takes Equation 19 for every item with :math:`d_i < 1`.
-
-The log-likelihood of examinee :math:`j`'s responses :math:`u_{ij}` is
-:math:`\log L_j(\theta) = \sum_i [u_{ij} \log P_i(\theta) + (1 - u_{ij}) \log Q_i(\theta)]` over the items :math:`i`
-the examinee answered (:cite:t:`Magis2012`, p. 4, Equation 2; :cite:t:`Barton1981`, p. A1).
-
-:py:func:`theta_to_scale` takes abilities to scores on a reporting scale along the line through
-:math:`(\theta_{min}, \text{scale}_{min})` and :math:`(\theta_{max}, \text{scale}_{max})`, and :py:func:`scale_to_theta`
-takes them back.
-
-Calibration solves for each item's parameters, and reports their standard errors, from the derivatives of
-:math:`P_i` with respect to those parameters, which every method that estimates items shares. It estimates them in
-mirt's parameters (ADR-0007): the slope :math:`\lambda = a` and the intercept :math:`\zeta = -ab`, so that
-:math:`a(\theta - b) = \lambda\theta + \zeta`, and the logits :math:`\gamma` of :math:`c` and :math:`\delta` of
-:math:`d`. Every array of these derivatives has the four on its last axis, in that order: slope, intercept, logit of
-:math:`c`, logit of :math:`d`. By the chain rule,
-
-.. math::
-
-   \frac{\partial P}{\partial \lambda} = (d - c)\,\theta\,F(1 - F), \quad
-   \frac{\partial P}{\partial \zeta} = (d - c)\,F(1 - F), \quad
-   \frac{\partial P}{\partial \gamma} = c(1 - c)(1 - F), \quad
-   \frac{\partial P}{\partial \delta} = d(1 - d)\,F,
-
-from the derivatives in :math:`a`, :math:`b` and :math:`c` of :cite:t:`Barton1981` (p. A3) and the derivative of the
-logistic function. A parameter at its bound, :math:`c = 0` or :math:`d = 1`, has derivative 0.
-
-For an item answered by :math:`N_q` examinees at ability :math:`X_q`, :math:`r_q` of them correctly, the
-log-likelihood is :math:`\sum_q [r_q \log P(X_q) + (N_q - r_q)\log Q(X_q)]`, the grouped form of :cite:t:`Baker1987`
-(p. 112, Equation 3). Its derivative in a parameter :math:`\chi` is
-:math:`\sum_q [r_q - N_q P(X_q)]\,(\partial P / \partial\chi) / (PQ)`, the form of :cite:t:`Barton1981` (p. A2)
-summed within each group; with :math:`d = 1` the derivative in :math:`\gamma` is the equation for the logit of
-:math:`c` of :cite:t:`Mislevy1986` (p. 184, Equation 22). The expected information of one response is
-:math:`(\partial P / \partial\chi)(\partial P / \partial\phi) / (PQ)`, Barton and Lord's second derivative (p. A2)
-without its terms in :math:`u - P`, whose expected value is 0. For the 2PL in these parameters the observed
-information equals the expected one :cite:p:`Baker1987` (p. 116).
-
-Every value stays finite at any finite distance from the difficulty, because nothing is computed by subtracting from 1.
-:math:`F` and :math:`1 - F` both come from the logit; :math:`P = c + (d - c)F` and :math:`Q = (1 - d) + (d - c)(1 - F)`;
-:math:`\log P` and :math:`\log Q` combine :math:`\log c` or :math:`\log(1 - d)` with :math:`\log(d - c)` and
-:math:`\log F` or :math:`\log(1 - F)`. The ratios :math:`(d - c)F / P`, :math:`(d - c)(1 - F) / Q`, :math:`c / P` and
-:math:`(1 - d) / Q` each lie between 0 and 1. The first is 0 / 0 only where :math:`c = 0` and :math:`F` has underflowed
-to 0, the second only where :math:`d = 1` and :math:`1 - F` has, and both take their limit there, 1. With
-:math:`P - c = (d - c)F` and :math:`d - P = (d - c)(1 - F)` (:cite:t:`Magis2013`, p. 306, Equation 3), the item
-information is :math:`a^2 F (1 - F)` times the first two ratios.
+``(n, 4)``, with ``a > 0`` and ``0 <= c < d <= 1``, and a response matrix with one row per examinee and one column per
+item, holding 1, 0 or NaN where the examinee did not answer the item.
 """
 
 import math
@@ -162,7 +53,7 @@ def _logistic(theta: float | FloatArray, items: FloatArray) -> tuple[FloatArray,
 
 
 class _Curve(NamedTuple):
-  """The response function at every ability against every item, with its ratios (module docstring)."""
+  """The response function at every ability against every item, with its ratios (its method page's Implementation)."""
 
   logistic: FloatArray
   """F."""

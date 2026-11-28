@@ -1,77 +1,4 @@
-r"""Marginal maximum likelihood calibration of the 1PL to 4PL with the EM algorithm, with optional priors.
-
-Calibration has to estimate item parameters without the examinees' abilities. Marginal maximum likelihood
-integrates the abilities out over a population distribution and maximizes the likelihood of the item parameters
-alone; Bock and Aitkin's EM algorithm makes it feasible for any number of items, with one small problem per item in
-each cycle :cite:p:`Bock1981` (pp. 444, 447).
-
-Ability is normal with mean 0 and variance 1 (ADR-0008), approximated on nodes :math:`X_q` with masses :math:`A_q`
-that sum to 1: the normal density at equally spaced nodes, normalized (:cite:t:`Bock1981`, p. 449). Examinee
-:math:`j`'s marginal probability is :math:`\tilde P_j = \sum_q L_j(X_q) A_q`, where :math:`L_j` is the product of
-:math:`P_i^{u_{ij}} (1 - P_i)^{1 - u_{ij}}` over the items :math:`i` examinee :math:`j` answered, and the marginal
-log-likelihood is :math:`\sum_j \log \tilde P_j` (:cite:t:`Bock1981`, pp. 445-446, Equations 6 and 8).
-
-Each cycle has two steps (:cite:t:`Baker1987`, p. 132, Equations 42-46; :cite:t:`Bock1981`, p. 447):
-
-- the E-step computes, for each item and node, the expected number of examinees answering the item there,
-  :math:`\bar N_{iq} = \sum_j L_j(X_q) A_q / \tilde P_j` over the examinees who answered it, and the expected number
-  answering it correctly, :math:`\bar r_{iq}`, the same sum weighted by :math:`u_{ij}`;
-- the M-step maximizes :math:`\sum_q [\bar r_{iq} \log P_i(X_q) + (\bar N_{iq} - \bar r_{iq}) \log Q_i(X_q)]` in the
-  item parameters, the grouped log-likelihood of :py:mod:`irtlib.irt`.
-
-The prior masses enter only through the expected counts. With missing responses the sums run over the examinees
-who answered each item, so the expected sample size :math:`\bar N_{iq}` is per item; the sources define it over
-complete response patterns, shared by every item.
-
-The M-step solves in mirt's parameters, the slope, the intercept and the logit of :math:`c`, by Fisher scoring with step
-halving (ADR-0007), on all free parameters at once: the system is one block per item unless a parameter is shared. The
-1PL shares one slope, estimated, with abilities :math:`N(0, 1)` (:cite:t:`Thissen1982`, pp. 175-176, Equation 1); fixing
-the slope at 1 for every item gives the model with slopes 1 and abilities :math:`N(0, 1)` (ADR-0008). No cycle decreases
-the marginal likelihood :cite:p:`Dempster1977` (p. 7, Theorem 1), and convergence is linear, slow near the solution
-(:cite:t:`Dempster1977`, p. 10; :cite:t:`Bock1981`, p. 447). A calibration stops when no estimated parameter changes by
-more than its tolerance in a cycle (ADR-0007).
-
-With priors on the item parameters, the estimates are Bayes modal: they maximize the log-likelihood plus the
-log-prior, and the EM algorithm carries over with the derivatives of the log-prior added to the M-step
-(:cite:t:`Mislevy1986`, p. 182, Equation 14). The priors are mirt's, on mirt's parameters (ADR-0008): lognormal on
-the slope, whose log-density keeps the :math:`-\log a` term, normal on the intercept, and normal on the logit of
-:math:`c`, which keeps :math:`c` inside :math:`(0, 1)` (:cite:t:`Mislevy1986`, p. 183). In the M-step's scoring
-information, a log-prior's negative second derivative counts only where it is positive, so the system stays positive
-definite. The 3PL's likelihood is "nearly flat along one or more dimensions" (:cite:t:`Mislevy1986`, p. 189), which a
-prior on the logit of :math:`c` remedies. The 4PL adds an upper asymptote :math:`d < 1`, for examinees of high ability
-who still miss an item (:cite:t:`Barton1981`, p. 2), estimated on its logit with a normal prior there; recovering it
-takes thousands of examinees (:cite:t:`Waller2017`, p. 19; :cite:t:`Culpepper2016`, Section 5).
-
-An EM cycle is a fixed-point iteration :math:`x_{n+1} = F(x_n)` of the vector :math:`x` of free parameters; the largest
-eigenvalue of :math:`F`'s Jacobian at the solution, the fraction of missing information, governs how slowly it converges
-(:cite:t:`Du2020`, p. 3). By default a calibration accelerates it with SQUAREM (:cite:t:`Du2020`, p. 4, Algorithm 1).
-From :math:`x_0`, two cycles give :math:`x_1 = F(x_0)` and :math:`x_2 = F(x_1)`; with :math:`r = x_1 - x_0`,
-:math:`v = x_2 - x_1 - r` and the steplength :math:`\alpha = -\lVert r \rVert / \lVert v \rVert`, the authors' default
-(p. 4), the extrapolation is :math:`x_0 - 2 \alpha r + \alpha^2 v`. Where its log-posterior is above that of
-:math:`x_2`, Algorithm 1's test with :math:`\eta = 0`, one cycle from it, the stabilization step, gives the next
-:math:`x_0`; elsewhere :math:`x_2` does. No cycle then lowers the log-posterior, as no cycle of plain EM does
-(:cite:t:`Dempster1977`, p. 6). The norms are Euclidean over the free parameters, a shared slope counted once, and an
-extrapolation with a parameter that is not finite, or a guessing parameter at or above its upper asymptote, is not kept.
-The extrapolation is not a cycle: the stopping rule applies to every cycle, an EM step with or without acceleration.
-mirt 1.48 accelerates by Ramsay's rule by default and offers SQUAREM (manual pp. 128-129); the maximum is the same
-(ADR-0007).
-
-The standard errors are the square roots of the inverse observed information at the estimates, by Oakes's identity
-:cite:p:`Oakes1999` (p. 480): the score of the marginal log-likelihood is the M-step's gradient at the E-step's own
-parameters (Equation 5), and its derivative as both move together is the observed-data Hessian, the sum of the
-complete-data Hessian and the missing information (Equation 6). That score, log-prior included, is differenced
-centrally with step :math:`10^{-5}`, the E-step recomputed at each shifted point, so the posterior precision takes in
-the log-prior's second derivative (:cite:t:`Mislevy1986`, p. 182, Equations 15-17); the result is symmetrized, which
-:cite:t:`Chalmers2018` (p. 17) finds improves it (ADR-0007). Chalmers (pp. 5-7), as mirt, differences only the missing
-information and takes the complete-data Hessian analytically; differencing the whole score keeps one path for every
-model and prior. The standard errors of :math:`a`, :math:`b = -\zeta / \lambda`, :math:`c` and :math:`d` follow by
-the delta method.
-
-Starting values are the slope 0.851, the intercept :math:`\Phi^{-1}(p_i) \cdot 1.702 / \sqrt{0.75}`, or 2 where
-:math:`p_i` is 0 or 1, the guessing parameter 0.15 and the upper asymptote 0.85, where :math:`p_i` is item :math:`i`'s
-proportion correct among the examinees who answered it: mirt's starting values, computed over answered responses only
-(ADR-0007); :cite:t:`Bock1981` (p. 458) name the inverse normal of the proportion correct as a starting intercept.
-"""
+"""Marginal maximum likelihood calibration of the 1PL to 4PL with the EM algorithm, with optional priors."""
 
 import math
 import warnings
@@ -252,6 +179,8 @@ class MMLCalibrator:
   Each call to :py:meth:`calibrate` estimates the items of one response matrix, which may have missing responses.
   Abilities are normal with mean 0 and variance 1. With priors on the item parameters, the estimates are Bayes modal:
   they maximize the log-likelihood plus the log-prior.
+
+  The :doc:`/methods/calibration/mml` page gives the method, its sources and the origin of each default.
 
   Parameters
   ----------

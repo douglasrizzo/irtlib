@@ -202,7 +202,7 @@ def test_tiny_asymptotes() -> None:
   """With c and d - c near the smallest doubles, the scores stay exact: a product of both would underflow to 0 / 0.
 
   For [1, 0, 1e-200, 2e-200] at the difficulty, P = 1.5e-200, and the scores of one incorrect response are -P times
-  1/6, 1/3 and 2/3 for the intercept and the logits of c and d (the closed forms of the module docstring).
+  1/6, 1/3 and 2/3 for the intercept and the logits of c and d (the closed forms on the Item Response Functions page).
   """
   items = np.array([[1.0, 0.0, 1e-200, 2e-200]])
   gradient = log_likelihood_gradient(np.array([0.0]), items, np.zeros((1, 1)), np.ones((1, 1)))
