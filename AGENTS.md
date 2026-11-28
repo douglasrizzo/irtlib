@@ -37,7 +37,8 @@ the calibration methods follow the build order of `backlog/discovery/literature-
 
 - Scope is ADR-0001: dichotomous, unidimensional, 1PL to 4PL. Work outside it is a parked card in
   `backlog/scope/` until the ADR changes.
-- Runtime dependencies are NumPy and SciPy only (ADR-0002); a new one needs an ADR.
+- Required runtime dependencies are NumPy and SciPy only (ADR-0002); a new one needs an ADR. matplotlib is the
+  optional `plot` extra, imported by `irtlib.plot` alone (ADR-0011).
 - irtlib imports nothing from catsim, and code moved from catsim imports nothing from it (ADR-0004).
   Only the benchmarks in `benchmarks/` import catsim, at the commit their dependency group pins.
   catsim depends on irtlib at a pinned commit of `dev` until irtlib's first release (catsim's
