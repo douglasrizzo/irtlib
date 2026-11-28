@@ -14,9 +14,9 @@ raised_by: [timing of the ability-estimation PR on 2026-11-27]
 
 catsim calls an ability estimator once per step of every simulated adaptive test, and will call
 irtlib's once it builds on irtlib (ADR-0004). irtlib's maximum likelihood and weighted likelihood
-estimators take 1.7 to 1.9 times catsim's time for one examinee (2.5 for maximum likelihood without
+estimators take 1.8 to 1.9 times catsim's time for one examinee (2.5 for maximum likelihood without
 bounds), above the maintainer's threshold of 1.2 times, beyond which a slowdown gets a card for a
-faster version (ADR-0004). EAP and MAP run at 1.07 to 1.14 times.
+faster version (ADR-0004). EAP and MAP run at 1.08 to 1.17 times.
 
 ## Evidence
 
@@ -40,18 +40,19 @@ without bounds was timed by the scratch script of the ability-estimation PR only
 against catsim's 78.0 µs, 2.45 times.
 
 Three runs before and three after the one-examinee paths of `irt.log_likelihood_function` and
-`quadrature.posterior` and the cheaper sums of `posterior_mean` and `posterior_variance`, later on
-2026-11-27 (the same machine and versions, shared with other test runs), the range of the ratios:
+`quadrature.posterior`, the cheaper sums of `posterior_mean` and `posterior_variance`, and a call of
+the normal prior without NumPy's error state, later on 2026-11-27 (the same machine and versions,
+shared with other test runs), the range of the ratios:
 
 | Estimator | Before | After |
 |---|---|---|
-| EAP | 1.33-1.40 | 1.13-1.14 |
-| MAP | 1.24-1.26 | 1.07-1.09 |
-| ML, bounds (-6, 6) | 2.21-2.24 | 1.85-1.91 |
-| WLE | 1.76-1.81 | 1.74-1.80 |
+| EAP | 1.33-1.40 | 1.14-1.17 |
+| MAP | 1.24-1.26 | 1.08 |
+| ML, bounds (-6, 6) | 2.21-2.24 | 1.82-1.92 |
+| WLE | 1.76-1.81 | 1.79-1.86 |
 
-EAP takes 74.7-76.2 µs after the changes, against catsim's 66.2-66.8 µs, and MAP 183.5-186.9 µs
-against 170.8-171.8 µs: both are under 1.2.
+EAP takes 72.7-75.3 µs after the changes, against catsim's 63.6-64.7 µs, and MAP 174.7-182.3 µs
+against 162.5-169.4 µs: both are under 1.2.
 
 ## What irtlib and catsim have now
 
