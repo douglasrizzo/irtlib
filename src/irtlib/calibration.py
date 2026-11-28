@@ -61,9 +61,12 @@ class Calibration:
       ``0 <= c < d <= 1``, each named ``item_`` and its column, as in a bank of every item; None if no item's
       estimates are. The calibrator warns with a ``RuntimeWarning`` naming the items it leaves out, such as a
       miskeyed item, whose slope is not positive.
-  standard_errors : numpy.ndarray or None
-      The standard errors of the estimates, in the shape of ``estimates``, NaN for a parameter not estimated;
-      None, with a warning, when the information matrix could not be inverted.
+  covariances : numpy.ndarray or None
+      The covariance of each item's estimates, one 4 x 4 matrix per row of ``estimates``, its rows and columns in the
+      order ``a, b, c, d``, NaN in those of a parameter not estimated, and symmetric. A parameter shared by every
+      item, such as the 1PL's slope, appears in each item's matrix, with its variance and its covariances with that
+      item's estimates. Only the variances are checked, so a matrix may not be positive definite. None, with a
+      warning, when the information matrix could not be inverted or gives a variance that is not finite and positive.
   log_likelihood : float
       The logarithm of the likelihood named by ``likelihood``, at the estimates, before any correction the method makes
       to them once the likelihood is maximized; with priors, without the log-prior.
@@ -101,7 +104,7 @@ class Calibration:
 
   estimates: FloatArray
   items: ItemBank | None
-  standard_errors: FloatArray | None
+  covariances: FloatArray | None
   log_likelihood: float
   likelihood: Likelihood
   n_parameters: int
@@ -122,6 +125,19 @@ class Calibration:
     if (self.abilities is not None) != (self.likelihood is Likelihood.JOINT):
       msg = f"a calibration has abilities exactly when its likelihood is joint; this one's is {self.likelihood}"
       raise ValueError(msg)
+
+  @property
+  def standard_errors(self) -> FloatArray | None:
+    """The standard errors of the estimates, the square roots of the diagonals of ``covariances``.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        One row per row of ``estimates``, NaN for a parameter not estimated; None when ``covariances`` is None.
+    """
+    if self.covariances is None:
+      return None
+    return numpy.sqrt(numpy.diagonal(self.covariances, axis1=1, axis2=2))
 
 
 def _check_marginal(calibration: Calibration, statistic: str) -> QuadratureGrid:

@@ -1,5 +1,5 @@
 # Marginal maximum likelihood with the EM algorithm for the 1PL and 2PL, with Oakes's standard errors
-# and Louis's as a cross-check (irtlib.mml).
+# and covariances, and Louis's standard errors as a cross-check (irtlib.mml).
 #
 # Every fit runs to TOL = 1e-8 with an exact M-step, control = list(reltol = 1e-14), because mirt's
 # defaults stop short of the maximum (ADR-0003, ADR-0007). The grid is mirt's default, 61 points on
@@ -74,6 +74,25 @@ item_values <- function(model, row, column, irt = FALSE) {
   as_array(vapply(items, function(item) item[row, column], numeric(1)))
 }
 
+# Each item's covariance of its slope and intercept, from the parameters' covariance matrix, where a
+# slope constrained equal across items is the first item's, as itemplot's confidence envelope reads
+# it (R/itemplot.internal.R:205-216).
+slope_intercept_covariance <- function(model) {
+  vcov <- extract.mirt(model, "vcov")
+  # a column is named by its parameter and number, "d.2", or a constrained one by every number, "a1.1.5.9"
+  parnums <- as.numeric(sub("^[^.]*\\.([0-9]+).*$", "\\1", colnames(vcov)))
+  position <- function(parnum) {
+    for (group in extract.mirt(model, "constrain")) {
+      if (parnum %in% group) parnum <- group[1L]
+    }
+    match(parnum, parnums)
+  }
+  as_array(vapply(seq_len(extract.mirt(model, "nitems")), function(item) {
+    numbers <- extract.item(model, item)@parnum # named a1, d, g and u
+    vcov[position(numbers[["a1"]]), position(numbers[["d"]])]
+  }, numeric(1)))
+}
+
 # The log-likelihood at fixed 2PL parameters, which needs no optimizer.
 fixed_log_likelihood <- function(x) {
   n_items <- ncol(x)
@@ -107,6 +126,7 @@ mml_em_case <- function(name, x, model) {
   if (model != "fixed_slopes") {
     case$slope_se <- item_values(oakes, "SE", "a1")
     case$slope_se_louis <- item_values(louis, "SE", "a1")
+    case$slope_intercept_covariance <- slope_intercept_covariance(oakes)
   }
   case
 }

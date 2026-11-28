@@ -11,7 +11,7 @@ from matplotlib.markers import TICKUP
 from .. import irt
 from ..bank import ItemBank
 from ..typing import FloatArray
-from ._common import abilities, as_bank, prepare_axes, reference_line
+from ._common import ability_grid, as_bank, prepare_axes, reference_line
 
 _THETA = numpy.linspace(-4, 4, 161)
 """The abilities a test's curves are drawn at when the caller gives none."""
@@ -385,7 +385,7 @@ def relative_efficiency(
 
 def _grid(theta: npt.ArrayLike | None) -> FloatArray:
   """Return the abilities to draw at: the caller's, once checked, or the default ones."""
-  return _THETA if theta is None else abilities(theta)
+  return _THETA if theta is None else ability_grid(theta)
 
 
 def _bounds(interval: tuple[float, float]) -> tuple[float, float]:

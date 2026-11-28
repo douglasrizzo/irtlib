@@ -103,13 +103,14 @@ the correction leaves more of the bias of the items far from the centre of a wid
 once the cycles stop, by default for the Rasch model; Wright and Douglas derive it for the Rasch model
 alone.
 
-**Standard errors.** Each item's standard errors are the square roots of the diagonal of the inverse
-of its item step's information at the last cycle {cite:p}`Baker1987{p. 119}`, for the Rasch model
-$(\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}$, with $n_r$ examinees of score $r$ and $p_{ri}$ their
-probability of a correct response to item $i$ {cite:p}`Wright1977{p. 285, Equation 16}`; the 2PL's
-difficulty takes its standard error by the delta method, as in {doc}`mml`. They treat the abilities
-as known, and with the correction they are those of the estimates before it, unless `correct_errors`
-multiplies them by its factor too. For a fixed number of items, JML's estimates are not centred on
+**Standard errors and covariances.** Each item's covariances follow from the inverse of its item
+step's information at the last cycle, and its standard errors are the square roots of their diagonal
+{cite:p}`Baker1987{p. 119}`, for the Rasch model $(\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}$, with
+$n_r$ examinees of score $r$ and $p_{ri}$ their probability of a correct response to item $i$
+{cite:p}`Wright1977{p. 285, Equation 16}`; the 2PL's difficulty takes its variance and its covariance
+with the slope by the delta method, as in {doc}`mml`. They treat the abilities as known, and with the
+correction they are those of the estimates before it, unless `correct_errors` multiplies the
+difficulty's row and column of each item's covariances by its factor too, and so its standard error. For a fixed number of items, JML's estimates are not centred on
 the parameters and their asymptotic covariance is not the customary one, so "ordinary asymptotic
 confidence intervals" for the difficulties cannot be built from them
 {cite:p}`Haberman2004{pp. 26-27, Theorem 7}`; {cite:p}`Haberman2004{p. 29}`.
@@ -172,8 +173,9 @@ conditional maximum likelihood (p. 823, Table 2).
   - {cite:t}`Wright1977{p. 287, Equation 35}`, for the Rasch model alone
 * - `correct_errors`
   - False
-  - Whether to multiply the difficulties' standard errors by the same factor.
-  - the standard errors of the estimates before the correction
+  - Whether to multiply the difficulty's row and column of each item's covariances, and so its
+    standard error, by the same factor.
+  - the covariances of the estimates before the correction
 * - `tolerance`
   - `1e-6`
   - The stopping rule: the largest change of an item parameter in a cycle.

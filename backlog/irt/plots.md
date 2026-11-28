@@ -15,13 +15,14 @@ raised_by: [maintainer on 2026-11-28 after the plot catalogue]
 On 2026-11-28 the maintainer chose to draw in `irtlib.plot` every plot of the catalogue below
 (ADR-0011): the item response plots of the literature and of the R packages on the shelf, for the
 unidimensional dichotomous 1PL to 4PL. `item_curve` draws an item's characteristic and information
-curves, and those of several items or of two calibrations on one axes. The plots below remain;
-catsim deletes its copy of a plot once irtlib has it.
+curves, and those of several items, or an item's generating and calibrated curves, on one axes. The
+plots below remain; catsim deletes its copy of a plot once irtlib has it.
 
 ## What irtlib and catsim have now
 
-- `irtlib.plot.item_curve`, with the calling conventions of ADR-0011; its `theta` draws the curves
-  of several items, or an item's generating and calibrated curves, on one range.
+- `irtlib.plot.item_curve`, with the calling conventions of ADR-0011. Called once per curve with
+  one `theta`, it draws the curves of several items, or an item's generating and calibrated curves,
+  on one range.
 - catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
   `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
@@ -35,7 +36,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Characteristic curve with a confidence envelope (`item_envelope`) | An item's estimated curve with a 95% band from the uncertainty of its parameter estimates. |  | the covariance of each item's estimates | mirt 1.48 manual, p. 94, itemplot CE, CEalpha, CEdraws |
+| Characteristic curve with a confidence envelope (`item_envelope`) | An item's estimated curve with a 95% band from the uncertainty of its parameter estimates. |  |  | mirt 1.48 manual, p. 94, itemplot CE, CEalpha, CEdraws |
 
 ### Test functions
 

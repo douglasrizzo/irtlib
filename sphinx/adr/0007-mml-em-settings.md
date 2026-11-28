@@ -30,8 +30,8 @@ estimates.
 
 - **Parameters and solver.** The M-step estimates mirt's parameters: the slope, the intercept, and
   the logits of $c$ and $d$ (manual pp. 132-133), by Fisher scoring with step halving over all free
-  parameters at once. Estimates and standard errors are converted to ADR-0001's $(a, b, c, d)$, the
-  standard errors by the delta method.
+  parameters at once. Estimates and each item's covariances are converted to ADR-0001's
+  $(a, b, c, d)$, the covariances by the delta method.
 - **Grid.** 61 equally spaced nodes on $[-6, 6]$ with normal masses, mirt's (manual pp. 127, 129).
 - **Stopping.** mirt's rule, no parameter changing by more than the tolerance in a cycle, by default
   $10^{-6}$, and mirt's 500 cycles (manual p. 129).

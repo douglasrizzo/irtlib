@@ -10,7 +10,7 @@ from matplotlib.axes import Axes
 from .. import irt
 from ..bank import ItemBank
 from ..typing import FloatArray
-from ._common import abilities, as_bank, item_position, prepare_axes
+from ._common import ability_grid, as_bank, item_position, prepare_axes
 
 _HALF_WIDTH = 4.0
 """How far the curves of one item span on each side of its difficulty, in units of ability."""
@@ -48,12 +48,12 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
   r"""Plot one item's characteristic curve or its information curve.
 
   The curve spans four units of ability on each side of the item's difficulty, and the information curve also four on
-  each side of its peak, unless ``theta`` gives the abilities: curves that share one axes, of several items or of one
-  item calibrated twice, take the same ``theta``. The curve is labelled with the item's name for a legend. A box in the
-  upper left corner gives the item's name and parameters, to three significant digits. Both curves of an item go on
-  two axes that share the ability axis, one call each, as the first example shows.
+  each side of its peak, unless ``theta`` gives the abilities. It is labelled with the item's name for a legend. A box
+  in the upper corner over the curve's lower end gives the item's name and parameters, to three significant digits.
+  Both curves of an item go on two axes that share the ability axis, one call each, as the first example shows.
 
   .. plot::
+      :filename-prefix: item_curve
       :caption: One item's characteristic curve above and its information curve below. The dot marks the peak.
 
       import matplotlib.pyplot as plt
@@ -67,6 +67,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
       plt.show()
 
   .. plot::
+      :filename-prefix: item_curve-items
       :caption: The characteristic curves of four items above and their information curves below, on one range.
 
       import matplotlib.pyplot as plt
@@ -84,6 +85,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
       plt.show()
 
   .. plot::
+      :filename-prefix: item_curve-recovered
       :caption: The characteristic curve of a three-parameter item, and the curve of the two-parameter model calibrated
           from 1,000 examinees' responses to it and nine other items.
 
@@ -117,7 +119,7 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
       described above.
   max_info : bool, optional
       Whether to mark the ability at which the item gives the most information with a dot, on the information curve
-      only, and when ``theta`` is given only if that ability lies within it. Default is True.
+      only, and when ``theta`` is given only if that ability lies within it, its ends included. Default is True.
   parameters : bool, optional
       Whether to write the item's name and parameters in a box. Default is True.
   ax : matplotlib.axes.Axes or None, optional
@@ -135,7 +137,8 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
   Raises
   ------
   TypeError
-      If ``item`` is not an integer, or ``theta`` holds values that are not real numbers, before any figure is created.
+      If ``item`` is not an integer, or ``theta`` holds values that are not real numbers, bools included, before any
+      figure is created.
   ValueError
       If ``items`` is not a valid item matrix, ``item`` is not a position in it, ``kind`` is not a :py:class:`Curve`
       or one of its values, or ``theta`` is not a one-dimensional array of at least two finite and increasing
@@ -151,16 +154,18 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
     centres = (items.difficulty[item],) if kind is Curve.ICC else (items.difficulty[item], peak)
     grid = numpy.linspace(min(centres) - _HALF_WIDTH, max(centres) + _HALF_WIDTH, _POINTS)
   else:
-    grid = abilities(theta)
+    grid = ability_grid(theta)
   label = items.names[item] if label is None else label
   ax = prepare_axes(ax, title)
 
   match kind:
     case Curve.ICC:
-      ax.plot(grid, irt.icc(grid, row)[:, 0], label=label)
+      values = irt.icc(grid, row)[:, 0]
+      ax.plot(grid, values, label=label)
       ax.set_ylabel(r"$P(\theta)$")
     case Curve.IIC:
-      (line,) = ax.plot(grid, irt.information(grid, row)[:, 0], label=label)
+      values = irt.information(grid, row)[:, 0]
+      (line,) = ax.plot(grid, values, label=label)
       ax.set_ylabel(r"$I(\theta)$")
       # A dot beyond the end of the curve would mark a peak the curve does not show.
       if max_info and grid[0] <= peak <= grid[-1]:
@@ -170,16 +175,17 @@ def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and 
 
   ax.set_xlabel(r"$\theta$")
   if parameters:
-    _annotate(ax, items.names[item], row[0])
+    _annotate(ax, items.names[item], row[0], left=values[0] <= values[-1])
   return ax
 
 
-def _annotate(ax: Axes, name: str, parameters: FloatArray) -> None:
-  """Write the item's name and parameters, to three significant digits, in a box in the upper left corner of the axes.
+def _annotate(ax: Axes, name: str, parameters: FloatArray, *, left: bool) -> None:
+  """Write the item's name and parameters, to three significant digits, in a box in an upper corner of the axes.
 
-  The curves of typical items keep clear of that corner: at the low end of the ability range the characteristic curve
-  is near its lower asymptote and the information curve near zero. The box takes the axes' face and edge colours, so it
-  follows the caller's style.
+  The corner is the left one with ``left`` and the right one otherwise, the one over the curve's lower end: a curve
+  keeps clear of it while it falls toward that end, as a characteristic curve does toward the left and an information
+  curve toward the side away from its peak. The box takes the axes' face and edge colours, so it follows the caller's
+  style.
   """
   a, b, c, d = parameters
   # The parameters are mathtext, so a dollar sign in the name would pair up with theirs.
@@ -187,8 +193,8 @@ def _annotate(ax: Axes, name: str, parameters: FloatArray) -> None:
   ax.annotate(
     f"{shown}\n$a = {a:.3g}$\n$b = {b:.3g}$\n$c = {c:.3g}$\n$d = {d:.3g}$",
     bbox={"facecolor": ax.get_facecolor(), "edgecolor": ax.spines["left"].get_edgecolor()},
-    xy=(0.02, 0.97),
+    xy=(0.02, 0.97) if left else (0.98, 0.97),
     xycoords="axes fraction",
-    ha="left",
+    ha="left" if left else "right",
     va="top",
   )
