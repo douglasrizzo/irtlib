@@ -330,16 +330,19 @@ def _separation(matrix: FloatArray) -> tuple[int, BoolArray, BoolArray] | None:
       exists, and so the conditional maximum likelihood estimate does.
   """
   n_items = matrix.shape[1]
-  scores = matrix.sum(axis=1)
+  scores = matrix.sum(axis=1)[:, numpy.newaxis]
   totals = matrix.sum(axis=0)
+  # each item's smallest number correct among the examinees who answered it correctly, and largest among those who
+  # did not: no examinee with at most s correct answered an item right exactly when its smallest exceeds s
+  lowest_right = numpy.where(matrix == 1, scores, numpy.inf).min(axis=0)
+  highest_wrong = numpy.where(matrix == 0, scores, -numpy.inf).max(axis=0)
   # the theorem's a, a number correct plus one half, lies strictly between 1 and M - 1, and its b, an item total plus
   # one half, below the largest total; with no examinee left out, it lies between n_0 = 0 and n - n_0 = n as well
   for score in range(1, n_items - 1):
-    low, high = scores <= score, scores > score
     for cut in numpy.unique(totals)[:-1] + 0.5:
       harder, easier = totals < cut, totals > cut
       # Theorem 10's fifth condition holds whenever the first four do, since every examinee kept is low or high
-      if not matrix[numpy.ix_(low, harder)].any() and matrix[numpy.ix_(high, easier)].all():
+      if numpy.all(lowest_right[harder] > score) and numpy.all(highest_wrong[easier] <= score):
         return score, easier, harder
   return None
 
