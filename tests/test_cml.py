@@ -161,12 +161,13 @@ def test_estimates_maximize_the_conditional_likelihood(name: str) -> None:
 
 
 @pytest.mark.parametrize("name", ["LSAT-6", "LSAT-7"])
-def test_standard_errors_invert_the_brute_force_hessian(name: str) -> None:
-  """The standard errors are those of the inverse of the brute-force log-likelihood's Hessian, centred to sum to zero.
+def test_variances_invert_the_brute_force_hessian(name: str) -> None:
+  """Each item's variance of b is the diagonal of the inverse of the brute-force log-likelihood's Hessian, centred to
+  sum to zero, and its other covariances are NaN, a, c and d not being estimated.
 
   The Hessian is differenced centrally in the first four difficulties, the fifth their negated sum, so the covariance
   of all five is L H^-1 L^T for the map L from the four to the five. A Hessian missing the pairs' second derivatives,
-  or standard errors of the first difficulty set to 0, fails.
+  or variances of the first difficulty set to 0, fails.
   """
   matrix = _BOCK_AITKIN[name][0]
   calibration = CMLCalibrator().calibrate(matrix)
@@ -183,9 +184,12 @@ def test_standard_errors_invert_the_brute_force_hessian(name: str) -> None:
     hessian[row, column] = sum(values) / (4 * step**2)
   to_centred = np.vstack([np.eye(4), -np.ones(4)])
   covariance = to_centred @ np.linalg.inv(-hessian) @ to_centred.T
-  assert calibration.standard_errors is not None
-  np.testing.assert_allclose(calibration.standard_errors[:, 1], np.sqrt(np.diag(covariance)), rtol=1e-5)
-  assert np.all(np.isnan(calibration.standard_errors[:, [0, 2, 3]]))
+  assert calibration.covariances is not None
+  # a variance is a standard error squared, so it agrees within twice a standard error's relative 1e-5
+  np.testing.assert_allclose(calibration.covariances[:, 1, 1], np.diag(covariance), rtol=2e-5)
+  others = np.ones((4, 4), dtype=bool)
+  others[1, 1] = False
+  assert np.all(np.isnan(calibration.covariances[:, others]))
 
 
 def test_estimates_do_not_depend_on_the_ability_distribution() -> None:

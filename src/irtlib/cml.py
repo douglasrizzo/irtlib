@@ -75,12 +75,13 @@ class CMLCalibrator:
     Returns
     -------
     Calibration
-        The estimates ``[1, b, 0, 1]``, the standard errors of the difficulties and the conditional log-likelihood at
-        them, of the examinees and items kept; the result has no grid. An item left out has a NaN difficulty and
-        standard error, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping
-        rule, a full step within the tolerance, is not met within ``max_cycles``, or no halving of a step keeps the
-        log-likelihood from falling, the result says so and a :py:class:`~irtlib.calibration.ConvergenceWarning` is
-        issued; if the information matrix cannot be inverted at the estimates, the result has no standard errors and
+        The estimates ``[1, b, 0, 1]``, the variances of the difficulties, the only entries of the covariances that
+        are not NaN, and the conditional log-likelihood at them, of the examinees and items kept; the result has no
+        grid. An item left out has a NaN difficulty and variance, and the result's bank leaves it out, with a
+        ``RuntimeWarning`` naming it. If the stopping rule, a full step within the tolerance, is not met within
+        ``max_cycles``, or no halving of a step keeps the log-likelihood from falling, the result says so and a
+        :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted at
+        the estimates, or gives a variance that is not positive, the result has no covariances or standard errors and
         a ``RuntimeWarning`` is issued.
 
     Raises
@@ -114,21 +115,21 @@ class CMLCalibrator:
     variances = _variances(_derivatives(difficulty, totals, score_counts)[1])
     if variances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no standard errors; the responses "
-        "may leave an item no finite estimate",
+        "the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "
+        "reports no covariances or standard errors; the responses may leave an item no finite estimate",
         RuntimeWarning,
         stacklevel=2,
       )
     estimates = numpy.tile([1.0, numpy.nan, 0.0, 1.0], (matrix.shape[1], 1))
     estimates[items, 1] = difficulty
-    standard_errors = None
+    covariances = None
     if variances is not None:
-      standard_errors = numpy.full(estimates.shape, numpy.nan)
-      standard_errors[items, 1] = numpy.sqrt(variances)
+      covariances = numpy.full((*estimates.shape, estimates.shape[1]), numpy.nan)
+      covariances[items, 1, 1] = variances
     return Calibration(
       estimates=estimates,
       items=_valid_items(estimates),
-      standard_errors=standard_errors,
+      covariances=covariances,
       log_likelihood=_log_likelihood(difficulty, totals, score_counts),
       likelihood=Likelihood.CONDITIONAL,
       n_parameters=difficulty.size - 1,

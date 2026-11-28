@@ -141,27 +141,78 @@ def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
   np.testing.assert_allclose(fit.statistic[2], _enumerated_s_x2(calibration, matrix, 2), rtol=1e-10)
 
 
-def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) -> float:
-  """Return an item's S-X² by enumerating every response pattern, for four items and no collapsed score group.
+def test_the_table_holds_every_score_group_before_collapsing() -> None:
+  """S-X²'s table is Orlando and Thissen's N_k, O_ik and E_ik at every number correct from 1 to M - 1, uncollapsed.
 
-  Equations 12 and 13 of Orlando and Thissen (2000), with the 4PL written out and the grid's normal masses.
+  Six items, with the examinees of number correct 1 removed and all but one of number correct 2, so that the
+  statistic collapses that group into the next. The table keeps both groups, the empty one with no observed
+  proportion, and matches the sizes, proportions correct and Equation 12 (2000, p. 54) worked out by enumerating the
+  64 response patterns. Fails if the table is taken after collapsing, the observed proportions count incorrect
+  responses, the expected ones leave the item in the likelihood of the other items' score, or the items' rows are
+  swapped. The degrees of freedom, worked by hand, fail if the group of one examinee is not merged, or too much is.
+  """
+  rng = np.random.default_rng(4)
+  items = np.column_stack([np.ones(6), np.linspace(-1.5, 1.5, 6), np.zeros(6), np.ones(6)])
+  matrix = draw_responses(rng.normal(size=200), items, rng=rng)
+  scores = matrix.sum(axis=1)
+  matrix = matrix[(scores > 2) | (scores == 0) | (np.arange(scores.size) == np.flatnonzero(scores == 2)[0])]
+  calibration = MMLCalibrator("1PL").calibrate(matrix)
+  fit = s_x2(calibration, matrix)
+  sizes, observed = _counted_table(matrix)
+  np.testing.assert_array_equal(fit.group_sizes, sizes)
+  assert fit.group_sizes[:2].tolist() == [0, 1]
+  np.testing.assert_allclose(fit.observed, observed, rtol=1e-14)
+  np.testing.assert_allclose(fit.expected, _enumerated_expected(calibration), rtol=1e-10)
+  # with no minimum expected count, the group of number correct 2 merges into that of 3: 6 cells, less 3 groups and 2
+  # parameters, leave 1 degree of freedom for every item
+  assert s_x2(calibration, matrix, min_expected=0).df.tolist() == [1] * 6
+  # with the default minimum of 1, the easiest item expects 0.71 incorrect responses among the 30 examinees of number
+  # correct 5, so that group merges into that of 4 as well: 4 cells, less 2 groups and 2 parameters, leave none
+  assert fit.df.tolist() == [0, 1, 1, 1, 1, 1]
+
+
+def _counted_table(matrix: FloatArray) -> tuple[FloatArray, FloatArray]:
+  """Return the examinees at each number correct from 1 to M - 1, and each item's proportion correct there.
+
+  Orlando and Thissen's N_k and O_ik (2000, p. 54, Equation 13), counted group by group; NaN in an empty group.
+  """
+  n_items = matrix.shape[1]
+  scores = matrix.sum(axis=1)
+  groups = [matrix[scores == k] for k in range(1, n_items)]
+  sizes = np.array([group.shape[0] for group in groups], dtype=float)
+  observed = np.column_stack([group.mean(axis=0) if group.size else np.full(n_items, np.nan) for group in groups])
+  return sizes, observed
+
+
+def _enumerated_expected(calibration: Calibration) -> FloatArray:
+  """Return each item's expected proportion correct at each number correct from 1 to M - 1, by enumeration.
+
+  Orlando and Thissen's E_ik (2000, p. 54, Equation 12), from the likelihood of every response pattern, with the 4PL
+  written out and the grid's normal masses.
   """
   a, b, c, d = calibration.estimates.T
   grid = calibration.grid
   assert grid is not None
-  nodes = grid.nodes
-  masses = grid.weights * np.exp(-(nodes**2) / 2)
-  probability = c + (d - c) / (1 + np.exp(-a * (nodes[:, np.newaxis] - b)))  # nodes x items
-  joint = np.zeros((5, 2))  # score 0 to 4, the item incorrect or correct
-  for pattern in itertools.product((0, 1), repeat=4):
-    likelihood = np.prod(np.where(np.array(pattern) == 1, probability, 1 - probability), axis=1)
-    joint[sum(pattern), pattern[item]] += likelihood @ (masses / masses.sum())
-  expected = joint[1:4, 1] / joint[1:4].sum(axis=1)
-  scores = matrix.sum(axis=1)
-  groups = [matrix[scores == k, item] for k in (1, 2, 3)]
-  counts = np.array([group.size for group in groups])
-  observed = np.array([group.mean() for group in groups])
-  return float(np.sum(counts * (observed - expected) ** 2 / (expected * (1 - expected))))
+  masses = grid.weights * np.exp(-(grid.nodes**2) / 2)
+  probability = c + (d - c) / (1 + np.exp(-a * (grid.nodes[:, np.newaxis] - b)))  # nodes x items
+  score_mass = np.zeros(a.size + 1)
+  correct_mass = np.zeros((a.size + 1, a.size))  # by score, the mass of the patterns with each item correct
+  for pattern in itertools.product((0, 1), repeat=a.size):
+    answers = np.array(pattern)
+    mass = np.prod(np.where(answers == 1, probability, 1 - probability), axis=1) @ (masses / masses.sum())
+    score_mass[answers.sum()] += mass
+    correct_mass[answers.sum()] += answers * mass
+  return (correct_mass[1:-1] / score_mass[1:-1, np.newaxis]).T
+
+
+def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) -> float:
+  """Return an item's S-X² by enumerating every response pattern, for no collapsed score group.
+
+  Equation 13 of Orlando and Thissen (2000, p. 54), on the counted table and the enumerated expected proportions.
+  """
+  sizes, observed = _counted_table(matrix)
+  expected = _enumerated_expected(calibration)[item]
+  return float(np.sum(sizes * (observed[item] - expected) ** 2 / (expected * (1 - expected))))
 
 
 def test_mean_squares_of_a_hand_worked_case() -> None:

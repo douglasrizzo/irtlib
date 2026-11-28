@@ -179,23 +179,50 @@ def test_mml_standard_errors(case: dict[str, Any]) -> None:
   assert np.all(np.isnan(standard_errors[:, 2:]))
 
 
+@pytest.mark.parametrize(
+  "case", [case for case in _MML_EM["cases"] if "slope_intercept_covariance" in case], ids=operator.itemgetter("id")
+)
+def test_mml_covariances(case: dict[str, Any]) -> None:
+  """MMLCalibrator's covariance of each item's a and b is mirt's covariance of its slope and intercept, taken to a and b
+  by the delta method.
+
+  mirt's covariance matrix holds a slope constrained equal across items once, and each item's covariance of its slope
+  and intercept is then the shared slope's, as in irtlib's matrix of each item. Fails if an item's matrix leaves out
+  the shared slope's covariance with its intercept, or the covariance of a and b has the wrong sign.
+  """
+  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  covariances = calibrator.calibrate(responses(_MML_EM["data"][case["data"]])).covariances
+  slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
+  slope_variance, intercept_variance = np.array(case["slope_se"]) ** 2, np.array(case["intercept_se"]) ** 2
+  covariance = np.array(case["slope_intercept_covariance"])
+  # b = -intercept / slope, whose derivatives in the slope and the intercept are intercept / slope^2 and -1 / slope
+  slope_derivative, intercept_derivative = intercept / slope**2, -1 / slope
+  expected = np.empty((slope.size, 2, 2))
+  expected[:, 0, 0] = slope_variance
+  expected[:, 0, 1] = expected[:, 1, 0] = slope_derivative * slope_variance + intercept_derivative * covariance
+  expected[:, 1, 1] = (
+    slope_derivative**2 * slope_variance
+    + 2 * slope_derivative * intercept_derivative * covariance
+    + intercept_derivative**2 * intercept_variance
+  )
+  assert covariances is not None
+  # a variance is a standard error squared, so it agrees within twice the standard errors' relative tolerance
+  np.testing.assert_allclose(covariances[:, :2, :2], expected, rtol=2 * _STANDARD_ERROR_RTOL)
+
+
 # The number of parameters mirt counts for each item of each model: a slope constrained equal across items counts for
 # each item, a fixed one not at all.
 _ITEM_PARAMETERS = {"2pl": 2, "equal_slopes": 2, "fixed_slopes": 1}
 
 
-@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
-def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
-  """S-X², its degrees of freedom after collapsing and its p-value match mirt's at mirt's own estimates.
-
-  Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
-  """
+def _calibration_at_mirts_estimates(case: dict[str, Any]) -> Calibration:
+  """Return a marginal calibration on irtlib's default grid whose estimates are an item-fit case's mirt estimates."""
   slope, intercept = np.array(case["slope"]), np.array(case["intercept"])
   estimates = _two_pl_items(slope, intercept)
-  calibration = Calibration(
+  return Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
-    standard_errors=None,
+    covariances=None,
     log_likelihood=0.0,
     likelihood=Likelihood.MARGINAL,
     n_parameters=0,
@@ -206,10 +233,34 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
     grid=default_grid(),
     abilities=None,
   )
-  fit = s_x2(calibration, responses(_ITEM_FIT["data"][case["data"]]))
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """S-X², its degrees of freedom after collapsing and its p-value match mirt's at mirt's own estimates.
+
+  Fails if the summed-score recursion, the expected proportions, the collapsing or the degrees of freedom differ.
+  """
+  fit = s_x2(_calibration_at_mirts_estimates(case), responses(_ITEM_FIT["data"][case["data"]]))
   np.testing.assert_array_equal(fit.df, case["df"])
   np.testing.assert_allclose(fit.statistic, case["s_x2"], rtol=_CLOSED_FORM_RTOL)
   np.testing.assert_allclose(fit.p_value, case["p_value"], rtol=_CLOSED_FORM_RTOL, atol=1e-14)
+
+
+@pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
+def test_s_x2_table_at_mirts_estimates(case: dict[str, Any]) -> None:
+  """S-X²'s table before collapsing matches mirt's ``return.tables``, the table its ``S_X2.plot`` draws.
+
+  The group sizes, the observed proportions from mirt's correct responses, and the expected number correct, the group
+  size times the expected proportion, at every number correct from 1 to M - 1. Fails if the table were collapsed, or
+  an expected proportion differed in a score group that the statistic merges with another.
+  """
+  fit = s_x2(_calibration_at_mirts_estimates(case), responses(_ITEM_FIT["data"][case["data"]]))
+  sizes, correct = np.array(case["table_sizes"]), np.array(case["table_correct"])
+  np.testing.assert_array_equal(fit.group_sizes, sizes)
+  observed = np.divide(correct, sizes, out=np.full(correct.shape, np.nan), where=sizes > 0)
+  np.testing.assert_array_equal(fit.observed, observed)
+  np.testing.assert_allclose(fit.expected * fit.group_sizes, case["table_expected"], rtol=_CLOSED_FORM_RTOL)
 
 
 @pytest.mark.parametrize("case", _ITEM_FIT["cases"], ids=operator.itemgetter("id"))
@@ -280,7 +331,7 @@ def test_mean_squares_at_mirts_estimates(case: dict[str, Any]) -> None:
   calibration = Calibration(
     estimates=estimates,
     items=ItemBank(estimates),
-    standard_errors=None,
+    covariances=None,
     log_likelihood=0.0,
     likelihood=Likelihood.MARGINAL,
     n_parameters=0,

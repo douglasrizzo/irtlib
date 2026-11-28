@@ -11,7 +11,7 @@ from the responses, the items and the abilities, with missing responses left out
 
 | Statistic | Models | Groups the examinees by | Result |
 |---|---|---|---|
-| {doc}`s-x2` | 1PL to 4PL | number-correct score | {class}`~irtlib.fit.ItemFit`: a $\chi^2$ statistic, its degrees of freedom and $p$-value |
+| {doc}`s-x2` | 1PL to 4PL | number-correct score | {class}`~irtlib.fit.ItemFit`: a $\chi^2$ statistic, its degrees of freedom and $p$-value, and the observed and expected proportions correct at each number correct |
 | {doc}`mean-squares` of the items | 1PL | not grouped: each response against its expectation | {class}`~irtlib.fit.MeanSquares`: the infit and outfit, and their standardized values |
 | {doc}`mean-squares` of the examinees | 1PL to 4PL | not grouped: each response against its expectation | {class}`~irtlib.fit.MeanSquares`, for each examinee |
 
