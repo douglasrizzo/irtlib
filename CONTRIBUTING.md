@@ -34,7 +34,8 @@ run Ruff, ty, pylint, vulture, typos and the check of the backlog's index.
 ## Building the documentation
 
 The documentation site's sources are in `sphinx/`: its pages, the ADRs and `references.bib`, with
-the rules for each kind of page in `sphinx/AGENTS.md`. Build the HTML pages with the command below,
+the rules for each kind of page in `sphinx/AGENTS.md`. Each method has a page in `sphinx/methods/`,
+written from `sphinx/methods/_template.md`. Build the HTML pages with the command below,
 which also installs Sphinx and its extensions (the `docs` dependency group):
 
 ```bash

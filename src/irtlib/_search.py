@@ -1,7 +1,7 @@
 """The numerical searches behind :py:mod:`irtlib.ability`'s estimators: each examinee's maximum, alone or many at once.
 
-The searches, their point counts and their measurements are documented with the estimators that use them, in
-:py:mod:`irtlib.ability`.
+The searches, their point counts and their measurements are documented on the method pages of the estimators that
+use them, in ``sphinx/methods/ability/``.
 """
 
 import functools
@@ -21,7 +21,8 @@ from .irt import _log_asymptotes, _log_probability, _log_terms, _LogTerms
 from .typing import BoolArray, FloatArray, IntArray
 
 # Points on which a maximum is located before Newton's method refines it: 101, 0.12 apart on [-6, 6], while no item
-# answered is steeper than _STEEP_SLOPE, and above it 0.3 divided by the steepest slope apart (module docstring).
+# answered is steeper than _STEEP_SLOPE, and above it 0.3 divided by the steepest slope apart
+# (sphinx/methods/ability/ml.md).
 _NEWTON_SEARCH_POINTS = 101
 _STEEP_SLOPE = 2.5
 # The most points: 0.005 apart on [-6, 6], the spacing of a slope of 60, the steepest measured. Steeper items keep

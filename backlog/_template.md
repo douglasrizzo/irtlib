@@ -47,12 +47,12 @@ form, a published value or a brute-force reference, never from the code under te
 
 % -----------------------------------------------------------------------------------------------------
 % TECHNIQUE CARDS ONLY, below. The sections from Motivation to References have the names and order of
-% the method page the documentation site will have (backlog/maintenance/docs-method-pages.md): implementing
-% the method moves them there (backlog/README.md, "Workflow").
-% Tests, Open Questions and Implementation Guidance are for contributors and stay out of the page.
+% the method page template, sphinx/methods/_template.md: implementing the method moves them there
+% (backlog/README.md, "Workflow"). Tests, Open Questions and Implementation Guidance are for
+% contributors and stay out of the page.
 %
 % Technique cards cite by hand, "Author (Year, p. N)", with a hand-written References list, because
-% GitHub does not render the {cite} roles of technique pages. The README's "Technique cards" section
+% GitHub does not render the {cite} roles of method pages. The README's "Technique cards" section
 % has the workflow, the citation convention and the revalidation checklist.
 % -----------------------------------------------------------------------------------------------------
 
@@ -63,8 +63,8 @@ form, a published value or a brute-force reference, never from the code under te
 
 ## Motivation
 
-\<1-3 paragraphs for a researcher: what the method does, the problem it solves, when to choose it
-over the alternatives and what makes it distinctive.>
+\<1-2 paragraphs for a researcher: what the method does, the problem it solves and when to choose it
+over the alternatives.>
 
 ## Definition
 
@@ -74,47 +74,43 @@ $$
 <equation>
 $$
 
-\<Prose explaining the components of the equation. Cite the source of each formula or design choice
-where it appears, with the page, equation, table or figure, e.g. "(Barrada et al., 2008, p. 498,
-Equation 12)". Cite only locations you have read. Say where the implementation departs from its
-sources.>
+\<Prose explaining the components of the equation. Cite the source of each formula where it
+appears, with the page, equation, table or figure, e.g. "(Barrada et al., 2008, p. 498,
+Equation 12)". Cite only locations you have read.>
 
-% Optional: how the implementation will solve the definition numerically, when it changes what users
-% observe. Delete the subsection otherwise.
+## Implementation
 
-### Computation
+\<How irtlib will compute the definition: the numerical choices a user can observe (the search, the
+grid, the starting values, the stopping rule, the standard errors, extreme and missing responses),
+each cited to its source or to the ADR that decides it, and every departure from the sources.>
 
-\<Search range, grid, tolerance; where they depart from the sources.>
+\<Where mirt or catR implements the method, a last paragraph on which function and settings match,
+with the version, and where irtlib departs (ADR-0003); the method page puts it in its "Comparison
+with mirt" dropdown. Leave it out when neither has a counterpart.>
 
 ## Parameters
 
-```{eval-rst}
-.. list-table::
-   :header-rows: 1
-   :widths: 20 15 65
+```{list-table}
+:header-rows: 1
+:widths: 18 14 42 26
 
-   * - Parameter
-     - Default
-     - Description
-   * - ``param_name``
-     - ``default``
-     - <description, including recommended ranges if the literature provides them>
+* - Parameter
+  - Default
+  - Description
+  - Default from
+* - `param_name`
+  - `default`
+  - \<description, including recommended ranges if the literature provides them>
+  - \<a source's page, mirt's or catsim's default, an ADR, or "no source yet", with its row in
+    discovery/sources-wanted.md>
 ```
-
-## Behavior and Comparison
-
-\<How the method behaves in practice (short tests, all-correct or all-incorrect responses, exposure)
-and how it compares with its alternatives, with sources.>
-
-\<Where mirt implements the method, a last paragraph on which mirt function and settings match, with
-the mirt version, and where irtlib departs (ADR-0003). Leave it out when mirt has no counterpart.>
 
 ## Guarantees
 
-% Properties a user relies on and can observe, in the user's terms. They are promoted to the technique
+% Properties a user relies on and can observe, in the user's terms. They are promoted to the method
 % page, and each one also gets a test.
 
-1. \<A property a user can observe, e.g. "It never returns an item that was already administered.">
+1. \<A property a user can observe, e.g. "Responses all correct or all incorrect raise no error.">
 2. \<Add as many as are meaningful.>
 
 ## References

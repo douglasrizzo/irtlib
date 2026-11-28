@@ -111,6 +111,8 @@ charter. Each kind of document has one job and audience:
 - `README.md`: what irtlib is, its status, install from source; newcomers on GitHub.
 - The landing page and the concept pages (`sphinx/`): the entry paths, the introduction, the terms
   and notation; researchers and package authors.
+- Method pages (`sphinx/methods/`): each method's formulas, implementation, defaults with their
+  origins, guarantees and sources; researchers.
 - Docstrings: the call contract, which the API reference renders; anyone calling the object.
 - ADRs (`sphinx/adr/`): why the architecture is shaped this way; contributors.
 - `backlog/`: every piece of planned work, as cards with frontmatter, whose index the README

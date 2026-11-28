@@ -1,42 +1,4 @@
-r"""The quadrature grid, the ability priors, and each examinee's posterior over the grid.
-
-Calibration and ability estimation both integrate over ability, and both replace the integral by a sum over the nodes
-:math:`X_q`, :math:`q = 1, \dots, Q`, of a grid. Each node carries a mass :math:`A_q`, the probability of a discrete
-prior distribution at that node, and the masses sum to 1 (:cite:t:`Bock1982`, p. 433, Equation 6). A grid holds the
-nodes and a weight :math:`w_q` for each, and a prior is a log-density :math:`\log \pi`. A node's mass is its weight
-times the prior density there, normalized:
-
-.. math::
-
-   A_q = \frac{w_q\,\pi(X_q)}{\sum_{h=1}^{Q} w_h\,\pi(X_h)}.
-
-The equal weights of :py:meth:`QuadratureGrid.uniform` cancel, which leaves the prior density at the nodes, normalized:
-the masses :cite:t:`Bock1981` (p. 449) take for a normal prior, and for any other. Those nodes are evenly spaced, as
-Bock and Mislevy's are: Gauss-Hermite quadrature, they note, has less advantage for the likelihoods of adaptive testing
-(p. 433). The default grid has 121 nodes on the extended ability range :math:`[-6, 6]`, a spacing of 0.1: about the
-spacing of the 80 points between :math:`\pm 4` standard deviations that Bock and Mislevy (p. 433) suggest to keep
-precision down to a posterior standard deviation of 0.2.
-
-Examinee :math:`j`'s likelihood at a node, :math:`L_j(X_q)`, is the product over the items :math:`i` it answered of
-:math:`P_i(X_q)^{u_{ij}} [1 - P_i(X_q)]^{1 - u_{ij}}` (:cite:t:`Bock1982`, p. 433, Equation 3), and its posterior
-mass at the node is
-
-.. math::
-
-   \frac{L_j(X_q)\,A_q}{\sum_{h=1}^{Q} L_j(X_h)\,A_h}.
-
-The mean of the posterior over the nodes is the EAP estimate of the examinee's ability, and its variance serves as
-the estimate's error variance: the square of the posterior standard deviation (:cite:t:`Bock1982`, p. 432; p. 433,
-Equations 4 and 5). An examinee who answered no item has :math:`L_j = 1` at every node, and its posterior is the
-masses. Bock and Mislevy apply Sheppard's correction to the posterior variance (p. 433); :py:func:`posterior_variance`
-does not.
-
-The log-likelihoods accumulate as sums over the items (:cite:t:`Bock1982`, p. 432), so :py:func:`posterior` takes
-each examinee's log-likelihood at the nodes, whatever the response function that gave it. It adds the log of each
-node's weight and prior density, and shifts each examinee's row by its maximum before exponentiating, so that the
-likelihood of a long response pattern does not underflow. A :py:class:`GridPrior` evaluates and checks a prior on a
-grid's nodes once, for a caller that computes many posteriors with the same grid and prior.
-"""
+"""The quadrature grid, the ability priors, and each examinee's posterior over the grid."""
 
 import math
 from collections.abc import Callable

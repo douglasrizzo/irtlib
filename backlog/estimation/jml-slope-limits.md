@@ -49,8 +49,8 @@ responding to each item" (Mislevy & Stocking, 1989, p. 61).
 ## What irtlib and catsim have now
 
 - `src/irtlib/jml.py`: `JMLCalibrator._cycle` stops on `_Groups.separated` or on a slope that is
-  not positive. The result holds the last complete cycle, and the module docstring states the
-  measurements above.
+  not positive. The result holds the last complete cycle, and the JML method page
+  (`sphinx/methods/calibration/jml.md`) states the measurements above.
 - `src/irtlib/_m_step.py`: the item step takes priors (`_prior_terms`), mirt's lognormal on the
   slope among them (ADR-0008). `irtlib.jml` passes none.
 - catsim has no calibration.

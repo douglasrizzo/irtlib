@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-26 cards: 8 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
+25 cards: 7 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -67,7 +67,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Refuse items whose parameters are not finite in the ability estimators](estimation/non-finite-items.md) | estimation | fix | ready | XS |  | joint maximum likelihood abilities PR on 2026-11-28 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Draw irtlib's logo](maintenance/logo.md) | maintenance | docs | ready | S |  | maintainer on 2026-11-28 |
-| [Give each method a page of its own, with its formulas moved out of the module docstrings](maintenance/docs-method-pages.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md) | setup of irtlib |
 | [Write the guides](maintenance/docs-guides.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
@@ -121,11 +120,10 @@ which sources and when it was last checked.
 3. **Implement** the method once its open questions are answered, with tests for its guarantees and
    for its "Tests" section, parity cases against mirt where mirt implements the method, and
    parameter-recovery tests (ADR-0003).
-4. **Promote** the card into the documentation in the same PR: its sources move into
-   `sphinx/references.bib`, its design goes into the module's docstring, which the site's API
-   reference renders, and into the ADRs it needs, and the card is deleted. Once methods have pages of
-   their own ([`maintenance/docs-method-pages.md`](maintenance/docs-method-pages.md)), its sections
-   from Motivation to References become the method's page instead.
+4. **Promote** the card into the documentation in the same PR: its sections from Motivation to
+   References become the method's page in `sphinx/methods/<family>/`, from the method page template
+   (`sphinx/methods/_template.md`), its sources move into `sphinx/references.bib`, the lasting
+   rationale goes into the ADRs it needs, and the card is deleted.
 
 ### Citation convention
 

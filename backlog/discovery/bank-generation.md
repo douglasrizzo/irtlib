@@ -27,7 +27,7 @@ catsim's backlog raised this card from all three replications of its research wa
    Building the matrix was easy in every case (`ItemBank(numpy.column_stack([a, b, c, d]))`). The gap
    is that nothing shows how.
 2. **D = 1.7.** irtlib's logistic functions have no scaling constant (ADR-0001), so parameters
-   calibrated with D = 1.7 must have a multiplied by 1.7. The `irtlib.irt` module docstring says the
+   calibrated with D = 1.7 must have a multiplied by 1.7. The Item Response Functions page says the
    functions have no constant; the `ItemBank` constructor's docstring, where a user builds a bank,
    does not, and only catsim's getting-started notebook and stratified selector page give the
    rescaling.
