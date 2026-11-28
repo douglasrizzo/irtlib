@@ -50,13 +50,14 @@ estimates to the three decimals printed (`tests/test_mml.py`).
 iteration along its last step, by a factor set from the norms of the iterates' first and second
 differences and updated every third iteration (p. 345). As Thissen (1982, p. 181) applies it to MML,
 it doubles or triples the speed, but in its exact form "frequently leads to over-acceleration and
-divergence", so he limits it; mirt bounds it too, and departs from Ramsay's rule in three other ways
-(`backlog/estimation/em-acceleration.md`). In that card's measurement, mirt's variant cut the cycles
-by 1.7 to 2.7 times without changing the estimates, and Ramsay's unbounded rule diverged on a slow
-case. Among the newer
-methods compared for the 1PL and 2PL, acceleration paid most for long tests and when the ability
-variance was fixed (Beisemann, Wartlick & Doebler, 2020, p. 232). SQUAREM is documented in full by
-Du and Varadhan (2020, pp. 3-4).
+divergence", so he limits it; mirt 1.48 bounds it too, and departs from Ramsay's rule in three other
+ways (source `R/EMstep.group.R:166, 287-291, 347-357`). On a scratch 2PL (2026-11-27), mirt's variant
+cut the cycles by 1.7 to 2.7 times without changing the estimates, and Ramsay's unbounded rule
+diverged on a slow case. Among the newer methods compared for the 1PL and 2PL, acceleration paid
+most for long tests and when the ability variance was fixed (Beisemann, Wartlick & Doebler, 2020,
+p. 232). SQUAREM is documented in full by Du and Varadhan (2020, pp. 3-4, Algorithm 1); on the 3PL
+and 4PL of `irtlib.mml` it took 2.7 times fewer cycles than mirt's variant of Ramsay's rule on the
+4PL, and `irtlib.mml` accelerates with it (ADR-0007).
 
 **mirt.** mirt 1.48 estimates by this method by default, on 61 equally spaced nodes, and stops when
 every parameter changes by less than $10^{-4}$; for the 1PL above, that rule stopped the

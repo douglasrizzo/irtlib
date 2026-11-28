@@ -27,7 +27,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 from scipy.integrate import quad
-from scipy.special import expit, logsumexp
+from scipy.special import expit, logit, logsumexp
+from scipy.stats import lognorm, norm
 
 from irtlib import ItemBank, irt
 from irtlib.ability import (
@@ -37,7 +38,7 @@ from irtlib.ability import (
   maximum_likelihood,
   weighted_likelihood,
 )
-from irtlib.calibration import Calibration, Likelihood, default_grid
+from irtlib.calibration import Calibration, ConvergenceWarning, Likelihood, default_grid
 from irtlib.comparison import aic, bic, g2, likelihood_ratio
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - mirt's collapsing is compared on its own recorded tables
@@ -46,6 +47,7 @@ from irtlib.fit import (
   s_x2,
 )
 from irtlib.mml import (
+  Acceleration,
   MMLCalibrator,
   Priors,
   _prior_terms,  # noqa: PLC2701
@@ -146,13 +148,17 @@ def test_mml_fixed_parameter_log_likelihood(name: str) -> None:
   )
 
 
+@pytest.mark.parametrize("acceleration", list(Acceleration))
 @pytest.mark.parametrize("case", _MML_EM["cases"], ids=operator.itemgetter("id"))
-def test_mml_estimates(case: dict[str, Any]) -> None:
+def test_mml_estimates(case: dict[str, Any], acceleration: Acceleration) -> None:
   """MMLCalibrator's estimates and log-likelihood match mirt's for the 2PL, the common-slope 1PL and fixed slopes.
 
-  Compared in mirt's parameters, the slope and the intercept, with the calibrator stopped at mirt's tolerance.
+  Compared in mirt's parameters, the slope and the intercept, with the calibrator stopped at mirt's tolerance, with
+  and without acceleration, which changes the path to the maximum and not the maximum.
   """
-  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  calibrator = MMLCalibrator(
+    **_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"], acceleration=acceleration
+  )
   calibration = calibrator.calibrate(responses(_MML_EM["data"][case["data"]]))
   slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
@@ -342,10 +348,11 @@ def _prior_settings(case: dict[str, Any]) -> dict[str, Any]:
 
 
 @functools.cache
-def _prior_calibration(case_id: str) -> Calibration:
+def _prior_calibration(case_id: str, acceleration: Acceleration = Acceleration.SQUAREM) -> Calibration:
   """Return the calibration of a prior fixture case, computed once for the estimate and standard-error tests."""
   case = next(case for case in _MML_PRIORS["cases"] if case["id"] == case_id)
-  return MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  calibrator = MMLCalibrator(**_prior_settings(case), acceleration=acceleration)
+  return calibrator.calibrate(responses(_MML_PRIORS["data"][case["data"]]))
 
 
 def _marked(case: dict[str, Any], *reasons: tuple[str, str]) -> Any:
@@ -376,6 +383,7 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
   np.testing.assert_allclose(_prior_terms(values, priors, counted)[0], case["log_prior"], rtol=_CLOSED_FORM_RTOL)
 
 
+@pytest.mark.parametrize("acceleration", list(Acceleration))
 @pytest.mark.parametrize(
   "case",
   [
@@ -388,15 +396,80 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
     for case in _MML_PRIORS["cases"]
   ],
 )
-def test_mml_priors_estimates(case: dict[str, Any]) -> None:
-  """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's."""
-  calibration = _prior_calibration(case["id"])
+def test_mml_priors_estimates(case: dict[str, Any], acceleration: Acceleration) -> None:
+  """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's.
+
+  With and without acceleration, which changes the path to the maximum and not the maximum.
+  """
+  calibration = _prior_calibration(case["id"], acceleration)
   slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(-slope * calibration.estimates[:, 1], case["intercept"], atol=_ESTIMATE_ATOL)
   for key, asymptote in [("guessing", calibration.estimates[:, 2]), ("upper", calibration.estimates[:, 3])]:
     if key in case:
       np.testing.assert_allclose(np.log(asymptote / (1 - asymptote)), case[key], atol=_ESTIMATE_ATOL)
+
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_acceleration_keeps_the_prior_estimates(case: dict[str, Any]) -> None:
+  """With and without acceleration, the Bayes modal estimates of every prior case agree within the parity tolerance.
+
+  Where mirt stops short of the mode its estimates cannot show that acceleration keeps the maximum, so the plain EM
+  calibration, stopped at the same tolerance, is the reference. Fails if an accelerated cycle runs from E-step counts
+  computed at other parameters, as one reusing the first cycle's counts after a refused extrapolation does: it is then
+  not an EM cycle, and the stopping rule can be met away from the mode.
+  """
+  plain = _prior_calibration(case["id"], Acceleration.NONE).estimates
+  accelerated = _prior_calibration(case["id"], Acceleration.SQUAREM).estimates
+  np.testing.assert_allclose(accelerated[:, 0], plain[:, 0], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(accelerated[:, 0] * accelerated[:, 1], plain[:, 0] * plain[:, 1], atol=_ESTIMATE_ATOL)
+  for column, key in [(2, "guessing"), (3, "upper")]:
+    if key in case:
+      np.testing.assert_allclose(logit(accelerated[:, column]), logit(plain[:, column]), atol=_ESTIMATE_ATOL)
+
+
+def _scipy_log_prior(case: dict[str, Any], estimates: FloatArray) -> float:
+  """Return the log-prior of a prior case's estimates from scipy's densities, the 1PL's shared slope counted once."""
+  total = 0.0
+  for prior in case["priors"]:
+    mean, sd = prior["mean"], prior["sd"]
+    match prior["parameter"]:
+      case "a1":
+        slopes = estimates[:1, 0] if case["model"] == "1PL" else estimates[:, 0]
+        total += np.sum(lognorm.logpdf(slopes, s=sd, scale=np.exp(mean)))
+      case "d":
+        total += np.sum(norm.logpdf(-estimates[:, 0] * estimates[:, 1], mean, sd))
+      case "g":
+        total += np.sum(norm.logpdf(logit(estimates[:, 2]), mean, sd))
+      case _:
+        total += np.sum(norm.logpdf(logit(estimates[:, 3]), mean, sd))
+  return float(total)
+
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_acceleration_moves_the_third_cycle_uphill(case: dict[str, Any]) -> None:
+  """After three cycles, SQUAREM's estimates are elsewhere than plain EM's, at a higher log-posterior.
+
+  The third cycle runs from the first extrapolation, which every prior case keeps, so a calibrator that ran plain EM
+  under ``"squarem"`` would return plain EM's three-cycle estimates. The log-posterior is the public marginal
+  log-likelihood plus scipy's prior densities. A converged accelerated calibration also takes fewer cycles.
+  """
+  matrix = responses(_MML_PRIORS["data"][case["data"]])
+  settings: dict[str, Any] = {**_prior_settings(case), "max_cycles": 3}
+  estimates, log_posteriors = {}, {}
+  for acceleration in Acceleration:
+    # a ConvergenceWarning, and on the 4PL one for an information matrix that cannot be inverted yet
+    with pytest.warns(RuntimeWarning) as caught:
+      calibration = MMLCalibrator(**settings, acceleration=acceleration).calibrate(matrix)
+    assert any(issubclass(warning.category, ConvergenceWarning) for warning in caught)
+    estimates[acceleration] = calibration.estimates
+    log_posteriors[acceleration] = marginal_log_likelihood(matrix, calibration.estimates) + _scipy_log_prior(
+      case, calibration.estimates
+    )
+  assert np.max(np.abs(estimates[Acceleration.SQUAREM] - estimates[Acceleration.NONE])) > 1e-3
+  assert log_posteriors[Acceleration.SQUAREM] > log_posteriors[Acceleration.NONE]
+  converged = {acceleration: _prior_calibration(case["id"], acceleration).cycles for acceleration in Acceleration}
+  assert converged[Acceleration.SQUAREM] < converged[Acceleration.NONE]
 
 
 @pytest.mark.parametrize(
