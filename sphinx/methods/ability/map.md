@@ -1,7 +1,7 @@
 # Maximum A Posteriori
 
 :API: {py:func}`irtlib.ability.maximum_a_posteriori`
-:Sources: {cite:t}`Magis2012`; {cite:t}`Warm1989`
+:Sources: {cite:t}`Samejima1969`; {cite:t}`Magis2012`; {cite:t}`Warm1989`; {cite:t}`Bock1982`
 
 ## Motivation
 
@@ -11,12 +11,25 @@ posterior of responses all correct or all incorrect has a finite mode, and the s
 the prior's precision to the test information. {doc}`eap` takes the posterior's mean instead of its
 mode, and {doc}`ml` uses no prior.
 
+{cite:t}`Samejima1969{p. 7, Equations 2-5 and 2-6}` defines the Bayes modal estimator, the ability
+that maximizes the prior density times the likelihood; {cite:t}`Bock1982{p. 432}` credit
+{cite:t}`Bock1981` with the name MAP, and {cite:t}`Magis2012{p. 4}` attribute the estimator to
+Birnbaum (1969).
+
 ## Definition
 
 The MAP estimate maximizes the posterior, $\log \pi(\theta) + \log L_j(\theta)$ for a prior density
 $\pi$ {cite:p}`Magis2012{p. 5, Equation 5}`; {cite:p}`Warm1989{p. 430}`. For a normal prior of
 variance $\sigma^2$ its standard error is $1 / \sqrt{1 / \sigma^2 + I(\hat\theta)}$
 {cite:p}`Magis2012{p. 5, Equation 6}`.
+
+**Against the maximum likelihood and EAP estimates.** When every answered item has $c_i = 0$ and
+$d_i = 1$ the log-likelihood is concave, so under a normal prior the derivative of the log-posterior
+points toward the prior mean at the maximum likelihood estimate and toward that estimate at the
+prior mean, and the single mode lies between the two. Under a uniform prior on an interval wide
+enough, the MAP and maximum likelihood estimates are equivalent {cite:p}`Magis2012{p. 5}`. As items
+accumulate, the posterior approaches normality {cite:p}`Bock1982{p. 434}`, and its mode, the MAP
+estimate, and its mean, the {doc}`eap` estimate, draw together.
 
 ## Implementation
 
@@ -40,6 +53,12 @@ $-(\theta - \mu) / \sigma^2$ and $-1 / \sigma^2$ added to the derivatives, and o
 have $c_i = 0$ and $d_i = 1$ the log-posterior is concave too, and the search skips the points as the
 maximum likelihood search does. With any other prior the refinement is SciPy's bounded search,
 `scipy.optimize.minimize_scalar`. An examinee who answered no item gets the prior's mode.
+
+The points come first for two reasons. A prior that is zero on part of the bounds, such as a
+uniform prior on $[-1, 1]$ searched over $[-6, 6]$, makes the log-posterior $-\infty$ there, a flat
+region that a bounded scalar search cannot cross; and a posterior with several modes, from a prior
+with several or from a 3PL likelihood, has local modes where a local search can stop. The prior's
+support must hold at least one of the points, which any interval wider than their spacing does.
 
 **The observed information.** When every answered item has $c_i = 0$ and $d_i = 1$, the observed
 information is $I$ exactly {cite:p}`Warm1989{p. 449}`, whose model fixes $d_i = 1$

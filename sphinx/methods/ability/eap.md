@@ -10,19 +10,40 @@ its responses times a prior density of ability, and its standard error is the po
 deviation. It needs no search, only sums over a grid of abilities, and it is finite whatever the
 responses. {doc}`map` takes the posterior's mode instead.
 
+The posterior variance "serves as its error variance" {cite:p}`Bock1982{p. 432}`, and in Bock and
+Mislevy's simulations the posterior standard deviation came close to the standard error of
+measurement {cite:p}`Bock1982{p. 431}`.
+
 ## Definition
 
 The EAP estimate is the mean of the examinee's posterior over the grid of
 {doc}`/methods/models/quadrature`, and its standard error the posterior standard deviation
 {cite:p}`Bock1982{p. 433, Equations 4 and 5}`; {cite:p}`Magis2012{pp. 5-6, Equations 10 and 11}`.
+Bock and Mislevy credit these quadrature formulas to {cite:t}`Bock1981`
+{cite:p}`Bock1982{p. 432}`.
 
 ## Implementation
 
 The posterior is that of {doc}`/methods/models/quadrature`: the masses of the prior on the grid,
-times the likelihood at each node, normalized, with no correction of the variance. It is finite
+times the likelihood at each node, normalized, with no correction of the variance, where Bock and
+Mislevy apply Sheppard's correction {cite:p}`Bock1982{p. 433}`. The nodes are evenly spaced, as
+theirs are: Gauss-Hermite quadrature is exact for integrands that are polynomials, and "this class
+does not include the likelihood functions in adaptive testing" {cite:p}`Bock1982{p. 433}`. It is finite
 whatever the responses, and an examinee who answered no item gets the prior's mean and standard
 deviation on the grid. A caller that estimates many matrices with the same grid and prior can pass a
 {class}`~irtlib.quadrature.GridPrior` built once instead of the two.
+
+**The grid's accuracy.** The grid is accurate while it resolves the posterior. Against a reference
+grid of 2,401 nodes on the same range, the default grid of 121 nodes, 0.1 apart, gives the
+posterior mean and standard deviation within 0.41% of the reference standard deviation while the
+posterior standard deviation is at least 0.065, which takes a test information of about 236. Below
+that it degrades: the error reaches 7.3% at a posterior standard deviation of 0.05 and 48% at 0.035.
+A grid of 41 nodes, 0.3 apart, is within 0.37% at 0.2, and reaches 7.9% at 0.15 and 42% at 0.11.
+The errors are the worst over the posterior's position between two nodes, for a normal likelihood
+under the standard normal prior (measured 2026-11-28). The default's spacing is that of the 80
+points between $\pm 4$ standard deviations that Bock and Mislevy suggest to keep precision down to
+a posterior standard deviation of 0.2 {cite:p}`Bock1982{p. 433}`. A standard error below about 0.065
+needs a finer grid than the default.
 
 :::{dropdown} Comparison with mirt and catR
 

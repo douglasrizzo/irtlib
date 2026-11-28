@@ -1,7 +1,8 @@
 # Item Response Functions
 
 :API: {py:mod}`irtlib.irt`
-:Sources: {cite:t}`Magis2013`; {cite:t}`Magis2012`; {cite:t}`Barton1981`; {cite:t}`Baker1987`
+:Sources: {cite:t}`Magis2013`; {cite:t}`Magis2012`; {cite:t}`Barton1981`; {cite:t}`Baker1987`;
+  {cite:t}`Veerkamp1994`
 
 ## Motivation
 
@@ -65,7 +66,8 @@ $$
 with $u_i = -3/4 + (c_i + d_i - 2 c_i d_i)/2$ and $v_i = (c_i + d_i - 1)/4$, where $x^*_i$ is the
 probability of a correct response at $\theta^*_i$ {cite:p}`Magis2013{pp. 308-309, Equations 13, 18
 and 19}`. With $d_i = 1$ it is $\theta^*_i = b_i + \log[(1 + \sqrt{1 + 8 c_i}) / 2] / a_i$
-(p. 310, Equation 23), and with $c_i + d_i = 1$ it is $b_i$ (pp. 309-310).
+(p. 310, Equation 23), and with $c_i + d_i = 1$ it is $b_i$ (pp. 309-310). The 3PL's $\theta^*_i$ is also
+Equation 2 of {cite:t}`Barrada2006{p. 157}`, with their constant $D = 1.7$.
 
 **The integral of the information.** Since $P_i' = a_i (P_i - c_i)(d_i - P_i) / (d_i - c_i)$
 {cite:p}`Magis2013{p. 306, Equation 5}`, changing the variable of integration from $\theta$ to $P_i$
@@ -77,7 +79,8 @@ $$
 (1 - c_i)(1 - d_i) \log(1 - P_i) \Big]_{P_i(\theta_L)}^{P_i(\theta_U)},
 $$
 
-derived here rather than printed in a source.
+which extends the 3PL closed form of {cite:t}`Veerkamp1994{p. 22, Equation 25}`, to which it reduces
+when $d_i = 1$. Under the 2PL the integral over the whole scale is $a_i$ (p. 22, Equation 28).
 
 **The log-likelihood.** The log-likelihood of examinee $j$'s responses $u_{ij}$ is
 
@@ -141,7 +144,7 @@ $a^2 F (1 - F)$ times the first two ratios.
 **Departures from the sources.** Magis assumes $0 < c_i < 0.5$ and $0.5 < d_i < 1$
 {cite:p}`Magis2013{p. 306}`; {func}`~irtlib.irt.max_info_theta` takes his Equation 19 for every item
 with $d_i < 1$, and his Equation 23 for every item with $d_i = 1$. The closed form of the integral of
-the information has no published source; the
+the information with $d_i < 1$ has no published source; the
 [sources wanted](https://github.com/douglasrizzo/irtlib/blob/dev/backlog/discovery/sources-wanted.md)
 list both.
 
