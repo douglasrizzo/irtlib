@@ -85,7 +85,7 @@ from scipy.stats import norm
 
 from ._responses import _N_COLUMNS
 from .bank import IrtModel, ItemBank
-from .calibration import Calibration, ConvergenceWarning, _valid_items, default_grid, validate_responses
+from .calibration import Calibration, ConvergenceWarning, Likelihood, _valid_items, default_grid, validate_responses
 from .irt import log_likelihood, log_likelihood_gradient, log_response_probabilities, parameter_information
 from .quadrature import QuadratureGrid, _log_masses, normal_log_prior, posterior
 from .typing import FloatArray, IntArray
@@ -449,6 +449,7 @@ class MMLCalibrator:
       items=_valid_items(estimates),
       standard_errors=standard_errors,
       log_likelihood=marginal_log_likelihood(matrix, estimates, self._grid),
+      likelihood=Likelihood.MARGINAL,
       n_parameters=int(index.max()) + 1,
       item_parameters=numpy.count_nonzero(index >= 0, axis=1),
       cycles=cycles,

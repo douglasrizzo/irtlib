@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
+from irtlib.cml import CMLCalibrator
 from irtlib.drawing import draw_responses
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
@@ -107,6 +108,19 @@ def test_negative_min_expected_is_refused() -> None:
     s_x2(MMLCalibrator().calibrate(_LSAT7), _LSAT7, min_expected=-1.0)
 
 
+@pytest.mark.parametrize(("statistic", "name"), [(s_x2, "S-X²"), (mean_squares, "the mean squares")])
+def test_a_conditional_calibration_is_refused(
+  statistic: Callable[[Calibration, FloatArray], object], name: str
+) -> None:
+  """S-X² and the mean squares refuse a calibration by conditional maximum likelihood, which has no grid of abilities.
+
+  Its items are a 1PL's, so the mean squares' check of the model passes them; without the grid's check, S-X² would
+  fail on the missing grid, and the mean squares would estimate abilities on a default grid the calibration never used.
+  """
+  with pytest.raises(ValueError, match=rf"^for {name}, a calibration must be of the marginal likelihood.*conditional$"):
+    statistic(CMLCalibrator().calibrate(_LSAT7), _LSAT7)
+
+
 def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
   """S-X² evaluates every item at its estimates, the miskeyed one the calibration's bank leaves out included.
 
@@ -129,8 +143,10 @@ def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) ->
   Equations 12 and 13 of Orlando and Thissen (2000), with the 4PL written out and the grid's normal masses.
   """
   a, b, c, d = calibration.estimates.T
-  nodes = calibration.grid.nodes
-  masses = calibration.grid.weights * np.exp(-(nodes**2) / 2)
+  grid = calibration.grid
+  assert grid is not None
+  nodes = grid.nodes
+  masses = grid.weights * np.exp(-(nodes**2) / 2)
   probability = c + (d - c) / (1 + np.exp(-a * (nodes[:, np.newaxis] - b)))  # nodes x items
   joint = np.zeros((5, 2))  # score 0 to 4, the item incorrect or correct
   for pattern in itertools.product((0, 1), repeat=4):

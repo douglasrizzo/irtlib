@@ -171,4 +171,6 @@ https://hdl.handle.net/11299/98553
 
 Follows ADR-0006 to ADR-0008; items with no finite estimate are removed and reported (ADR-0008).
 The item step shares the M-step's Fisher scoring (`irtlib.mml`), with estimated abilities in place
-of quadrature nodes.
+of quadrature nodes. Its result is an `irtlib.calibration.Calibration` of a new `Likelihood.JOINT`,
+with no grid, which model comparison and S-X² then refuse (ADR-0006); items left out get NaN
+estimates, as `irtlib.cml` gives them.

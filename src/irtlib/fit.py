@@ -86,7 +86,7 @@ either mean square at 1.4142 before standardizing (``R/itemfit.R:586, 591``). mi
 model from its probabilities (``R/personfit.R:181-194``), and with missing responses sums over the examinees who
 answered each item, with :math:`N` their number (``R/itemfit.R:577-584``). Wright and Masters' sums run over every
 examinee, with no rule for a missing response, so irtlib's mean squares need complete responses (ADR-0006), and a
-calibration of the 1PL.
+calibration of the 1PL by marginal maximum likelihood, whose grid the abilities are estimated on.
 """
 
 import math
@@ -96,7 +96,7 @@ import numpy
 from scipy.stats import chi2
 
 from .ability import expected_a_posteriori
-from .calibration import Calibration, validate_responses
+from .calibration import Calibration, _check_marginal, validate_responses
 from .irt import icc, log_response_probabilities
 from .quadrature import normal_log_prior, prior_masses
 from .typing import FloatArray, IntArray
@@ -134,7 +134,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Parameters
   ----------
   calibration : Calibration
-      The calibration whose items are evaluated.
+      The calibration whose items are evaluated, of the marginal likelihood, whose grid the expected counts are
+      integrated over.
   responses : numpy.ndarray
       The complete response matrix the calibration estimated its items from: one row per examinee, one column per
       item, 1 or 0.
@@ -153,14 +154,15 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
       If the responses are neither Booleans, integers nor floats.
   ValueError
       If the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do
-      not have one column per item of the calibration, or ``min_expected`` is negative.
+      not have one column per item of the calibration; ``min_expected`` is negative; or the calibration's
+      likelihood is not marginal, so that it has no grid.
   """
   if not min_expected >= 0:
     msg = f"min_expected must be at least 0, got {min_expected}"
     raise ValueError(msg)
   matrix = _complete_responses(calibration, responses, "S-X²")
   items = calibration.estimates
-  grid = calibration.grid
+  grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
   probability = icc(grid.nodes, items).T  # items x nodes
   expected = _expected_proportions(probability, masses)
@@ -280,7 +282,8 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   Parameters
   ----------
   calibration : Calibration
-      A calibration of the 1PL, whose items all have the same slope, ``c = 0`` and ``d = 1``.
+      A calibration of the 1PL, whose items all have the same slope, ``c = 0`` and ``d = 1``, of the marginal
+      likelihood, on whose grid the abilities are estimated.
   responses : numpy.ndarray
       The complete response matrix the calibration estimated its items from: one row per examinee, one column per
       item, 1 or 0.
@@ -295,9 +298,9 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   TypeError
       If the responses are neither Booleans, integers nor floats.
   ValueError
-      If the calibration's items are not those of a 1PL; or the responses fail
-      :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not have one column per item of
-      the calibration.
+      If the calibration's items are not those of a 1PL, or its likelihood is not marginal, so that it has no grid;
+      or the responses fail :py:func:`irtlib.calibration.validate_responses`, have a missing response, or do not have
+      one column per item of the calibration.
 
   Examples
   --------
@@ -319,7 +322,8 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
     )
     raise ValueError(msg)
   matrix = _complete_responses(calibration, responses, "the mean squares")
-  theta = expected_a_posteriori(matrix, items, grid=calibration.grid).theta
+  grid = _check_marginal(calibration, "the mean squares")
+  theta = expected_a_posteriori(matrix, items, grid=grid).theta
   log_p, log_q = log_response_probabilities(theta, items)
   return _mean_squares(matrix, numpy.exp(log_p), numpy.exp(log_q))
 
