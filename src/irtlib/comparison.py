@@ -30,7 +30,7 @@ from dataclasses import dataclass
 import numpy
 from scipy.stats import chi2
 
-from .calibration import Calibration, _check_marginal, validate_responses
+from .calibration import Calibration, _check_marginal, _complete_responses
 from .mml import marginal_log_likelihood
 from .typing import FloatArray
 
@@ -179,14 +179,10 @@ def g2(calibration: Calibration, responses: FloatArray) -> ChiSquareTest:
       marginal.
   """
   grid = _check_marginal(calibration, "G2")
-  matrix = validate_responses(responses)
-  if numpy.isnan(matrix).any():
-    msg = "G2 needs complete responses; the multinomial over patterns is not defined with missing responses"
-    raise ValueError(msg)
+  matrix = _complete_responses(
+    calibration, responses, "G2", "the multinomial over patterns is not defined with missing responses"
+  )
   n_items = calibration.estimates.shape[0]
-  if matrix.shape[1] != n_items:
-    msg = f"the responses have {matrix.shape[1]} items, the calibration {n_items}"
-    raise ValueError(msg)
   df = 2**n_items - 1 - calibration.n_parameters
   if df < 1:
     msg = (

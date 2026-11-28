@@ -190,6 +190,43 @@ def validate_responses(responses: npt.ArrayLike) -> FloatArray:
   return matrix
 
 
+def _complete_responses(calibration: Calibration, responses: npt.ArrayLike, statistic: str, reason: str) -> FloatArray:
+  """Return the responses as a float matrix, after checking that they are complete and match the calibration's items.
+
+  Parameters
+  ----------
+  calibration : Calibration
+      The calibration the statistic is computed from.
+  responses : array_like
+      The response matrix: one row per examinee, one column per item.
+  statistic : str
+      The statistic's name, for the errors.
+  reason : str
+      What the error for a missing response says after naming the statistic: why it needs complete responses, or
+      what to do instead.
+
+  Returns
+  -------
+  numpy.ndarray
+      A float copy of the responses.
+
+  Raises
+  ------
+  ValueError
+      If the responses fail :py:func:`validate_responses`, have a missing response, or do not have one column per
+      item of the calibration.
+  """
+  matrix = validate_responses(responses)
+  if numpy.isnan(matrix).any():
+    msg = f"complete responses are needed for {statistic}; {reason}"
+    raise ValueError(msg)
+  n_items = calibration.estimates.shape[0]
+  if matrix.shape[1] != n_items:
+    msg = f"the responses have {matrix.shape[1]} items, the calibration {n_items}"
+    raise ValueError(msg)
+  return matrix
+
+
 def default_grid() -> QuadratureGrid:
   """Return the grid abilities are integrated over by default (ADR-0007).
 
