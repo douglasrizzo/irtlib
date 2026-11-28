@@ -1,12 +1,15 @@
 """Tests for matplotlib as the optional plot extra, which every module of irtlib.plot shares."""
 
+import inspect
 import pkgutil
+import re
 import subprocess
 import sys
 import tomllib
 from pathlib import Path
 
 import irtlib
+import irtlib.plot
 
 
 def _run_python(code: str) -> subprocess.CompletedProcess[str]:
@@ -62,3 +65,17 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
   assert result.stderr.splitlines()[-1] == (
     "ImportError: irtlib.plot needs matplotlib; install it with: pip install 'irtlib[plot]'"
   )
+
+
+def test_every_docstring_figure_is_saved_under_its_functions_name() -> None:
+  """Each ``.. plot::`` figure in an irtlib.plot docstring sets ``:filename-prefix:`` to its function's name.
+
+  The plot directive numbers the figures of each reST block from 1, and the API page renders each section's docstrings
+  in a block of its own, so two figures without a prefix in two sections share one file name. Fails if a figure has no
+  prefix, which shows one plot's figure under another's on the page without a warning, or a prefix not its own.
+  """
+  for name in irtlib.plot.__all__:
+    docstring = inspect.getdoc(getattr(irtlib.plot, name)) or ""
+    directives = re.findall(r"^\.\. plot::\n((?:[ ]+:.*\n)*)", docstring, flags=re.MULTILINE)
+
+    assert all(f":filename-prefix: {name}\n" in options for options in directives), name

@@ -18,6 +18,23 @@ except ImportError as error:
   _missing = "irtlib.plot needs matplotlib; install it with: pip install 'irtlib[plot]'"
   raise ImportError(_missing) from error
 
+from ._examinees import (
+  ability_histogram,
+  item_person_map,
+  likelihood,
+  population_posterior,
+  precision,
+  prior_posterior,
+)
 from ._items import Curve, item_curve
 
-__all__ = ["Curve", "item_curve"]
+__all__ = [
+  "Curve",
+  "ability_histogram",
+  "item_curve",
+  "item_person_map",
+  "likelihood",
+  "population_posterior",
+  "precision",
+  "prior_posterior",
+]

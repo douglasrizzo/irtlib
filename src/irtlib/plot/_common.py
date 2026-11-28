@@ -1,12 +1,14 @@
-"""What every plot module shares: the axes to draw on and the items to draw."""
+"""What every plot module shares: the axes to draw on, and the items and abilities to draw."""
 
 import operator
 
 import matplotlib.pyplot as plt
 import numpy
+import numpy.typing as npt
 from matplotlib.axes import Axes
 
 from ..bank import ItemBank
+from ..drawing import _abilities
 from ..typing import FloatArray
 
 
@@ -46,6 +48,34 @@ def as_bank(items: ItemBank | FloatArray) -> ItemBank:
       The items, with their names.
   """
   return items if isinstance(items, ItemBank) else ItemBank(numpy.asarray(items, dtype=float))
+
+
+def abilities(theta: npt.ArrayLike) -> FloatArray:
+  """Return examinees' abilities as a new float array, after checking that they are at least one finite real number.
+
+  Parameters
+  ----------
+  theta : array_like
+      The abilities the caller passed, one per examinee.
+
+  Returns
+  -------
+  numpy.ndarray
+      The abilities.
+
+  Raises
+  ------
+  TypeError
+      If ``theta`` holds values that are not real numbers.
+  ValueError
+      If ``theta`` is empty or not one-dimensional, or holds a value that is not finite.
+  """
+  values = _abilities(theta)
+  # An empty array has no histogram, and its shares divide by zero.
+  if values.size == 0:
+    msg = "theta is empty; it must hold one ability per examinee, at least one"
+    raise ValueError(msg)
+  return values
 
 
 def item_position(label: str, value: object, n_items: int) -> int:
