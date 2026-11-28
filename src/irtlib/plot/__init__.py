@@ -19,5 +19,6 @@ except ImportError as error:
   raise ImportError(_missing) from error
 
 from ._items import Curve, item_curve
+from ._screening import number_correct_histogram, rest_score_curve
 
-__all__ = ["Curve", "item_curve"]
+__all__ = ["Curve", "item_curve", "number_correct_histogram", "rest_score_curve"]
