@@ -1,8 +1,8 @@
 /*
  * irtlib's colors on pydata-sphinx-theme. The primary color (links, the current page in the
  * navigation, buttons) is a light blue, in a darker shade on the light theme so that links keep a
- * contrast of at least 4.5:1 with the page. The secondary color (a link under the pointer) and the
- * color of inline code are slate, the color of catsim's logo lines.
+ * contrast of at least 4.5:1 with the page, and the logo's dots are a lighter one. The secondary color
+ * (a link under the pointer) and the color of inline code are the slate of the logo's curve.
  */
 
 html[data-theme="light"] {
