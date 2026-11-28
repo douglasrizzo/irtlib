@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pytest
 from scipy.integrate import quad
-from scipy.special import expit, logsumexp
+from scipy.special import expit, logit, logsumexp
 
 from irtlib import ItemBank, irt
 from irtlib.ability import (
@@ -43,6 +43,7 @@ from irtlib.fit import (
   s_x2,
 )
 from irtlib.mml import (
+  Acceleration,
   MMLCalibrator,
   Priors,
   _prior_terms,  # noqa: PLC2701
@@ -138,13 +139,17 @@ def test_mml_fixed_parameter_log_likelihood(name: str) -> None:
   )
 
 
+@pytest.mark.parametrize("acceleration", list(Acceleration))
 @pytest.mark.parametrize("case", _MML_EM["cases"], ids=operator.itemgetter("id"))
-def test_mml_estimates(case: dict[str, Any]) -> None:
+def test_mml_estimates(case: dict[str, Any], acceleration: Acceleration) -> None:
   """MMLCalibrator's estimates and log-likelihood match mirt's for the 2PL, the common-slope 1PL and fixed slopes.
 
-  Compared in mirt's parameters, the slope and the intercept, with the calibrator stopped at mirt's tolerance.
+  Compared in mirt's parameters, the slope and the intercept, with the calibrator stopped at mirt's tolerance, with
+  and without acceleration, which changes the path to the maximum and not the maximum.
   """
-  calibrator = MMLCalibrator(**_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"])
+  calibrator = MMLCalibrator(
+    **_MML_MODELS[case["model"]], tolerance=_MML_EM["settings"]["tol"], acceleration=acceleration
+  )
   calibration = calibrator.calibrate(responses(_MML_EM["data"][case["data"]]))
   slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
@@ -248,10 +253,11 @@ def _prior_settings(case: dict[str, Any]) -> dict[str, Any]:
 
 
 @functools.cache
-def _prior_calibration(case_id: str) -> Calibration:
+def _prior_calibration(case_id: str, acceleration: Acceleration = Acceleration.SQUAREM) -> Calibration:
   """Return the calibration of a prior fixture case, computed once for the estimate and standard-error tests."""
   case = next(case for case in _MML_PRIORS["cases"] if case["id"] == case_id)
-  return MMLCalibrator(**_prior_settings(case)).calibrate(responses(_MML_PRIORS["data"][case["data"]]))
+  calibrator = MMLCalibrator(**_prior_settings(case), acceleration=acceleration)
+  return calibrator.calibrate(responses(_MML_PRIORS["data"][case["data"]]))
 
 
 def _marked(case: dict[str, Any], *reasons: tuple[str, str]) -> Any:
@@ -282,6 +288,7 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
   np.testing.assert_allclose(_prior_terms(values, priors, counted)[0], case["log_prior"], rtol=_CLOSED_FORM_RTOL)
 
 
+@pytest.mark.parametrize("acceleration", list(Acceleration))
 @pytest.mark.parametrize(
   "case",
   [
@@ -294,15 +301,48 @@ def test_mml_prior_densities(case: dict[str, Any]) -> None:
     for case in _MML_PRIORS["cases"]
   ],
 )
-def test_mml_priors_estimates(case: dict[str, Any]) -> None:
-  """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's."""
-  calibration = _prior_calibration(case["id"])
+def test_mml_priors_estimates(case: dict[str, Any], acceleration: Acceleration) -> None:
+  """Bayes modal estimates under priors on the slope, intercept and logits of c and d match mirt's.
+
+  With and without acceleration, which changes the path to the maximum and not the maximum.
+  """
+  calibration = _prior_calibration(case["id"], acceleration)
   slope = calibration.estimates[:, 0]
   np.testing.assert_allclose(slope, case["slope"], atol=_ESTIMATE_ATOL)
   np.testing.assert_allclose(-slope * calibration.estimates[:, 1], case["intercept"], atol=_ESTIMATE_ATOL)
   for key, asymptote in [("guessing", calibration.estimates[:, 2]), ("upper", calibration.estimates[:, 3])]:
     if key in case:
       np.testing.assert_allclose(np.log(asymptote / (1 - asymptote)), case[key], atol=_ESTIMATE_ATOL)
+
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_acceleration_keeps_the_prior_estimates(case: dict[str, Any]) -> None:
+  """With and without acceleration, the Bayes modal estimates of every prior case agree within the parity tolerance.
+
+  Where mirt stops short of the mode its estimates cannot show that acceleration keeps the maximum, so the plain EM
+  calibration, stopped at the same tolerance, is the reference. Fails if an accelerated cycle runs from E-step counts
+  computed at other parameters, as one reusing the first cycle's counts after a refused extrapolation does: it is then
+  not an EM cycle, and the stopping rule can be met away from the mode.
+  """
+  plain = _prior_calibration(case["id"], Acceleration.NONE).estimates
+  accelerated = _prior_calibration(case["id"], Acceleration.SQUAREM).estimates
+  np.testing.assert_allclose(accelerated[:, 0], plain[:, 0], atol=_ESTIMATE_ATOL)
+  np.testing.assert_allclose(accelerated[:, 0] * accelerated[:, 1], plain[:, 0] * plain[:, 1], atol=_ESTIMATE_ATOL)
+  for column, key in [(2, "guessing"), (3, "upper")]:
+    if key in case:
+      np.testing.assert_allclose(logit(accelerated[:, column]), logit(plain[:, column]), atol=_ESTIMATE_ATOL)
+
+
+@pytest.mark.parametrize("case", _MML_PRIORS["cases"], ids=operator.itemgetter("id"))
+def test_acceleration_halves_the_cycles(case: dict[str, Any]) -> None:
+  """SQUAREM reaches the prior cases' estimates in at most half the cycles of plain EM.
+
+  Measured on 2026-11-27, it took 2.3 to 7.4 times fewer, 127 against 936 on the 4PL. Fails if the acceleration is
+  not applied, or its extrapolations are refused where they should be kept.
+  """
+  plain = _prior_calibration(case["id"], Acceleration.NONE)
+  accelerated = _prior_calibration(case["id"], Acceleration.SQUAREM)
+  assert accelerated.cycles <= plain.cycles / 2, (accelerated.cycles, plain.cycles)
 
 
 @pytest.mark.parametrize(
