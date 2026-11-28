@@ -231,7 +231,7 @@ class CMLCalibrator:
       gradient, information = _derivatives(difficulty, totals, score_counts)
       step = _solve(information, gradient)
       # Full steps from Andersen's starting values diverged on 8 of 391 random data sets with an estimate, each left
-      # with two items, such as two items answered 11 to 1; with halving, all 391 converged in 3 to 7 iterations
+      # with two items, such as two items answered 11 to 1; with halving, all 391 converged, within 7 iterations
       # (measured 2026-11-27).
       for _ in range(_STEP_HALVINGS):
         trial = difficulty + step
