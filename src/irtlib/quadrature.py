@@ -314,8 +314,9 @@ class GridPrior:
     object.__setattr__(self, "_node_log_masses", log_masses)
 
   def __setstate__(self, state: list[object]) -> None:
-    """Restore a pickled or copied GridPrior with its arrays read-only again, a flag NumPy's pickling does not keep."""
-    # the state is the dataclass's: each field's value, in the fields' order
+    """Restore the fields from ``state``, with the nodes and log-masses read-only."""
+    # NumPy's pickling does not keep an array's read-only flag; the state is the dataclass's, each field's value in the
+    # fields' order
     for name, value in zip((item.name for item in fields(self)), state, strict=True):
       object.__setattr__(self, name, value)
     self.nodes.setflags(write=False)

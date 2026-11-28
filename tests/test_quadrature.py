@@ -338,20 +338,23 @@ def test_a_grid_prior_is_unchanged_by_later_changes_to_its_grid() -> None:
   "restore", [lambda prior: pickle.loads(pickle.dumps(prior)), copy.deepcopy], ids=["pickle", "deepcopy"]
 )
 def test_a_grid_prior_stays_read_only_when_pickled_or_copied(restore: Callable[[GridPrior], GridPrior]) -> None:
-  """A pickled or deep-copied GridPrior has read-only arrays and the same posterior as the original.
+  """A pickled or deep-copied GridPrior has the original's prior, nodes and posterior, its arrays read-only.
 
-  NumPy's pickling does not keep an array's read-only flag, so the dataclass's own restore gave writable nodes, which a
-  caller could change under the masses computed on them.
+  NumPy's pickling does not keep an array's read-only flag, so the dataclass's own restore gave writable nodes and
+  log-masses, which a caller could change under each other.
   """
   original = GridPrior(QuadratureGrid(nodes=_NODES, weights=_WEIGHTS), normal_log_prior(_PRIOR_MEAN, _PRIOR_SD))
   log_likelihood = np.array([[-1.0, -0.5, -0.2, 0.0, -0.3, -0.9, -2.0]])
 
   restored = restore(original)
 
+  assert restored.log_prior == original.log_prior
   np.testing.assert_array_equal(restored.nodes, _NODES)
   np.testing.assert_array_equal(restored.posterior(log_likelihood), original.posterior(log_likelihood))
   with pytest.raises(ValueError, match="read-only"):
     restored.nodes[0] = 5.0
+  with pytest.raises(ValueError, match="read-only"):
+    restored._node_log_masses[0] = 0.0  # noqa: SLF001
 
 
 def test_a_grid_prior_rejects_a_prior_without_mass_on_its_grid_when_built() -> None:
