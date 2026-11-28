@@ -37,11 +37,13 @@ to the marginal likelihood (mirt 1.48 source, `R/04-PrepData.R:107`).
   for item fit, not part of the result: EAP abilities; S-X² with its degrees of freedom per item;
   and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
-  them, with an error naming an alternative: conditional maximum likelihood and S-X².
+  them, with an error naming an alternative: conditional maximum likelihood, S-X² and the mean
+  squares.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; calibration, with the shared E-step and M-step below the
-  methods, each method computing its own standard errors from them; then ability estimation and
-  fit. Drawing responses is its own module; the import-linter contract enforces the order.
+  methods, each method computing its own standard errors from them; then ability estimation; then
+  fit, whose mean squares take ability estimates. Drawing responses is its own module; the
+  import-linter contract enforces the order.
 
 ## Consequences
 

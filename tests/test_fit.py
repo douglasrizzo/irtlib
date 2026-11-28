@@ -1,11 +1,12 @@
-"""Tests of the S-X² item-fit statistic, beyond the parity tests with mirt.
+"""Tests of the S-X² item-fit statistic and the mean squares, beyond the parity tests with mirt.
 
-Expected values come from enumerating response patterns, hand-worked collapsing, and the statistic's rejection rate
-on data from the fitted model.
+Expected values come from enumerating response patterns, hand-worked collapsing and mean squares, S-X²'s rejection
+rate on data from the fitted model, and the mean squares' expectation on such data.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import itertools
 from typing import TYPE_CHECKING
 
@@ -15,13 +16,17 @@ import pytest
 from irtlib.drawing import draw_responses
 from irtlib.fit import (
   _collapse,  # noqa: PLC2701 - the collapsing rule is checked on hand-worked tables
+  _mean_squares,  # noqa: PLC2701 - the mean squares are checked on hand-worked probabilities
   _summed_score_likelihoods,  # noqa: PLC2701 - the recursion is checked against enumeration
+  mean_squares,
   s_x2,
 )
 from irtlib.mml import MMLCalibrator
 from tests.mirt_fixtures import load, responses
 
 if TYPE_CHECKING:
+  from collections.abc import Callable
+
   from irtlib.calibration import Calibration
   from irtlib.typing import FloatArray
 
@@ -84,17 +89,22 @@ def test_type_one_error_rate() -> None:
   assert 0.015 <= rejection_rate <= 0.10, rejection_rate
 
 
-def test_incomplete_or_mismatched_responses_are_refused() -> None:
-  """S-X² refuses responses with a missing entry or another number of items, and a negative minimum expected count."""
-  calibration = MMLCalibrator().calibrate(_LSAT7)
+@pytest.mark.parametrize("statistic", [s_x2, mean_squares])
+def test_incomplete_or_mismatched_responses_are_refused(statistic: Callable[[Calibration, FloatArray], object]) -> None:
+  """S-X² and the mean squares refuse responses with a missing entry or another number of items."""
+  calibration = MMLCalibrator("1PL").calibrate(_LSAT7)
   with_missing = _LSAT7.copy()
   with_missing[0, 0] = np.nan
   with pytest.raises(ValueError, match="complete responses"):
-    s_x2(calibration, with_missing)
+    statistic(calibration, with_missing)
   with pytest.raises(ValueError, match="4 items, the calibration 5"):
-    s_x2(calibration, _LSAT7[:, :4])
+    statistic(calibration, _LSAT7[:, :4])
+
+
+def test_negative_min_expected_is_refused() -> None:
+  """S-X² refuses a negative minimum expected count."""
   with pytest.raises(ValueError, match="min_expected"):
-    s_x2(calibration, _LSAT7, min_expected=-1.0)
+    s_x2(MMLCalibrator().calibrate(_LSAT7), _LSAT7, min_expected=-1.0)
 
 
 def test_an_item_the_bank_leaves_out_is_evaluated() -> None:
@@ -132,3 +142,62 @@ def _enumerated_s_x2(calibration: Calibration, matrix: FloatArray, item: int) ->
   counts = np.array([group.size for group in groups])
   observed = np.array([group.mean() for group in groups])
   return float(np.sum(counts * (observed - expected) ** 2 / (expected * (1 - expected))))
+
+
+def test_mean_squares_of_a_hand_worked_case() -> None:
+  """The mean squares and their standardized values match Wright and Masters' formulas worked by hand.
+
+  Three examinees answer two items with probabilities .5, .8 and .2, and .8 throughout. A response's variance is PQ
+  and its kurtosis PQ(P³ + Q³) (Wright & Masters, 1982, p. 98, Equations 5.4.3-5.4.4); the mean squares are
+  Equations 5.4.6-5.4.7 (p. 99), their variances Table 5.4a (p. 100) and Equation 5.4.8 (p. 101), and t is
+  (MS^(1/3) - 1)(3 / s) + s / 3 for the mean square's standard deviation s (p. 101, for the weighted one; mirt 1.48
+  standardizes the unweighted one the same way, R/itemfit.R:585-587). Fails if a mean square is weighted wrongly,
+  averaged over the wrong axis or count, or standardized with the wrong variance.
+  """
+  responses = np.array([[1, 1], [0, 1], [1, 0]], dtype=float)
+  p = np.array([[0.5, 0.8], [0.8, 0.8], [0.2, 0.8]])
+  fit = _mean_squares(responses, p, 1 - p)
+  # squared residuals .25, .64, .64 and .04, .04, .64 over variances .25, .16, .16 and .16 throughout
+  unweighted = np.array([(1 + 4 + 4) / 3, (0.25 + 0.25 + 4) / 3])
+  weighted = np.array([1.53 / 0.57, 0.72 / 0.48])
+  np.testing.assert_allclose(fit.unweighted, unweighted, rtol=1e-14)
+  np.testing.assert_allclose(fit.weighted, weighted, rtol=1e-14)
+  # kurtoses .0625, .0832, .0832 and .0832 throughout: over the squared variances 1, 3.25, 3.25 and 3.25 throughout,
+  # less the squared variances 0, .0576, .0576 and .0576 throughout
+  unweighted_sd = np.sqrt([7.5 / 9 - 1 / 3, 9.75 / 9 - 1 / 3])
+  weighted_sd = np.sqrt([0.1152 / 0.57**2, 0.1728 / 0.48**2])
+  np.testing.assert_allclose(
+    fit.unweighted_t, (np.cbrt(unweighted) - 1) * 3 / unweighted_sd + unweighted_sd / 3, rtol=1e-13
+  )
+  np.testing.assert_allclose(fit.weighted_t, (np.cbrt(weighted) - 1) * 3 / weighted_sd + weighted_sd / 3, rtol=1e-13)
+
+
+def test_mean_squares_are_near_one_on_rasch_data() -> None:
+  """On responses drawn from the Rasch model, every item's mean squares are near their expectation of 1.
+
+  Forty items and 2,000 examinees. At the generating parameters the standard deviations of the mean squares (Wright
+  & Masters, 1982, p. 100, Table 5.4a; p. 101, Equation 5.4.8) are at most .072 for the unweighted and .041 for the
+  weighted, and estimating the abilities from the same responses lowers both expectations, by about 1 / 40 for
+  Wright and Masters' estimates (p. 101): the bands are that lowering plus three standard deviations. Fails if the
+  probabilities are taken at abilities on another scale or at no estimate, which puts the outer items far outside.
+  """
+  rng = np.random.default_rng(20261127)
+  items = np.column_stack([np.ones(40), np.linspace(-2.0, 2.0, 40), np.zeros(40), np.ones(40)])
+  matrix = draw_responses(rng.normal(size=2000), items, rng=rng)
+  fit = mean_squares(MMLCalibrator("1PL").calibrate(matrix), matrix)
+  np.testing.assert_allclose(fit.unweighted, 1.0, rtol=0, atol=0.25)
+  np.testing.assert_allclose(fit.weighted, 1.0, rtol=0, atol=0.15)
+
+
+@pytest.mark.parametrize(
+  ("column", "value"),
+  [(0, 1.3), (2, 0.1), (3, 0.95)],
+  ids=["own-slope", "guessing", "upper-asymptote"],
+)
+def test_mean_squares_refuse_a_calibration_other_than_the_1pl(column: int, value: float) -> None:
+  """The mean squares refuse a calibration with an item whose slope differs from the others', or c > 0, or d < 1."""
+  calibration = MMLCalibrator("1PL").calibrate(_LSAT7)
+  estimates = calibration.estimates.copy()
+  estimates[2, column] = value
+  with pytest.raises(ValueError, match="Rasch model"):
+    mean_squares(dataclasses.replace(calibration, estimates=estimates), _LSAT7)

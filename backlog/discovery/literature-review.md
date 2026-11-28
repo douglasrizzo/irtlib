@@ -160,8 +160,8 @@ sampling for maximum likelihood, with a cost that grows linearly in the number o
 
 ## Item fit
 
-**Implemented:** S-X² in `irtlib.fit`, whose module docstring holds the design; the Rasch mean
-squares are [fit/mean-squares.md](../fit/mean-squares.md).
+**Implemented:** S-X² and the Rasch mean squares in `irtlib.fit`, whose module docstring holds the
+design.
 
 Orlando and Thissen's (2000) S-X² groups examinees by their number-correct score and computes the
 expected proportions from the model by a recursion over items (pp. 53-54); on data from the fitted
