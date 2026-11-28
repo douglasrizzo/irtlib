@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import math
 import re
+import subprocess
+import sys
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -428,6 +430,20 @@ class TestConfidenceInterval:
 
     assert lower == pytest.approx(theta - z * se, rel=1e-9)
     assert upper == pytest.approx(theta + z * se, rel=1e-9)
+
+  def test_importing_irtlib_leaves_scipy_stats_unloaded(self) -> None:
+    """``import irtlib`` must not load ``scipy.stats``, which nearly doubles its import time for one quantile.
+
+    A fresh interpreter is needed, since the test session has already imported ``scipy.stats``.
+    """
+    loaded = subprocess.run(
+      [sys.executable, "-c", "import sys, irtlib; print('scipy.stats' in sys.modules)"],
+      capture_output=True,
+      check=True,
+      text=True,
+    ).stdout.strip()
+
+    assert loaded == "False"
 
   @pytest.mark.parametrize("confidence", [0.0, 1.0, 1.5])
   def test_rejects_a_confidence_outside_zero_and_one(self, confidence: float) -> None:
