@@ -1,12 +1,26 @@
-"""Tests for matplotlib as the optional plot extra, which every module of irtlib.plot shares."""
+"""Tests for what every module of irtlib.plot shares: matplotlib as the optional plot extra, and the checks of input."""
 
 import pkgutil
 import subprocess
 import sys
 import tomllib
+from collections.abc import Callable
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
+import pytest
+from matplotlib.axes import Axes
+
 import irtlib
+from irtlib import ItemBank, plot
+
+# Items that every plot drawn at abilities takes, and each such plot, drawn at the abilities theta.
+_ITEMS = ItemBank(np.array([[1.0, 0.0, 0.0, 1.0]]))
+_DRAWN_AT: dict[str, Callable[[npt.ArrayLike], Axes]] = {
+  "item_curve": lambda theta: plot.item_curve(_ITEMS, 0, theta=theta),
+}
 
 
 def _run_python(code: str) -> subprocess.CompletedProcess[str]:
@@ -62,3 +76,34 @@ def test_plot_without_matplotlib_names_the_extra() -> None:
   assert result.stderr.splitlines()[-1] == (
     "ImportError: irtlib.plot needs matplotlib; install it with: pip install 'irtlib[plot]'"
   )
+
+
+@pytest.mark.parametrize("draw", _DRAWN_AT.values(), ids=_DRAWN_AT.keys())
+@pytest.mark.parametrize(
+  ("theta", "error", "message"),
+  [
+    (0.5, ValueError, r"theta has shape \(\); a curve is drawn at a one-dimensional array of at least two abilities"),
+    ([], ValueError, r"theta has shape \(0,\)"),
+    ([0.5], ValueError, r"theta has shape \(1,\)"),
+    ([[0.0, 1.0]], ValueError, r"theta has shape \(1, 2\)"),
+    ([0.0, np.nan, 1.0], ValueError, r"theta\[1\] is nan; abilities must be finite numbers"),
+    ([0.0, np.inf], ValueError, r"theta\[1\] is inf; abilities must be finite numbers"),
+    ([0.0, 1.0, 1.0], ValueError, r"theta\[2\] is 1.0, not above theta\[1\] = 1.0; abilities must increase"),
+    ([1.0, 0.0], ValueError, r"theta\[1\] is 0.0, not above theta\[0\] = 1.0; abilities must increase"),
+    ([False, True], TypeError, "theta holds bool values; abilities must be real numbers"),
+    (["-1", "1"], TypeError, "theta holds <U2 values; abilities must be real numbers"),
+  ],
+  ids=["scalar", "empty", "one", "matrix", "nan", "inf", "repeated", "decreasing", "bools", "strings"],
+)
+def test_plots_reject_abilities_that_draw_no_curve_before_drawing(
+  draw: Callable[[npt.ArrayLike], Axes], theta: npt.ArrayLike, error: type[Exception], message: str
+) -> None:
+  """Abilities that are not a line's x values, at least two, finite and increasing, raise before any figure exists.
+
+  Fails if a plot draws a single point that shows no curve, a curve with a gap at a NaN, a line that doubles back on
+  itself through abilities out of order, or flags read as abilities 0 and 1, or if it leaves an empty figure open
+  behind the error.
+  """
+  with pytest.raises(error, match=message):
+    draw(theta)
+  assert plt.get_fignums() == []

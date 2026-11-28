@@ -1,13 +1,17 @@
-"""What every plot module shares: the axes to draw on and the items to draw."""
+"""What every plot module shares: the axes to draw on, the items to draw and the abilities to draw them at."""
 
 import operator
 
 import matplotlib.pyplot as plt
 import numpy
+import numpy.typing as npt
 from matplotlib.axes import Axes
 
 from ..bank import ItemBank
 from ..typing import FloatArray
+
+_MIN_ABILITIES = 2
+"""The fewest abilities a curve is drawn at: a line needs two points."""
 
 
 def prepare_axes(ax: Axes | None, title: str | None) -> Axes:
@@ -46,6 +50,51 @@ def as_bank(items: ItemBank | FloatArray) -> ItemBank:
       The items, with their names.
   """
   return items if isinstance(items, ItemBank) else ItemBank(numpy.asarray(items, dtype=float))
+
+
+def abilities(theta: npt.ArrayLike) -> FloatArray:
+  """Return the abilities a curve is drawn at as a float array, after checking that they can be drawn as one.
+
+  Parameters
+  ----------
+  theta : array-like
+      The abilities the caller passed.
+
+  Returns
+  -------
+  numpy.ndarray
+      The abilities, a new one-dimensional float array.
+
+  Raises
+  ------
+  TypeError
+      If ``theta`` holds values that are not real numbers, bools included.
+  ValueError
+      If ``theta`` is not one-dimensional, holds fewer than two abilities, or holds one that is not finite or not above
+      the one before it.
+  """
+  values = numpy.asarray(theta)
+  # Booleans would be read as abilities 0 and 1, and None as NaN.
+  if values.dtype.kind not in "iuf":
+    msg = f"theta holds {values.dtype} values; abilities must be real numbers"
+    raise TypeError(msg)
+  if values.ndim != 1 or values.size < _MIN_ABILITIES:
+    msg = f"theta has shape {values.shape}; a curve is drawn at a one-dimensional array of at least two abilities"
+    raise ValueError(msg)
+  values = values.astype(float)
+  if not numpy.isfinite(values).all():
+    position = int(numpy.flatnonzero(~numpy.isfinite(values))[0])
+    msg = f"theta[{position}] is {values[position].item()!r}; abilities must be finite numbers"
+    raise ValueError(msg)
+  # A line through abilities out of order doubles back on itself.
+  if (numpy.diff(values) <= 0).any():
+    position = int(numpy.flatnonzero(numpy.diff(values) <= 0)[0]) + 1
+    msg = (
+      f"theta[{position}] is {values[position].item()!r}, not above theta[{position - 1}] = "
+      f"{values[position - 1].item()!r}; abilities must increase"
+    )
+    raise ValueError(msg)
+  return values
 
 
 def item_position(label: str, value: object, n_items: int) -> int:

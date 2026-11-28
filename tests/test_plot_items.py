@@ -1,5 +1,7 @@
 """Tests for the plots of items in irtlib.plot."""
 
+from collections.abc import Callable
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -13,6 +15,8 @@ from irtlib.typing import FloatArray
 ITEM = np.array([1.1669737841771746, -0.4321, 0.2, 1.0])
 ITEMS = ItemBank(np.array([[2.0, 1.5, 0.0, 0.9], ITEM]), names=["other", "fee $5"])
 A, B, C = ITEM[:3]
+# Birnbaum's peak of a three-parameter item's information, b + log((1 + sqrt(1 + 8c)) / 2) / a, about -0.203.
+PEAK = B + np.log((1 + np.sqrt(1 + 8 * C)) / 2) / A
 
 
 def _icc(theta: FloatArray) -> FloatArray:
@@ -52,12 +56,11 @@ def test_item_curve_marks_the_peak_of_the_information_in_the_curves_colour() -> 
   ax = item_curve(ITEMS, 1, kind=Curve.IIC)
   curve, dot = ax.get_lines()
   x, y = np.asarray(curve.get_xdata()), np.asarray(curve.get_ydata())
-  peak = B + np.log((1 + np.sqrt(1 + 8 * C)) / 2) / A
 
-  np.testing.assert_allclose([x[0], x[-1]], [B - 4, peak + 4])
+  np.testing.assert_allclose([x[0], x[-1]], [B - 4, PEAK + 4])
   np.testing.assert_allclose(_information(np.array(B)), A**2 / 6)
   np.testing.assert_allclose(y, _information(x))
-  np.testing.assert_allclose(np.asarray(dot.get_xydata()), [[peak, _information(peak)]])
+  np.testing.assert_allclose(np.asarray(dot.get_xydata()), [[PEAK, _information(PEAK)]])
   assert dot.get_color() == curve.get_color()
 
 
@@ -77,6 +80,45 @@ def test_item_curve_spans_the_peak_of_a_flat_items_information() -> None:
   assert x[0] <= b - 4
   assert x[-1] >= peak + 4
   np.testing.assert_allclose(np.asarray(dot.get_xydata())[0, 0], peak)
+
+
+@pytest.mark.parametrize(("kind", "curve"), [(Curve.ICC, _icc), (Curve.IIC, _information)])
+def test_item_curve_draws_at_the_given_abilities(kind: Curve, curve: Callable[[FloatArray], FloatArray]) -> None:
+  """With theta, the curve is drawn at those abilities and no others, through the item's value at each.
+
+  At b the characteristic curve is (c + d) / 2 = 0.6 and the information a^2 / 6, for c = 0.2 and d = 1. Fails if theta
+  is ignored for the item's own span, so that the curves of several items on one axes end at ragged abilities, or if
+  the curve is evaluated elsewhere than at theta.
+  """
+  theta = np.array([-3.0, B, 0.5, 2.5])
+
+  ax = item_curve(ITEMS, 1, kind=kind, theta=theta, max_info=False)
+  (line,) = ax.get_lines()
+
+  np.testing.assert_array_equal(np.asarray(line.get_xdata()), theta)
+  np.testing.assert_allclose(np.asarray(line.get_ydata())[1], {Curve.ICC: 0.6, Curve.IIC: A**2 / 6}[kind])
+  np.testing.assert_allclose(np.asarray(line.get_ydata()), curve(theta))
+
+
+@pytest.mark.parametrize(
+  ("theta", "marked"),
+  [(np.linspace(-1, 1, 5), True), (np.linspace(-3, -1, 5), False)],
+  ids=["peak-inside", "peak-beyond-the-end"],
+)
+def test_item_curve_marks_the_peak_only_within_the_given_abilities(theta: FloatArray, marked: bool) -> None:
+  """With theta, the dot marks the peak, about -0.203, when the abilities reach it, and is left out when they end first.
+
+  Fails if the dot is drawn beyond the end of the curve, where it marks a maximum the curve does not show and stretches
+  the axes past the abilities the caller chose, or if it is left out when the peak is in range.
+  """
+  ax = item_curve(ITEMS, 1, kind=Curve.IIC, theta=theta)
+  dots = [np.asarray(line.get_xydata()) for line in ax.get_lines()[1:]]
+
+  if marked:
+    (dot,) = dots
+    np.testing.assert_allclose(dot, [[PEAK, _information(np.array(PEAK))]])
+  else:
+    assert dots == []
 
 
 @pytest.mark.parametrize(

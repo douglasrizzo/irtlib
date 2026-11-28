@@ -4,12 +4,13 @@ from enum import StrEnum
 from typing import assert_never
 
 import numpy
+import numpy.typing as npt
 from matplotlib.axes import Axes
 
 from .. import irt
 from ..bank import ItemBank
 from ..typing import FloatArray
-from ._common import as_bank, item_position, prepare_axes
+from ._common import abilities, as_bank, item_position, prepare_axes
 
 _HALF_WIDTH = 4.0
 """How far the curves of one item span on each side of its difficulty, in units of ability."""
@@ -32,11 +33,12 @@ class Curve(StrEnum):
   IIC = "iic"
 
 
-def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two marks, and every plot's ax, title, label
+def item_curve(  # noqa: PLR0913 - items and item, the curve, its abilities and two marks, every plot's ax, title, label
   items: ItemBank | FloatArray,
   item: int,
   *,
   kind: Curve | str = Curve.ICC,
+  theta: npt.ArrayLike | None = None,
   max_info: bool = True,
   parameters: bool = True,
   ax: Axes | None = None,
@@ -46,9 +48,10 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
   r"""Plot one item's characteristic curve or its information curve.
 
   The curve spans four units of ability on each side of the item's difficulty, and the information curve also four on
-  each side of its peak. It is labelled with the item's name for a legend. A box in the upper left corner gives the
-  item's name and parameters, to three significant digits. Both curves of an item go on two axes that share the
-  ability axis, one call each, as the example shows.
+  each side of its peak, unless ``theta`` gives the abilities: curves that share one axes, of several items or of one
+  item calibrated twice, take the same ``theta``. The curve is labelled with the item's name for a legend. A box in the
+  upper left corner gives the item's name and parameters, to three significant digits. Both curves of an item go on
+  two axes that share the ability axis, one call each, as the first example shows.
 
   .. plot::
       :caption: One item's characteristic curve above and its information curve below. The dot marks the peak.
@@ -63,6 +66,43 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
       item_curve(items, 0, kind="iic", parameters=False, ax=bottom)
       plt.show()
 
+  .. plot::
+      :caption: The characteristic curves of four items above and their information curves below, on one range.
+
+      import matplotlib.pyplot as plt
+      import numpy
+      from irtlib import ItemBank
+      from irtlib.plot import item_curve
+
+      items = ItemBank.generate(4, "3PL", rng=2)
+      theta = numpy.linspace(-4, 4, 161)
+      fig, (top, bottom) = plt.subplots(2, 1, sharex=True)
+      for item in range(items.n_items):
+          item_curve(items, item, theta=theta, parameters=False, ax=top)
+          item_curve(items, item, kind="iic", theta=theta, max_info=False, parameters=False, ax=bottom)
+      top.legend()
+      plt.show()
+
+  .. plot::
+      :caption: The characteristic curve of a three-parameter item, and the curve of the two-parameter model calibrated
+          from 1,000 examinees' responses to it and nine other items.
+
+      import matplotlib.pyplot as plt
+      import numpy
+      from irtlib import ItemBank
+      from irtlib.drawing import draw_responses
+      from irtlib.mml import MMLCalibrator
+      from irtlib.plot import item_curve
+
+      generating = ItemBank.generate(10, "3PL", rng=3)
+      abilities = numpy.random.default_rng(4).normal(size=1000)
+      calibration = MMLCalibrator("2PL").calibrate(draw_responses(abilities, generating.items, rng=5))
+      theta = numpy.linspace(-4, 4, 161)
+      ax = item_curve(generating, 9, theta=theta, parameters=False, label="Generating, 3PL")
+      item_curve(calibration.items, 9, theta=theta, parameters=False, ax=ax, label="Calibrated, 2PL")
+      ax.legend()
+      plt.show()
+
   Parameters
   ----------
   items : irtlib.ItemBank or numpy.ndarray
@@ -72,9 +112,12 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
   kind : Curve or str, optional
       The curve: ``Curve.ICC`` or ``"icc"`` for the characteristic curve, the default, ``Curve.IIC`` or ``"iic"`` for
       the information curve.
+  theta : array-like or None, optional
+      The abilities to draw the curve at, at least two, finite and increasing. Default is None, which spans the item as
+      described above.
   max_info : bool, optional
       Whether to mark the ability at which the item gives the most information with a dot, on the information curve
-      only. Default is True.
+      only, and when ``theta`` is given only if that ability lies within it. Default is True.
   parameters : bool, optional
       Whether to write the item's name and parameters in a box. Default is True.
   ax : matplotlib.axes.Axes or None, optional
@@ -92,30 +135,35 @@ def item_curve(  # noqa: PLR0913 - the items and the item, the curve and its two
   Raises
   ------
   TypeError
-      If ``item`` is not an integer, before any figure is created.
+      If ``item`` is not an integer, or ``theta`` holds values that are not real numbers, before any figure is created.
   ValueError
-      If ``items`` is not a valid item matrix, ``item`` is not a position in it, or ``kind`` is not a
-      :py:class:`Curve` or one of its values, before any figure is created.
+      If ``items`` is not a valid item matrix, ``item`` is not a position in it, ``kind`` is not a :py:class:`Curve`
+      or one of its values, or ``theta`` is not a one-dimensional array of at least two finite and increasing
+      abilities, before any figure is created.
   """
   items = as_bank(items)
   item = item_position("item", item, items.n_items)
   kind = Curve(kind)
   row = items.items[[item]]
-  # The information of a flat item with a guessing parameter peaks far from its difficulty, so its curve spans both.
   peak = float(irt.max_info_theta(row)[0])
-  centres = (items.difficulty[item],) if kind is Curve.ICC else (items.difficulty[item], peak)
-  theta = numpy.linspace(min(centres) - _HALF_WIDTH, max(centres) + _HALF_WIDTH, _POINTS)
+  if theta is None:
+    # The information of a flat item with a guessing parameter peaks far from its difficulty, so its curve spans both.
+    centres = (items.difficulty[item],) if kind is Curve.ICC else (items.difficulty[item], peak)
+    grid = numpy.linspace(min(centres) - _HALF_WIDTH, max(centres) + _HALF_WIDTH, _POINTS)
+  else:
+    grid = abilities(theta)
   label = items.names[item] if label is None else label
   ax = prepare_axes(ax, title)
 
   match kind:
     case Curve.ICC:
-      ax.plot(theta, irt.icc(theta, row)[:, 0], label=label)
+      ax.plot(grid, irt.icc(grid, row)[:, 0], label=label)
       ax.set_ylabel(r"$P(\theta)$")
     case Curve.IIC:
-      (line,) = ax.plot(theta, irt.information(theta, row)[:, 0], label=label)
+      (line,) = ax.plot(grid, irt.information(grid, row)[:, 0], label=label)
       ax.set_ylabel(r"$I(\theta)$")
-      if max_info:
+      # A dot beyond the end of the curve would mark a peak the curve does not show.
+      if max_info and grid[0] <= peak <= grid[-1]:
         ax.plot(peak, irt.information(peak, row)[0], "o", color=line.get_color(), label="Maximum information")
     case _:
       assert_never(kind)

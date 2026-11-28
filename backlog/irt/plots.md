@@ -14,12 +14,14 @@ raised_by: [maintainer on 2026-11-28 after the plot catalogue]
 
 On 2026-11-28 the maintainer chose to draw in `irtlib.plot` every plot of the catalogue below
 (ADR-0011): the item response plots of the literature and of the R packages on the shelf, for the
-unidimensional dichotomous 1PL to 4PL. `item_curve` draws one item's characteristic and information
-curves. The plots below remain; catsim deletes its copy of a plot once irtlib has it.
+unidimensional dichotomous 1PL to 4PL. `item_curve` draws an item's characteristic and information
+curves, and those of several items or of two calibrations on one axes. The plots below remain;
+catsim deletes its copy of a plot once irtlib has it.
 
 ## What irtlib and catsim have now
 
-- `irtlib.plot.item_curve`, with the calling conventions of ADR-0011.
+- `irtlib.plot.item_curve`, with the calling conventions of ADR-0011; its `theta` draws the curves
+  of several items, or an item's generating and calibrated curves, on one range.
 - catsim's `catsim.plot` draws `bank_information` (with a second y axis for the standard error),
   `expected_score`, `item_person_map` and `likelihood` (of a CAT session), which move here.
 - A plot whose "Needs" column is filled waits for that quantity in irtlib's results.
@@ -33,10 +35,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 
 | Plot | What it draws | catsim | Needs | Sources |
 |---|---|---|---|---|
-| Characteristic curves of several items (`items_icc`) | The characteristic curves of a few items on one axes, each named. |  |  | Chalmers 2012, p. 28, Fig. 2; Lalor & Rodriguez 2023, Fig. 1b-c; mirt 1.48 manual, p. 194, plot 'trace'; eRm 1.0-10, plotjointICC |
-| Information curves of several items (`items_iic`) | The information curves of a few items on one axes. |  |  | Rizopoulos 2006, p. 13, Fig. 1; mirt 1.48 manual, p. 194, plot 'infotrace' |
 | Characteristic curve with a confidence envelope (`item_envelope`) | An item's estimated curve with a 95% band from the uncertainty of its parameter estimates. |  | the covariance of each item's estimates | mirt 1.48 manual, p. 94, itemplot CE, CEalpha, CEdraws |
-| Generating and calibrated curves (`item_recovered`) | The curve an item was simulated from against the curve calibrated from its responses. |  |  | Orlando & Thissen 2000, pp. 61-62, Figs. 2-4 |
 
 ### Test functions
 
@@ -104,7 +103,6 @@ Every location above was read on the shelf on 2026-11-28.
 - Bock, R. D., & Mislevy, R. J. (1982). Adaptive EAP estimation of ability in a microcomputer environment. Applied Psychological Measurement, 6(4), 431-444. doi:10.1177/014662168200600405
 - Chalmers, R. P. (2012). mirt: A multidimensional item response theory package for the R environment. Journal of Statistical Software, 48(6), 1-29. doi:10.18637/jss.v048.i06
 - Kim, J.-S., & Bolt, D. M. (2007). Estimating item response theory models using Markov chain Monte Carlo methods. Educational Measurement: Issues and Practice, 26(4), 38-51. doi:10.1111/j.1745-3992.2007.00107.x
-- Lalor, J. P., & Rodriguez, P. (2023). py-irt: A scalable item response theory library for Python. INFORMS Journal on Computing, 35(1), 5-13. doi:10.1287/ijoc.2022.1250 (figure read in the arXiv preprint 2203.01282v2)
 - Magis, D. (2013). A note on the item information function of the four-parameter logistic model. Applied Psychological Measurement, 37(4), 304-315. doi:10.1177/0146621613475471
 - Orlando, M., & Thissen, D. (2000). Likelihood-based item-fit indices for dichotomous item response theory models. Applied Psychological Measurement, 24(1), 50-64. doi:10.1177/01466216000241003
 - Rizopoulos, D. (2006). ltm: An R package for latent variable modeling and item response theory analyses. Journal of Statistical Software, 17(5), 1-25. doi:10.18637/jss.v017.i05
