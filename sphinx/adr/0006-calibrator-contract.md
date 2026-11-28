@@ -8,8 +8,8 @@ Accepted 2026-11-27; revised 2026-11-27 and 2026-11-28
 
 Every calibration method needs the same answers: how a caller passes responses, what a calibration
 returns, where each part of the code lives. The maintainer accepted them on 2026-11-27, before
-any method existed; on 2026-11-28, joint maximum likelihood's abilities, item covariances and
-per-cycle log-likelihoods joined its result.
+any method existed; on 2026-11-28, joint maximum likelihood's abilities joined its result, and each
+item's covariances and per-cycle log-likelihoods every result.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
 4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
@@ -18,20 +18,20 @@ likelihood (source `R/04-PrepData.R:107`).
 
 ## Decision
 
-- **Calibrators.** One class per estimation method, configured at construction, with the model an
-  `IrtModel` value where the method fits several. Its method takes the responses and returns a
-  result.
+- **Calibrators.** One class per estimation method, configured at construction, the model an
+  `IrtModel` where the method fits several. Its method takes the responses and returns a result.
 - **Responses.** A float array with one row per examinee and one column per item, holding 0, 1, or
   NaN for a missing response. It is checked on entry: values, shape, and items no examinee
   answered. An examinee who answered no item is accepted: it changes no estimate.
 - **The result.** An immutable value holding:
   - the estimates in $(a, b, c, d)$, and a bank of the items valid for use, with a warning naming
     any other, such as a miskeyed item;
-  - each item's covariances in the same parameterization, a shared parameter in every item's, and
-    the standard errors from them; none, with a flag, if the information cannot be inverted;
-  - the maximized log-likelihood, which likelihood it is, and the number of estimated parameters;
-  - the cycles run, the log-likelihood after each, whether the stopping rule was met, and its final
-    value;
+  - each item's covariances in the same parameterization, a shared parameter in every item's, giving
+    the standard errors; none, flagged, if the information cannot be inverted or a variance is not
+    positive;
+  - the maximized log-likelihood, its value after each cycle, which likelihood it is, and the
+    number of estimated parameters;
+  - whether the stopping rule was met, and its final value;
   - for a marginal likelihood only, the grid abilities were integrated over, which fit and ability
     estimates reuse; for a joint one only, its abilities.
 - **Comparison.** Model comparison and item fit refuse a calibration whose likelihood is not
@@ -61,7 +61,7 @@ likelihood (source `R/04-PrepData.R:107`).
 - One class per model: the models share the E-step and differ only in the M-step's terms.
 - A separate mask for missing responses, or a sentinel value: two arrays to keep in step, or a
   reserved code in the data.
-- Raising an error on non-convergence: it discards estimates a caller may want to inspect.
+- Raising an error on non-convergence: it discards estimates a caller may inspect.
 - Abilities and fit inside every result: they need the responses, which the result does not keep.
 - Standard errors alone, too few for a band around an item's curve; covariances across items,
   unread.

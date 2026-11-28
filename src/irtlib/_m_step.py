@@ -198,6 +198,8 @@ def _covariances(values: FloatArray, index: IntArray, information: FloatArray) -
   jacobian[:, _INTERCEPT, _INTERCEPT] = -1.0 / slope
   jacobian[:, [_GUESSING, _UPPER], [_GUESSING, _UPPER]] = asymptotes * (1 - asymptotes)
   covariances = jacobian @ block @ jacobian.transpose(0, 2, 1)
+  # the products leave each matrix asymmetric by rounding; averaging it with its transpose keeps the diagonal
+  covariances = (covariances + covariances.transpose(0, 2, 1)) / 2
   covariances[~estimated] = numpy.nan
   variances = numpy.diagonal(covariances, axis1=1, axis2=2)[free]
   if not numpy.all(numpy.isfinite(variances) & (variances > 0)):

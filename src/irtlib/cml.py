@@ -81,7 +81,8 @@ class CMLCalibrator:
         ``RuntimeWarning`` naming it. If the stopping rule, a full step within the tolerance, is not met within
         ``max_cycles``, or no halving of a step keeps the log-likelihood from falling, the result says so and a
         :py:class:`~irtlib.calibration.ConvergenceWarning` is issued; if the information matrix cannot be inverted at
-        the estimates, the result has no covariances or standard errors and a ``RuntimeWarning`` is issued.
+        the estimates, or gives a variance that is not positive, the result has no covariances or standard errors and
+        a ``RuntimeWarning`` is issued.
 
     Raises
     ------
@@ -116,8 +117,8 @@ class CMLCalibrator:
     variances = _variances(_derivatives(difficulty, totals, score_counts)[1])
     if variances is None:
       warnings.warn(
-        "the information matrix could not be inverted, so the calibration reports no covariances or standard errors; "
-        "the responses may leave an item no finite estimate",
+        "the information matrix could not be inverted, or gave a variance that is not positive, so the calibration "
+        "reports no covariances or standard errors; the responses may leave an item no finite estimate",
         RuntimeWarning,
         stacklevel=2,
       )

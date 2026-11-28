@@ -63,9 +63,10 @@ class Calibration:
       miskeyed item, whose slope is not positive.
   covariances : numpy.ndarray or None
       The covariance of each item's estimates, one 4 x 4 matrix per row of ``estimates``, its rows and columns in the
-      order ``a, b, c, d``, NaN in those of a parameter not estimated. A parameter shared by every item, such as the
-      1PL's slope, appears in each item's matrix, with its variance and its covariances with that item's estimates.
-      None, with a warning, when the information matrix could not be inverted.
+      order ``a, b, c, d``, NaN in those of a parameter not estimated, and symmetric. A parameter shared by every
+      item, such as the 1PL's slope, appears in each item's matrix, with its variance and its covariances with that
+      item's estimates. Only the variances are checked, so a matrix may not be positive definite. None, with a
+      warning, when the information matrix could not be inverted or gives a variance that is not finite and positive.
   log_likelihood : float
       The logarithm of the likelihood named by ``likelihood``, at the estimates, before any correction the method makes
       to them once the likelihood is maximized; with priors, without the log-prior.
