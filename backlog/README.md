@@ -64,7 +64,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Generate banks of a chosen shape, and document the scaling constant D where users look](discovery/bank-generation.md) | discovery | decision | needs-decision | S |  | catsim's research walkthrough of 2026-11-26 |
 | [Choose the WLE's standard error (Warm's corrected SE, the sandwich SE)](estimation/wle-standard-errors.md) | estimation | technique | needs-research | S |  | catsim's Wang and Vispoel (1998) walkthrough |
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
-| [Return joint maximum likelihood's abilities, and let its correction scale the standard errors](estimation/jml-result.md) | estimation | feature | ready | S |  | maintainer on 2026-11-28 after the joint maximum likelihood PR |
+| [Refuse items whose parameters are not finite in the ability estimators](estimation/non-finite-items.md) | estimation | fix | ready | XS |  | joint maximum likelihood abilities PR on 2026-11-28 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
