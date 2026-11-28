@@ -78,7 +78,8 @@ information at the last cycle (:cite:t:`Baker1987`, p. 119), for the Rasch model
 :math:`(\sum_r n_r p_{ri} (1 - p_{ri}))^{-1/2}`, with :math:`n_r` examinees of score :math:`r` and :math:`p_{ri}` their
 probability of a correct response to item :math:`i` (:cite:t:`Wright1977`, p. 285, Equation 16); the 2PL's difficulty
 takes its standard error by the delta method, as in :py:mod:`irtlib.mml`. They treat the abilities as known, and with
-the correction they are those of the estimates before it. For a fixed number of items, JML's estimates are not centred
+the correction they are those of the estimates before it, unless ``correct_errors`` multiplies them by its factor too.
+For a fixed number of items, JML's estimates are not centred
 on the parameters and their asymptotic covariance is not the customary one, so "ordinary asymptotic confidence
 intervals" for the difficulties cannot be built from them (:cite:t:`Haberman2004`, pp. 26-27, Theorem 7; p. 29).
 
@@ -97,8 +98,11 @@ stopped on all 50 tests of 8 items and 300 examinees (38 at a separation, 12 at 
 and 30 items with 1,000 examinees (measured 2026-11-28). The authors of LOGIST advise at least 20 items per examinee and
 800 to 1,000 examinees per item (:cite:t:`Mislevy1989`, p. 61).
 
-The ability estimates are not part of the result (ADR-0006): with the correction off, maximum likelihood abilities at
-the estimated items are the joint ones, within the tolerance. JML needs complete responses, as its sources write it, an
+The result holds every examinee's ability (ADR-0006), from the cycle its item estimates come from and before any
+correction, so that the abilities, the uncorrected item estimates and the log-likelihood go together; each ability's
+standard error is that of maximum likelihood, the inverse square root of the test information, there. An examinee left
+out has the ability :math:`\infty` or :math:`-\infty`, as maximum likelihood gives responses all right or all wrong.
+JML needs complete responses, as its sources write it, an
 examinee's number correct out of every item (:cite:t:`Wright1977`, p. 282), and :py:class:`irtlib.mml.MMLCalibrator`
 calibrates incomplete ones (ADR-0006).
 
@@ -118,7 +122,7 @@ import numpy
 
 from ._m_step import _free_information, _m_step, _objective, _standard_errors, _to_items
 from ._responses import _N_COLUMNS
-from .ability import maximum_likelihood
+from .ability import AbilityEstimates, maximum_likelihood
 from .bank import IrtModel
 from .calibration import (
   Calibration,
@@ -129,6 +133,7 @@ from .calibration import (
   _valid_items,
   validate_responses,
 )
+from .irt import total_information
 from .typing import BoolArray, FloatArray, IntArray
 
 
@@ -144,16 +149,19 @@ class _Groups:
   """The number of responses to each item in each group, its size, since every examinee answers every item."""
   sizes: FloatArray
   """The number of examinees in each group."""
+  members: IntArray
+  """The group of each examinee kept, in the order of their rows."""
 
   @classmethod
   def of(cls, kept: FloatArray, *, rasch: bool) -> Self:
     """Return the examinees grouped by their number correct under the Rasch model, and by their responses otherwise."""
     keys = kept.sum(axis=1, keepdims=True) if rasch else kept
     _, first, inverse, counts = numpy.unique(keys, axis=0, return_index=True, return_inverse=True, return_counts=True)
+    members = inverse.ravel()
     correct = numpy.zeros((first.size, kept.shape[1]))
-    numpy.add.at(correct, inverse.ravel(), kept)
+    numpy.add.at(correct, members, kept)
     sizes = counts.astype(float)
-    return cls(kept[first], correct, numpy.outer(sizes, numpy.ones(kept.shape[1])), sizes)
+    return cls(kept[first], correct, numpy.outer(sizes, numpy.ones(kept.shape[1])), sizes, members)
 
   def separated(self, theta: FloatArray) -> IntArray:
     """Return the items whose correct responses all come at abilities at or above, or at or below, the incorrect ones.
@@ -187,6 +195,8 @@ class _Fit:
   """Each item's slope, intercept and logits of c and d."""
   theta: FloatArray
   """Each group's ability."""
+  evaluations: IntArray
+  """The evaluations of each group's likelihood in the ability step that gave its ability, 0 for a starting one."""
   cycles: int = 0
   change: float = math.inf
   failure: str | None = None
@@ -205,10 +215,15 @@ class JMLCalibrator:
   ----------
   model : irtlib.IrtModel or str, optional
       ``"2PL"``, the default, estimates a slope and a difficulty per item, with the abilities given mean 0 and standard
-      deviation 1; ``"1PL"`` the Rasch model, every slope 1, with the difficulties given mean 0.
+      deviation 1; ``"1PL"`` the Rasch model, every slope 1, with the difficulties given mean 0. The 1PL of
+      :py:class:`~irtlib.mml.MMLCalibrator` estimates one slope with abilities :math:`N(0, 1)` instead, so the two
+      compare only after a linear change of the ability scale (ADR-0008).
   correct : bool or None, optional
       Whether to multiply the difficulties of the Rasch model by ``(M - 1) / M``, for ``M`` items kept, once the
       likelihood is maximized. Default is None, which corrects the Rasch model and not the 2PL.
+  correct_errors : bool, optional
+      Whether to multiply the difficulties' standard errors by ``(M - 1) / M`` too, when the difficulties are
+      corrected. Default is False, which keeps the standard errors of the estimates before the correction.
   tolerance : float, optional
       The stopping rule: calibration stops when no item parameter changes by more than this in a cycle, an item step
       and an ability step. Default is 1e-6.
@@ -218,8 +233,8 @@ class JMLCalibrator:
   Raises
   ------
   ValueError
-      If ``model`` is neither the 1PL nor the 2PL, ``correct`` is True for the 2PL, ``tolerance`` is not positive, or
-      ``max_cycles`` is less than 1.
+      If ``model`` is neither the 1PL nor the 2PL, ``correct`` is True for the 2PL, ``correct_errors`` is True where
+      the difficulties are not corrected, ``tolerance`` is not positive, or ``max_cycles`` is less than 1.
 
   Examples
   --------
@@ -235,6 +250,7 @@ class JMLCalibrator:
     model: IrtModel | str = IrtModel.PL2,
     *,
     correct: bool | None = None,
+    correct_errors: bool = False,
     tolerance: float = 1e-6,
     max_cycles: int = 500,
   ) -> None:
@@ -255,6 +271,13 @@ class JMLCalibrator:
       msg = f"max_cycles must be at least 1, got {max_cycles}"
       raise ValueError(msg)
     self._correct = self._model is IrtModel.PL1 if correct is None else correct
+    if correct_errors and not self._correct:
+      msg = (
+        "correct_errors multiplies the standard errors by the correction (M - 1) / M, which this calibrator does not "
+        f"apply: the {self._model} with correct={correct}"
+      )
+      raise ValueError(msg)
+    self._correct_errors = correct_errors
     self._tolerance = tolerance
     self._max_cycles = max_cycles
 
@@ -274,7 +297,14 @@ class JMLCalibrator:
     Calibration
         The estimates ``[a, b, 0, 1]``, their standard errors, and the joint log-likelihood at the estimates, before
         any correction, of the examinees and items kept; the result has no grid. An item left out has NaN estimates
-        and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. If the stopping
+        and standard errors, and the result's bank leaves it out, with a ``RuntimeWarning`` naming it. The result's
+        ``abilities`` are every examinee's, those of the cycle the estimates come from, on the same scale, with
+        standard errors one over the square root of the test information at the estimates before any correction, and
+        the evaluations of the ability step that gave them, 0 for starting values. An examinee left out has the
+        ability ``inf`` or ``-inf``,
+        for every item kept right or wrong, standard error ``inf`` and 0 evaluations. Abilities at the corrected
+        difficulties are ``irtlib.ability.maximum_likelihood(responses[:, kept], calibration.estimates[kept])``, for
+        ``kept = ~numpy.isnan(calibration.estimates[:, 1])``. If the stopping
         rule is not met within ``max_cycles``, the 2PL's abilities separate an item's correct responses from its
         incorrect ones, or an item step gives a slope that is not positive, the result holds the last complete cycle,
         says so, and a :py:class:`~irtlib.calibration.ConvergenceWarning` names the items by their columns; if an
@@ -298,7 +328,7 @@ class JMLCalibrator:
         "missing entries"
       )
       raise ValueError(msg)
-    kept, items = _edited(matrix, Likelihood.JOINT)
+    kept, examinees, items = _edited(matrix, Likelihood.JOINT)
     rasch = self._model is IrtModel.PL1
     if rasch:
       _reject_separation(kept, items, Likelihood.JOINT)
@@ -317,9 +347,13 @@ class JMLCalibrator:
         stacklevel=2,
       )
     estimates = _to_items(fit.values)
+    abilities = _abilities(fit, groups, estimates, matrix[:, items], examinees)
     if self._correct:
       # the difficulties are centred at 0 by the scale's identification
-      estimates[:, 1] *= (kept.shape[1] - 1) / kept.shape[1]
+      factor = (kept.shape[1] - 1) / kept.shape[1]
+      estimates[:, 1] *= factor
+      if self._correct_errors and kept_errors is not None:
+        kept_errors[:, 1] *= factor
     estimates = _every_item(estimates, items, [1.0 if rasch else numpy.nan, numpy.nan, 0.0, 1.0])
     return Calibration(
       estimates=estimates,
@@ -335,6 +369,7 @@ class JMLCalibrator:
       converged=fit.failure is None,
       change=fit.change,
       grid=None,
+      abilities=abilities,
     )
 
   def _cycle(self, groups: _Groups, fit: _Fit, *, columns: IntArray, rasch: bool) -> _Fit:
@@ -359,7 +394,7 @@ class JMLCalibrator:
         the cycles stopped short of it.
     """
     free = fit.index >= 0
-    values, theta, change = fit.values, fit.theta, math.inf
+    values, theta, evaluations, change = fit.values, fit.theta, fit.evaluations, math.inf
     for cycle in range(1, self._max_cycles + 1):
       separated = numpy.array([], dtype=int) if rasch else groups.separated(theta)
       if separated.size:
@@ -367,7 +402,7 @@ class JMLCalibrator:
           f"the abilities separate the correct and incorrect responses to the items in columns "
           f"{columns[separated].tolist()}, so their slopes have no finite estimate"
         )
-        return _Fit(fit.index, values, theta, cycle - 1, change, failure)
+        return _Fit(fit.index, values, theta, evaluations, cycle - 1, change, failure)
       stepped = _m_step(values, fit.index, theta, groups.correct, groups.total, priors=())
       negative = numpy.flatnonzero(stepped[:, 0] <= 0)
       if negative.size:
@@ -376,15 +411,16 @@ class JMLCalibrator:
           f"the item step of the next cycle gave the items in columns {columns[negative].tolist()} a slope that is not "
           f"positive, and the item in column {columns[largest]} the largest slope, {stepped[largest, 0]:.3g}"
         )
-        return _Fit(fit.index, values, theta, cycle - 1, change, failure)
-      abilities = maximum_likelihood(groups.patterns, _to_items(stepped)).theta
-      stepped, theta = _identified(stepped, abilities, groups.sizes, rasch=rasch)
+        return _Fit(fit.index, values, theta, evaluations, cycle - 1, change, failure)
+      abilities = maximum_likelihood(groups.patterns, _to_items(stepped))
+      stepped, theta = _identified(stepped, abilities.theta, groups.sizes, rasch=rasch)
+      evaluations = abilities.evaluations
       change = float(numpy.max(numpy.abs(stepped[free] - values[free])))
       values = stepped
       if change <= self._tolerance:
-        return _Fit(fit.index, values, theta, cycle, change)
+        return _Fit(fit.index, values, theta, evaluations, cycle, change)
     failure = f"the last cycle changed an item parameter by {change:.3g}, above the tolerance {self._tolerance:g}"
-    return _Fit(fit.index, values, theta, self._max_cycles, change, failure)
+    return _Fit(fit.index, values, theta, evaluations, self._max_cycles, change, failure)
 
 
 def _start(groups: _Groups, *, rasch: bool) -> _Fit:
@@ -408,9 +444,10 @@ def _start(groups: _Groups, *, rasch: bool) -> _Fit:
   values = numpy.tile([1.0, 0.0, -numpy.inf, numpy.inf], (n_items, 1))
   values[:, 1] = -(difficulty - difficulty.mean())
   index = numpy.full((n_items, _N_COLUMNS), -1)
+  evaluations = numpy.zeros(theta.size, dtype=int)
   if rasch:
     index[:, 1] = numpy.arange(n_items)
-    return _Fit(index, values, theta)
+    return _Fit(index, values, theta, evaluations)
   index[:, 0] = numpy.arange(n_items)
   index[:, 1] = numpy.arange(n_items, 2 * n_items)
   if numpy.all(scores == scores[0]):
@@ -420,7 +457,7 @@ def _start(groups: _Groups, *, rasch: bool) -> _Fit:
     )
     raise ValueError(msg)
   values, theta = _identified(values, theta, groups.sizes, rasch=False)
-  return _Fit(index, values, theta)
+  return _Fit(index, values, theta, evaluations)
 
 
 def _identified(
@@ -448,6 +485,39 @@ def _identified(
   moved[:, 1] += values[:, 0] * location
   moved[:, 0] *= scale
   return moved, (theta - location) / scale
+
+
+def _abilities(
+  fit: _Fit, groups: _Groups, estimates: FloatArray, responses: FloatArray, examinees: BoolArray
+) -> AbilityEstimates:
+  """Return every examinee's ability: its group's if it is kept, and otherwise the infinite one of its responses.
+
+  Parameters
+  ----------
+  fit : _Fit
+      The calibration's state, whose abilities go with ``estimates``.
+  groups : _Groups
+      The examinees kept, grouped.
+  estimates : numpy.ndarray
+      The estimates of the items kept, before any correction.
+  responses : numpy.ndarray
+      Every examinee's responses to the items kept.
+  examinees : numpy.ndarray
+      The mask of the examinees kept among the rows.
+
+  Returns
+  -------
+  irtlib.ability.AbilityEstimates
+      Each examinee's ability, its standard error at ``estimates``, and the evaluations that gave it.
+  """
+  # an examinee left out answered every item kept right, or every one wrong
+  theta = numpy.where(responses[:, 0] == 1, numpy.inf, -numpy.inf)
+  standard_errors = numpy.full(theta.size, numpy.inf)
+  evaluations = numpy.zeros(theta.size, dtype=int)
+  theta[examinees] = fit.theta[groups.members]
+  standard_errors[examinees] = (total_information(fit.theta, estimates) ** -0.5)[groups.members]
+  evaluations[examinees] = fit.evaluations[groups.members]
+  return AbilityEstimates(theta, standard_errors, evaluations, numpy.zeros(theta.size, dtype=bool))
 
 
 def _every_item(kept: FloatArray, items: BoolArray, fill: list[float]) -> FloatArray:

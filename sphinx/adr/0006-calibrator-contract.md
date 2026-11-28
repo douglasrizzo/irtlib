@@ -2,13 +2,13 @@
 
 ## Status
 
-Accepted 2026-11-27; revised 2026-11-27
+Accepted 2026-11-27; revised 2026-11-27 and 2026-11-28
 
 ## Context
 
 Every calibration method needs the same answers: how a caller passes responses, what a calibration
-returns, and where each part of the code lives. The maintainer accepted them on 2026-11-27, before
-any method existed.
+returns, where each part of the code lives. The maintainer accepted them on 2026-11-27, before
+any method existed; on 2026-11-28, joint maximum likelihood's abilities joined its result.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
 4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
@@ -31,27 +31,26 @@ likelihood (source `R/04-PrepData.R:107`).
   - the maximized log-likelihood, which likelihood it is, and the number of estimated parameters;
   - the cycles run, whether the stopping rule was met, and the rule's final value;
   - for a marginal likelihood only, the grid abilities were integrated over, which fit and ability
-    estimates reuse.
+    estimates reuse; for a joint one only, its abilities.
 - **Comparison.** Model comparison and item fit refuse a calibration whose likelihood is not
   marginal.
 - **Non-convergence.** A result whose stopping rule was not met is flagged, with a warning.
-- **Ability estimates and item fit** are functions of the responses and the items, a calibration's
-  for item fit, not part of the result, even under joint maximum likelihood, which calls the
-  ability estimator: EAP abilities; S-X² with its degrees of freedom per item; and the Rasch model's
-  weighted and unweighted mean squares.
+- **Ability estimates and item fit**, but for a joint calibration's abilities, are functions of the
+  responses and the items, not part of the result: EAP abilities; S-X² with its degrees of freedom
+  per item; and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional and joint maximum likelihood, S-X² and the
   mean squares.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
-  priors and posterior, and the item bank; ability estimation, beside calibration's checks, result
-  and M-step; the methods, with their own standard errors; then fit. Drawing responses is its own
-  module; the import-linter contract enforces the order.
+  priors and posterior, and the item bank; ability estimation; calibration's checks, result and
+  M-step; the methods, with their own standard errors; then fit. Drawing responses is its own
+  module; import-linter enforces the order.
 
 ## Consequences
 
-- A method author writes one class against one contract, sharing the E-step, the M-step, the
-  response checks and the result.
-- A calibration's bank is in the bank format (ADR-0001), so it goes straight into catsim.
+- A method author writes one class against one contract, sharing the E-step, M-step, response
+  checks and result.
+- A calibration's bank, in the bank format (ADR-0001), goes straight into catsim.
 - A calibration that stops short is never mistaken for a converged one.
 - Whether Markov chain Monte Carlo returns draws or summaries is its card's decision.
 
@@ -62,4 +61,4 @@ likelihood (source `R/04-PrepData.R:107`).
 - A separate mask for missing responses, or a sentinel value: two arrays to keep in step, or a
   reserved code in the data.
 - Raising an error on non-convergence: it discards estimates a caller may want to inspect.
-- Abilities and fit inside the result: they need the responses, which the result does not keep.
+- Abilities and fit inside every result: they need the responses, which the result does not keep.

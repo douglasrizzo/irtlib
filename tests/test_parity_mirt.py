@@ -202,6 +202,7 @@ def test_s_x2_at_mirts_estimates(case: dict[str, Any]) -> None:
     converged=True,
     change=0.0,
     grid=default_grid(),
+    abilities=None,
   )
   fit = s_x2(calibration, responses(_ITEM_FIT["data"][case["data"]]))
   np.testing.assert_array_equal(fit.df, case["df"])
@@ -286,6 +287,7 @@ def test_mean_squares_at_mirts_estimates(case: dict[str, Any]) -> None:
     converged=True,
     change=0.0,
     grid=default_grid(),
+    abilities=None,
   )
   fit = mean_squares(calibration, responses(_ITEM_FIT["data"][case["data"]]))
   for name, mirt_name in _MEAN_SQUARES.items():

@@ -14,6 +14,7 @@ import numpy
 import numpy.typing as npt
 
 from ._responses import response_matrix
+from .ability import AbilityEstimates
 from .bank import ItemBank, _generated_names, _listed, _violations
 from .irt import THETA_MAX_EXTENDED, THETA_MIN_EXTENDED
 from .quadrature import QuadratureGrid
@@ -86,12 +87,16 @@ class Calibration:
   grid : irtlib.quadrature.QuadratureGrid or None
       The nodes abilities were integrated over, which item fit uses too: set when the likelihood is marginal, and None
       otherwise, since no other likelihood integrates over abilities.
+  abilities : irtlib.ability.AbilityEstimates or None
+      The abilities estimated with the items, one per row of the response matrix, at the estimates before any
+      correction: set when the likelihood is joint, and None otherwise, since no other likelihood estimates them.
 
   Raises
   ------
   ValueError
-      If ``likelihood`` names no :py:class:`Likelihood`, or ``grid`` is set for a likelihood that is not marginal, or
-      missing for a marginal one.
+      If ``likelihood`` names no :py:class:`Likelihood`; ``grid`` is set for a likelihood that is not marginal, or
+      missing for a marginal one; or ``abilities`` is set for a likelihood that is not joint, or missing for a joint
+      one.
   """
 
   estimates: FloatArray
@@ -105,13 +110,17 @@ class Calibration:
   converged: bool
   change: float
   grid: QuadratureGrid | None
+  abilities: AbilityEstimates | None
 
   def __post_init__(self) -> None:
-    """Read the likelihood as a :py:class:`Likelihood`, and check that a grid comes exactly with a marginal one."""
+    """Read the likelihood as a :py:class:`Likelihood`, and check that the grid and the abilities match it."""
     # a member equals its name in lower case, so "marginal" is read as Likelihood.MARGINAL
     object.__setattr__(self, "likelihood", Likelihood(self.likelihood))
     if (self.grid is not None) != (self.likelihood is Likelihood.MARGINAL):
       msg = f"a calibration has a grid exactly when its likelihood is marginal; this one's is {self.likelihood}"
+      raise ValueError(msg)
+    if (self.abilities is not None) != (self.likelihood is Likelihood.JOINT):
+      msg = f"a calibration has abilities exactly when its likelihood is joint; this one's is {self.likelihood}"
       raise ValueError(msg)
 
 
@@ -244,8 +253,8 @@ def _valid_items(estimates: FloatArray) -> ItemBank | None:
   return ItemBank(estimates[valid], names=[names[item] for item in valid])
 
 
-def _edited(matrix: FloatArray, likelihood: Likelihood) -> tuple[FloatArray, BoolArray]:
-  """Return the responses of the examinees and items kept, and the items kept, once those with no estimate are left out.
+def _edited(matrix: FloatArray, likelihood: Likelihood) -> tuple[FloatArray, BoolArray, BoolArray]:
+  """Return the responses of the examinees and items kept, and which they are, once those with no estimate are left out.
 
   Examinees with no item or every item correct, and items answered correctly by every examinee or by none, are left
   out, repeatedly until neither is left.
@@ -259,8 +268,9 @@ def _edited(matrix: FloatArray, likelihood: Likelihood) -> tuple[FloatArray, Boo
 
   Returns
   -------
-  tuple[numpy.ndarray, numpy.ndarray]
-      The responses of the examinees and items kept, and a mask of the items kept among the columns.
+  tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]
+      The responses of the examinees and items kept, a mask of the examinees kept among the rows, and a mask of the
+      items kept among the columns.
 
   Raises
   ------
@@ -275,7 +285,7 @@ def _edited(matrix: FloatArray, likelihood: Likelihood) -> tuple[FloatArray, Boo
       "every item is answered correctly by every examinee or by none"
     )
     raise ValueError(msg)
-  return matrix[numpy.ix_(examinees, items)], items
+  return matrix[numpy.ix_(examinees, items)], examinees, items
 
 
 def _reject_separation(kept: FloatArray, items: BoolArray, likelihood: Likelihood) -> None:

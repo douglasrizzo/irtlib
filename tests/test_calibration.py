@@ -1,4 +1,4 @@
-"""Tests of the result every calibrator shares: the bank it builds from its estimates, and its likelihood and grid.
+"""Tests of the result every calibrator shares: the bank it builds, and its likelihood, grid and abilities.
 
 Expected values are hand-worked: which estimates break which rule of an item bank, and the names of the rest.
 """
@@ -6,6 +6,7 @@ Expected values are hand-worked: which estimates break which rule of an item ban
 import numpy as np
 import pytest
 
+from irtlib.ability import AbilityEstimates
 from irtlib.calibration import (
   Calibration,
   Likelihood,
@@ -40,8 +41,10 @@ def test_an_item_left_out_for_its_asymptotes_is_not_called_miskeyed() -> None:
   np.testing.assert_array_equal(bank.items, estimates[[1]])
 
 
-def _calibration(likelihood: Likelihood | str, grid: QuadratureGrid | None) -> Calibration:
-  """Return a calibration of two items with a likelihood and a grid."""
+def _calibration(
+  likelihood: Likelihood | str, grid: QuadratureGrid | None, abilities: AbilityEstimates | None = None
+) -> Calibration:
+  """Return a calibration of two items with a likelihood, a grid and abilities."""
   return Calibration(
     estimates=np.tile([1.0, 0.0, 0.0, 1.0], (2, 1)),
     items=None,
@@ -54,6 +57,7 @@ def _calibration(likelihood: Likelihood | str, grid: QuadratureGrid | None) -> C
     converged=True,
     change=0.0,
     grid=grid,
+    abilities=abilities,
   )
 
 
@@ -71,6 +75,31 @@ def test_a_grid_comes_with_the_marginal_likelihood_only(likelihood: Likelihood, 
   """
   with pytest.raises(ValueError, match="a grid exactly when its likelihood is marginal"):
     _calibration(likelihood, grid)
+
+
+_ABILITIES = AbilityEstimates(np.zeros(1), np.ones(1), np.zeros(1, dtype=int), np.zeros(1, dtype=bool))
+
+
+@pytest.mark.parametrize(
+  ("likelihood", "grid", "abilities"),
+  [
+    (Likelihood.JOINT, None, None),
+    (Likelihood.MARGINAL, default_grid(), _ABILITIES),
+    (Likelihood.CONDITIONAL, None, _ABILITIES),
+  ],
+  ids=str,
+)
+def test_abilities_come_with_the_joint_likelihood_only(
+  likelihood: Likelihood, grid: QuadratureGrid | None, abilities: AbilityEstimates | None
+) -> None:
+  """A calibration of the joint likelihood without abilities, or of the marginal or conditional likelihood with them,
+  is refused.
+
+  Only joint maximum likelihood estimates abilities with the items; abilities in another result would pass for
+  estimates the method never made, and a joint result without them would lose the examinee parameters it estimated.
+  """
+  with pytest.raises(ValueError, match="abilities exactly when its likelihood is joint"):
+    _calibration(likelihood, grid, abilities)
 
 
 def test_a_likelihood_given_by_name_is_read_as_its_member() -> None:

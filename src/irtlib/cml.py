@@ -177,7 +177,7 @@ class CMLCalibrator:
         "with missing entries"
       )
       raise ValueError(msg)
-    kept, items = _edited(matrix, Likelihood.CONDITIONAL)
+    kept, _, items = _edited(matrix, Likelihood.CONDITIONAL)
     _reject_separation(kept, items, Likelihood.CONDITIONAL)
     totals = kept.sum(axis=0)
     score_counts = numpy.bincount(kept.sum(axis=1).astype(int), minlength=totals.size + 1).astype(float)
@@ -214,6 +214,7 @@ class CMLCalibrator:
       converged=failure is None,
       change=change,
       grid=None,
+      abilities=None,
     )
 
 

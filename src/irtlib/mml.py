@@ -411,6 +411,7 @@ class MMLCalibrator:
       converged=converged,
       change=change,
       grid=self._grid,
+      abilities=None,
     )
 
   def _cycle(self, matrix: FloatArray, index: IntArray, values: FloatArray) -> tuple[FloatArray, int, float]:

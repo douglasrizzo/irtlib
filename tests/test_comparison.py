@@ -45,6 +45,7 @@ def _calibration(log_likelihood: float, n_parameters: int, n_items: int = 2) -> 
     converged=True,
     change=0.0,
     grid=default_grid(),
+    abilities=None,
   )
 
 

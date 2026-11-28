@@ -227,7 +227,8 @@ exhaustive = true  # every new top-level module must be placed in a layer
 layers = [
   "comparison | fit",  # "|": siblings that never import each other
   "cml | jml | mml",
-  "_m_step | ability | calibration",
+  "_m_step | calibration",
+  "ability",
   "_search | quadrature | bank | drawing",
   "irt",
   "_responses",
