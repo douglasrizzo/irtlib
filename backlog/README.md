@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-21 cards: 12 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
+20 cards: 11 ready, 1 needs-research, 2 needs-decision, 2 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -64,7 +64,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Measure EM acceleration on the 3PL and 4PL and add it if it pays](estimation/em-acceleration.md) | estimation | feature | ready | S |  | ADR-0007 |
 | [Evaluate Rasch item fit with the weighted and unweighted mean squares](fit/mean-squares.md) | fit | technique | ready | M |  | moved from catsim's backlog |
 | [Make the log-likelihood and the posterior of one examinee as fast as catsim's](irt/one-examinee-speed.md) | irt | fix | ready | S |  | benchmarks against catsim on 2026-11-27 |
-| [Reject the out-of-range inputs that the code moved from catsim accepts](irt/inherited-input-checks.md) | irt | fix | ready | XS |  | reviews of the moves on 2026-11-27 |
 | [Build the documentation site](maintenance/docs-site.md) | maintenance | docs | ready | M |  | setup of irtlib |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md), [docs-site](maintenance/docs-site.md) | setup of irtlib |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |

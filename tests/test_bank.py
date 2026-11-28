@@ -465,6 +465,27 @@ class TestItemBankGenerate:
 
     assert np.corrcoef(bank.discrimination, bank.difficulty)[0, 1] == pytest.approx(corr, abs=0.05)
 
+  @pytest.mark.parametrize("corr", [-1.0, 1.0])
+  def test_a_correlation_of_one_or_minus_one_puts_a_on_a_line_in_b(self, corr: float) -> None:
+    """At corr = 1 or -1 every item's discrimination is 1.2 + corr * 0.25 * b, and the bank builds.
+
+    A check that rejected the ends of [-1, 1] raises for them. The tolerance is the rounding of the singular value
+    decomposition NumPy draws through, about 2e-9.
+    """
+    bank = ItemBank.generate(50, model=IrtModel.PL2, corr=corr, rng=0)
+
+    np.testing.assert_allclose(bank.discrimination, 1.2 + corr * 0.25 * bank.difficulty, rtol=0, atol=1e-8)
+
+  @pytest.mark.parametrize("corr", [2.0, -2.0, math.nan])
+  def test_a_correlation_outside_minus_one_to_one_raises(self, corr: float) -> None:
+    """A correlation above 1, below -1 or NaN raises ValueError naming corr.
+
+    Unchecked, 2 and -2 give a covariance matrix that is not positive semi-definite, from which NumPy draws a bank after
+    a warning, and NaN raises NumPy's LinAlgError.
+    """
+    with pytest.raises(ValueError, match="corr must be between -1 and 1"):
+      ItemBank.generate(10, corr=corr, rng=0)
+
   @pytest.mark.parametrize("model", ["3pl", "3Pl", IrtModel.PL3])
   def test_a_model_name_in_any_case_or_a_member_gives_the_same_bank(self, model: IrtModel | str) -> None:
     """A lower- or mixed-case name and the IrtModel member give the bank "3PL" gives.

@@ -104,12 +104,20 @@ def test_uniform_log_prior_defaults_to_the_extended_ability_range() -> None:
     (0.0, -1.0, "sd must be positive"),
     (0.0, math.nan, "sd must be positive"),
     (0.0, math.inf, "sd must be positive"),
+    (0.0, 1e-200, "sd must have a positive and finite square"),
+    (0.0, 1e200, "sd must have a positive and finite square"),
+    (0.0, np.float64(1e200), "sd must have a positive and finite square"),
     (math.inf, 1.0, "mean must be finite"),
     (math.nan, 1.0, "mean must be finite"),
   ],
 )
 def test_normal_log_prior_rejects_an_invalid_mean_or_sd(mean: float, sd: float, match: str) -> None:
-  """A mean that is not finite, or a standard deviation that is not finite and positive, is an error."""
+  """A mean that is not finite, or a standard deviation that is not finite and positive, is an error.
+
+  So is a standard deviation whose square, the variance, underflows to 0 (1e-200) or overflows to infinity (1e200):
+  accepting it gives a prior whose log-density is NaN or infinite at every node. Squaring a NumPy float to check it
+  warns of the overflow, which the test suite turns into an error.
+  """
   with pytest.raises(ValueError, match=match):
     normal_log_prior(mean, sd)
 
