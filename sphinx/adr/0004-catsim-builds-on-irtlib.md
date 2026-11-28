@@ -29,12 +29,13 @@ released and requires Python 3.12 (ADR-0002). `catsim.irt` is part of catsim's p
   response, so a call for one examinee is the case of one row.
 - Moved code keeps the names catsim's one-name-per-concept table gives each concept (catsim's
   ADR-0023).
-- catsim stays as it is until irtlib's first release. Then catsim depends on irtlib and removes its
-  copies; until that release, catsim's development can take irtlib from its GitHub branch.
-- While both copies exist, catsim at a fixed commit is a development dependency of irtlib's
-  benchmarks, which time each moved function against catsim's original and compare their values. A
-  moved function that takes more than 1.2 times catsim's time, on the shapes catsim calls it with,
-  gets a card for a faster version in irtlib.
+- catsim depends on irtlib and removes its copies (catsim's ADR-0024). Until irtlib's first
+  release, catsim's development takes irtlib from a commit of its GitHub repository, and catsim's
+  next release waits for irtlib's.
+- catsim at its last commit with its own copies, `97b89f5`, is a development dependency of
+  irtlib's benchmarks, which time each moved function against catsim's original and compare their
+  values. A moved function that takes more than 1.2 times catsim's time, on the shapes catsim calls
+  it with, gets a card for a faster version in irtlib.
 
 ## Consequences
 
@@ -43,7 +44,7 @@ released and requires Python 3.12 (ADR-0002). `catsim.irt` is part of catsim's p
 - catsim's first release built on irtlib waits for irtlib's first release, and needs Python 3.12.
 - The names that leave `catsim.irt` and its neighbours are catsim's to retire, in catsim's own
   pull requests.
-- Until catsim adopts irtlib, the two copies can drift; the benchmarks' value comparisons show it.
+- catsim runs at irtlib's speed; the benchmarks keep measuring it against catsim's originals.
 
 ## Alternatives Considered
 
@@ -51,8 +52,8 @@ released and requires Python 3.12 (ADR-0002). `catsim.irt` is part of catsim's p
   (ADR-0001).
 - Moving everything in one pull request: too large to review, and the parts depend on each other in
   a fixed order.
-- catsim depending on irtlib before irtlib's first release: a released package would depend on
-  an unpublished one.
+- catsim waiting for irtlib's first release: the two copies would drift in the meantime. catsim
+  depends on an unpublished irtlib on its development branch only, and releases after irtlib.
 - Copying catsim's tests unchanged: a test that compares moved code with catsim's original shows
   the copy is faithful, not that it is correct; correctness rests on reference implementations and
   published values (ADR-0003).

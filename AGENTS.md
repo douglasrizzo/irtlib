@@ -37,9 +37,10 @@ calibration methods follow the build order of `backlog/discovery/literature-revi
   `backlog/scope/` until the ADR changes.
 - Runtime dependencies are NumPy and SciPy only (ADR-0002); a new one needs an ADR.
 - irtlib imports nothing from catsim, and code moved from catsim imports nothing from it (ADR-0004).
-  Only the benchmarks in `benchmarks/` import catsim, at the commit their dependency group pins. catsim
-  stays as it is until irtlib's first release, so never change catsim for irtlib's sake without the
-  maintainer.
+  Only the benchmarks in `benchmarks/` import catsim, at the commit their dependency group pins.
+  catsim depends on irtlib at a pinned commit of `dev` until irtlib's first release (catsim's
+  ADR-0024), so a change to irtlib's public API breaks catsim when catsim moves its pin: say so to the
+  maintainer in the pull request, and never change catsim for irtlib's sake without the maintainer.
 - When moving code from catsim, follow ADR-0001's line: what is meaningful for a fixed-form test
   moves, what only makes sense for adaptive testing stays. Moved functions take many examinees at
   once, as float response matrices with NaN for a missing response, keep catsim's names for shared
