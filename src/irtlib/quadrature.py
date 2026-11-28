@@ -39,7 +39,7 @@ likelihood of a long response pattern does not underflow.
 
 import math
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Self, override
 
 import numpy
@@ -52,6 +52,8 @@ type LogPrior = Callable[[FloatArray], FloatArray]
 
 _MIN_NODES = 2
 _POSTERIOR_NDIM = 2
+# from this sd up, a squared standardized deviation overflows only beyond 1e54 from the mean, where NumPy warns of it
+_UNGUARDED_SD = 1e-100
 
 
 def normal_log_prior(mean: float = 0.0, sd: float = 1.0) -> LogPrior:
@@ -99,14 +101,26 @@ class _NormalLogPrior:
 
   mean: float
   sd: float
+  _log_scale: float = field(init=False, repr=False, compare=False)
+  """log(sd) + log(2 pi) / 2, the part of the log-density that does not depend on the ability."""
+
+  def __post_init__(self) -> None:
+    """Compute the part of the log-density that does not depend on the ability."""
+    object.__setattr__(self, "_log_scale", math.log(self.sd) + 0.5 * math.log(2.0 * math.pi))
 
   def __call__(self, theta: FloatArray) -> FloatArray:
     """Return the log-density at each ability."""
-    # from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi
-    # times it, or a squared deviation over it can overflow; a deviation too large to square has log-density -inf
+    if self.sd >= _UNGUARDED_SD:
+      return self._log_density(theta)
     with numpy.errstate(over="ignore"):
-      deviation = (theta - self.mean) / self.sd
-      return -0.5 * deviation * deviation - math.log(self.sd) - 0.5 * math.log(2.0 * math.pi)
+      return self._log_density(theta)
+
+  def _log_density(self, theta: FloatArray) -> FloatArray:
+    """Return the log-density at each ability, a squared deviation that overflows giving -inf."""
+    # from the standardized deviation and log(sd), finite for every finite, positive sd, where the variance, 2*pi
+    # times it, or a squared deviation over it can overflow
+    deviation = (theta - self.mean) / self.sd
+    return -0.5 * deviation * deviation - self._log_scale
 
   @override
   def __repr__(self) -> str:

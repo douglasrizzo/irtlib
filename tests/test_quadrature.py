@@ -149,6 +149,20 @@ def test_a_very_narrow_normal_prior_has_a_density_only_at_its_mean(sd: float) ->
   assert log_density[1] == pytest.approx(-math.log(sd) - 0.5 * math.log(2 * math.pi), rel=1e-15)
 
 
+def test_a_prior_with_sd_just_below_1e_100_gives_minus_infinity_where_the_square_overflows() -> None:
+  """With sd = 9e-101, an ability 1e55 from the mean has a squared standardized deviation past the largest float.
+
+  Its log-density is -inf, and the overflow raises no warning. A guard that covers only smaller standard deviations
+  warns of the overflow, which the test suite turns into an error.
+  """
+  sd = 9e-101
+
+  log_density = normal_log_prior(0.0, sd)(np.array([0.0, 1e55]))
+
+  assert log_density[1] == -np.inf
+  assert log_density[0] == pytest.approx(-math.log(sd) - 0.5 * math.log(2 * math.pi), rel=1e-15)
+
+
 @pytest.mark.parametrize(
   ("low", "high", "match"),
   [
