@@ -1,11 +1,14 @@
-"""Item fit: Orlando and Thissen's S-X² statistic for every model, and the mean squares of the Rasch model."""
+"""Item and person fit: Orlando and Thissen's S-X² of each item, and the mean squares of each item or examinee."""
 
+import functools
 import math
 from dataclasses import dataclass
 
 import numpy
+import numpy.typing as npt
 from scipy.stats import chi2
 
+from ._responses import responses_and_items
 from .ability import expected_a_posteriori
 from .calibration import Calibration, _check_marginal, _complete_responses
 from .irt import icc, log_response_probabilities
@@ -22,7 +25,11 @@ _REMOVE_MISSING = "remove the examinees with missing responses"
 
 @dataclass(frozen=True, slots=True)
 class ItemFit:
-  """The S-X² statistic of each item, with its degrees of freedom and p-value.
+  """S-X² of each item and the table it is computed from.
+
+  Each item has its statistic, degrees of freedom and p-value. The table groups the examinees by their number correct,
+  from 1 to M - 1 for M items, before any score group is collapsed: column ``k - 1`` of ``observed`` and ``expected``
+  is the score group of number correct ``k``.
 
   Parameters
   ----------
@@ -32,11 +39,22 @@ class ItemFit:
       The degrees of freedom of each item's statistic.
   p_value : numpy.ndarray
       The probability of a statistic at least as large under the calibrated model; NaN where ``df`` is 0.
+  group_sizes : numpy.ndarray
+      The number of examinees in each score group, shape ``(M - 1,)``.
+  observed : numpy.ndarray
+      The proportion of each score group answering each item correctly, shape ``(M, M - 1)``, one row per item; NaN
+      in a score group no examinee is in.
+  expected : numpy.ndarray
+      The proportion the calibrated model expects to answer each item correctly in each score group, shape
+      ``(M, M - 1)``, one row per item.
   """
 
   statistic: FloatArray
   df: IntArray
   p_value: FloatArray
+  group_sizes: IntArray
+  observed: FloatArray
+  expected: FloatArray
 
 
 def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float = 1.0) -> ItemFit:
@@ -61,7 +79,8 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
   Returns
   -------
   ItemFit
-      Each item's statistic, degrees of freedom and p-value.
+      Each item's statistic, degrees of freedom and p-value, and the number of examinees in each score group with
+      each item's observed and expected proportions correct there.
 
   Raises
   ------
@@ -76,29 +95,44 @@ def s_x2(calibration: Calibration, responses: FloatArray, *, min_expected: float
     msg = f"min_expected must be at least 0, got {min_expected}"
     raise ValueError(msg)
   matrix = _complete_responses(calibration, responses, "S-X²", _REMOVE_MISSING)
-  items = calibration.estimates
   grid = _check_marginal(calibration, "S-X²")
   masses = prior_masses(grid, normal_log_prior())
-  probability = icc(grid.nodes, items).T  # items x nodes
-  expected = _expected_proportions(probability, masses)
-  scores = matrix.sum(axis=1).astype(int)
-  n_items = items.shape[0]
-  statistic = numpy.full(n_items, numpy.nan)
-  df = numpy.zeros(n_items, dtype=int)
-  for item in range(n_items):
-    observed = numpy.stack(
-      [numpy.bincount(scores, weights=(matrix[:, item] == value), minlength=n_items + 1)[1:-1] for value in (0, 1)],
-      axis=1,
-    )
-    expected_counts = observed.sum(axis=1, keepdims=True) * numpy.stack([1 - expected[item], expected[item]], axis=1)
-    observed, expected_counts = _collapse(observed, expected_counts, min_expected)
-    cells = expected_counts > 0
-    df[item] = max(int(cells.sum()) - observed.shape[0] - int(calibration.item_parameters[item]), 0)
-    if df[item] > 0:
-      statistic[item] = numpy.sum((observed[cells] - expected_counts[cells]) ** 2 / expected_counts[cells])
+  expected = _expected_proportions(icc(grid.nodes, calibration.estimates).T, masses)
+  group_sizes, correct = _score_groups(matrix)
+  statistics = [
+    _item_statistic(group_sizes, correct[item], expected[item], min_expected, int(parameters))
+    for item, parameters in enumerate(calibration.item_parameters)
+  ]
+  values, degrees = zip(*statistics, strict=True)
+  statistic, df = numpy.array(values, dtype=float), numpy.array(degrees, dtype=int)
   with numpy.errstate(invalid="ignore"):
     p_value = numpy.where(df > 0, chi2.sf(statistic, numpy.maximum(df, 1)), numpy.nan)
-  return ItemFit(statistic=statistic, df=df, p_value=p_value)
+    observed = correct / group_sizes  # NaN in an empty score group
+  return ItemFit(
+    statistic=statistic, df=df, p_value=p_value, group_sizes=group_sizes, observed=observed, expected=expected
+  )
+
+
+def _score_groups(matrix: FloatArray) -> tuple[IntArray, FloatArray]:
+  """Return the examinees at each number correct from 1 to M - 1, and each item's correct responses there."""
+  scores = matrix.sum(axis=1).astype(int)
+  length = matrix.shape[1] + 1  # numbers correct 0 to M
+  correct = numpy.stack([numpy.bincount(scores, weights=column, minlength=length)[1:-1] for column in matrix.T])
+  return numpy.bincount(scores, minlength=length)[1:-1], correct
+
+
+def _item_statistic(
+  group_sizes: IntArray, correct: FloatArray, expected: FloatArray, min_expected: float, n_parameters: int
+) -> tuple[float, int]:
+  """Return an item's S-X² and degrees of freedom after collapsing, NaN and 0 when no degree of freedom is left."""
+  counts = numpy.stack([group_sizes - correct, correct], axis=1)
+  expected_counts = group_sizes[:, numpy.newaxis] * numpy.stack([1 - expected, expected], axis=1)
+  counts, expected_counts = _collapse(counts, expected_counts, min_expected)
+  cells = expected_counts > 0
+  df = max(int(cells.sum()) - counts.shape[0] - n_parameters, 0)
+  if df == 0:
+    return math.nan, 0
+  return float(numpy.sum((counts[cells] - expected_counts[cells]) ** 2 / expected_counts[cells])), df
 
 
 def _summed_score_likelihoods(probability: FloatArray) -> FloatArray:
@@ -161,22 +195,23 @@ def _collapse(observed: FloatArray, expected: FloatArray, min_expected: float) -
 
 @dataclass(frozen=True, slots=True)
 class MeanSquares:
-  """The outfit and infit mean squares of each item, each with its standardized value.
+  """The outfit and infit mean squares of each item, or of each examinee, each with its standardized value.
 
-  Both mean squares have expectation 1 when the responses fit the model, and less when the abilities are estimated
-  from the same responses, as they are here.
+  An item's mean squares sum over every examinee, and an examinee's over the items the examinee answered. Both mean
+  squares have expectation 1 when the responses fit the model at the abilities they are evaluated at, and less when
+  the abilities are estimated from the same responses.
 
   Parameters
   ----------
   outfit : numpy.ndarray
-      The unweighted mean square of each item, Wright and Masters' :math:`u_i`: the mean, over examinees, of the
-      squared standardized residuals.
+      The unweighted mean square of each item or examinee, Wright and Masters' :math:`u`: the mean of its squared
+      standardized residuals.
   outfit_t : numpy.ndarray
       The outfit standardized by the same cube-root transformation as ``infit_t``, with the outfit's own standard
       deviation under the model; NaN where its variance under the model is not positive.
   infit : numpy.ndarray
-      The weighted mean square of each item, Wright and Masters' :math:`v_i`: the squared residuals summed over
-      examinees, over the sum of their variances.
+      The weighted mean square of each item or examinee, Wright and Masters' :math:`v`: the sum of its squared
+      residuals over the sum of their variances.
   infit_t : numpy.ndarray
       The infit standardized by a cube-root transformation, with its standard deviation under the model; NaN where
       its variance under the model is not positive.
@@ -245,9 +280,68 @@ def mean_squares(calibration: Calibration, responses: FloatArray) -> MeanSquares
   return _mean_squares(matrix, numpy.exp(log_p), numpy.exp(log_q))
 
 
+def person_mean_squares(responses: npt.ArrayLike, items: npt.ArrayLike, theta: npt.ArrayLike) -> MeanSquares:
+  """Return the outfit and infit mean squares of every examinee, from the responses at the examinees' abilities.
+
+  Each response is compared with its probability at the examinee's ability, under the model of each item, 1PL to
+  4PL. A missing response is left out, so that each examinee's mean squares sum over the items the examinee answered.
+  An examinee who answered no item, or whose ability is infinite or NaN, gets NaN throughout.
+
+  The :doc:`/methods/fit/mean-squares` page gives the method, its sources and the origin of each default.
+
+  Parameters
+  ----------
+  responses : array_like
+      The response matrix: one row per examinee, one column per item, 1 or 0, and NaN for a missing response.
+  items : array_like
+      The items, a matrix of shape ``(n, 4)``, one row ``[a, b, c, d]`` per column of ``responses``.
+  theta : array_like
+      Each examinee's ability, one per row of ``responses``, such as the ``theta`` of an
+      :py:class:`~irtlib.ability.AbilityEstimates`.
+
+  Returns
+  -------
+  MeanSquares
+      Each examinee's outfit and infit, and their standardized values.
+
+  Raises
+  ------
+  TypeError
+      If the responses are neither Booleans, integers nor floats, or ``theta`` holds values other than numbers.
+  ValueError
+      If ``items`` is not an ``(n, 4)`` matrix, ``responses`` is not a matrix with one column per item, a response is
+      not 0, 1 or NaN, or ``theta`` does not hold one ability per row of ``responses``.
+
+  Examples
+  --------
+  >>> import numpy
+  >>> items = numpy.array([[1.0, -1.0, 0.0, 1.0], [1.5, 0.0, 0.2, 1.0], [0.8, 1.0, 0.0, 0.9]])
+  >>> responses = numpy.array([[1, 1, 0], [0, 1, 1], [1, numpy.nan, 0]])
+  >>> fit = person_mean_squares(responses, items, [0.5, 0.0, -0.5])
+  >>> fit.outfit.round(3), fit.infit.round(3)
+  (array([0.378, 1.99 , 0.435]), array([0.402, 1.904, 0.465]))
+  """
+  matrix, items = responses_and_items(responses, items)
+  theta = numpy.asarray(theta)
+  if theta.dtype.kind not in "iuf":
+    msg = f"theta holds {theta.dtype} values; theta must hold numbers, one ability per row of responses"
+    raise TypeError(msg)
+  theta = theta.astype(float)
+  if theta.shape != (matrix.shape[0],):
+    msg = f"theta must hold one ability per row of responses, {matrix.shape[0]}, got shape {theta.shape}"
+    raise ValueError(msg)
+  # an examinee without a finite ability is left with no response; its theta is set to 0 only so that its
+  # probabilities are finite, and its NaN responses keep them out of every sum
+  finite = numpy.isfinite(theta)
+  matrix[~finite] = numpy.nan
+  log_p, log_q = log_response_probabilities(numpy.where(finite, theta, 0.0), items)
+  return _mean_squares(matrix.T, numpy.exp(log_p).T, numpy.exp(log_q).T)
+
+
 def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSquares:
-  """Return the mean squares of complete responses, examinees by items, from the probabilities P and Q of each."""
-  n_examinees = responses.shape[0]
+  """Return the mean squares of each column of responses, from the probabilities P and Q of each, leaving out NaN."""
+  answered = ~numpy.isnan(responses)
+  n_responses = answered.sum(axis=0)
   variance = p * q
   # the floor applies to the variance W only, not to the kurtosis C or the squared residual, as mirt's does
   # (R/personfit.R:189-200)
@@ -255,11 +349,16 @@ def _mean_squares(responses: FloatArray, p: FloatArray, q: FloatArray) -> MeanSq
   kurtosis = p * q * (p**3 + q**3)
   # the residual u - P is Q for a correct response and -P for an incorrect one
   squared_residual = numpy.where(responses == 1, q, p) ** 2
-  outfit = numpy.sum(squared_residual / variance, axis=0) / n_examinees
-  outfit_variance = numpy.sum(kurtosis / variance**2, axis=0) / n_examinees**2 - 1 / n_examinees
-  total_variance = numpy.sum(variance, axis=0)
-  infit = numpy.sum(squared_residual, axis=0) / total_variance
-  infit_variance = numpy.sum(kurtosis - variance**2, axis=0) / total_variance**2
+  # each column's sum over its responses
+  total = functools.partial(numpy.sum, axis=0, where=answered)
+  # a column without responses divides 0 by 0, which leaves its mean squares and their variances NaN: an examinee who
+  # answered no item; never an item, whose responses the item mean squares require complete and non-empty
+  with numpy.errstate(divide="ignore", invalid="ignore"):
+    outfit = total(squared_residual / variance) / n_responses
+    outfit_variance = total(kurtosis / variance**2) / n_responses**2 - 1 / n_responses
+    total_variance = total(variance)
+    infit = total(squared_residual) / total_variance
+    infit_variance = total(kurtosis - variance**2) / total_variance**2
   return MeanSquares(
     outfit=outfit,
     outfit_t=_standardized(outfit, outfit_variance),

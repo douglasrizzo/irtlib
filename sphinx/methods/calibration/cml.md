@@ -101,9 +101,10 @@ logarithms of the functions, which departs from the sources: those of orders nea
 the test until they reach "the limit set by the size of the floating point numbers"
 {cite:p}`Gustafsson1980{p. 383}`.
 
-**Standard errors.** The standard error of each difficulty is the square root of the diagonal of
-$V^+$ at the estimates. {cite:t}`Haberman2004{p. 40}` takes it from $K V^- K^T$ for the first
-difficulty set to 0; for difficulties that sum to zero, centring that covariance gives $V^+$.
+**Standard errors.** The variance of each difficulty is the diagonal of $V^+$ at the estimates, and
+its standard error the square root; with the slopes and asymptotes fixed, each item's covariances
+hold that variance alone. {cite:t}`Haberman2004{p. 40}` takes the covariance from $K V^- K^T$ for
+the first difficulty set to 0; for difficulties that sum to zero, centring that covariance gives $V^+$.
 {cite:t}`Andersen1972{p. 50}` estimates the covariance by the inverse of the information as well.
 
 **Complete responses.** CML needs complete responses: for responses missing at random, "ordinary

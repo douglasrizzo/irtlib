@@ -6,6 +6,7 @@ and the algorithm's guarantees.
 
 from __future__ import annotations
 
+import itertools
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -237,25 +238,92 @@ def _louis_information(matrix: np.ndarray, slope: np.ndarray, intercept: np.ndar
   return np.einsum("jq,qpr->pr", posterior, blocks) - covariance_of_score
 
 
-def test_standard_errors_match_louis_exact_form() -> None:
-  """The standard errors match those of Louis's exact observed information, computed independently here.
+def test_covariances_match_louis_exact_form() -> None:
+  """Each item's covariance of a and b, and their standard errors, match Louis's exact observed information, computed
+  independently here.
 
   Oakes's identity by central differences agrees with Louis's form to about 1e-11 (Chalmers, 2018, p. 13). Fails if
-  the missing information has the wrong sign or scale, or the delta method to a and b is wrong.
+  the missing information has the wrong sign or scale, the delta method to a and b is wrong, an item's matrix takes
+  another item's parameters, or the standard errors are not the square roots of its diagonal.
   """
   calibration = MMLCalibrator(tolerance=1e-10).calibrate(_LSAT7)
   slope = calibration.estimates[:, 0]
   intercept = -slope * calibration.estimates[:, 1]
   covariance = np.linalg.inv(_louis_information(_LSAT7, slope, intercept))
   n_items = slope.size
-  jacobian = np.zeros((n_items, 2 * n_items))
-  jacobian[np.arange(n_items), np.arange(n_items)] = intercept / slope**2
-  jacobian[np.arange(n_items), n_items + np.arange(n_items)] = -1 / slope
+  expected = np.empty((n_items, 2, 2))
+  for item in range(n_items):
+    # the derivatives of a = slope and b = -intercept / slope with respect to the item's slope and intercept
+    jacobian = np.array([[1.0, 0.0], [intercept[item] / slope[item] ** 2, -1 / slope[item]]])
+    block = covariance[np.ix_([item, n_items + item], [item, n_items + item])]
+    expected[item] = jacobian @ block @ jacobian.T
+  assert calibration.covariances is not None
+  np.testing.assert_allclose(calibration.covariances[:, :2, :2], expected, rtol=1e-7)
+  assert np.all(np.isnan(calibration.covariances[:, 2:]))
+  assert np.all(np.isnan(calibration.covariances[:, :, 2:]))
   assert calibration.standard_errors is not None
-  np.testing.assert_allclose(calibration.standard_errors[:, 0], np.sqrt(np.diag(covariance)[:n_items]), rtol=1e-7)
   np.testing.assert_allclose(
-    calibration.standard_errors[:, 1], np.sqrt(np.einsum("np,pr,nr->n", jacobian, covariance, jacobian)), rtol=1e-7
+    calibration.standard_errors[:, :2], np.sqrt(np.diagonal(expected, axis1=1, axis2=2)), rtol=1e-7
   )
+
+
+def _log_posterior(matrix: FloatArray, items: FloatArray, guessing: tuple[float, float] | None) -> float:
+  """Return the marginal log-likelihood of items [a, b, c, d], plus a normal log-prior on the logit of each c."""
+  log_prior = 0.0 if guessing is None else float(np.sum(norm.logpdf(logit(items[:, 2]), *guessing)))
+  return marginal_log_likelihood(matrix, items) + log_prior
+
+
+@pytest.mark.parametrize(
+  ("model", "guessing", "estimated"),
+  [("1PL", None, [0, 1]), ("3PL", (-1.386, 0.5), [0, 1, 2])],
+  ids=["1PL shared slope", "3PL with a guessing prior"],
+)
+def test_covariances_invert_the_brute_force_hessian(
+  model: str, guessing: tuple[float, float] | None, estimated: list[int]
+) -> None:
+  """Each item's covariances are its block of the inverse of the brute-force Hessian of the log-posterior in a, b and
+  c, exactly symmetric, and NaN in the rows and columns of the parameters not estimated.
+
+  At the maximum, the inverse Hessian in a, b and c is the delta method's transform of the inverse in the slope, the
+  intercept and the logit of c, so differencing the log-posterior in a, b and c checks the delta method and Oakes's
+  identity at once. The 1PL's one slope is a single free parameter, whose variance and covariance with each
+  difficulty every item's matrix holds. Fails if an item's matrix leaves out the shared slope, takes c's derivative
+  wrong, keeps the asymmetry the products leave by rounding, or leaves a parameter not estimated with a covariance.
+  """
+  priors = Priors() if guessing is None else Priors(guessing=guessing)
+  calibration = MMLCalibrator(model, priors=priors, tolerance=1e-10).calibrate(_LSAT7)
+  estimates = calibration.estimates
+  n_items = estimates.shape[0]
+  # the free parameters, each a mask of the item parameters it sets: the 1PL's slope sets every item's a
+  masks = []
+  for column in estimated:
+    if model == "1PL" and column == 0:
+      masks.append(np.zeros_like(estimates, dtype=bool))
+      masks[-1][:, 0] = True
+    else:
+      for item in range(n_items):
+        masks.append(np.zeros_like(estimates, dtype=bool))
+        masks[-1][item, column] = True
+  step = 1e-4
+  hessian = np.empty((len(masks), len(masks)))
+  for row, column in itertools.combinations_with_replacement(range(len(masks)), 2):
+    values = []
+    for sign_row, sign_column in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
+      shifted = estimates + step * (sign_row * masks[row] + sign_column * masks[column])
+      values.append(sign_row * sign_column * _log_posterior(_LSAT7, shifted, guessing))
+    hessian[row, column] = hessian[column, row] = sum(values) / (4 * step**2)
+  covariance = np.linalg.inv(-hessian)
+  assert calibration.covariances is not None
+  for item in range(n_items):
+    free = [next(k for k, mask in enumerate(masks) if mask[item, column]) for column in estimated]
+    np.testing.assert_allclose(
+      calibration.covariances[item][np.ix_(estimated, estimated)], covariance[np.ix_(free, free)], rtol=1e-4
+    )
+  # NaN compares equal to NaN here, so the matrices must agree with their transposes entry for entry
+  np.testing.assert_array_equal(calibration.covariances, calibration.covariances.transpose(0, 2, 1))
+  fixed = [column for column in range(4) if column not in estimated]
+  assert np.all(np.isnan(calibration.covariances[:, fixed]))
+  assert np.all(np.isnan(calibration.covariances[:, :, fixed]))
 
 
 def test_unidentified_model_reports_no_standard_errors() -> None:
