@@ -461,20 +461,37 @@ class TestMaximumLikelihood:
     assert theta == pytest.approx(1.0, abs=1e-6)
     assert evaluations > 1
 
-  def test_evaluations_count_the_search_points_and_the_refinement(self) -> None:
-    """Under the 3PL the count is the 101 search points, each evaluation of the derivatives, and the refined point.
+  @pytest.mark.parametrize(("slope", "points"), [(1.0, 101), (5.0, 201)])
+  def test_evaluations_count_the_search_points_and_the_refinement(self, slope: float, points: int) -> None:
+    """Under the 3PL the count is the search points, each evaluation of the derivatives, and the refined point.
 
     The likelihood below falls across the whole range: the guessed correct answer to the far too hard item is worth c
     everywhere, and the incorrect answer to the easy one ever less. So the best point is the lower bound, its bracket
-    reaches no lower, and one evaluation of the derivatives, pointing down, ends the refinement there: 101 + 1 + 1. A
-    count of the refinement alone, without the search points, or of SciPy's 201 points, fails.
+    reaches no lower, and one evaluation of the derivatives, pointing down, ends the refinement there. The points are
+    101 for slopes up to 2.5 and ceil(40 a) + 1 above, 201 for a slope of 5. A count of the refinement alone, without
+    the search points, or with points that ignore the slope, fails.
     """
-    items = np.array([[1.0, 10.0, 0.2, 1.0], [1.0, -8.0, 0.2, 1.0]])
+    items = np.array([[slope, 10.0, 0.2, 1.0], [slope, -8.0, 0.2, 1.0]])
 
     estimates = maximum_likelihood(_rows([1.0, 0.0]), items, bounds=(-6.0, 6.0))
 
     assert estimates.theta[0] == -6.0
-    assert estimates.evaluations[0] == 101 + 1 + 1
+    assert estimates.evaluations[0] == points + 1 + 1
+
+  def test_steep_items_narrow_the_spacing_of_the_search_points(self) -> None:
+    """A peak narrower than 0.12, between two steep items, is the estimate: the argmax of the written-out likelihood.
+
+    A correct answer to the item of slope 24.8 at -1.44 and an incorrect one to the item of slope 19.4 at -1.5 meet in a
+    peak about 0.06 wide near -1.48, 0.07 above the plateau below it in log-likelihood. Points 0.12 apart step over it
+    and stop at -6; spaced by 0.3 / 24.8 they find it.
+    """
+    items = np.array([[15.8, 2.89, 0.18, 1.0], [24.8, -1.44, 0.14, 1.0], [19.4, -1.5, 0.14, 1.0]])
+    pattern = np.array([0.0, 1.0, 0.0])
+    fine = np.linspace(-6.0, 6.0, 120_001)
+
+    estimates = maximum_likelihood(_rows(pattern), items, bounds=(-6.0, 6.0))
+
+    assert estimates.theta[0] == pytest.approx(fine[np.argmax(_log_likelihood(fine, items, pattern))], abs=1e-4)
 
   def test_a_concave_likelihood_skips_the_search_points(self) -> None:
     """Without guessing or slipping the log-likelihood is concave, and a maximum beyond a bound costs two evaluations.

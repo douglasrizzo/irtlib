@@ -31,17 +31,21 @@ answered no item has a constant likelihood, which every ability maximizes: its e
   :py:attr:`AbilityEstimates.from_fallback` marks those rows.
 
 Where an item answered has :math:`c_i > 0` or :math:`d_i < 1`, the likelihood can have several maxima, and the search
-evaluates the log-likelihood at 101 equally spaced abilities of the range, 0.12 apart on [-6, 6]. It refines the best
-between its neighbours by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the
-parabola through the three points, keeping each step inside a bracket that shrinks to the side the first derivative
-points to and bisecting the bracket where a step would leave it, and it keeps the refinement only if no worse: the
-search of the MAP estimate below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second
-derivative is :math:`-I` (see the MAP estimate below), so the log-likelihood is concave and has at most one maximum. The
-search then skips the points: the estimate is a bound where the first derivative points out of the range, and otherwise
-the zero of the first derivative, found by the same bracketed Newton's method from the middle of the range. On about
-38,000 random mixed patterns of 1 to 60 3PL and 4PL items, half with responses drawn from the model, 101 and 201 points
-found the global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole range,
-with no points, missed it 203 times, by a median of 3.7 in ability (measured 2026-11-28). Without bounds the range
+evaluates the log-likelihood at equally spaced abilities of the range: 101 when no item answered has a slope :math:`a_i`
+above 2.5, 0.12 apart on [-6, 6], and otherwise :math:`\lceil 40 \max_i a_i \rceil + 1`, 0.3 divided by the steepest
+slope apart on [-6, 6], since a steep item can make a peak narrower than 0.12. It refines the best between its
+neighbours by Newton's method on the log-likelihood's first and second derivatives, from the vertex of the parabola
+through the three points, keeping each step inside a bracket that shrinks to the side the first derivative points to and
+bisecting the bracket where a step would leave it, and it keeps the refinement only if no worse: the search of the MAP
+estimate below. When every item answered has :math:`c_i = 0` and :math:`d_i = 1`, the second derivative is :math:`-I`
+(see the MAP estimate below), so the log-likelihood is concave and has at most one maximum. The search then skips the
+points: the estimate is a bound where the first derivative points out of the range, and otherwise the zero of the first
+derivative, found by the same bracketed Newton's method from the middle of the range. On about 38,000 random mixed
+patterns of 1 to 60 3PL and 4PL items with slopes from 0.5 to 2.5, half with responses drawn from the model, 101 and 201
+points found the global maximum on [-6, 6] every time and 81 points missed it once, while Brent's method over the whole
+range, with no points, missed it 203 times, by a median of 3.7 in ability. On about 27,000 patterns of 1 to 30 items,
+half of them with slopes up to 60, the points spaced by the steepest slope missed it twice, each time by less than 0.001
+in log-likelihood, where 101 points missed it 50 times and 201 points 11 (measured 2026-11-28). Without bounds the range
 starts as [-6, 6]. Beyond the lower end of the range, a correct response's probability is at most its value at the end,
 since it rises with the ability, and an incorrect one's at most :math:`1 - c_i`; beyond the upper end, a correct one's
 is at most :math:`d_i` and an incorrect one's at most its value at the end. While these bounds leave room beyond an end
@@ -68,14 +72,15 @@ normal prior of variance :math:`\sigma^2` its standard error is :math:`1 / \sqrt
 for a normal prior, and for a uniform one, inside its support, the maximum likelihood standard error, as catR 3.17
 computes them (``R/semTheta.R:43-50, 82-89``). Where the difference is not finite, at the edge of a bounded prior's
 support, the prior adds nothing; where the sum is not positive, the standard error is :math:`\infty`. The search
-evaluates the log-posterior at equally spaced abilities within the bounds, 101 under a normal prior and 201 under any
-other. Three or more tied at the maximum make a flat posterior, and the estimate is the middle one; otherwise the best
-is refined between its neighbours, and the refinement is kept only if no worse, so the estimate stays inside the prior's
-support and is the highest of the modes the points separate. With a normal prior :math:`N(\mu, \sigma^2)` the refinement
-is the maximum likelihood search's Newton's method, with :math:`-(\theta - \mu) / \sigma^2` and :math:`-1 / \sigma^2`
-added to the derivatives, and on items that all have :math:`c_i = 0` and :math:`d_i = 1` the log-posterior is concave
-too, and the search skips the points as the maximum likelihood search does. With any other prior the refinement is
-SciPy's bounded search, ``scipy.optimize.minimize_scalar``. An examinee who answered no item gets the prior's mode.
+evaluates the log-posterior at equally spaced abilities within the bounds, as many as the maximum likelihood search
+under a normal prior and 201 under any other. Three or more tied at the maximum make a flat posterior, and the estimate
+is the middle one; otherwise the best is refined between its neighbours, and the refinement is kept only if no worse, so
+the estimate stays inside the prior's support and is the highest of the modes the points separate. With a normal prior
+:math:`N(\mu, \sigma^2)` the refinement is the maximum likelihood search's Newton's method, with :math:`-(\theta - \mu)
+/ \sigma^2` and :math:`-1 / \sigma^2` added to the derivatives, and on items that all have :math:`c_i = 0` and
+:math:`d_i = 1` the log-posterior is concave too, and the search skips the points as the maximum likelihood search does.
+With any other prior the refinement is SciPy's bounded search, ``scipy.optimize.minimize_scalar``. An examinee who
+answered no item gets the prior's mode.
 
 mirt 1.48 maximizes the same posterior with ``nlm`` and takes the standard error from ``nlm``'s numerical Hessian
 (``R/fscores.internal.R:684-703, 1047-1070``): the observed information plus the prior's precision. When every answered
@@ -148,9 +153,11 @@ from .quadrature import (
 )
 from .typing import BoolArray, FloatArray, IntArray
 
-# Points on which a maximum is located before Newton's method refines it, 0.12 apart on [-6, 6], and before SciPy's
-# bounded search refines a posterior mode under any prior but the normal, 0.06 apart.
+# Points on which a maximum is located before Newton's method refines it, at least: 0.12 apart on [-6, 6]. Above the
+# slope below, the spacing shrinks to 0.3 divided by the steepest slope answered (module docstring).
 _NEWTON_SEARCH_POINTS = 101
+_TYPICAL_SLOPE = 2.5
+# Points on which a posterior mode under any prior but the normal is located before SciPy's bounded search refines it.
 _SEARCH_POINTS = 201
 # Equal maxima on this many search points mean a flat objective; two can flank a symmetric peak.
 _FLAT_MAXIMUM_POINTS = 3
@@ -300,6 +307,12 @@ class _Examinee:
     """Whether every item answered has c = 0 and d = 1, which makes the log-likelihood concave."""
     return not (self.items[:, 2].any() or (1.0 - self.items[:, 3]).any())
 
+  @property
+  def search_points(self) -> int:
+    """The number of points a search with Newton's refinement locates the maximum on, from the steepest slope."""
+    steepest = float(self.items[:, 0].max()) if self.items.size else 0.0
+    return max(_NEWTON_SEARCH_POINTS, math.ceil((_NEWTON_SEARCH_POINTS - 1) * steepest / _TYPICAL_SLOPE) + 1)
+
   def log_likelihood(self, theta: FloatArray) -> FloatArray:
     """Return the log-likelihood at each of an array of abilities."""
     return self.terms(theta).sum(axis=-1)
@@ -347,12 +360,14 @@ def _maximum(
   derivatives: _Derivatives | None = None,
   *,
   concave: bool = False,
+  n_points: int = _SEARCH_POINTS,
 ) -> tuple[float, float, int]:
   """Return the ability of largest objective within the bounds, the objective there and the evaluations taken.
 
-  The best of equally spaced points, or the middle of three or more tied ones, refined between its neighbours and kept
-  only if no worse: by Newton's method on ``derivatives``, the objective's first and second derivatives at one ability,
-  or by SciPy's bounded search without them. A ``concave`` objective skips the points (:py:func:`_concave_maximum`).
+  The best of ``n_points`` equally spaced points, or the middle of three or more tied ones, refined between its
+  neighbours and kept only if no worse: by Newton's method on ``derivatives``, the objective's first and second
+  derivatives at one ability, or by SciPy's bounded search without them. A ``concave`` objective skips the points
+  (:py:func:`_concave_maximum`).
 
   Returns
   -------
@@ -366,7 +381,7 @@ def _maximum(
   """
   if concave and derivatives is not None:
     return _concave_maximum(objective, derivatives, bounds, tol)
-  nodes = _search_points(*bounds, _SEARCH_POINTS if derivatives is None else _NEWTON_SEARCH_POINTS)
+  nodes = _search_points(*bounds, n_points)
   values = objective(nodes)
   peak = float(numpy.max(values))
   # the log-likelihood is finite at every finite ability, so only a prior can leave no finite point
@@ -631,6 +646,7 @@ def _posterior_mode(
     tol,
     derivatives,
     concave=derivatives is not None and examinee.concave,
+    n_points=_SEARCH_POINTS if derivatives is None else examinee.search_points,
   )
   h = _CURVATURE_STEP
   below, at, above = log_prior(numpy.array([theta - h, theta, theta + h]))
@@ -784,7 +800,12 @@ def _likelihood_maximum(
     theta, evaluations = _supremum(examinee, tol)
   else:
     theta, _, evaluations = _maximum(
-      examinee.log_likelihood, bounds, tol, examinee.derivatives, concave=examinee.concave
+      examinee.log_likelihood,
+      bounds,
+      tol,
+      examinee.derivatives,
+      concave=examinee.concave,
+      n_points=examinee.search_points,
     )
   return theta, irt.see(theta, items) if math.isfinite(theta) else math.inf, evaluations
 
@@ -823,7 +844,14 @@ def _supremum(examinee: _Examinee, tol: float) -> tuple[float, int]:
   """Return the ability that maximizes one examinee's likelihood over the extended real line, and the evaluations."""
 
   def search(bounds: _Bounds) -> tuple[float, float, int]:
-    return _maximum(examinee.log_likelihood, bounds, tol, examinee.derivatives, concave=examinee.concave)
+    return _maximum(
+      examinee.log_likelihood,
+      bounds,
+      tol,
+      examinee.derivatives,
+      concave=examinee.concave,
+      n_points=examinee.search_points,
+    )
 
   low, high = THETA_MIN_EXTENDED, THETA_MAX_EXTENDED
   theta, value, evaluations = search((low, high))

@@ -76,8 +76,9 @@ How other packages estimate many examinees:
 
 - `src/irtlib/ability.py`:
   - `_answered` yields one examinee at a time.
-  - `_maximum` evaluates 101 points and refines the best between its neighbours by a bracketed
-    Newton's method, or skips the points where the log-likelihood is concave (the 1PL and 2PL).
+  - `_maximum` evaluates 101 points, more for slopes above 2.5, and refines the best between its
+    neighbours by a bracketed Newton's method, or skips the points where the log-likelihood is
+    concave (the 1PL and 2PL).
     Under a prior other than the normal, MAP evaluates 201 points and refines the best with
     `scipy.optimize.minimize_scalar`.
   - Without bounds, the search moves a range end outward while the bounds on the log-likelihood
