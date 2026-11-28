@@ -38,7 +38,7 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 
 <!-- backlog-index:start -->
 
-25 cards: 7 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
+24 cards: 6 ready, 4 needs-research, 5 needs-decision, 5 blocked, 4 parked.
 
 ## Waiting for the maintainer
 
@@ -66,7 +66,6 @@ Breaking an interface is fine when it gives the better design (`AGENTS.md`).
 | [Let a package that estimates one examinee at a time give the ability estimators' warnings as its own](estimation/caller-warnings.md) | estimation | decision | needs-decision | S |  | review of catsim's estimators on irtlib on 2026-11-27 |
 | [Refuse items whose parameters are not finite in the ability estimators](estimation/non-finite-items.md) | estimation | fix | ready | XS |  | joint maximum likelihood abilities PR on 2026-11-28 |
 | [Which abilities should the Rasch mean squares of a conditional calibration use?](fit/conditional-mean-squares.md) | fit | decision | needs-decision | XS |  | conditional maximum likelihood PR on 2026-11-27 |
-| [Draw irtlib's logo](maintenance/logo.md) | maintenance | docs | ready | S |  | maintainer on 2026-11-28 |
 | [Publish releases to PyPI with trusted publishing](maintenance/pypi-publishing.md) | maintenance | maintenance | blocked | M | [license](maintenance/license.md) | setup of irtlib |
 | [Write the guides](maintenance/docs-guides.md) | maintenance | docs | ready | L |  | maintainer on 2026-11-28 |
 | [Write the tutorial notebooks](maintenance/notebooks.md) | maintenance | docs | ready | M |  | setup of irtlib |
