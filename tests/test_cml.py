@@ -21,6 +21,7 @@ from irtlib.calibration import ConvergenceWarning, Likelihood
 from irtlib.cml import (
   CMLCalibrator,
   _log_symmetric_functions,  # noqa: PLC2701 - the summation algorithm is checked against published values
+  _newton_raphson,  # noqa: PLC2701 - a stalled iteration needs starting values the calibrator never uses
 )
 from irtlib.drawing import draw_responses
 from tests.mirt_fixtures import load, responses
@@ -316,6 +317,26 @@ def test_responses_with_a_maximum_are_calibrated_however_close_to_a_split() -> N
   matrix = np.array([[1, 0, 0], [0, 1, 0], [1, 0, 1]], dtype=float)
   expected, _ = _brute_force_maximum(matrix)
   np.testing.assert_allclose(CMLCalibrator().calibrate(matrix).estimates[:, 1], expected, atol=1e-6)
+
+
+def test_a_stalled_iteration_records_the_log_likelihood_where_it_stopped() -> None:
+  """An iteration whose step no halving keeps from lowering the conditional log-likelihood counts as one iteration and
+  records the log-likelihood at the difficulties it leaves as they were.
+
+  Two items, the first answered right alone by 10 examinees and the second by 5, start from difficulties -300 and 300,
+  where the information is about 1e-260: the Newton-Raphson step, about 2.5e260, overshoots the maximum even halved 30
+  times. The log-likelihood there is -(10 (-300) + 5 (300)) - 15 log(e^300 + e^-300) = -3000 to double precision.
+  Andersen's starting values never stall like this, so the iterations are run from these directly. Fails if the stalled
+  iteration records nothing, which would leave a calibration no last value, or records a refused trial.
+  """
+  start = np.array([-300.0, 300.0])
+  difficulty, log_likelihoods, _, failure = _newton_raphson(
+    start, np.array([10.0, 5.0]), np.array([0.0, 15.0, 0.0]), tolerance=1e-5, max_cycles=100
+  )
+  assert failure is not None
+  assert failure.startswith("halving the Newton-Raphson step 30 times")
+  np.testing.assert_array_equal(difficulty, start)
+  assert log_likelihoods == [pytest.approx(-3000.0, rel=1e-15)]
 
 
 def test_a_halved_step_under_the_tolerance_is_not_convergence() -> None:

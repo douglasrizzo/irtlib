@@ -472,8 +472,9 @@ def test_a_miskeyed_item_stops_the_cycles_at_the_last_complete_cycle() -> None:
   column right for every examinee is left out, so the reversed item is the twentieth item kept and the 21st column. No
   cycle is complete, so the result holds the starting values, every slope positive, and the bank leaves out only the
   first column; its abilities are the starting ones, which no ability step evaluated, with standard errors the inverse
-  square root of the information at the starting items. Fails if the warning numbers the items kept, or the result
-  pairs the item step's slopes with the abilities of the cycle before.
+  square root of the information at the starting items, and it records no log-likelihood. Fails if the warning numbers
+  the items kept, the result pairs the item step's slopes with the abilities of the cycle before, or it records the
+  cycle that did not complete.
   """
   matrix = np.column_stack([np.ones(400), _two_pl_responses()])
   matrix[:, -1] = 1 - matrix[:, -1]
@@ -489,6 +490,7 @@ def test_a_miskeyed_item_stops_the_cycles_at_the_last_complete_cycle() -> None:
   assert not any("item_20" in message for message in messages), messages
   assert not calibration.converged
   assert calibration.cycles == 0
+  assert calibration.log_likelihoods.size == 0
   assert np.all(calibration.estimates[1:, 0] > 0)
   abilities = calibration.abilities
   assert abilities is not None

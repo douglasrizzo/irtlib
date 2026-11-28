@@ -94,9 +94,8 @@ above its upper asymptote, is not kept. The extrapolation is not a cycle: the st
 every cycle, an EM step with or without acceleration.
 
 **The record of the cycles.** The result holds the marginal log-likelihood after each cycle, the
-extrapolations left out, and its last value is the calibration's log-likelihood. Without priors the
-record never falls; with priors it leaves out the log-prior, so it can fall where the log-posterior
-does not.
+extrapolations left out, and its last value is the calibration's log-likelihood; with priors, it
+leaves out the log-prior.
 
 **Standard errors and covariances.** The covariance of the estimated parameters, the slopes
 $\lambda$, the intercepts $\zeta$ and the logits of $c$ and $d$, is the inverse of the observed
@@ -208,6 +207,10 @@ the proportion correct as a starting intercept.
    positive, is left out of the result's bank, with a warning naming it.
 5. A calibration that does not meet its stopping rule within `max_cycles` says so in its result and
    warns with a {class}`~irtlib.calibration.ConvergenceWarning`.
+6. Without priors, the marginal log-likelihood the result records after each cycle never falls from
+   one cycle to the next, beyond rounding {cite:p}`Dempster1977{p. 7, Theorem 1}`; with priors, the
+   log-posterior does not {cite:p}`Dempster1977{p. 6}`, and the record, which leaves out the
+   log-prior, can.
 
 ## References
 

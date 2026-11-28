@@ -35,7 +35,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 |---|---|---|---|---|
 | Characteristic curves of several items (`items_icc`) | The characteristic curves of a few items on one axes, each named. |  |  | Chalmers 2012, p. 28, Fig. 2; Lalor & Rodriguez 2023, Fig. 1b-c; mirt 1.48 manual, p. 194, plot 'trace'; eRm 1.0-10, plotjointICC |
 | Information curves of several items (`items_iic`) | The information curves of a few items on one axes. |  |  | Rizopoulos 2006, p. 13, Fig. 1; mirt 1.48 manual, p. 194, plot 'infotrace' |
-| Characteristic curve with a confidence envelope (`item_envelope`) | An item's estimated curve with a 95% band from the uncertainty of its parameter estimates. |  | the covariance of each item's estimates | mirt 1.48 manual, p. 94, itemplot CE, CEalpha, CEdraws |
+| Characteristic curve with a confidence envelope (`item_envelope`) | An item's estimated curve with a 95% band from the uncertainty of its parameter estimates. |  |  | mirt 1.48 manual, p. 94, itemplot CE, CEalpha, CEdraws |
 | Generating and calibrated curves (`item_recovered`) | The curve an item was simulated from against the curve calibrated from its responses. |  |  | Orlando & Thissen 2000, pp. 61-62, Figs. 2-4 |
 
 ### Test functions
@@ -81,7 +81,7 @@ hand-worked cases. A PR that draws a plot deletes its row; the last one deletes 
 | Parameter recovery (`parameter_recovery`) | Estimated against true item parameters, with 95% intervals from the calibration's standard errors. |  |  | Yen 1981, p. 254, Fig. 2; Wright & Masters 1982, p. 74, Fig. 4.3b |
 | Item estimates with intervals (`item_estimates_ci`) | Each item's difficulty estimate with its 95% confidence interval, items sorted by estimate. |  |  | eRm 1.0-10, plotDIF |
 | Bias of ability estimators (`estimator_bias`) | The mean error of the ML, WLE and EAP estimates at each true ability, on a fixed 20-item test. |  |  | Warm 1989, p. 433, Fig. 1; Waller & Feuerstahler 2017, Fig. 5 |
-| Convergence history (`convergence`) | The marginal log-likelihood after each EM cycle. |  | the log-likelihood of each cycle | Varadhan & Roland 2004, p. 60, Fig. 5; TAM 4.3-25, plotDevianceTAM |
+| Convergence history (`convergence`) | The marginal log-likelihood after each EM cycle. |  |  | Varadhan & Roland 2004, p. 60, Fig. 5; TAM 4.3-25, plotDevianceTAM |
 | MCMC trace (`mcmc_trace`) | The draws of one item parameter from three chains with dispersed starting values. |  | a Markov chain Monte Carlo calibration (card estimation/bayesian-mcmc) | Kim & Bolt 2007, p. 43, Fig. 2; p. 45, Fig. 3; sirt 4.2-133, plot.mcmc.sirt |
 
 ### Screening the responses

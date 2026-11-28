@@ -73,7 +73,8 @@ class Calibration:
   log_likelihoods : numpy.ndarray
       The same logarithm after each cycle of the calibration's algorithm, such as an EM cycle, a Newton-Raphson
       iteration, or an item and an ability step of joint maximum likelihood, the extrapolations of an acceleration
-      left out; the last is ``log_likelihood``. With priors, without the log-prior.
+      left out; empty if the calibration stopped before its first cycle, and otherwise the last is
+      ``log_likelihood``. With priors, without the log-prior.
   likelihood : Likelihood
       The likelihood the calibration maximizes, given as a member or its name. Model comparison and S-X² take only
       marginal ones.

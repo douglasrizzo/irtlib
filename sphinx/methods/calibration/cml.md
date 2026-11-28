@@ -89,7 +89,7 @@ difficulty changes by more than the tolerance in an iteration {cite:p}`Haberman2
 counting only a full step: a step that halving shrank below the tolerance can lie far from the
 maximum. Without extreme items, Newton-Raphson usually takes 4 to 5 iterations
 {cite:p}`Gustafsson1980{p. 383}`. The result holds the conditional log-likelihood after each
-iteration, which the halving keeps from falling.
+iteration, which the halving keeps from falling beyond rounding.
 
 **The symmetric functions.** They come from the summation algorithm, which adds one item at a time,
 $\gamma_r(\varepsilon_1, \dots, \varepsilon_t) = \gamma_r(\varepsilon_1, \dots, \varepsilon_{t-1}) +
