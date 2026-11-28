@@ -18,8 +18,8 @@ RESPONSE_FUNCTION_ITEMS <- rbind(
   c(1.5, -0.5, 0.15, 0.95)
 )
 
-fixed_items_model <- function(items) {
-  x <- as.matrix(expand.grid(rep(list(0:1), nrow(items))))
+# x, the responses the model is set up on, defaults to every response pattern of the items.
+fixed_items_model <- function(items, x = as.matrix(expand.grid(rep(list(0:1), nrow(items))))) {
   colnames(x) <- sprintf("item%d", seq_len(nrow(items)))
   values <- mirt(x, 1, itemtype = "4PL", pars = "values")
   values$value[values$name == "a1"] <- items[, 1]

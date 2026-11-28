@@ -7,8 +7,8 @@ Accepted 2026-11-27; revised 2026-11-27 and 2026-11-28
 ## Context
 
 Every calibration method needs the same answers: how a caller passes responses, what a calibration
-returns, where each part of the code lives. The maintainer accepted them on 2026-11-27, before
-any method existed; on 2026-11-28, joint maximum likelihood's abilities joined its result.
+returns, where each part of the code lives. The maintainer accepted them before any method
+existed.
 
 mirt has one entry point with the model as an argument (mirt 1.48 manual, p. 123). The 2PL, 3PL and
 4PL share their E-step, and priors change only the M-step (Mislevy, 1986, p. 182).
@@ -40,7 +40,7 @@ likelihood (source `R/04-PrepData.R:107`).
   per item; and the Rasch model's weighted and unweighted mean squares.
 - **Missing responses by method.** A method whose sources do not handle missing responses refuses
   them, with an error naming an alternative: conditional and joint maximum likelihood, S-X² and the
-  mean squares.
+  item mean squares. Person fit sums over answered items, the maintainer's choice pending a source.
 - **Layers,** lowest first: the item response functions and their derivatives; the quadrature grid,
   priors and posterior, and the item bank; ability estimation; calibration's checks, result and
   M-step; the methods, with their own standard errors; then fit. Drawing responses is its own

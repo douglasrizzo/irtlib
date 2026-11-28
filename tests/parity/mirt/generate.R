@@ -62,7 +62,8 @@ stopifnot(as.character(getNamespaceVersion("mirt")) == MIRT_VERSION)
 here <- script_dir()
 source(file.path(dirname(here), "json.R"))
 for (helper in c(
-  "mml_em.R", "item_fit.R", "mml_priors.R", "comparison.R", "response_functions.R", "ability.R", "classical.R"
+  "mml_em.R", "item_fit.R", "person_fit.R", "mml_priors.R", "comparison.R", "response_functions.R", "ability.R",
+  "classical.R"
 )) {
   source(file.path(here, helper))
 }
@@ -71,6 +72,7 @@ versions <- list(mirt_version = MIRT_VERSION, r_version = R.version.string)
 outputs <- list(
   mml_em = mml_em_cases(),
   item_fit = item_fit_cases(),
+  person_fit = person_fit_cases(),
   mml_priors = mml_priors_cases(),
   comparison = comparison_cases(),
   response_functions = response_function_cases(),

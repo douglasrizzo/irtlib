@@ -10,8 +10,7 @@ The package began as pyitemcal, a calibrator importing the response functions, q
 priors and item bank of catsim, a computerized adaptive testing (CAT) package that also holds the
 ability estimators. A calibration library depending on a CAT library inverts their relation: a CAT is
 a sequential design built on an item response model, and calibrating items and estimating abilities
-are both inference on that model. In R, mirtCAT builds on mirt, which holds the models and their
-estimation.
+are both inference on that model. In R, mirtCAT builds on mirt, which holds the models.
 
 That mathematics is a body of knowledge of its own, and each implementation carries a validation
 burden: reference implementations, published values, parity fixtures. Split across two packages, it
@@ -21,14 +20,13 @@ is written and checked twice.
 
 - irtlib implements item response theory for the unidimensional dichotomous logistic models, 1PL to
   4PL:
-  - the response functions and the quantities derived from them, such as information, likelihoods,
+  - the response functions and their derived quantities, such as information, likelihoods,
     standard errors, reliability and score scales;
   - calibration: the item parameters, with their standard errors, from a response matrix that may
     have missing entries;
   - ability estimation for many examinees at once;
-  - the fit of a calibrated model, item by item and between models;
-  - the classical item statistics that screen responses before a calibration: each item's
-    proportion correct and item-rest correlation;
+  - the fit of a calibrated model, by item, by examinee and between models;
+  - classical item statistics that screen responses: proportion correct and item-rest correlation;
   - the item bank format, with its validation, its CSV file and random banks, and drawing responses
     from the model.
 - The line between irtlib and catsim is the fixed-form test. What is meaningful when every examinee
@@ -36,8 +34,7 @@ is written and checked twice.
   earlier answers belongs to catsim: item selection, stopping rules, exposure control,
   initialization, sessions, and the simulation and evaluation of adaptive tests. The ability
   estimators split along the same line: their mathematics is irtlib's, and catsim adapts it to one
-  examinee's session, together with its rules for an estimate that does not exist yet, such as
-  stepping toward the bank's hardest item.
+  examinee's session, with its rules for an estimate that does not exist yet.
 - irtlib owns quantities only catsim uses today, such as the ability of maximum information: one
   owner validates each formula once.
 - Estimates use the $a$, $b$, $c$ and $d$ of the four-parameter logistic model with no scaling
@@ -51,13 +48,13 @@ is written and checked twice.
 ## Consequences
 
 - Its readers are, in order: researchers who calibrate item banks, compare calibration methods or
-  score examinees; method authors who add an estimation method; packages built on its item response
-  theory, catsim first; and contributors.
+  score examinees; method authors who add an estimation method; packages built on it, catsim first;
+  and contributors.
 - Every design question is settled for one model family: dichotomous responses and one ability per
   examinee.
 - catsim depends on irtlib for its item response theory (ADR-0004).
-- The out-of-scope work stays as parked cards in `backlog/scope/`; bringing any of it into scope
-  changes this ADR first.
+- The out-of-scope work stays as parked cards in `backlog/scope/`; bringing it into scope changes
+  this ADR first.
 
 ## Alternatives Considered
 
